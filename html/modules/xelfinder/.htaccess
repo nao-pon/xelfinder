@@ -1,0 +1,14 @@
+# Charactor Encoding
+AddDefaultCharset UTF-8
+
+# PHP Settings
+php_value output_buffering off
+php_value output_handler null
+php_value default_charset UTF-8
+php_value mbstring.language Japanese
+php_value mbstring.encoding_translation off
+php_value mbstring.internal_encoding UTF-8
+php_value mbstring.http_input pass
+php_value mbstring.http_output pass
+php_value mbstring.detect_order auto
+php_value mbstring.substitute_character " "
