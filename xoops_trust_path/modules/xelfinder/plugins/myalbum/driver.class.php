@@ -79,7 +79,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 	 **/
 	protected function init() {
 
-		$this->db =& Database::getInstance();
+		$this->db =& XoopsDatabaseFactory::getDatabaseConnection();
 		if (! is_object($this->db)) return false;
 
 		mysql_set_charset('utf8');
@@ -175,7 +175,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 			'dirs' => 0,
 			'read' => true,
 			'write' => false,
-			'lockd' => true,
+			'locked' => true,
 			'hidden' => false
 		);
 
@@ -225,10 +225,11 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 					$row['phash'] = $this->encode('_'.$row['cid'].'_');
 				}
 				$id = '_'.$row['cid'].'_'.$row['name'];
-				$row['target'] = $id;
-				//$row['alias'] = $this->options['URL'].$row['id'];
+				//$row['target'] = $id;
+				$row['url'] = $this->options['URL'].$row['name'];
 				$realpath = realpath($this->options['filePath'].$row['name']);
 				if (is_file($realpath)) {
+					$row['dim'] = $row['width'].'x'.$row['height'];
 					$row['size'] = filesize($realpath);
 					$row['ts'] = filemtime($realpath);
 					unset($row['pid'], $row['lid'], $row['cid']);
@@ -358,7 +359,10 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _path($path) {
-		return '';
+ 		if (($file = $this->stat('_')) == false) {
+ 			return '';
+ 		}
+ 		return $file['name'];
 	}
 
 	/**
@@ -410,7 +414,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 			'dirs' => 0,
 			'read' => true,
 			'write' => false,
-			'lockd' => true,
+			'locked' => true,
 			'hidden' => false
 		);
 
@@ -451,10 +455,12 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 				$stat = $this->db->fetchArray($res);
 				$stat = array_merge($stat_def, $stat);
 				$stat['phash'] = $this->encode('_'.$stat['pid'].'_');
-				$stat['target'] = '_'.$stat['pid'].'_'.$stat['lid'];
+				//$stat['target'] = '_'.$stat['pid'].'_'.$stat['lid'];
+				$stat['url'] = $this->options['URL'].$stat['name'];
 				$realpath = realpath($this->options['filePath'].$stat['name']);
 				$stat['size'] = filesize($realpath);
 				$stat['ts'] = filemtime($realpath);
+				$stat['dim'] = $stat['width'].'x'.$stat['height'];
 				unset($stat['pid'], $stat['lid'], $stat['cid']);
 				return $stat;
 			}
@@ -487,18 +493,18 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 		return ($stat = $this->stat($path)) && $stat['width'] && $stat['height'] ? $stat['width'].'x'.$stat['height'] : '';
 	}
 
-	/************************* thumbnails **************************/
+// 	/************************* thumbnails **************************/
 
-	/**
-	 * Return thumbnail file name for required file
-	 *
-	 * @param  string  $path  file path
-	 * @return string
-	 * @author Dmitry (dio) Levashov
-	 **/
-	protected function tmbname($path) {
-		return md5($this->mydirname.'_'.$path).'.png';
-	}
+// 	/**
+// 	* Return thumbnail file name for required file
+// 	*
+// 	* @param array $stat file stat
+// 	* @return string
+// 	* @author Dmitry (dio) Levashov
+// 	**/
+// 	protected function tmbname($stat) {
+// 		return $this->mydirname.'_'.parent::tmbname($stat);
+// 	}
 
 	/******************** file/dir content *********************/
 
@@ -669,13 +675,10 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _getContents($path) {
-		$contents = '';
-		if (($fp = $this->_fopen($path))) {
-			while (!feof($fp)) {
-			  $contents .= fread($fp, 8192);
+		if ($local = $this->readlink($path)) {
+			if (is_file($local) && $contents = file_get_contents($local)) {
+				return $contents;
 			}
-			$this->_fclose($fp, $path);
-			return $contents;
 		}
 		return false;
 	}
@@ -689,8 +692,10 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _filePutContents($path, $content) {
-		$res = false;
-		return $res;
+		//if ($local = $this->readlink($path)) {
+		//	return file_put_contents($local, $content);
+		//}
+		return false;
 	}
 
 	/**

@@ -12,6 +12,7 @@ ini_set('mbstring.func_overload', 2);
 //}
 
 error_reporting(E_ALL | E_STRICT); // Set E_ALL for debuging
+error_reporting(0);
 
 define('_MD_ELFINDER_LIB_PATH', XOOPS_TRUST_PATH . '/libs/elfinder');
 
@@ -26,10 +27,12 @@ require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeLocalFileSystem.class.php';
 define('_MD_ELFINDER_MYDIRNAME', $mydirname);
 
 $isAdmin = false;
+$memberUid = 0;
 if (is_object($xoopsUser)) {
 	if ($xoopsUser->isAdmin()) {
 		$isAdmin = true;
 	}
+	$memberUid = $xoopsUser->getVar('uid');
 }
 
 

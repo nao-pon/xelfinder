@@ -3,11 +3,11 @@
 // for test
 // ['volume_setting'] = 'mydirname:plugin:path:title:options, ...';
 
-$config['volume_setting'] =
-'myalbum:myalbum:uploads/photos:イメージマネージャー
+$config['volume_setting'] = <<<EOD
+xelfinder:xelfinder:uploads/elfinder:共有ホルダ
+myalbum:myalbum:uploads/photos:イメージマネージャー
 mailbbs:mailbbs:modules/mailbbs/imgs:写メールBBS
-xelfinder:xelfinder:uploads/elfinder:共有ホルダ';
-
+EOD;
 
 // xelfinder 共有ホルダのアクセス権限
 
@@ -75,15 +75,20 @@ $attributes_guest = array(
 // ユーザーランクで組み立て
 if (! $memberUid) {
 	$attributes = array_merge($attributes, $attributes_guest);
+	$startPath = '/forGuest';
 } else if (! $isAdmin) {
 	$attributes = array_merge($attributes, $attributes_member);
+	$startPath = '/forMember';
+} else {
+	$startPath = '/forAdmin';
 }
 
 // $extras に登録
 // $extras[key:mydirename] = (extra options array);
 $extras = array(
 	$mydirname => array(
-		'attributes' => $attributes
+		'attributes' => $attributes,
+		'startPath'  => $startPath
 	)
 );
 

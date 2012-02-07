@@ -6,19 +6,29 @@ $().ready(function() {
 		lang: 'jp',
 		url : myUrl + 'connector.php',
 		height: '400',
-		getFileCallback : callbackFunc
+		getFileCallback : callbackFunc,
+		commandsOptions : {
+			  getfile : {
+			    onlyURL : false,
+			    multiple : false,
+			    folders : false
+			  }
+		}
 	}).elfinder('instance');
 
 });
 
 $.fn.extend({
 	insertAtCaret: function(v) {
+		var pa = null;
 		var o = null;
 		try {
-			o = window.opener.document.getElementById(target);
+			pa = window.opener;
+			o = pa.document.getElementById(target);
 		} catch(e) {
 			try {
-				o = window.parent.document.getElementById(target);
+				pa = window.parent;
+				o = pa.document.getElementById(target);
 			} catch(e) {}
 		}
 		if (o) {
@@ -33,6 +43,11 @@ $.fn.extend({
 				var np = p + v.length;
 				o.value = s.substr(0, p) + v + s.substr(p);
 				o.setSelectionRange(np, np);
+			}
+			try {
+				pa.jQuery.modal.close();
+			} catch(e) {
+				window.close();
 			}
 		}
 	}
@@ -58,7 +73,7 @@ var getFileCallback_bbcode = function (file) {
 
 	var fileinfo = 'Size: ' + file.width + 'x' + file.height;
 
-	$('.toast-item-close').click();
+	$().toastmessage( 'removeToast', $('.toast-item'));
 	$().toastmessage( 'showSuccessToast', buttons.replace('__FILEINFO__', fileinfo) );
 	$('.toast-item').css('background-image','url("'+file.url+'")');
 }
@@ -74,15 +89,30 @@ function insertCode(align, thumb, format) {
 		}
 	} else if (format == 'xpwiki') {
 		var size = $('#resize_px').val();
-		if (size.match(/[\d]{1,3}/)) {
-			size = size.replace(/([\d]{1,3})/, ",mw:$1,mh:$1");
+		if (size.match(/[\d]{1,4}/)) {
+			size = size.replace(/([\d]{1,4})/, ",mw:$1,mh:$1");
 		} else {
 			size = '';
 		}
-		if (thumb) {
-			var code = '&ref('+imgPath+','+align+size+');';
+
+		var pa = null;
+		var o = null;
+		if (target) {
+			try {
+				pa = window.opener;
+				o = pa.document.getElementById(target);
+			} catch(e) {
+				try {
+					pa = window.parent;
+					o = pa.document.getElementById(target);
+				} catch(e) {}
+			}
+		}
+
+		if (thumb || o.tagName != 'TEXTAREA') {
+			var code = '&ref(site://'+imgPath+','+align+size+');';
 		} else {
-			var code = '#ref('+imgPath+','+align+size+')\n\n';
+			var code = '#ref(site://'+imgPath+','+align+size+')\n\n';
 		}
 	}
 	if (target) {
@@ -94,7 +124,7 @@ function insertCode(align, thumb, format) {
 	}
 }
 
-var getFileCallback_xpwiki = function (file) {
+var getFileCallback_xpwiki = function (file, fm) {
 	var buttons = '<span onclick="insertCode(\'left\',1,\'xpwiki\');"><img src="'+imgUrl+'alignleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',1,\'xpwiki\')"><img src="'+imgUrl+'aligncenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',1,\'xpwiki\')"><img src="'+imgUrl+'alignright.gif" alt="" /></span>'
 				+ '<br>'
 				+ '<span onclick="insertCode(\'left\',0,\'xpwiki\');"><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',0,\'xpwiki\')"><img src="'+imgUrl+'alignbigcenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',0,\'xpwiki\')"><img src="'+imgUrl+'alignbigright.gif" alt="" /></span>'
