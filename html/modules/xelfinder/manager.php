@@ -1,6 +1,7 @@
 <?php
-//$xoopsOption['nocommon'] = TRUE;
-include dirname(dirname(dirname(__FILE__))) . '/mainfile.php';
+if (! defined('XOOPS_ROOT_PATH')) {
+	include dirname(dirname(dirname(__FILE__))) . '/mainfile.php';
+}
 
 if( ! defined( 'XOOPS_TRUST_PATH' ) ) die( 'set XOOPS_TRUST_PATH in mainfile.php' ) ;
 
