@@ -9,7 +9,8 @@ $langman->read( 'modinfo.php' , $mydirname , $mytrustdirname , false ) ;
 
 $constpref = '_MI_' . strtoupper( $mydirname ) ;
 
-$modversion['name'] = constant($constpref.'_NAME') ;
+$modversion['name'] = 'xelFinder' ;
+//$modversion['name'] = constant($constpref.'_NAME') ;
 $modversion['description'] = constant($constpref.'_DESC') ;
 $modversion['version'] = 0.01 ;
 $modversion['credits'] = "Hypweb.net";
