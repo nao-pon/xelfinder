@@ -32,7 +32,7 @@ class xoops_elFinder {
 			$path = '/' . trim($path, '/') . '/';
 			$volume = $pluginPath . $plugin . '/volume.php';
 			if (is_file($volume)) {
-				$extra = isset($extras[$mydirname])? $extras[$mydirname] : array();
+				$extra = isset($extras[$mydirname.':'.$plugin])? $extras[$mydirname.':'.$plugin] : array();
 				$volumeOptions = array();
 				require $volume;
 				if ($volumeOptions) {

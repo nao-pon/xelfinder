@@ -7,6 +7,7 @@ $config['volume_setting'] = <<<EOD
 xelfinder:xelfinder:uploads/elfinder:共有ホルダ
 myalbum:myalbum:uploads/photos:イメージマネージャー
 mailbbs:mailbbs:modules/mailbbs/imgs:写メールBBS
+xelfinder:xelfinder_db:uploads/xelfinder:開発中
 EOD;
 
 // xelfinder 共有ホルダのアクセス権限
@@ -84,9 +85,9 @@ if (! $memberUid) {
 }
 
 // $extras に登録
-// $extras[key:mydirename] = (extra options array);
+// $extras[mydirename:plugin] = (extra options array);
 $extras = array(
-	$mydirname => array(
+	$mydirname.':'.$mydirname => array(
 		'attributes' => $attributes,
 		'startPath'  => $startPath
 	)

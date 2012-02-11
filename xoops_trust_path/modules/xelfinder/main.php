@@ -14,6 +14,10 @@ $langman->read( 'main.php' , $mydirname , $mytrustdirname ) ;
 
 // fork each pages
 $page = preg_replace( '/[^a-zA-Z0-9_-]/' , '' , @$_GET['page'] ) ;
+if ($page === '' && ! empty($_SERVER['PATH_INFO'])) {
+	$path_info = trim($_SERVER['PATH_INFO'], '/');
+	list($page) = explode('/', $path_info);
+}
 if( $page && file_exists( "$mytrustdirpath/main/$page.php" ) ) {
 	include "$mytrustdirpath/main/$page.php" ;
 } else {

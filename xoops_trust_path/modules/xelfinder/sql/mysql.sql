@@ -1,5 +1,5 @@
-CREATE TABLE `xelfinder_file` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+CREATE TABLE `file` (
+  `file_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `parent_id` int(10) unsigned NOT NULL,
   `name` varchar(255) NOT NULL,
   `size` int(10) unsigned NOT NULL DEFAULT '0',
@@ -8,17 +8,15 @@ CREATE TABLE `xelfinder_file` (
   `perm` varchar(3) NOT NULL,
   `umask` varchar(3) NOT NULL DEFAULT '022',
   `uid` int(10) unsigned NOT NULL,
-  `content` longblob NOT NULL,
-  `c_type` int(11) NOT NULL,
   `mime` varchar(25) NOT NULL DEFAULT 'unknown',
   `width` int(11) NOT NULL,
   `height` int(11) NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`file_id`),
   UNIQUE KEY `parent_name` (`parent_id`,`name`),
   KEY `parent_id` (`parent_id`)
 ) ENGINE=MyISAM;
 
-CREATE TABLE `xelfinder_link` (
+CREATE TABLE `link` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `file_id` int(11) NOT NULL,
   `mid` int(10) unsigned NOT NULL,
