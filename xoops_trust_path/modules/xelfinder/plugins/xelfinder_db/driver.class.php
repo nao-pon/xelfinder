@@ -113,6 +113,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		if (is_object($xoopsUser)) {
 			$this->x_uid = $xoopsUser->getVar('uid');
 			$this->x_groups = $xoopsUser->getGroups();
+			$this->x_isAdmin = $xoopsUser->isAdmin($this->x_mid);
 		} else {
 			$this->x_uid = 0;
 			$this->x_groups = array(XOOPS_GROUP_ANONYMOUS);
