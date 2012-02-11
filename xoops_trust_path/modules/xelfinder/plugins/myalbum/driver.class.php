@@ -210,7 +210,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 		}
 
 		// photos
-		$sql = 'SELECT c.pid, lid, f.cid, concat( lid, ".", ext ) AS name, res_x AS width, res_y AS height, `date` AS ts
+		$sql = 'SELECT c.pid, lid, f.cid, concat( lid, ".", ext ) AS id, res_x AS width, res_y AS height, `date` AS ts, concat( f.title, ".", ext ) AS name
 				FROM '.$this->tbf.' AS f
 				LEFT JOIN '.$this->tbc.' AS c ON c.cid=f.cid
 				WHERE f.cid="'.$cid.'" AND status=1';
@@ -224,15 +224,15 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 				} else {
 					$row['phash'] = $this->encode('_'.$row['cid'].'_');
 				}
-				$id = '_'.$row['cid'].'_'.$row['name'];
+				$id = '_'.$row['cid'].'_'.$row['id'];
 				//$row['target'] = $id;
-				$row['url'] = $this->options['URL'].$row['name'];
-				$realpath = realpath($this->options['filePath'].$row['name']);
+				$row['url'] = $this->options['URL'].$row['id'];
+				$realpath = realpath($this->options['filePath'].$row['id']);
 				if (is_file($realpath)) {
 					$row['dim'] = $row['width'].'x'.$row['height'];
 					$row['size'] = filesize($realpath);
 					$row['ts'] = filemtime($realpath);
-					unset($row['pid'], $row['lid'], $row['cid']);
+					unset($row['pid'], $row['lid'], $row['cid'], $row['id']);
 					if (($stat = $this->updateCache($id, $row)) && empty($stat['hidden'])) {
 						$this->dirsCache[$path][] = $id;
 					}
@@ -446,7 +446,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 			}
 		} else {
 			// photos
-			$sql = 'SELECT c.pid, f.lid, f.cid, concat( f.lid, ".", f.ext ) AS name, f.res_x AS width, f.res_y AS height, f.`date` AS ts
+			$sql = 'SELECT c.pid, f.lid, f.cid, concat( f.lid, ".", f.ext ) AS id, f.res_x AS width, f.res_y AS height, f.`date` AS ts, concat( f.title, ".", ext ) AS name
 					FROM '.$this->tbf.' AS f
 					LEFT JOIN '.$this->tbc.' AS c ON c.cid=f.cid
 					WHERE f.lid="'.$lid.'" AND status=1 LIMIT 1';
@@ -456,12 +456,12 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 				$stat = array_merge($stat_def, $stat);
 				$stat['phash'] = $this->encode('_'.$stat['pid'].'_');
 				//$stat['target'] = '_'.$stat['pid'].'_'.$stat['lid'];
-				$stat['url'] = $this->options['URL'].$stat['name'];
-				$realpath = realpath($this->options['filePath'].$stat['name']);
+				$stat['url'] = $this->options['URL'].$stat['id'];
+				$realpath = realpath($this->options['filePath'].$stat['id']);
 				$stat['size'] = filesize($realpath);
 				$stat['ts'] = filemtime($realpath);
 				$stat['dim'] = $stat['width'].'x'.$stat['height'];
-				unset($stat['pid'], $stat['lid'], $stat['cid']);
+				unset($stat['pid'], $stat['lid'], $stat['cid'], $stat['id']);
 				return $stat;
 			}
 		}
