@@ -16,7 +16,7 @@ define( $constpref.'_ADMENU_MYPREFERENCES','Preferences');
 
 // configurations
 define( $constpref.'_VOLUME_SETTING' ,          'Volume Drivers' );
-define( $constpref.'_VOLUME_SETTING_DESC' ,     '[Module directory name]:[Plugin name]:[Saved files dirctory path]:[View name]' );
+define( $constpref.'_VOLUME_SETTING_DESC' ,     '[Module directory name]:[Plugin name]:[Saved files dirctory path]:[View name]<br />Written line by line. Will be ignored and put a "#" at the beginning.' );
 define( $constpref.'_SHARE_HOLDER' ,            'Share holder' );
 define( $constpref.'_DEFAULT_ITEM_PERM' ,       'Permission of new items' );
 define( $constpref.'_DEFAULT_ITEM_PERM_DESC' ,  'Permission is three-digit hexadecimal.[File owner][group][Guest]<br />4bit binary number each digit is [Hide][Read][Write][Unlock]<br />744 Owner: 7 =-rwu, group 4 =-r--, Guest 4 =-r--' );

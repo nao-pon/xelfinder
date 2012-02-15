@@ -16,7 +16,7 @@ define($constpref.'_ADMENU_MYPREFERENCES' , '一般設定' ) ;
 
 // configurations
 define( $constpref.'_VOLUME_SETTING' ,          'ボリュームドライバ' );
-define( $constpref.'_VOLUME_SETTING_DESC' ,     '[モジュールディレクトリ名]:[プラグイン名]:[ファイル格納ディレクトリ]:[表示名]' );
+define( $constpref.'_VOLUME_SETTING_DESC' ,     '[モジュールディレクトリ名]:[プラグイン名]:[ファイル格納ディレクトリ]:[表示名]<br />行単位で記述。先頭に # を置くと無視されます。' );
 define( $constpref.'_SHARE_HOLDER' ,            '共有ホルダ' );
 define( $constpref.'_DEFAULT_ITEM_PERM' ,       '作成されるアイテムのパーミッション' );
 define( $constpref.'_DEFAULT_ITEM_PERM_DESC' ,  'パーミッションは3桁で[ファイルオーナー][グループ][ゲスト]<br />各桁 2進数4bitで [非表示(h)][読み込み(r)][書き込み(w)][ロック解除(u)]<br />744: オーナー 7 = -rwu, グループ 4 = -r--, ゲスト 4 = -r--' );
