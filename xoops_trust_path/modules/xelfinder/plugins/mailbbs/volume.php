@@ -14,7 +14,16 @@ if (is_dir(XOOPS_ROOT_PATH . $path)) {
 		'path'       => XOOPS_ROOT_PATH . $path,
 		'URL'        => XOOPS_URL . $path,
 		'alias'      => $title,
-		'defaults' => array('read' => true, 'write' => false)
+		'defaults' => array('read' => true, 'write' => false),
+		'attributes' => array(
+			array(
+				'pattern' => '#.+#',
+				'read'    => true,
+				'write'   => false,
+				'locked'  => true,
+				'hidden'  => false
+			)
+		)
 	);
 
 }
