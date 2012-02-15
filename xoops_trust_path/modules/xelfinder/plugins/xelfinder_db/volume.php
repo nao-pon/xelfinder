@@ -12,7 +12,7 @@ error_reporting(E_ALL);
 		'driver'    => 'XoopsXelfinder_db',
 		'mydirname' => $mydirname,
 		'path'      => '1',
-		'filePath'  => XOOPS_TRUST_PATH . $path . rawurldecode(substr(XOOPS_URL, 7)) . '_' . $mydirname . '_',
+		'filePath'  => XOOPS_TRUST_PATH . $path . rawurlencode(substr(XOOPS_URL, 7)) . '_' . $mydirname . '_',
 		'URL'       => XOOPS_URL . '/modules/' . $mydirname . '/index.php/view/',
 		'alias'     => $title,
 		'tmbURL'     => XOOPS_URL . '/modules/'.$mydirname.'/cache/tmb/',
