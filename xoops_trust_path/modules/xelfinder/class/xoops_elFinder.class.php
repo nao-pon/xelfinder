@@ -24,7 +24,7 @@ class xoops_elFinder {
 		$roots = array();
 		foreach($configs as $_conf) {
 			$_conf = trim($_conf);
-			if (! $_conf) continue;
+			if (! $_conf || $_conf[0] === '#') continue;
 			$_confs = explode(':', $_conf);
 			$_confs = array_map('trim', $_confs);
 			list($mydirname, $plugin, $path, $title, $options) = array_pad($_confs, 6, '');

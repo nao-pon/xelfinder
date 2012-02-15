@@ -12,7 +12,7 @@ error_reporting(E_ALL);
 		'driver'    => 'XoopsXelfinder_db',
 		'mydirname' => $mydirname,
 		'path'      => '1',
-		'filePath'  => XOOPS_TRUST_PATH . $path . $mydirname . '_',
+		'filePath'  => XOOPS_TRUST_PATH . $path . rawurldecode(substr(XOOPS_URL, 7)) . '_' . $mydirname . '_',
 		'URL'       => XOOPS_URL . '/modules/' . $mydirname . '/index.php/view/',
 		'alias'     => $title,
 		'tmbURL'     => XOOPS_URL . '/modules/'.$mydirname.'/cache/tmb/',
@@ -27,7 +27,7 @@ error_reporting(E_ALL);
 		'uploadAllow'     => array('image'),
 		// regexp or function name to validate new file name
 		'acceptedName'    => '/^(?:[\w\s]+|\w[\w\s\.\%\-\(\)\[\]]*\.(?:txt|gif|jpeg|jpg|png))$/ui',
-		'defaults' => array('read' => true, 'write' => true)
+		'defaults' => array('read' => true, 'write' => true, 'hidden' => false, 'locked' => false)
 	);
 
 }

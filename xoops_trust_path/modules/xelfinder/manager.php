@@ -7,15 +7,19 @@ $callback = isset($_GET['cb'])? (preg_match('/^[a-zA-Z0-9_]+$/', $_GET['cb'])? $
 $callback = 'getFileCallback_' . $callback;
 
 $myurl = XOOPS_URL . '/modules/' . $mydirname;
-
-// $config & $extras for test
 $elfurl = XOOPS_URL . '/common/elfinder';
-include $mydirpath . '/test.conf.php';
+
+$module_handler =& xoops_gethandler('module');
+$xelfinderModule = $module_handler->getByDirname($mydirname);
+$config_handler =& xoops_gethandler('config');
+$config = $config_handler->getConfigsByCat(0, $xelfinderModule->getVar('mid'));
 
 $managerJs = '';
 $_plugin_dir = dirname(__FILE__) . '/plugins/';
 $_js_cache_files = array();
-foreach(explode(',', $config['volume_setting']) as $_vol) {
+foreach(explode("\n", $config['volume_setting']) as $_vol) {
+	$_vol = trim($_vol);
+	if (! $_vol || $_vol[0] === '#') continue;
 	list(, $_plugin) = explode(':', $_vol);
 	$_plugin = trim($_plugin);
 	$_js = $_plugin_dir . $_plugin . '/manager.js';

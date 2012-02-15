@@ -12,7 +12,7 @@ ini_set('mbstring.func_overload', 2);
 //}
 
 error_reporting(E_ALL | E_STRICT); // Set E_ALL for debuging
-error_reporting(0);
+//error_reporting(0);
 
 define('_MD_ELFINDER_LIB_PATH', XOOPS_TRUST_PATH . '/libs/elfinder');
 
@@ -35,10 +35,24 @@ if (is_object($xoopsUser)) {
 	$memberUid = $xoopsUser->getVar('uid');
 }
 
+$config = $xoopsModuleConfig;
+if (strtoupper(_CHARSET) !== 'UTF-8') {
+	mb_convert_variables('UTF-8', _CHARSET, $config);
+}
+// set umask
+foreach(array('default', 'users_dir', 'guest_dir', 'group_dir') as $_key) {
+	$config[$_key.'_umask'] = strval(dechex(0xfff - intval(strval($config[$_key.'_item_perm']), 16)));
+}
 
-// $config & $extras for test
-include $mydirpath . '/test.conf.php';
-
+if (! is_array($extras[$mydirname.':xelfinder_db'])) {
+	$extras[$mydirname.':xelfinder_db'] = array();
+}
+foreach (
+	array('default_umask', 'use_users_dir', 'users_dir_perm', 'users_dir_umask', 'use_guest_dir', 'guest_dir_perm', 'guest_dir_umask', 'use_group_dir', 'group_dir_parent', 'group_dir_perm', 'group_dir_umask')
+	as $_extra
+) {
+	$extras[$mydirname.':xelfinder_db'][$_extra] = empty($config[$_extra])? '' : $config[$_extra];
+}
 
 // load xoops_elFinder
 include_once dirname(__FILE__).'/class/xoops_elFinder.class.php';
@@ -161,6 +175,6 @@ $opts = array(
 );
 
 
-header('Access-Control-Allow-Origin: *');
+//header('Access-Control-Allow-Origin: *');
 $connector = new elFinderConnector(new elFinder($opts), true);
 $connector->run();

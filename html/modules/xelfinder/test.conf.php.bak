@@ -4,13 +4,28 @@
 // ['volume_setting'] = 'mydirname:plugin:path:title:options, ...';
 
 $config['volume_setting'] = <<<EOD
-xelfinder:xelfinder:uploads/elfinder:共有ホルダ
+xelfinder:xelfinder_db:uploads/xelfinder:共有ホルダ
+#xelfinder:xelfinder:uploads/elfinder:共有ホルダ
 myalbum:myalbum:uploads/photos:イメージマネージャー
 mailbbs:mailbbs:modules/mailbbs/imgs:写メールBBS
-xelfinder:xelfinder_db:uploads/xelfinder:開発中
 EOD;
 
-// xelfinder 共有ホルダのアクセス権限
+$config['default_umask'] = '8bb';
+
+$config['use_users_dir'] = true;
+$config['users_dir_perm'] = '7cc';
+$config['users_dir_umask'] = '833';
+
+$config['use_guest_dir'] = true;
+$config['guest_dir_perm'] = '766';
+$config['guest_dir_umask'] = '8bb';
+
+$config['use_group_dir'] = true;
+$config['group_dir_parent'] = 'グループ閲覧';
+$config['group_dir_perm'] = '768';
+$config['group_dir_umask'] = '8b7';
+
+// xelfinder(ファイルシステムバージョン) 共有ホルダのアクセス権限
 
 // 基本設定
 $attributes = array(
@@ -87,7 +102,7 @@ if (! $memberUid) {
 // $extras に登録
 // $extras[mydirename:plugin] = (extra options array);
 $extras = array(
-	$mydirname.':'.$mydirname => array(
+	$mydirname.':xelfinder'=> array(
 		'attributes' => $attributes,
 		'startPath'  => $startPath
 	)

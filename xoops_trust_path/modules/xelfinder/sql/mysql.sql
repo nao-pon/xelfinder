@@ -8,6 +8,8 @@ CREATE TABLE `file` (
   `perm` varchar(3) NOT NULL,
   `umask` varchar(3) NOT NULL DEFAULT '022',
   `uid` int(10) unsigned NOT NULL,
+  `gid` int(10) unsigned NOT NULL,
+  `home_of` int(10) DEFAULT NULL,
   `mime` varchar(25) NOT NULL DEFAULT 'unknown',
   `width` int(11) NOT NULL,
   `height` int(11) NOT NULL,

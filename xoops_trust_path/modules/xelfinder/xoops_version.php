@@ -10,17 +10,18 @@ $langman->read( 'modinfo.php' , $mydirname , $mytrustdirname , false ) ;
 $constpref = '_MI_' . strtoupper( $mydirname ) ;
 
 $modversion['name'] = 'xelFinder' ;
-//$modversion['name'] = constant($constpref.'_NAME') ;
-$modversion['description'] = constant($constpref.'_DESC') ;
+//$modversion['name'] = $constpref.'_NAME') ;
+$modversion['description'] = $constpref.'_DESC';
 $modversion['version'] = 0.01 ;
 $modversion['credits'] = "Hypweb.net";
 $modversion['author'] = "nao-pon" ;
 $modversion['help'] = "" ;
 $modversion['license'] = "GPL" ;
 $modversion['official'] = 0 ;
-$modversion['image'] = file_exists( $mydirpath.'/module_icon.png' ) ? 'module_icon.png' : 'module_icon.php' ;
+$modversion['image'] = is_file( $mydirpath.'/module_icon.png' ) ? 'module_icon.png' : 'module_icon.php' ;
 $modversion['dirname'] = $mydirname ;
 $modversion['trust_dirname'] = $mytrustdirname ;
+$modversion['read_any'] = true ;
 
 // Any tables can't be touched by modulesadmin.
 $modversion['sqlfile'] = false ;
@@ -32,13 +33,12 @@ $modversion['adminindex'] = 'admin/index.php' ;
 $modversion['adminmenu'] = 'admin/admin_menu.php' ;
 
 // Search
-$modversion['hasSearch'] = 1 ;
-$modversion['search']['file'] = 'search.php' ;
-$modversion['search']['func'] = $mydirname.'_global_search' ;
+$modversion['hasSearch'] = 0 ;
+//$modversion['search']['file'] = 'search.php' ;
+//$modversion['search']['func'] = $mydirname.'_global_search' ;
 
 // Menu
 $modversion['hasMain'] = 1 ;
-$modversion['read_any'] = true ;
 
 // Submenu (just for mainmenu)
 $modversion['sub'] = array() ;
@@ -53,16 +53,105 @@ $modversion['blocks'] = array() ;
 $modversion['hasComments'] = 0 ;
 
 // Configs
-$modversion['config'][1] = array(
+$modversion['config'][] = array(
 	'name'			=> 'volume_setting' ,
 	'title'			=> $constpref.'_VOLUME_SETTING' ,
 	'description'	=> '' ,
 	'formtype'		=> 'textarea' ,
 	'valuetype'		=> 'text' ,
-	'default'		=> constant($constpref.'_VOLUME_SETTING') ,
-	'options'		=> array()
+	'default'		=> 'xelfinder:xelfinder_db:uploads/xelfinder:'.constant($constpref.'_SHARE_HOLDER' ).'
+#xelfinder:xelfinder:uploads/elfinder:elFinder
+#myalbum:myalbum:uploads/photos:MyAlbum
+#mailbbs:mailbbs:modules/mailbbs/imgs:MailBBS'
 ) ;
-
+$modversion['config'][] = array(
+	'name'			=> 'default_item_perm' ,
+	'title'			=> $constpref.'_DEFAULT_ITEM_PERM' ,
+	'description'	=> $constpref.'_DEFAULT_ITEM_PERM_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'text' ,
+	'default'		=> '744'
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'use_users_dir' ,
+	'title'			=> $constpref.'_USE_USERS_DIR',
+	'description'	=> $constpref.'_USE_USERS_DIR_DESC',
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> 1
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'users_dir_perm' ,
+	'title'			=> $constpref.'_USERS_DIR_PERM',
+	'description'	=> $constpref.'_USERS_DIR_PERM_DESC',
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'text' ,
+	'default'		=> '7cc'
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'users_dir_item_perm' ,
+	'title'			=> $constpref.'_USERS_DIR_ITEM_PERM',
+	'description'	=> $constpref.'_USERS_DIR_ITEM_PERM_DESC',
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'text' ,
+	'default'		=> '7cc'
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'use_guest_dir' ,
+	'title'			=> $constpref.'_USE_GUEST_DIR',
+	'description'	=> $constpref.'_USE_GUEST_DIR_DESC',
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> 1
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'guest_dir_perm' ,
+	'title'			=> $constpref.'_GUEST_DIR_PERM',
+	'description'	=> $constpref.'_GUEST_DIR_PERM_DESC',
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'text' ,
+	'default'		=> '766'
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'guest_dir_item_perm' ,
+	'title'			=> $constpref.'_GUEST_DIR_ITEM_PERM',
+	'description'	=> $constpref.'_GUEST_DIR_ITEM_PERM_DESC',
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'text' ,
+	'default'		=> '744'
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'use_group_dir' ,
+	'title'			=> $constpref.'_USE_GROUP_DIR',
+	'description'	=> $constpref.'_USE_GROUP_DIR_DESC',
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> 1
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'group_dir_parent' ,
+	'title'			=> $constpref.'_GROUP_DIR_PARENT',
+	'description'	=> $constpref.'_GROUP_DIR_PARENT_DESC',
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'text' ,
+	'default'		=> constant($constpref.'_GROUP_DIR_PARENT_NAME')
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'group_dir_perm' ,
+	'title'			=> $constpref.'_GROUP_DIR_PERM',
+	'description'	=> $constpref.'_GROUP_DIR_PERM_DESC',
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'text' ,
+	'default'		=> '768'
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'group_dir_item_perm' ,
+	'title'			=> $constpref.'_GROUP_DIR_ITEM_PERM',
+	'description'	=> $constpref.'_GROUP_DIR_ITEM_PERM_DESC',
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'text' ,
+	'default'		=> '748'
+) ;
 
 // Notification
 $modversion['hasNotification'] = 0;

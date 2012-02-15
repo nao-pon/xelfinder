@@ -20,8 +20,13 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 
 	protected $x_mid;
 	protected $x_uid = 0;
+	protected $x_uname = '';
 	protected $x_groups = array();
 	protected $x_isAdmin = false;
+
+	protected $groupHomeId = -999999999;
+	protected $makeUmask = '';
+	protected $makePerm = '';
 
 	/**
 	 * Database object
@@ -59,7 +64,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 **/
 	protected $dbError = '';
 
-	protected $debugMsg;
+	protected $debugMsg = array();
 
 
 	/**
@@ -77,7 +82,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$this->options['mimeDetect'] = 'internal';
 		$this->options['tmbPath'] = XOOPS_ROOT_PATH . '/modules/'._MD_ELFINDER_MYDIRNAME.'/cache/tmb/';
 		$this->options['tmbURL'] = XOOPS_URL . '/modules/'._MD_ELFINDER_MYDIRNAME.'/cache/tmb/';
-		$this->options['default_umask'] = '022';
+		$this->options['default_umask'] = '8bb';
 	}
 
 	/*********************************************************************/
@@ -112,14 +117,13 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		global $xoopsUser;
 		if (is_object($xoopsUser)) {
 			$this->x_uid = $xoopsUser->getVar('uid');
+			$this->x_uname = $xoopsUser->uname('n');
 			$this->x_groups = $xoopsUser->getGroups();
 			$this->x_isAdmin = $xoopsUser->isAdmin($this->x_mid);
 		} else {
 			$this->x_uid = 0;
 			$this->x_groups = array(XOOPS_GROUP_ANONYMOUS);
 		}
-
-//		$this->updateCache($this->options['path'], $this->_stat($this->options['path']));
 
 		return true;
 	}
@@ -181,7 +185,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	}
 
 	protected function _debug($msg) {
-		$this->debugMsg .= '|' . $msg;
+		$this->debugMsg[] = $msg;
 	}
 
 	/**
@@ -210,15 +214,32 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
 	 **/
-	protected function make($path, $name, $mime) {
+	protected function make($path, $name, $mime, $home_of = 'NULL') {
 
-		$sql = 'INSERT INTO %s (`parent_id`, `name`, `ctime`, `mtime`, `perm`, `umask` , `uid`, `mime`) VALUES '
-		                    . '( %d,         "%s",    %d,      %d,     "%s",   "%s",     "%d",  "%s")';
 		$time = time();
-		$umask = $this->getUmask($path);
-		$perm = $this->getDefaultPerm($mime, $umask);
-		$sql = sprintf($sql, $this->tbf, intval($path), mysql_escape_string($name), $time, $time, $perm, $this->options['default_umask'], $this->x_uid, $mime);
-		// echo $sql;
+		$gid = 0;;
+		$umask = $this->getUmask($path, $gid);
+		if ($home_of !== 'NULL') {
+			$home_of = intval($home_of);
+			if ($home_of < 0 && $home_of != $this->groupHomeId) {
+				$gid = abs($home_of);
+			}
+		}
+		if ($this->makeUmask) {
+			$umask = $this->makeUmask;
+			$this->makeUmask = '';
+		}
+		if ($this->makePerm) {
+			$perm = $this->makePerm;
+			$this->makePerm = '';
+		} else {
+			$perm = $this->getDefaultPerm($mime, $umask);
+		}
+
+		$sql = 'INSERT INTO %s (`parent_id`, `name`, `ctime`, `mtime`, `perm`, `umask` , `uid`, `gid`, `home_of`, `mime`) VALUES '
+		                    . '( %d,         "%s",    %d,      %d,     "%s",   "%s",     "%d",  "%d",   %s,     "%s")';
+		$sql = sprintf($sql, $this->tbf, intval($path), mysql_escape_string($name), $time, $time, $perm, $umask, $this->x_uid, $gid, $home_of, $mime);
+		//$this->_debug($sql);
 		if ($this->query($sql) && $this->db->getAffectedRows() > 0) {
 			if ($mime !== 'directory') {
 				$id = $this->db->getInsertId();
@@ -311,22 +332,24 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		return false;
 	}
 
-	protected function getUmask($path) {
+	protected function getUmask($dir, & $gid) {
 		$umask = '';
-		if ($path > 1) {
-			$sql = 'SELECT `umask` FROM '.$this->tbf.' WHERE `file_id`='.intval($path).' LIMIT=1';
+		if ($dir > 0) {
+			$sql = 'SELECT `umask`, `home_of` FROM '.$this->tbf.' WHERE `file_id`='.intval($dir).' LIMIT 1';
+			//$this->_debug($sql);
 			if ($res = $this->db->query($sql)) {
-				list($umask) = $this->db->fetchRow($res);
+				list($umask, $home_of) = $this->db->fetchRow($res);
+				$gid = ($home_of < 0)? abs($home_of) : 0;
 			}
 		}
-		return $umask? $umask : '022';
+		return $umask? $umask : $this->options['default_umask'];
 	}
 
 	protected function getDefaultPerm($mime, $umask) {
 		if ($mime === 'directory') {
-			$base = 0x777;
+			$base = 0xfff;
 		} else {
-			$base = 0x666;
+			$base = 0xfff;
 		}
 		return strval(dechex($base - intval($umask, 16)));
 	}
@@ -342,8 +365,6 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		if (isset($groups[$uid])) return $groups[$uid];
 
 		if ($uid) {
-			$module_handler =& xoops_gethandler('module');
-			$XoopsModule =& $module_handler->getByDirname($this->mydirname);
 			$user_handler =& xoops_gethandler('user');
 			$user =& $user_handler->get( $uid );
 			$groups[$uid] = $user->getGroups();
@@ -358,19 +379,85 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 
 	protected function setAuthByPerm(& $dat) {
 
-		if ($dat['uid'] == $this->x_uid || $this->x_isAdmin) {
-			$check = $dat['perm'][0];
-		} else if (array_intersect($this->getGroupsByUid($dat['uid']), $this->x_groups)) {
-			$check = $dat['perm'][1];
+		$isOwner = ($this->x_isAdmin || ($dat['uid'] && $dat['uid'] == $this->x_uid));
+		if ($dat['home_of'] < 0) {
+			$inGroup = (in_array(abs($dat['home_of']), $this->x_groups));
+		} else if ($dat['gid']) {
+			$inGroup = (in_array($dat['gid'], $this->x_groups));
 		} else {
-			$check = $dat['perm'][2];
+			$inGroup = (array_intersect($this->getGroupsByUid($dat['uid']), $this->x_groups));
 		}
-		$check = intval(strval($check), 16);
+		$perm = strval($dat['perm']);
+		$own = intval($perm[0], 16);
+		$grp = intval($perm[1], 16);
+		$gus = intval($perm[2], 16);
 
-		$dat['hidden'] = ((8 & $check) === 8);
-		$dat['read']   = ((4 & $check) === 4);
-		$dat['write']  = ((6 & $check) === 6);
-		$dat['locked'] = !((5 & $check) === 5);
+		$dat['hidden'] = !(($isOwner && (8 & $own) !== 8) || ($inGroup && (8 & $grp) !== 8) || (8 & $gus) !== 8);
+		$dat['read']   =  (($isOwner && (4 & $own) === 4) || ($inGroup && (4 & $grp) === 4) || (4 & $gus) === 4);
+		$dat['write']  =  (($isOwner && (6 & $own) === 6) || ($inGroup && (6 & $grp) === 6) || (6 & $gus) === 6);
+		$dat['locked'] = !(($isOwner && (5 & $own) === 5) || ($inGroup && (5 & $grp) === 5) || (5 & $gus) === 5);
+	}
+
+	protected function checkHomeDir() {
+		if ($this->x_isAdmin) {
+			if ($this->options['use_group_dir']) {
+				$group_parent = $this->root;
+				if ($this->options['group_dir_parent']) {
+					$sql = 'SELECT file_id FROM '.$this->tbf.' WHERE home_of = ' . $this->groupHomeId . ' LIMIT 1';
+					if (($res = $this->query($sql)) && $this->db->getRowsNum($res)) {
+						list($group_parent) = $this->db->fetchRow($res);
+					} else {
+						$this->make($this->root, $this->options['group_dir_parent'], 'directory', $this->groupHomeId);
+						$group_parent = $this->db->getInsertId();
+					}
+				}
+
+				if ($group_parent) {
+					$xoopsMenber =& xoops_gethandler('member');
+					$groups = $xoopsMenber->getGroupList(new Criteria('group_type' , 'Anonymous', '!='));
+					$sql = 'SELECT gid FROM '.$this->tbf.' WHERE home_of < 0';
+					if (($res = $this->query($sql)) && $this->db->getRowsNum($res)) {
+						while ($row = $this->db->fetchRow($res)) {
+							unset($groups[$row[0]]);
+						}
+					}
+					if ($groups) {
+						foreach($groups as $gid => $gname) {
+							$gid *= -1;
+							$this->makeUmask = $this->options['group_dir_umask'];
+							$this->makePerm = $this->options['group_dir_perm'];
+							$this->make($group_parent, $gname, 'directory', $gid);
+						}
+					}
+				}
+			}
+
+			if ($this->options['use_guest_dir']) {
+				$sql = 'SELECT file_id FROM '.$this->tbf.' WHERE home_of = 0 LIMIT 1';
+				if (($res = $this->query($sql)) && $this->db->getRowsNum($res) < 1) {
+					$config_handler =& xoops_gethandler('config');
+					$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
+					$this->makeUmask = $this->options['guest_dir_umask'];
+					$this->makePerm = $this->options['guest_dir_perm'];
+					$this->make(1, $this->strToUTF8($xoopsConfig['anonymous']), 'directory', 0);
+				}
+			}
+		}
+
+		if ($this->x_uid && $this->options['use_users_dir']) {
+			$sql = 'SELECT file_id FROM '.$this->tbf.' WHERE home_of = '.$this->x_uid .' LIMIT 1';
+			if (($res = $this->query($sql)) && $this->db->getRowsNum($res) < 1) {
+				$this->makeUmask = $this->options['users_dir_umask'];
+				$this->makePerm = $this->options['users_dir_perm'];
+				$this->make(1, $this->x_uname, 'directory', $this->x_uid);
+			}
+		}
+	}
+	protected function strToUTF8($str) {
+		if (strtoupper(_CHARSET) !== 'UTF-8') {
+			$str = mb_convert_encoding($str, 'UTF-8', _CHARSET);
+		}
+		return $str;
 	}
 
 	/*********************************************************************/
@@ -387,7 +474,11 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	protected function cacheDir($path) {
 		$this->dirsCache[$path] = array();
 
-		$sql = 'SELECT f.file_id, f.parent_id, f.name, f.size, f.mtime AS ts, f.mime, f.perm, f.uid, f.width, f.height, IF(ch.file_id, 1, 0) AS dirs
+		if ($path == $this->root) {
+			$this->checkHomeDir();
+		}
+
+		$sql = 'SELECT f.file_id, f.parent_id, f.name, f.size, f.mtime AS ts, f.mime, f.perm, f.uid, f.gid, f.home_of, f.width, f.height, IF(ch.file_id, 1, 0) AS dirs
 				FROM '.$this->tbf.' AS f
 				LEFT JOIN '.$this->tbf.' AS ch ON ch.parent_id=f.file_id AND ch.mime="directory"
 				WHERE f.parent_id="'.$path.'"
@@ -413,7 +504,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 
 				$row['url'] = $this->options['URL'].$row['file_id'].'/'.rawurlencode($row['name']); // Use pathinfo "index.php/[id]/[name]
 
-				unset($row['file_id'], $row['parent_id'], $row['perm'], $row['uid']);
+				unset($row['file_id'], $row['parent_id'], $row['perm'], $row['uid'], $row['gid'], $row['home_of']);
 
 				if (($stat = $this->updateCache($id, $row)) && empty($stat['hidden'])) {
 					$this->dirsCache[$path][] = $id;
@@ -580,7 +671,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _stat($path, $rootCheck = true) {
-		$sql = 'SELECT f.file_id, f.parent_id, f.name, f.size, f.mtime AS ts, f.mime, f.perm, f.uid, f.width, f.height, IF(ch.file_id, 1, 0) AS dirs
+		$sql = 'SELECT f.file_id, f.parent_id, f.name, f.size, f.mtime AS ts, f.mime, f.perm, f.uid, f.gid, f.home_of, f.width, f.height, IF(ch.file_id, 1, 0) AS dirs
 				FROM '.$this->tbf.' AS f
 				LEFT JOIN '.$this->tbf.' AS p ON p.file_id=f.parent_id
 				LEFT JOIN '.$this->tbf.' AS ch ON ch.parent_id=f.file_id AND ch.mime="directory"
@@ -601,12 +692,12 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			}
 			$this->setAuthByPerm($stat);
 			$stat['url'] = $this->options['URL'].$stat['file_id'].'/'.rawurlencode($stat['name']); // Use pathinfo "index.php/[id]/[name]
-			unset($stat['file_id'], $stat['parent_id'], $stat['perm'], $stat['uid']);
+			unset($stat['file_id'], $stat['parent_id'], $stat['perm'], $stat['uid'], $stat['gid'], $stat['home_of']);
 
 			return $stat;
 
-		} else if ($rootCheck && $path == 1) {
-			$this->_mkdir(0, $this->options['alias']);
+		} else if ($rootCheck && $path == $this->root) {
+			$this->_mkdir(0, 'VolumeRoot');
 			return $this->_stat($path, false);
 		}
 		return array();
@@ -745,12 +836,14 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	protected function _copy($source, $targetDir, $name) {
 		$this->clearcache();
 		$id = $this->_joinPath($targetDir, $name);
-
+		$gid = 0;
+		$umask = $this->getUmask($targetDir, $gid);
+		$perm = $this->getDefaultPerm($mime, $umask);
 		$time = time();
 		$sql = $id > 0
-			? sprintf('REPLACE INTO %s (`file_id`, `parent_id`, `name`, `size`, `ctime`, `mtime`, `mime`, `width`, `height`, `uid`, `perm`, `umask`) (SELECT %d, %d, `name`, `size`, `ctime`, `mtime`, `mime`, `width`, `height`, `uid`, `perm`, `umask` FROM %s WHERE file_id=%d)', $this->tbf, (int)$id, (int)$this->_dirname($id), $this->tbf, (int)$source)
-			: sprintf('INSERT INTO %s (`parent_id`, `name`, `size`, `ctime`, `mtime`, `mime`, `width`, `height`, `uid`, `perm`, `umask`) SELECT %d, "%s", size, %d, %d, mime, width, height, `uid`, `perm`, `umask` FROM %s WHERE file_id=%d', $this->tbf, (int)$targetDir, mysql_escape_string($name), $time, $time, $this->tbf, (int)$source);
-		//$this->_debug($sql);
+			? sprintf('REPLACE INTO %s (`file_id`, `parent_id`, `name`, `size`, `ctime`, `mtime`, `mime`, `width`, `height`, `uid`, `perm`, `umask`) (SELECT %d, %d, `name`, `size`, `ctime`, `mtime`, `mime`, `width`, `height`, `uid`, %d, "%s", "%s" FROM %s WHERE file_id=%d)', $this->tbf, (int)$id, (int)$this->_dirname($id), $gid, $perm, $umask, $this->tbf, (int)$source)
+			: sprintf('INSERT INTO %s (`parent_id`, `name`, `size`, `ctime`, `mtime`, `mime`, `width`, `height`, `uid`, `gid`, `perm`, `umask`) SELECT %d, "%s", size, %d, %d, `mime`, `width`, `height`, `uid`, %d, "%s", "%s" FROM %s WHERE file_id=%d', $this->tbf, (int)$targetDir, mysql_escape_string($name), $time, $time, $gid, $perm, $umask, $this->tbf, (int)$source);
+		$this->_debug($sql);
 		if ($this->query($sql)) {
 			if ($id < 1) $id = $this->db->getInsertId();
 			if ($local = $this->readlink($id, true)) {
@@ -778,8 +871,11 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _move($source, $targetDir, $name) {
-		$sql = 'UPDATE %s SET parent_id=%d, name="%s" WHERE file_id=%d LIMIT 1';
-		$sql = sprintf($sql, $this->tbf, $targetDir, mysql_escape_string($name), $source);
+		$gid = 0;
+		$umask = $this->getUmask($targetDir, $gid);
+		$perm = $this->getDefaultPerm($mime, $umask);
+		$sql = 'UPDATE %s SET parent_id=%d, name="%s", perm="%s", umask="%s", gid=%d WHERE file_id=%d LIMIT 1';
+		$sql = sprintf($sql, $this->tbf, $targetDir, mysql_escape_string($name), $perm, $umask, $gid, $source);
 		return ($this->query($sql) && $this->db->getAffectedRows() > 0);
 	}
 
@@ -826,14 +922,16 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$stat = fstat($fp);
 		$size = $stat['size'];
 		$time = time();
-		$perm = $this->getDefaultPerm($mime, $this->getUmask($dir));
+		$gid = 0;
+		$umask = $this->getUmask($dir, $gid);
+		$perm = $this->getDefaultPerm($mime, $umask);
 
 		// `file_id`, `parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `umask`, `uid`, `mime`, `width`, `height`
 		//  %d, %d, "%s", %d, %d, %d, "%s", "%s", %d, "%s", %d, %d
 		$sql = $id > 0
-			? 'REPLACE INTO %s (`file_id`, `parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `uid`, `mime`, `width`, `height`) VALUES ('.$id.',%d, "%s", %d, %d, %d, "%s", "%s", %d, "%s", %d, %d)'
-			: 'INSERT INTO %s (`parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `uid`, `mime`, `width`, `height`) VALUES (%d, "%s", %d, %d, %d, "%s", %d, "%s", %d, %d)';
-		$sql = sprintf($sql, $this->tbf, (int)$dir, mysql_escape_string($name), $size, $time, $time, $perm, (int)$this->x_uid, $mime, $w, $h);
+			? 'REPLACE INTO %s (`file_id`, `parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `umask`, `uid`, `gid`, `mime`, `width`, `height`) VALUES ('.$id.', %d, "%s", %d, %d, %d, "%s", "%s", %d, %d, "%s", %d, %d)'
+			: 'INSERT INTO %s (`parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `umask`, `uid`, `gid`, `mime`, `width`, `height`) VALUES (%d, "%s", %d, %d, %d, "%s", "%s", %d, %d, "%s", %d, %d)';
+		$sql = sprintf($sql, $this->tbf, (int)$dir, mysql_escape_string($name), $size, $time, $time, $perm, $umask, (int)$this->x_uid, $gid, $mime, $w, $h);
 
 		if ($this->query($sql)) {
 			if ($id < 1) $id = $this->db->getInsertId();

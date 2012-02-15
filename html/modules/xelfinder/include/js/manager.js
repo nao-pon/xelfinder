@@ -13,6 +13,14 @@ $().ready(function() {
 			    multiple : false,
 			    folders : false
 			  }
+		},
+		contextmenu : {
+			// navbarfolder menu
+			navbar : ['open', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'info'],
+			// current directory menu
+			cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'sort', '|', 'info'],
+			// current directory file menu
+			files  : ['getfile', '|','open', 'quicklook', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', '|', 'archive', 'extract', '|', 'info']
 		}
 	}).elfinder('instance');
 
