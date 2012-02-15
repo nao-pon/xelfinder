@@ -106,16 +106,4 @@ class elFinderVolumeXoopsMailbbs extends elFinderVolumeLocalFileSystem {
 		return false;
 	}
 
-// 	/************************* thumbnails **************************/
-// 	/**
-// 	* Return thumbnail file name for required file
-// 	*
-// 	* @param array $stat file stat
-// 	* @return string
-// 	* @author Dmitry (dio) Levashov
-// 	**/
-// 	protected function tmbname($stat) {
-// 		return $this->mydirname.'_'.parent::tmbname($stat);
-// 	}
-
 } // END class
