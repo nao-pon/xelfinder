@@ -11,8 +11,7 @@ ini_set('mbstring.func_overload', 2);
 //	date_default_timezone_set('Europe/Moscow');
 //}
 
-error_reporting(E_ALL | E_STRICT); // Set E_ALL for debuging
-//error_reporting(0);
+//error_reporting(E_ALL | E_STRICT); // Set E_ALL for debuging
 
 define('_MD_ELFINDER_LIB_PATH', XOOPS_TRUST_PATH . '/libs/elfinder');
 
@@ -20,6 +19,8 @@ require _MD_ELFINDER_LIB_PATH . '/php/elFinderConnector.class.php';
 require _MD_ELFINDER_LIB_PATH . '/php/elFinder.class.php';
 require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeDriver.class.php';
 require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeLocalFileSystem.class.php';
+
+error_reporting(0);
 
 //////////////////////////////////////////////////////
 // for XOOPS
@@ -35,6 +36,7 @@ if (is_object($xoopsUser)) {
 	$memberUid = $xoopsUser->getVar('uid');
 }
 
+$extras = array();
 $config = $xoopsModuleConfig;
 if (strtoupper(_CHARSET) !== 'UTF-8') {
 	mb_convert_variables('UTF-8', _CHARSET, $config);
@@ -44,7 +46,7 @@ foreach(array('default', 'users_dir', 'guest_dir', 'group_dir') as $_key) {
 	$config[$_key.'_umask'] = strval(dechex(0xfff - intval(strval($config[$_key.'_item_perm']), 16)));
 }
 
-if (! is_array($extras[$mydirname.':xelfinder_db'])) {
+if (! isset($extras[$mydirname.':xelfinder_db'])) {
 	$extras[$mydirname.':xelfinder_db'] = array();
 }
 foreach (
