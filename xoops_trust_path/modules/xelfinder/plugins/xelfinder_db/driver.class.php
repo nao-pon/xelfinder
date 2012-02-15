@@ -117,7 +117,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		global $xoopsUser;
 		if (is_object($xoopsUser)) {
 			$this->x_uid = $xoopsUser->getVar('uid');
-			$this->x_uname = $xoopsUser->uname('n');
+			$this->x_uname = $this->strToUTF8($xoopsUser->uname('n'));
 			$this->x_groups = $xoopsUser->getGroups();
 			$this->x_isAdmin = $xoopsUser->isAdmin($this->x_mid);
 		} else {
