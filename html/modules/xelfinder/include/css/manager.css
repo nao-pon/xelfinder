@@ -4,6 +4,9 @@
 #elfinder .elfinder-resize-preview {
 	height: 320px;
 }
+
+.elfinder-button-icon-perm      { background-position: 0 -48px; }
+
 .toast-container {
 	width: 180px;
 }

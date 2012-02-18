@@ -85,6 +85,34 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$this->options['default_umask'] = '8bb';
 	}
 
+	public function savePerm($target, $perm, $umask) {
+		if (!preg_match('/^[0-9a-f]{3}$/', $perm) || ($umask && !preg_match('/^[0-9a-f]{3}$/', $umask))) {
+			return $this->setError(elFinder::ERROR_INV_PARAMS);
+		}
+
+		$path = $this->decode($target);
+		$stat = $this->stat($path);
+		if (empty($stat)) {
+			return $this->setError(elFinder::ERROR_FILE_NOT_FOUND);
+		}
+		if (empty($stat['isowner'])) {
+			return $this->setError(elFinder::ERROR_PERM_DENIED);
+		}
+
+		if ($umask) {
+			$sql = sprintf('UPDATE %s SET `perm`="%s", `umask`="%s" WHERE `file_id` = "%d" LIMIT 1', $this->tbf, $perm, $umask, $path);
+		} else {
+			$sql = sprintf('UPDATE %s SET `perm`="%s" WHERE `file_id` = "%d" LIMIT 1', $this->tbf, $perm, $path);
+		}
+		if ($this->query($sql) && $this->db->getAffectedRows() > 0) {
+			unset($this->cache[$path]);
+			return $stat = $this->stat($path);
+		} else {
+			$this->_debug($sql);
+			return $this->setError(elFinder::ERROR_SAVE, $stat['name']);
+		}
+	}
+
 	/*********************************************************************/
 	/*                        INIT AND CONFIGURE                         */
 	/*********************************************************************/
@@ -392,6 +420,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$grp = intval($perm[1], 16);
 		$gus = intval($perm[2], 16);
 
+		if ($isOwner) $dat['isowner'] = 1;
 		$dat['hidden'] = !(($isOwner && (8 & $own) !== 8) || ($inGroup && (8 & $grp) !== 8) || (8 & $gus) !== 8);
 		$dat['read']   =  (($isOwner && (4 & $own) === 4) || ($inGroup && (4 & $grp) === 4) || (4 & $gus) === 4);
 		$dat['write']  =  (($isOwner && (6 & $own) === 6) || ($inGroup && (6 & $grp) === 6) || (6 & $gus) === 6);
@@ -478,7 +507,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$this->checkHomeDir();
 		}
 
-		$sql = 'SELECT f.file_id, f.parent_id, f.name, f.size, f.mtime AS ts, f.mime, f.perm, f.uid, f.gid, f.home_of, f.width, f.height, IF(ch.file_id, 1, 0) AS dirs
+		$sql = 'SELECT f.file_id, f.parent_id, f.name, f.size, f.mtime AS ts, f.mime, f.perm, f.umask, f.uid, f.gid, f.home_of, f.width, f.height, IF(ch.file_id, 1, 0) AS dirs
 				FROM '.$this->tbf.' AS f
 				LEFT JOIN '.$this->tbf.' AS ch ON ch.parent_id=f.file_id AND ch.mime="directory"
 				WHERE f.parent_id="'.$path.'"
@@ -504,7 +533,9 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 
 				$row['url'] = $this->options['URL'].$row['file_id'].'/'.rawurlencode($row['name']); // Use pathinfo "index.php/[id]/[name]
 
-				unset($row['file_id'], $row['parent_id'], $row['perm'], $row['uid'], $row['gid'], $row['home_of']);
+				unset($row['file_id'], $row['parent_id'], $row['uid'], $row['gid'], $row['home_of']);
+				if (empty($row['isowner'])) unset($row['perm']);
+				if (empty($row['isowner']) || $row['mime'] !== 'directory') unset($row['umask']);
 
 				if (($stat = $this->updateCache($id, $row)) && empty($stat['hidden'])) {
 					$this->dirsCache[$path][] = $id;
@@ -671,7 +702,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _stat($path, $rootCheck = true) {
-		$sql = 'SELECT f.file_id, f.parent_id, f.name, f.size, f.mtime AS ts, f.mime, f.perm, f.uid, f.gid, f.home_of, f.width, f.height, IF(ch.file_id, 1, 0) AS dirs
+		$sql = 'SELECT f.file_id, f.parent_id, f.name, f.size, f.mtime AS ts, f.mime, f.perm, f.umask, f.uid, f.gid, f.home_of, f.width, f.height, IF(ch.file_id, 1, 0) AS dirs
 				FROM '.$this->tbf.' AS f
 				LEFT JOIN '.$this->tbf.' AS p ON p.file_id=f.parent_id
 				LEFT JOIN '.$this->tbf.' AS ch ON ch.parent_id=f.file_id AND ch.mime="directory"
@@ -692,7 +723,10 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			}
 			$this->setAuthByPerm($stat);
 			$stat['url'] = $this->options['URL'].$stat['file_id'].'/'.rawurlencode($stat['name']); // Use pathinfo "index.php/[id]/[name]
-			unset($stat['file_id'], $stat['parent_id'], $stat['perm'], $stat['uid'], $stat['gid'], $stat['home_of']);
+
+			unset($stat['file_id'], $stat['parent_id'], $stat['uid'], $stat['gid'], $stat['home_of']);
+			if (empty($stat['isowner'])) unset($stat['perm']);
+			if (empty($stat['isowner']) || $stat['mime'] !== 'directory') unset($stat['umask']);
 
 			return $stat;
 

@@ -20,12 +20,14 @@ require _MD_ELFINDER_LIB_PATH . '/php/elFinder.class.php';
 require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeDriver.class.php';
 require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeLocalFileSystem.class.php';
 
-error_reporting(0);
+error_reporting(E_ALL);
 
 //////////////////////////////////////////////////////
 // for XOOPS
 
 define('_MD_ELFINDER_MYDIRNAME', $mydirname);
+
+require dirname(__FILE__) . '/class/xelFinder.class.php';
 
 $isAdmin = false;
 $memberUid = 0;
@@ -178,5 +180,5 @@ $opts = array(
 
 
 //header('Access-Control-Allow-Origin: *');
-$connector = new elFinderConnector(new elFinder($opts), true);
+$connector = new elFinderConnector(new xelFinder($opts), true);
 $connector->run();

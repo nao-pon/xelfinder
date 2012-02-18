@@ -2,11 +2,73 @@ $().ready(function() {
 
 	$().toastmessage( { sticky : true } );
 
-	var elf = $('#elfinder').elfinder({
-		lang: 'jp',
+	elFinder.prototype.i18.jp.messages.cmdresize = 'リサイズ';
+	elFinder.prototype.i18.jp.messages.btnApply  = '適用';
+
+	elFinder.prototype.i18.jp.messages.ntfperm = 'Changing permission';
+	elFinder.prototype.i18.en.messages.cmdperm = 'Chage permission';
+	elFinder.prototype.i18.en.messages.newitem = 'New item';
+	elFinder.prototype.i18.en.messages.owner   = 'Owner';
+	elFinder.prototype.i18.en.messages.group   = 'Group';
+	elFinder.prototype.i18.en.messages.guest   = 'Guest';
+	elFinder.prototype.i18.en.messages.perm    = 'Permission';
+	elFinder.prototype.i18.en.messages.unlock  = 'Unlock';
+	elFinder.prototype.i18.en.messages.hidden  = 'Hidden';
+
+	elFinder.prototype.i18.jp.messages.ntfperm = 'アイテム属性を変更';
+	elFinder.prototype.i18.jp.messages.cmdperm = '属性変更';
+	elFinder.prototype.i18.jp.messages.newitem = '新規アイテム';
+	elFinder.prototype.i18.jp.messages.owner   = 'オーナー';
+	elFinder.prototype.i18.jp.messages.group   = 'グループ';
+	elFinder.prototype.i18.jp.messages.guest   = 'ゲスト';
+	elFinder.prototype.i18.jp.messages.perm    = 'パーミッション';
+	elFinder.prototype.i18.jp.messages.unlock  = 'ロック解除';
+	elFinder.prototype.i18.jp.messages.hidden  = '非表示';
+
+	elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
+	
+	$('#elfinder').elfinder({
+		lang: 'ja',
 		url : myUrl + 'connector.php',
 		height: '400',
 		getFileCallback : callbackFunc,
+		uiOptions : {
+			// toolbar configuration
+			toolbar : [
+				['back', 'forward'],
+				// ['reload'],
+				// ['home', 'up'],
+				['mkdir', 'mkfile', 'upload'],
+				['open', 'download', 'getfile'],
+				['info', 'perm'],
+				['quicklook'],
+				['copy', 'cut', 'paste'],
+				['rm'],
+				['duplicate', 'rename', 'edit', 'resize'],
+				['extract', 'archive'],
+				['search'],
+				['view', 'sort'],
+				['help']
+			],
+			// directories tree options
+			tree : {
+				// expand current root on init
+				openRootOnLoad : true,
+				// auto load current dir parents
+				syncTree : true
+			},
+			// navbar options
+			navbar : {
+				minWidth : 150,
+				maxWidth : 500
+			}
+		},
+		commands : [
+    		'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook',
+    		'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy',
+    		'cut', 'paste', 'edit', 'extract', 'archive', 'search', 'info', 'view', 'help', 'resize', 'sort',
+    		'perm'
+    	],
 		commandsOptions : {
 			  getfile : {
 			    onlyURL : false,
@@ -16,11 +78,11 @@ $().ready(function() {
 		},
 		contextmenu : {
 			// navbarfolder menu
-			navbar : ['open', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'info'],
+			navbar : ['open', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'info', 'perm'],
 			// current directory menu
-			cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'sort', '|', 'info'],
+			cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'sort', '|', 'info', 'perm'],
 			// current directory file menu
-			files  : ['getfile', '|','open', 'quicklook', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', '|', 'archive', 'extract', '|', 'info']
+			files  : ['getfile', '|','open', 'quicklook', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', '|', 'archive', 'extract', '|', 'info', 'perm']
 		}
 	}).elfinder('instance');
 
@@ -71,7 +133,7 @@ var getFileCallback_bbcode = function (file) {
 	var path = file.url.replace(rootUrl+'/', '');
 	var basename = path.replace( /^.*\//, '' );
 	var module = path.replace( /^.*?(?:modules|uploads)\/([^\/]+)\/.*$/, '$1' );
-	thumb = ''
+	var thumb = '';
 	if (module.match(/^[a-zA-Z0-9_-]+$/)) {
 		eval('if (typeof get_thumb_'+module+' == "function" ){' +
 			'thumb = get_thumb_'+module+'(basename, file);}' );
@@ -84,16 +146,17 @@ var getFileCallback_bbcode = function (file) {
 	$().toastmessage( 'removeToast', $('.toast-item'));
 	$().toastmessage( 'showSuccessToast', buttons.replace('__FILEINFO__', fileinfo) );
 	$('.toast-item').css('background-image','url("'+file.url+'")');
-}
+};
 
 function insertCode(align, thumb, format) {
 	$('.toast-item-close').click();
 	$('.toast-item').css('background-image','');
+	var code = '';
 	if (! format) {
 		if (thumb && imgThumb) {
-			var code = '[siteurl='+imgPath+'][siteimg align='+align+']'+imgThumb+'[/siteimg][/siteurl]';
+			code = '[siteurl='+imgPath+'][siteimg align='+align+']'+imgThumb+'[/siteimg][/siteurl]';
 		} else {
-			var code = '[siteimg align='+align+']'+imgPath+'[/siteimg]';
+			code = '[siteimg align='+align+']'+imgPath+'[/siteimg]';
 		}
 	} else if (format == 'xpwiki') {
 		var size = $('#resize_px').val();
@@ -118,9 +181,9 @@ function insertCode(align, thumb, format) {
 		}
 
 		if (thumb || o.tagName != 'TEXTAREA') {
-			var code = '&ref(site://'+imgPath+','+align+size+');';
+			code = '&ref(site://'+imgPath+','+align+size+');';
 		} else {
-			var code = '#ref(site://'+imgPath+','+align+size+')\n\n';
+			code = '#ref(site://'+imgPath+','+align+size+')\n\n';
 		}
 	}
 	if (target) {
@@ -144,7 +207,7 @@ var getFileCallback_xpwiki = function (file, fm) {
 	var path = file.url.replace(rootUrl+'/', '');
 	var basename = path.replace( /^.*\//, '' );
 	var module = path.replace( /^.*?(?:modules|uploads)\/([^\/]+)\/.*$/, '$1' );
-	thumb = ''
+	var thumb = '';
 	if (module.match(/^[a-zA-Z0-9_-]+$/)) {
 		eval('if (typeof get_thumb_'+module+' == "function" ){' +
 			'thumb = get_thumb_'+module+'(basename, file);}' );
@@ -157,4 +220,4 @@ var getFileCallback_xpwiki = function (file, fm) {
 	$('.toast-item-close').click();
 	$().toastmessage( 'showSuccessToast', buttons.replace('__FILEINFO__', fileinfo) );
 	$('.toast-item').css('background-image','url("'+file.url+'")');
-}
+};

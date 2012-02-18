@@ -56,6 +56,7 @@ while(ob_get_level()) {
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>Image Manager - elFinder 2.0</title>
 		<?php echo $viewport ?>
+		<base href="<?php echo XOOPS_URL ?>/modules/<?php echo $mydirname?>/">
 
 	<!--
 	<script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script>
@@ -159,6 +160,7 @@ while(ob_get_level()) {
 			var imgThumb = '';
 			var imgPath = '';
 		</script>
+		<script type="text/javascript" src="<?php echo $myurl ?>/include/js/commands/perm.js" charset="utf-8"></script>
 		<script type="text/javascript" src="<?php echo $myurl ?>/include/js/manager.js" charset="utf-8"></script>
 		<script type="text/javascript" charset="utf-8">
 			var callbackFunc = <?php echo $callback ?>;
