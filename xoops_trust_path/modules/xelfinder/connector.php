@@ -179,6 +179,12 @@ $opts = array(
 );
 
 
+
+// clear output buffer
+while( ob_get_level() ) {
+	if (! ob_end_clean()) break;
+}
+
 //header('Access-Control-Allow-Origin: *');
 $connector = new elFinderConnector(new xelFinder($opts), true);
 $connector->run();
