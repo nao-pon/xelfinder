@@ -20,7 +20,6 @@ require _MD_ELFINDER_LIB_PATH . '/php/elFinder.class.php';
 require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeDriver.class.php';
 require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeLocalFileSystem.class.php';
 
-error_reporting(E_ALL);
 
 //////////////////////////////////////////////////////
 // for XOOPS
@@ -178,11 +177,11 @@ $opts = array(
 	'roots' => $rootVolumes,
 );
 
-
+error_reporting(0);
 
 // clear output buffer
 while( ob_get_level() ) {
-	if (! ob_end_clean()) break;
+	if (! @ ob_end_clean()) break;
 }
 
 //header('Access-Control-Allow-Origin: *');
