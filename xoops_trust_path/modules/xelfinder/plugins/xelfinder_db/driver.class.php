@@ -503,7 +503,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	**/
 	protected function updateCache($path, $stat) {
 		$stat = parent::updateCache($path, $stat);
-		if (!isset($stat['locked'])) $stat['locked'] = 0;
+		if ($stat && !isset($stat['locked'])) $stat['locked'] = 0;
 		return $this->cache[$path] = $stat;
 	}
 	
@@ -619,7 +619,9 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$sql = 'SELECT `file_id` FROM '.$this->tbf.' WHERE parent_id="'.$dir.'" AND name="'.mysql_escape_string($name).'"';
 		// echo $sql;
 		// $this->_debug('_joinPath:'.$sql);
-		if (($res = $this->query($sql)) && ($r = $this->db->fetchArray($res))) {
+		//if (($res = $this->query($sql)) && ($r = $this->db->fetchArray($res))) {
+		if (($res = $this->query($sql)) && $this->db->getRowsNum($res) > 0) {
+			$r = $this->db->fetchArray($res);
 			// $this->_debug('got '.$r['file_id']);
 			$this->updateCache($r['file_id'], $this->_stat($r['file_id']));
 			return $r['file_id'];
