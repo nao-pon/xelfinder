@@ -30,7 +30,7 @@ $().ready(function() {
 	$('#elfinder').elfinder({
 		lang: 'ja',
 		url : myUrl + 'connector.php',
-		height: '400',
+		height: $(window).height() - 20,
 		getFileCallback : callbackFunc,
 		uiOptions : {
 			// toolbar configuration
