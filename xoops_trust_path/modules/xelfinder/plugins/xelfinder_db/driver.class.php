@@ -423,8 +423,8 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		if ($isOwner) $dat['isowner'] = 1;
 		$dat['hidden'] = !(($isOwner && (8 & $own) !== 8) || ($inGroup && (8 & $grp) !== 8) || (8 & $gus) !== 8);
 		$dat['read']   =  (($isOwner && (4 & $own) === 4) || ($inGroup && (4 & $grp) === 4) || (4 & $gus) === 4);
-		$dat['write']  =  (($isOwner && (6 & $own) === 6) || ($inGroup && (6 & $grp) === 6) || (6 & $gus) === 6);
-		$dat['locked'] = !(($isOwner && (5 & $own) === 5) || ($inGroup && (5 & $grp) === 5) || (5 & $gus) === 5);
+		$dat['write']  =  (($isOwner && (2 & $own) === 2) || ($inGroup && (2 & $grp) === 2) || (2 & $gus) === 2);
+		$dat['locked'] = !(($isOwner && (1 & $own) === 1) || ($inGroup && (1 & $grp) === 1) || (1 & $gus) === 1);
 	}
 
 	protected function checkHomeDir() {
@@ -493,6 +493,20 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	/*                               FS API                              */
 	/*********************************************************************/
 
+	/**
+	* Put file stat in cache and return it
+	*
+	* @param  string  $path   file path
+	* @param  array   $stat   file stat
+	* @return array
+	* @author Dmitry (dio) Levashov
+	**/
+	protected function updateCache($path, $stat) {
+		$stat = parent::updateCache($path, $stat);
+		if (!isset($stat['locked'])) $stat['locked'] = 0;
+		return $this->cache[$path] = $stat;
+	}
+	
 	/**
 	 * Cache dir contents
 	 *
