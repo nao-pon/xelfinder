@@ -16,7 +16,7 @@ error_reporting(E_ALL);
 		'URL'       => XOOPS_URL . '/modules/' . $mydirname . '/index.php/view/',
 		'alias'     => $title,
 		'tmbURL'     => XOOPS_URL . '/modules/'.$mydirname.'/cache/tmb/',
-		'tmbPath'    => XOOPS_ROOT_PATH . '/modules/'.$mydirname.'/cache/tmb/',
+		'tmbPath'    => XOOPS_ROOT_PATH . '/modules/'.$mydirname.'/cache/tmb',
 		'quarantine' => XOOPS_ROOT_PATH . '/modules/'.$mydirname.'/cache/tmb/.quarantine',
 		'tmbSize'    => 140,
 		'tmbCrop'    => false,
