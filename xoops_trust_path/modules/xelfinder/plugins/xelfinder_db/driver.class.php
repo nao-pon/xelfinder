@@ -962,7 +962,13 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 						fwrite($target, fread($fp, 8192));
 					}
 					fclose($target);
+					if ($this->mimeDetect === 'internal' && strpos($mime, 'image') === 0 && ! getimagesize($local)) {
+						$this->_unlink($id);
+						return $this->setError(elFinder::ERROR_UPLOAD_FILE_MIME);
+					}
 					return $id;
+				} else {
+					$this->_unlink($id);
 				}
 			}
 		}
