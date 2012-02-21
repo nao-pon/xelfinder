@@ -47,11 +47,30 @@ foreach(array('default', 'users_dir', 'guest_dir', 'group_dir') as $_key) {
 	$config[$_key.'_umask'] = strval(dechex(0xfff - intval(strval($config[$_key.'_item_perm']), 16)));
 }
 
+// set uploadAllow
+if ($isAdmin && isset($config['upload_allow_admin'])) {
+	$config['uploadAllow'] = $config['upload_allow_admin'];
+} elseif ($memberUid && isset($config['upload_allow_user'])) {
+	$config['uploadAllow'] = $config['upload_allow_user'];
+} elseif (isset($config['upload_allow_guest'])) {
+	$config['uploadAllow'] = $config['upload_allow_guest'];
+}
+if (isset($config['uploadAllow'])) {
+	$config['uploadAllow'] = trim($config['uploadAllow']);
+	if (! $config['uploadAllow'] || $config['uploadAllow'] === 'none') {
+		$config['uploadAllow'] = array();
+	} else {
+		$config['uploadAllow'] = explode(' ', $config['uploadAllow']);
+		$config['uploadAllow'] = array_map('trim', $config['uploadAllow']);
+	}
+}
+
 if (! isset($extras[$mydirname.':xelfinder_db'])) {
 	$extras[$mydirname.':xelfinder_db'] = array();
 }
 foreach (
-	array('default_umask', 'use_users_dir', 'users_dir_perm', 'users_dir_umask', 'use_guest_dir', 'guest_dir_perm', 'guest_dir_umask', 'use_group_dir', 'group_dir_parent', 'group_dir_perm', 'group_dir_umask')
+	array('default_umask', 'use_users_dir', 'users_dir_perm', 'users_dir_umask', 'use_guest_dir', 'guest_dir_perm', 'guest_dir_umask',
+	      'use_group_dir', 'group_dir_parent', 'group_dir_perm', 'group_dir_umask', 'uploadAllow')
 	as $_extra
 ) {
 	$extras[$mydirname.':xelfinder_db'][$_extra] = empty($config[$_extra])? '' : $config[$_extra];

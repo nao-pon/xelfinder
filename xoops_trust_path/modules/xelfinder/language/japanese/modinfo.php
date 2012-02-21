@@ -41,5 +41,11 @@ define( $constpref.'_GROUP_DIR_PERM' ,          '¥°¥ë¡¼¥×ÊÌ¥Û¥ë¥À¤Î¥Ñ¡¼¥ß¥Ã¥·¥ç¥
 define( $constpref.'_GROUP_DIR_PERM_DESC' ,     'Îã: 768: ¥ª¡¼¥Ê¡¼ 7 = -rwu, ¥°¥ë¡¼¥× 6 = -rw-, ¥²¥¹¥È 8 = h---' );
 define( $constpref.'_GROUP_DIR_ITEM_PERM' ,     '¥°¥ë¡¼¥×ÊÌ¥Û¥ë¥À¤ËºîÀ®¤µ¤ì¤ë¥¢¥¤¥Æ¥à¤Î¥Ñ¡¼¥ß¥Ã¥·¥ç¥ó' );
 define( $constpref.'_GROUP_DIR_ITEM_PERM_DESC' ,'Îã: 748: ¥ª¡¼¥Ê¡¼ 7 = -rwu, ¥°¥ë¡¼¥× 4 = -r--, ¥²¥¹¥È 8 = h---' );
+define( $constpref.'_UPLOAD_ALLOW_ADMIN' ,      '´ÉÍý¼Ô¤Ë¥¢¥Ã¥×¥í¡¼¥É¤òµö²Ä¤¹¤ë MIME ¥¿¥¤¥×' );
+define( $constpref.'_UPLOAD_ALLOW_ADMIN_DESC' , 'MIME ¥¿¥¤¥×¤òÈ¾³Ñ¥¹¥Ú¡¼¥¹¶èÀÚ¤ê¤Çµ­½Ò¡£<br />all: Á´¤Æµö²Ä, none: ²¿¤âµö²Ä¤·¤Ê¤¤<br />Îã: image text/plain' );
+define( $constpref.'_UPLOAD_ALLOW_USER' ,       'ÅÐÏ¿¥æ¡¼¥¶¡¼¤Ë¥¢¥Ã¥×¥í¡¼¥É¤òµö²Ä¤¹¤ë MIME ¥¿¥¤¥×' );
+define( $constpref.'_UPLOAD_ALLOW_USER_DESC' ,  '' );
+define( $constpref.'_UPLOAD_ALLOW_GUEST' ,      '¥²¥¹¥È¤Ë¥¢¥Ã¥×¥í¡¼¥É¤òµö²Ä¤¹¤ë MIME ¥¿¥¤¥×' );
+define( $constpref.'_UPLOAD_ALLOW_GUEST_DESC' , '' );
 
 }

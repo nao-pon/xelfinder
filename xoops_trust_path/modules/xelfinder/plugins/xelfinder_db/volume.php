@@ -26,7 +26,7 @@ if (is_dir(XOOPS_TRUST_PATH . $path)) {
 		// mimetypes allowed to upload
 		'uploadAllow'     => array('image'),
 		// regexp or function name to validate new file name
-		'acceptedName'    => '/^(?:[\w\s]+|\w[\w\s\.\%\-\(\)\[\]]*\.(?:txt|gif|jpeg|jpg|png))$/ui',
+		'acceptedName'    => '/^\w[\w\s\.\%\-\(\)\[\]~]*$/u',
 		'defaults' => array('read' => true, 'write' => true, 'hidden' => false, 'locked' => false)
 	);
 

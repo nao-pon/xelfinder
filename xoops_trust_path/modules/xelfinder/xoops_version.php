@@ -152,7 +152,29 @@ $modversion['config'][] = array(
 	'valuetype'		=> 'text' ,
 	'default'		=> '748'
 ) ;
-
+$modversion['config'][] = array(
+	'name'			=> 'upload_allow_admin' ,
+	'title'			=> $constpref.'_UPLOAD_ALLOW_ADMIN',
+	'description'	=> $constpref.'_UPLOAD_ALLOW_ADMIN_DESC',
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'text' ,
+	'default'		=> 'all'
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'upload_allow_user' ,
+	'title'			=> $constpref.'_UPLOAD_ALLOW_USER',
+	'description'	=> $constpref.'_UPLOAD_ALLOW_USER_DESC',
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'text' ,
+	'default'		=> 'image text/plain'
+) ;$modversion['config'][] = array(
+	'name'			=> 'upload_allow_guest' ,
+	'title'			=> $constpref.'_UPLOAD_ALLOW_GUEST',
+	'description'	=> $constpref.'_UPLOAD_ALLOW_GUEST_DESC',
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'text' ,
+	'default'		=> 'image'
+) ;
 // Notification
 $modversion['hasNotification'] = 0;
 $modversion['notification'] = array();

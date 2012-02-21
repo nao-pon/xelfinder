@@ -41,5 +41,11 @@ define( $constpref.'_GROUP_DIR_PERM' ,          'Permission of "holder for each 
 define( $constpref.'_GROUP_DIR_PERM_DESC' ,     'ex. 768: Owner 7 = -rwu, Group 6 = -rw-, Guest 8 = h---' );
 define( $constpref.'_GROUP_DIR_ITEM_PERM' ,     'Permission of the new items in "holder for each group"' );
 define( $constpref.'_GROUP_DIR_ITEM_PERM_DESC' ,'ex. 748: Owner 7 = -rwu, Group 4 = -r--, Guest 8 = h---' );
+define( $constpref.'_UPLOAD_ALLOW_ADMIN' ,      'Upload allow MIME types for Admin' );
+define( $constpref.'_UPLOAD_ALLOW_ADMIN_DESC' , 'Specifies the MIME types, separated by a space.<br />all: Allow all, none: Nothing<br />ex. image text/plain' );
+define( $constpref.'_UPLOAD_ALLOW_USER' ,       'Upload allow MIME types for Registed user' );
+define( $constpref.'_UPLOAD_ALLOW_USER_DESC' ,  '' );
+define( $constpref.'_UPLOAD_ALLOW_GUEST' ,      'Upload allow MIME types for Guest' );
+define( $constpref.'_UPLOAD_ALLOW_GUEST_DESC' , '' );
 
 }
