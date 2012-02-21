@@ -2,9 +2,6 @@ $().ready(function() {
 
 	$().toastmessage( { sticky : true } );
 
-	elFinder.prototype.i18.jp.messages.cmdresize = 'リサイズ';
-	elFinder.prototype.i18.jp.messages.btnApply  = '適用';
-
 	elFinder.prototype.i18.jp.messages.ntfperm = 'Changing permission';
 	elFinder.prototype.i18.en.messages.cmdperm = 'Chage permission';
 	elFinder.prototype.i18.en.messages.newitem = 'New item';
