@@ -8,7 +8,7 @@ class xoops_elFinder {
 
 	protected $defaultVolumeOptions = array(
 		'dateFormat' => 'y/m/d H:i',
-		'mimeDetect' => 'internal',
+		'mimeDetect' => 'auto',
 		'tmbSize'	 => 48,
 		'tmbCrop'	 => true,
 		'defaults' => array('read' => true, 'write' => false)

@@ -79,7 +79,6 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$this->options['separator'] = '/';
 		$this->options['mydirname'] = 'xelfinder';
 		$this->options['checkSubfolders'] = true;
-		$this->options['mimeDetect'] = 'internal';
 		$this->options['tmbPath'] = XOOPS_ROOT_PATH . '/modules/'._MD_ELFINDER_MYDIRNAME.'/cache/tmb/';
 		$this->options['tmbURL'] = XOOPS_URL . '/modules/'._MD_ELFINDER_MYDIRNAME.'/cache/tmb/';
 		$this->options['default_umask'] = '8bb';
@@ -154,34 +153,6 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		}
 
 		return true;
-	}
-
-
-
-	/**
-	 * Set tmp path
-	 *
-	 * @return void
-	 * @author Dmitry (dio) Levashov
-	 **/
-	protected function configure() {
-		parent::configure();
-
-// 		if (($tmp = $this->options['tmpPath'])) {
-// 			if (!file_exists($tmp)) {
-// 				if (@mkdir($tmp)) {
-// 					@chmod($tmp, $this->options['tmbPathMode']);
-// 				}
-// 			}
-
-// 			$this->tmpPath = is_dir($tmp) && is_writable($tmp) ? $tmp : false;
-// 		}
-
-// 		if (!$this->tmpPath && $this->tmbPath && $this->tmbPathWritable) {
-// 			$this->tmpPath = $this->tmbPath;
-// 		}
-
-		$this->mimeDetect = 'internal';
 	}
 
 	/**

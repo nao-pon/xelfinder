@@ -60,7 +60,6 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 		$this->options['separator'] = '/';
 		$this->options['mydirname'] = 'myalbum';
 		$this->options['checkSubfolders'] = true;
-		$this->options['mimeDetect'] = 'internal';
 		$this->options['tmbPath'] = XOOPS_ROOT_PATH . '/modules/'._MD_ELFINDER_MYDIRNAME.'/cache/tmb/';
 		$this->options['tmbURL'] = XOOPS_URL . '/modules/'._MD_ELFINDER_MYDIRNAME.'/cache/tmb/';
 
@@ -92,17 +91,6 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 		//$this->updateCache($this->options['path'], $this->_stat($this->options['path']));
 
 		return true;
-	}
-
-	/**
-	 * Set tmp path
-	 *
-	 * @return void
-	 * @author Dmitry (dio) Levashov
-	 **/
-	protected function configure() {
-		parent::configure();
-		$this->mimeDetect = 'internal';
 	}
 
 	/**
