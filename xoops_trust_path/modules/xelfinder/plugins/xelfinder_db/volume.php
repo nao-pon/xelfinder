@@ -5,7 +5,7 @@
  */
 
 if (is_dir(XOOPS_TRUST_PATH . $path)) {
-error_reporting(E_ALL);
+
 	require dirname(__FILE__) . '/driver.class.php';
 
 	$volumeOptions = array(
