@@ -1,18 +1,21 @@
 <?php
 
-list(,$file_id) = explode('/', $path_info);
-
+$file_id = 0;
+if (isset($path_info)) {
+	list(,$file_id) = explode('/', $path_info);
+} elseif (isset($_GET['id'])) {
+	list($file_id) = explode('/', $_GET['id']);
+}
 $file_id = (int)$file_id;
 
-
 while( ob_get_level() ) {
-	if (! ob_end_clean()) {
+	if (! @ ob_end_clean()) {
 		break;
 	}
 }
 
 $query = 'SELECT `mime`, `size`, `mtime`, `perm`, `uid` FROM `' . $xoopsDB->prefix($mydirname) . '_file`' . ' WHERE file_id = ' . $file_id . ' LIMIT 1';
-if (($res = $xoopsDB->query($query)) && $xoopsDB->getRowsNum($res)) {
+if ($file_id && ($res = $xoopsDB->query($query)) && $xoopsDB->getRowsNum($res)) {
 	list($mime, $size, $mtime, $perm, $uid) = $xoopsDB->fetchRow($res);
 	if (xelfinder_readAuth($perm, $uid)) {
  		header('Content-Length: '.$size);
@@ -20,7 +23,7 @@ if (($res = $xoopsDB->query($query)) && $xoopsDB->getRowsNum($res)) {
  		header('Last-Modified: '  . gmdate( "D, d M Y H:i:s", $mtime ) . " GMT" );
 
  		$file = XOOPS_TRUST_PATH . '/uploads/xelfinder/'. rawurlencode(substr(XOOPS_URL, 7)) . '_' . $mydirname . '_' . $file_id;
- 		if (XC_CLASS_EXISTS('HypCommonFunc')) {
+ 		if (function_exists('XC_CLASS_EXISTS') && XC_CLASS_EXISTS('HypCommonFunc')) {
  			HypCommonFunc::readfile($file);
  		} else {
  			readfile($file);
@@ -31,8 +34,7 @@ if (($res = $xoopsDB->query($query)) && $xoopsDB->getRowsNum($res)) {
 	}
 } else {
 	header('HTTP/1.0 404 Not Found');
-	//echo $query;
-	echo 'Not Found';
+	exit('404 Not Found');
 }
 
 function xelfinder_readAuth($perm, $f_uid) {

@@ -64,13 +64,18 @@ if (isset($config['uploadAllow'])) {
 		$config['uploadAllow'] = array_map('trim', $config['uploadAllow']);
 	}
 }
+if (empty($config['disable_pathinfo'])) {
+	$config['URL'] = XOOPS_URL . '/modules/' . $mydirname . '/index.php/view/';
+} else {
+	$config['URL'] = XOOPS_URL . '/modules/' . $mydirname . '/index.php?page=view&id=';
+}
 
 if (! isset($extras[$mydirname.':xelfinder_db'])) {
 	$extras[$mydirname.':xelfinder_db'] = array();
 }
 foreach (
 	array('default_umask', 'use_users_dir', 'users_dir_perm', 'users_dir_umask', 'use_guest_dir', 'guest_dir_perm', 'guest_dir_umask',
-	      'use_group_dir', 'group_dir_parent', 'group_dir_perm', 'group_dir_umask', 'uploadAllow')
+	      'use_group_dir', 'group_dir_parent', 'group_dir_perm', 'group_dir_umask', 'uploadAllow', 'URL')
 	as $_extra
 ) {
 	$extras[$mydirname.':xelfinder_db'][$_extra] = empty($config[$_extra])? '' : $config[$_extra];

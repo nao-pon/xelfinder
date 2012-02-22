@@ -47,5 +47,7 @@ define( $constpref.'_UPLOAD_ALLOW_USER' ,       'Upload allow MIME types for Reg
 define( $constpref.'_UPLOAD_ALLOW_USER_DESC' ,  '' );
 define( $constpref.'_UPLOAD_ALLOW_GUEST' ,      'Upload allow MIME types for Guest' );
 define( $constpref.'_UPLOAD_ALLOW_GUEST_DESC' , '' );
+define( $constpref.'_DISABLE_PATHINFO' ,        'Disable PathInfo of file reference URL' );
+define( $constpref.'_DISABLE_PATHINFO' ,        '' );
 
 }

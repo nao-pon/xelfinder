@@ -47,5 +47,7 @@ define( $constpref.'_UPLOAD_ALLOW_USER' ,       '登録ユーザーにアップ�
 define( $constpref.'_UPLOAD_ALLOW_USER_DESC' ,  '' );
 define( $constpref.'_UPLOAD_ALLOW_GUEST' ,      'ゲストにアップロードを許可する MIME タイプ' );
 define( $constpref.'_UPLOAD_ALLOW_GUEST_DESC' , '' );
+define( $constpref.'_DISABLE_PATHINFO' ,        'ファイル参照URLの PathInfo を無効にする' );
+define( $constpref.'_DISABLE_PATHINFO' ,        '' );
 
 }

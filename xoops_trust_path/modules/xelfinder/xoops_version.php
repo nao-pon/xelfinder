@@ -167,7 +167,8 @@ $modversion['config'][] = array(
 	'formtype'		=> 'textbox' ,
 	'valuetype'		=> 'text' ,
 	'default'		=> 'image text/plain'
-) ;$modversion['config'][] = array(
+) ;
+$modversion['config'][] = array(
 	'name'			=> 'upload_allow_guest' ,
 	'title'			=> $constpref.'_UPLOAD_ALLOW_GUEST',
 	'description'	=> $constpref.'_UPLOAD_ALLOW_GUEST_DESC',
@@ -175,6 +176,15 @@ $modversion['config'][] = array(
 	'valuetype'		=> 'text' ,
 	'default'		=> 'image'
 ) ;
+$modversion['config'][] = array(
+	'name'			=> 'disable_pathinfo' ,
+	'title'			=> $constpref.'_DISABLE_PATHINFO',
+	'description'	=> $constpref.'_DISABLE_PATHINFO_DESC',
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> 0
+) ;
+
 // Notification
 $modversion['hasNotification'] = 0;
 $modversion['notification'] = array();

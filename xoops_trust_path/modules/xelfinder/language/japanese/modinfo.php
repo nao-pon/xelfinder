@@ -47,5 +47,7 @@ define( $constpref.'_UPLOAD_ALLOW_USER' ,       'ÅÐÏ¿¥æ¡¼¥¶¡¼¤Ë¥¢¥Ã¥×¥í¡¼¥É¤òµö²
 define( $constpref.'_UPLOAD_ALLOW_USER_DESC' ,  '' );
 define( $constpref.'_UPLOAD_ALLOW_GUEST' ,      '¥²¥¹¥È¤Ë¥¢¥Ã¥×¥í¡¼¥É¤òµö²Ä¤¹¤ë MIME ¥¿¥¤¥×' );
 define( $constpref.'_UPLOAD_ALLOW_GUEST_DESC' , '' );
+define( $constpref.'_DISABLE_PATHINFO' ,        '¥Õ¥¡¥¤¥ë»²¾ÈURL¤Î PathInfo ¤òÌµ¸ú¤Ë¤¹¤ë' );
+define( $constpref.'_DISABLE_PATHINFO' ,        '' );
 
 }
