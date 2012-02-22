@@ -220,6 +220,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 					$row['dim'] = $row['width'].'x'.$row['height'];
 					$row['size'] = filesize($realpath);
 					$row['ts'] = filemtime($realpath);
+					$row['mime'] = $this->mimetypeInternalDetect($row['id']);
 					unset($row['pid'], $row['lid'], $row['cid'], $row['id']);
 					if (($stat = $this->updateCache($id, $row)) && empty($stat['hidden'])) {
 						$this->dirsCache[$path][] = $id;
@@ -448,7 +449,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 				$realpath = realpath($this->options['filePath'].$stat['id']);
 				$stat['size'] = filesize($realpath);
 				$stat['ts'] = filemtime($realpath);
-				$stat['dim'] = $stat['width'].'x'.$stat['height'];
+				$stat['mime'] = $this->mimetypeInternalDetect($stat['id']);
 				unset($stat['pid'], $stat['lid'], $stat['cid'], $stat['id']);
 				return $stat;
 			}
