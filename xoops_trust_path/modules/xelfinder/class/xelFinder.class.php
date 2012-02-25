@@ -6,7 +6,7 @@ class xelFinder extends elFinder {
 	 *
 	 * @param  array  elFinder and roots configurations
 	 * @return void
-	 * @author Dmitry (dio) Levashov
+	 * @author nao-pon
 	 **/
 	public function __construct($opts) {
 		parent::__construct($opts);
@@ -18,7 +18,7 @@ class xelFinder extends elFinder {
 	*
 	* @param  array  $args  command arguments
 	* @return array
-	* @author Dmitry (dio) Levashov
+	* @author nao-pon
 	**/
 	protected function perm($args) {
 

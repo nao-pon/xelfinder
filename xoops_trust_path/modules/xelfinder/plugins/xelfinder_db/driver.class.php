@@ -194,6 +194,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @param  string  $sql  query
 	 * @return misc
 	 * @author Dmitry (dio) Levashov
+	 * @author nao-pon
 	 **/
 	protected function query($sql) {
 		$this->sqlCnt++;
@@ -212,6 +213,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @param  string  $mime  mime type
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
+	 * @author nao-pon
 	 **/
 	protected function make($path, $name, $mime, $home_of = 'NULL') {
 
@@ -272,8 +274,9 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	* @return array|false
 	* @author Dmitry (dio) Levashov
 	* @author Alexey Sukhotin
+	* @author nao-pon
 	**/
-	public function resize($hash, $width, $height, $x, $y, $mode = 'resize', $bg='') {
+	public function resize($hash, $width, $height, $x, $y, $mode = 'resize', $bg='', $deg=0) {
 		if ($this->commandDisabled('resize')) {
 			return $this->setError(elFinder::ERROR_PERM_DENIED);
 		}
@@ -311,18 +314,31 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 				$result = $this->imgSquareFit($local, $width, $height, 'center', 'middle', $bg ? $bg : $this->options['tmbBgColor']);
 				break;
 
+			case 'rotateonly':
+				$result = 'rotateonly';
+				break;
+			
 			default:
 				$result = $this->imgResize($local, $width, $height, false, true);
-			break;
+				break;
 		}
-
+		
 		if ($result) {
+			if ($deg) {
+				if (! $this->imgRotate($local, $deg) && $result === 'rotateonly' ) {
+					return false;
+				}
+			}
+			clearstatcache();
+			$size = filesize($local);
+			list($width, $height) = getimagesize($local);
+			
 			$this->rmTmb($path);
 			$this->clearcache();
 			$this->createTmb($path, $file);
 
-			$sql = 'UPDATE %s SET width=%d, height=%d WHERE file_id=%d LIMIT 1';
-			$sql = sprintf($sql, $this->tbf, $width, $height, $path);
+			$sql = 'UPDATE %s SET mtime=%d, width=%d, height=%d, size=%d WHERE file_id=%d LIMIT 1';
+			$sql = sprintf($sql, $this->tbf, time(), $width, $height, $size, $path);
 			$this->query($sql);
 
 			return $this->stat($path);

@@ -67,7 +67,7 @@ class elFinder {
 		'search'    => array('q' => true, 'mimes' => false),
 		'info'      => array('targets' => true),
 		'dim'       => array('target' => true),
-		'resize'    => array('target' => true, 'width' => true, 'height' => true, 'mode' => false, 'x' => false, 'y' => false)
+		'resize'    => array('target' => true, 'width' => true, 'height' => true, 'mode' => false, 'x' => false, 'y' => false, 'deg' => false)
 	);
 	
 	/**
@@ -505,7 +505,7 @@ class elFinder {
 		
 		$result = array(
 			'cwd'     => $cwd,
-			'options' => $volume->options($target),
+			'options' => $volume->options($cwd['hash']),
 			'files'   => $files
 		);
 
@@ -631,18 +631,15 @@ class elFinder {
 			$mime = $file['mime'];
 		}
 		
-		$name_enc = rawurlencode($file['name']);
-		if (substr($name_enc, '%') === false) {
-			// ASCII only
+		$filenameEncoded = rawurlencode($file['name']);
+		if (substr($filenameEncoded, '%') === false) { // ASCII only
 			$filename = 'filename="'.$file['name'].'"';
 		} else {
 			$ua = $_SERVER["HTTP_USER_AGENT"];
-			if (preg_match('/MSIE [4-8]/', $ua)) {
-				// IE < 9 not support RFC 6266 (RFC 2231/RFC 5987) 
-				$filename = 'filename="'.rawurlencode($file['name']).'"';
-			} else {
-				// RFC 6266 (RFC 2231/RFC 5987)
-				$filename = 'filename*=UTF-8\'\''.rawurlencode($file['name']);
+			if (preg_match('/MSIE [4-8]/', $ua)) { // IE < 9 not support RFC 6266 (RFC 2231/RFC 5987) 
+				$filename = 'filename="'.$filenameEncoded.'"';
+			} else { // RFC 6266 (RFC 2231/RFC 5987)
+				$filename = 'filename*=UTF-8\'\''.$filenameEncoded;
 			}
 		}
 		
@@ -1048,13 +1045,15 @@ class elFinder {
 		$x      = (int)$args['x'];
 		$y      = (int)$args['y'];
 		$mode   = $args['mode'];
+		$bg     = '';
+		$deg    = (int)$args['deg'];
 		
 		if (($volume = $this->volume($target)) == false
 		|| ($file = $volume->file($target)) == false) {
 			return array('error' => $this->error(self::ERROR_RESIZE, '#'.$target, self::ERROR_FILE_NOT_FOUND));
 		}
 
-		return ($file = $volume->resize($target, $width, $height, $x, $y, $mode))
+		return ($file = $volume->resize($target, $width, $height, $x, $y, $mode, $bg, $deg))
 			? array('changed' => array($file))
 			: array('error' => $this->error(self::ERROR_RESIZE, $volume->path($target), $volume->error()));
 	}
