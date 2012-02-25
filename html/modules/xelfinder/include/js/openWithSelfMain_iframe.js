@@ -113,7 +113,7 @@ function openWithSelfMain(url, name, w, h, returnwindow) {
 					.each(function() { this.parentNode.removeChild(this); });
 				}
 			});
-			popW.contentWindow.focus();
+			setTimeout(function(){ popW.contentWindow.focus(); }, 100);
 		}(jQuery)
 	);
 
