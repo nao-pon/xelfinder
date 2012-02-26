@@ -67,7 +67,7 @@ if (isset($config['uploadAllow'])) {
 if (empty($config['disable_pathinfo'])) {
 	$config['URL'] = XOOPS_URL . '/modules/' . $mydirname . '/index.php/view/';
 } else {
-	$config['URL'] = XOOPS_URL . '/modules/' . $mydirname . '/index.php?page=view&id=';
+	$config['URL'] = XOOPS_URL . '/modules/' . $mydirname . '/index.php?page=view&file=';
 }
 
 if (! isset($extras[$mydirname.':xelfinder_db'])) {

@@ -3,8 +3,8 @@
 $file_id = 0;
 if (isset($path_info)) {
 	list(,$file_id) = explode('/', $path_info);
-} elseif (isset($_GET['id'])) {
-	list($file_id) = explode('/', $_GET['id']);
+} elseif (isset($_GET['file'])) {
+	list($file_id) = explode('/', $_GET['file']);
 }
 $file_id = (int)$file_id;
 
@@ -34,7 +34,7 @@ if ($file_id && ($res = $xoopsDB->query($query)) && $xoopsDB->getRowsNum($res)) 
 	}
 } else {
 	header('HTTP/1.0 404 Not Found');
-	exit('404 Not Found');
+	exit($file_id  . ' 404 Not Found');
 }
 
 function xelfinder_readAuth($perm, $f_uid) {
