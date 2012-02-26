@@ -2924,7 +2924,8 @@ abstract class elFinderVolumeDriver {
 				$degrees = 360 - $degrees;
 				
 				list($r, $g, $b) = sscanf($bgcolor, "#%02x%02x%02x");
-				$out = imageRotate($img, $degrees, $bgcolor);
+				$bgcolor = imagecolorallocate($img, $r, $g, $b);
+				$out = imageRotate($img, $degrees, (int)$bgcolor);
 				
 				if ($destformat == 'jpg'  || ($destformat == null && $s['mime'] == 'image/jpeg')) {
 					$result = imagejpeg($out, $path, 100);
