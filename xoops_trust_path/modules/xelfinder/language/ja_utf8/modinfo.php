@@ -8,6 +8,8 @@ if( defined( 'FOR_XOOPS_LANG_CHECKER' ) || ! defined( $constpref.'_LOADED' ) ) {
 // a flag for this language file has already been read or not.
 define( $constpref.'_LOADED' , 1 ) ;
 
+define( $constpref.'_DESC' , 'Webベースのファイルマネージャ elFinder をイメージマネージャとして利用するモジュール');
+
 // admin menu
 define($constpref.'_ADMENU_MYLANGADMIN' ,   '言語定数管理' ) ;
 define($constpref.'_ADMENU_MYTPLSADMIN' ,   'テンプレート管理' ) ;

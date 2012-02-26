@@ -11,7 +11,7 @@ $constpref = '_MI_' . strtoupper( $mydirname ) ;
 
 $modversion['name'] = 'xelFinder' ;
 //$modversion['name'] = $constpref.'_NAME') ;
-$modversion['description'] = $constpref.'_DESC';
+$modversion['description'] = constant($constpref.'_DESC');
 $modversion['version'] = 0.02 ;
 $modversion['credits'] = "Hypweb.net";
 $modversion['author'] = "nao-pon" ;
