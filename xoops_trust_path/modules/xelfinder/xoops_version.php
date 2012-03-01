@@ -65,6 +65,14 @@ $modversion['config'][] = array(
 #mailbbs:mailbbs:modules/mailbbs/imgs:MailBBS'
 ) ;
 $modversion['config'][] = array(
+		'name'			=> 'thumbnail_size' ,
+		'title'			=> $constpref.'_THUMBNAIL_SIZE' ,
+		'description'	=> $constpref.'_THUMBNAIL_SIZE_DESC' ,
+		'formtype'		=> 'textbox' ,
+		'valuetype'		=> 'text' ,
+		'default'		=> '120,240,400'
+) ;
+$modversion['config'][] = array(
 	'name'			=> 'default_item_perm' ,
 	'title'			=> $constpref.'_DEFAULT_ITEM_PERM' ,
 	'description'	=> $constpref.'_DEFAULT_ITEM_PERM_DESC' ,

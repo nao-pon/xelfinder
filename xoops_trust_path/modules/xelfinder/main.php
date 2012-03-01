@@ -1,5 +1,8 @@
 <?php
 
+define('XELFINDER_CACHE_TTL', 86400);
+define('XELFINDER_UNIX_TIME', (isset($_SERVER['REQUEST_TIME'])? $_SERVER['REQUEST_TIME'] : time()));
+
 $mytrustdirname = basename( dirname( __FILE__ ) ) ;
 $mytrustdirpath = dirname( __FILE__ ) ;
 

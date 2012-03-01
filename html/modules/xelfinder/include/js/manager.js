@@ -126,7 +126,11 @@ var getFileCallback_bbcode = function (file) {
 				+ '<span onclick="insertCode(\'left\',0);"><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',0)"><img src="'+imgUrl+'alignbigcenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',0)"><img src="'+imgUrl+'alignbigright.gif" alt="" /></span>'
 				+ '<br>'
 				+ '<span class="file_info">__FILEINFO__</span>';
-
+	if (file.url.match(/\bview\b/)) {
+		buttons += '<br>'
+		+ '<span class="file_info">Resize:<input id="resize_px" style="width: 3em" class="button_input" value="'+defaultTmbSize+'">px</span>';
+	}
+	
 	var path = file.url.replace(rootUrl+'/', '');
 	var basename = path.replace( /^.*\//, '' );
 	var module = path.replace( /^.*?(?:modules|uploads)\/([^\/]+)\/.*$/, '$1' );
@@ -149,20 +153,27 @@ function insertCode(align, thumb, format) {
 	$('.toast-item-close').click();
 	$('.toast-item').css('background-image','');
 	var code = '';
+	var size = '';
+	if ($('#resize_px')) {
+		size = $('#resize_px').val();
+		if (! size.match(/[\d]{1,4}/)) {
+			size = '';
+		}
+	}
 	if (! format) {
+		if (imgThumb.match(/_tmbsize_/)) {
+			if (size) {
+				imgThumb = imgThumb.replace('_tmbsize_', size);
+			} else {
+				imgThumb = '';
+			}
+		}
 		if (thumb && imgThumb) {
 			code = '[siteurl='+imgPath+'][siteimg align='+align+']'+imgThumb+'[/siteimg][/siteurl]';
 		} else {
 			code = '[siteimg align='+align+']'+imgPath+'[/siteimg]';
 		}
 	} else if (format == 'xpwiki') {
-		var size = $('#resize_px').val();
-		if (size.match(/[\d]{1,4}/)) {
-			size = size.replace(/([\d]{1,4})/, ",mw:$1,mh:$1");
-		} else {
-			size = '';
-		}
-
 		var pa = null;
 		var o = null;
 		if (target) {
@@ -199,7 +210,7 @@ var getFileCallback_xpwiki = function (file, fm) {
 				+ '<br>'
 				+ '<span class="file_info">__FILEINFO__</span>'
 				+ '<br>'
-				+ '<span class="file_info">Resize:<input id="resize_px" style="width: 3em"class="button_input">px</span>';
+				+ '<span class="file_info">Resize:<input id="resize_px" style="width: 3em" class="button_input" value="'+defaultTmbSize+'">px</span>';
 
 	var path = file.url.replace(rootUrl+'/', '');
 	var basename = path.replace( /^.*\//, '' );

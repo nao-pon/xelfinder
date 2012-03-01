@@ -43,6 +43,8 @@ if ($_js_cache_files) {
 	$managerJs = '<script type="text/javascript" src="'.$myurl.$_managerJs.'" charset="utf-8"></script>' . "\n";
 }
 
+$default_tmbsize = isset($config['thumbnail_size'])? (int)$config['thumbnail_size'] : '160';
+
 $viewport = (preg_match('/Mobile/i', $_SERVER['HTTP_USER_AGENT']))? '<meta name="viewport" content="width=device-width" />' : '';
 
 while(ob_get_level()) {
@@ -159,6 +161,7 @@ while(ob_get_level()) {
 			var imgUrl = myUrl + 'images/';
 			var imgThumb = '';
 			var imgPath = '';
+			var defaultTmbSize = <?php echo $default_tmbsize?>;
 		</script>
 		<script type="text/javascript" src="<?php echo $myurl ?>/include/js/commands/perm.js" charset="utf-8"></script>
 		<script type="text/javascript" src="<?php echo $myurl ?>/include/js/manager.js" charset="utf-8"></script>
