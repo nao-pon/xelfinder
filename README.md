@@ -18,11 +18,21 @@ xelFinder に関する話題、質問、要望 はフォーラムーへ。
 
 ## インストール時の注意事項
 
-次のディレクトリに書き込み(ファイル作成)権限 (777 とか 707) が必要です。
+次のディレクトリに書き込み(ファイル作成)権限 (777 とか 707 など) が必要です。
 
 * html/modules/xelfinder/cache
 * html/modules/xelfinder/cache/tmb
 * xoops_trust_path/uploads/xelfinder
+
+画像参照に PathInfo を使用していますが、サーバー環境によっては PathInfo が使えず正常に表示されない場合があります。
+
+その場合には、管理画面の一般設定で「ファイル参照URLの PathInfo を無効にする」を「はい」にしてください。
+
+## 依存ライブラリについて
+
+BBcode での参照時など用に任意の縮小サイズの画像を表示できますが、その機能を有効にするために HypCommonFunc が必須になっています。
+
+* [HypCommonFunc について](http://xoops.hypweb.net/modules/xpwiki/156.html)
 
 ## xelFinder 固有の主な機能
 
