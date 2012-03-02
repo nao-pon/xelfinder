@@ -12,7 +12,7 @@ $constpref = '_MI_' . strtoupper( $mydirname ) ;
 $modversion['name'] = 'xelFinder' ;
 //$modversion['name'] = $constpref.'_NAME') ;
 $modversion['description'] = constant($constpref.'_DESC');
-$modversion['version'] = 0.02 ;
+$modversion['version'] = 0.03 ;
 $modversion['credits'] = "Hypweb.net";
 $modversion['author'] = "nao-pon" ;
 $modversion['help'] = "" ;
@@ -70,7 +70,7 @@ $modversion['config'][] = array(
 		'description'	=> $constpref.'_THUMBNAIL_SIZE_DESC' ,
 		'formtype'		=> 'textbox' ,
 		'valuetype'		=> 'text' ,
-		'default'		=> '120,240,400'
+		'default'		=> '160'
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'default_item_perm' ,
