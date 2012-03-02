@@ -924,7 +924,11 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _unlink($path) {
-		@unlink($this->readlink($path));
+		$file = $this->readlink($path);
+		@ unlink($file);
+		foreach (glob($file.'_*.tmb') as $tmb) {
+			@ unlink($tmb);
+		}
 		return ($this->query(sprintf('DELETE FROM %s WHERE `file_id`=%d AND `mime`!="directory" LIMIT 1', $this->tbf, $path)) && $this->db->getAffectedRows());
 	}
 
