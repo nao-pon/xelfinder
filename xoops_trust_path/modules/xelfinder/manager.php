@@ -160,7 +160,8 @@ while(ob_get_level()) {
 			var myUrl = rootUrl + '/modules/<?php echo $mydirname?>/';
 			var imgUrl = myUrl + 'images/';
 			var imgThumb = '';
-			var imgPath = '';
+			var itemPath = '';
+			var itemObject = [];
 			var defaultTmbSize = <?php echo $default_tmbsize?>;
 		</script>
 		<script type="text/javascript" src="<?php echo $myurl ?>/include/js/commands/perm.js" charset="utf-8"></script>

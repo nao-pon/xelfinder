@@ -120,58 +120,34 @@ $.fn.extend({
 	}
 });
 
-var getFileCallback_bbcode = function (file) {
-	var buttons = '<span onclick="insertCode(\'left\',1);"><img src="'+imgUrl+'alignleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',1)"><img src="'+imgUrl+'aligncenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',1)"><img src="'+imgUrl+'alignright.gif" alt="" /></span>'
-				+ '<br>'
-				+ '<span onclick="insertCode(\'left\',0);"><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',0)"><img src="'+imgUrl+'alignbigcenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',0)"><img src="'+imgUrl+'alignbigright.gif" alt="" /></span>'
-				+ '<br>'
-				+ '<span class="file_info">__FILEINFO__</span>';
-	if (file.url.match(/\bview\b/)) {
-		buttons += '<br>'
-		+ '<span class="file_info">Resize:<input id="resize_px" style="width: 3em" class="button_input" value="'+defaultTmbSize+'">px</span>';
-	}
-	
-	var path = file.url.replace(rootUrl+'/', '');
-	var basename = path.replace( /^.*\//, '' );
-	var module = path.replace( /^.*?(?:modules|uploads)\/([^\/]+)\/.*$/, '$1' );
-	var thumb = '';
-	if (module.match(/^[a-zA-Z0-9_-]+$/)) {
-		eval('if (typeof get_thumb_'+module+' == "function" ){' +
-			'thumb = get_thumb_'+module+'(basename, file);}' );
-	}
-	imgThumb = encodeURI(thumb);
-	imgPath = encodeURI(path);
-
-	var fileinfo = 'Size: ' + file.width + 'x' + file.height;
-
-	$().toastmessage( 'removeToast', $('.toast-item'));
-	$().toastmessage( 'showSuccessToast', buttons.replace('__FILEINFO__', fileinfo) );
-	$('.toast-item').css('background-image','url("'+file.url+'")');
-};
-
 function insertCode(align, thumb, format) {
 	$('.toast-item-close').click();
 	$('.toast-item').css('background-image','');
 	var code = '';
 	var size = '';
-	if ($('#resize_px')) {
+	var isImg = (itemObject.mime.match(/^image/));
+	if (isImg && $('#resize_px')) {
 		size = $('#resize_px').val();
-		if (! size.match(/[\d]{1,4}/)) {
+		if (size && ! size.match(/[\d]{1,4}/)) {
 			size = '';
 		}
 	}
 	if (! format) {
-		if (imgThumb.match(/_tmbsize_/)) {
-			if (size) {
-				imgThumb = imgThumb.replace('_tmbsize_', size);
-			} else {
-				imgThumb = '';
+		if (isImg) {
+			if (imgThumb.match(/_tmbsize_/)) {
+				if (size) {
+					imgThumb = imgThumb.replace('_tmbsize_', size);
+				} else {
+					imgThumb = '';
+				}
 			}
-		}
-		if (thumb && imgThumb) {
-			code = '[siteurl='+imgPath+'][siteimg align='+align+']'+imgThumb+'[/siteimg][/siteurl]';
+			if (thumb && imgThumb) {
+				code = '[siteurl='+itemPath+'][siteimg align='+align+']'+imgThumb+'[/siteimg][/siteurl]';
+			} else {
+				code = '[siteimg align='+align+']'+itemPath+'[/siteimg]';
+			}
 		} else {
-			code = '[siteimg align='+align+']'+imgPath+'[/siteimg]';
+			code = '[siteurl='+itemPath+']'+itemObject.name+'[/siteurl]';
 		}
 	} else if (format == 'xpwiki') {
 		var pa = null;
@@ -187,11 +163,14 @@ function insertCode(align, thumb, format) {
 				} catch(e) {}
 			}
 		}
-
-		if (thumb || o.tagName != 'TEXTAREA') {
-			code = '&ref(site://'+imgPath+','+align+size+');';
+		if (isImg) {
+			if (thumb || o.tagName != 'TEXTAREA') {
+				code = '&ref(site://'+itemPath+','+align+size+');';
+			} else {
+				code = '#ref(site://'+itemPath+','+align+size+')\n\n';
+			}
 		} else {
-			code = '#ref(site://'+imgPath+','+align+size+')\n\n';
+			code = '[['+itemObject.name+':site://'+itemPath+']]';
 		}
 	}
 	if (target) {
@@ -203,29 +182,68 @@ function insertCode(align, thumb, format) {
 	}
 }
 
-var getFileCallback_xpwiki = function (file, fm) {
-	var buttons = '<span onclick="insertCode(\'left\',1,\'xpwiki\');"><img src="'+imgUrl+'alignleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',1,\'xpwiki\')"><img src="'+imgUrl+'aligncenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',1,\'xpwiki\')"><img src="'+imgUrl+'alignright.gif" alt="" /></span>'
-				+ '<br>'
-				+ '<span onclick="insertCode(\'left\',0,\'xpwiki\');"><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',0,\'xpwiki\')"><img src="'+imgUrl+'alignbigcenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',0,\'xpwiki\')"><img src="'+imgUrl+'alignbigright.gif" alt="" /></span>'
-				+ '<br>'
-				+ '<span class="file_info">__FILEINFO__</span>'
-				+ '<br>'
-				+ '<span class="file_info">Resize:<input id="resize_px" style="width: 3em" class="button_input" value="'+defaultTmbSize+'">px</span>';
-
+var getFileCallback_bbcode = function (file) {
 	var path = file.url.replace(rootUrl+'/', '');
 	var basename = path.replace( /^.*\//, '' );
 	var module = path.replace( /^.*?(?:modules|uploads)\/([^\/]+)\/.*$/, '$1' );
 	var thumb = '';
-	if (module.match(/^[a-zA-Z0-9_-]+$/)) {
+	var isImg = (file.mime.match(/^image/))? true : false;
+	if (isImg && module.match(/^[a-zA-Z0-9_-]+$/)) {
 		eval('if (typeof get_thumb_'+module+' == "function" ){' +
 			'thumb = get_thumb_'+module+'(basename, file);}' );
 	}
 	imgThumb = encodeURI(thumb);
-	imgPath = encodeURI(path);
+	itemPath = encodeURI(path);
+	itemObject = file;
 
-	var fileinfo = 'Size: ' + file.width + 'x' + file.height;
+	//var fileinfo = 'Size: ' + file.width + 'x' + file.height;
+	if (isImg) {
+		var buttons = '<span onclick="insertCode(\'left\',1);"><img src="'+imgUrl+'alignleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',1)"><img src="'+imgUrl+'aligncenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',1)"><img src="'+imgUrl+'alignright.gif" alt="" /></span>'
+					+ '<br>'
+					+ '<span onclick="insertCode(\'left\',0);"><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',0)"><img src="'+imgUrl+'alignbigcenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',0)"><img src="'+imgUrl+'alignbigright.gif" alt="" /></span>'
+					+ '<br>'
+					+ '<span class="file_info">Size: ' + file.width + 'x' + file.height+'</span>';
+		if (file.url.match(/\bview\b/)) {
+			buttons += '<br>'
+					+ '<span class="file_info">Resize:<input id="resize_px" style="width: 3em" class="button_input" value="'+defaultTmbSize+'">px</span>';
+		}
+		
+		$().toastmessage( 'removeToast', $('.toast-item'));
+		$().toastmessage( 'showSuccessToast', buttons);
+		$('.toast-item').css('background-image','url("'+file.url+'")');
+	} else {
+		insertCode('',0);
+	}
+};
 
-	$('.toast-item-close').click();
-	$().toastmessage( 'showSuccessToast', buttons.replace('__FILEINFO__', fileinfo) );
-	$('.toast-item').css('background-image','url("'+file.url+'")');
+var getFileCallback_xpwiki = function (file, fm) {
+	var path = file.url.replace(rootUrl+'/', '');
+	var basename = path.replace( /^.*\//, '' );
+	var module = path.replace( /^.*?(?:modules|uploads)\/([^\/]+)\/.*$/, '$1' );
+	var thumb = '';
+	var isImg = (file.mime.match(/^image/))? true : false;
+	if (isImg && module.match(/^[a-zA-Z0-9_-]+$/)) {
+		eval('if (typeof get_thumb_'+module+' == "function" ){' +
+			'thumb = get_thumb_'+module+'(basename, file);}' );
+	}
+	imgThumb = encodeURI(thumb);
+	itemPath = encodeURI(path);
+	itemObject = file;
+
+	//var fileinfo = 'Size: ' + file.width + 'x' + file.height;
+	if (isImg) {
+		var buttons = '<span onclick="insertCode(\'left\',1,\'xpwiki\');"><img src="'+imgUrl+'alignleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',1,\'xpwiki\')"><img src="'+imgUrl+'aligncenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',1,\'xpwiki\')"><img src="'+imgUrl+'alignright.gif" alt="" /></span>'
+					+ '<br>'
+					+ '<span onclick="insertCode(\'left\',0,\'xpwiki\');"><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',0,\'xpwiki\')"><img src="'+imgUrl+'alignbigcenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',0,\'xpwiki\')"><img src="'+imgUrl+'alignbigright.gif" alt="" /></span>'
+					+ '<br>'
+					+ '<span class="file_info">Size: ' + file.width + 'x' + file.height+'</span>'
+					+ '<br>'
+					+ '<span class="file_info">Resize:<input id="resize_px" style="width: 3em" class="button_input" value="'+defaultTmbSize+'">px</span>';
+	
+		$('.toast-item-close').click();
+		$().toastmessage( 'showSuccessToast', buttons);
+		$('.toast-item').css('background-image','url("'+file.url+'")');
+	} else {
+		insertCode('',0,'xpwiki');
+	}
 };
