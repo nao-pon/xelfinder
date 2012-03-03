@@ -47,6 +47,10 @@ define( $constpref.'_GROUP_DIR_ITEM_PERM' ,     'グループ別ホルダに作�
 define( $constpref.'_GROUP_DIR_ITEM_PERM_DESC' ,'例: 748: オーナー 7 = -rwu, グループ 4 = -r--, ゲスト 8 = h---' );
 define( $constpref.'_UPLOAD_ALLOW_ADMIN' ,      '管理者にアップロードを許可する MIME タイプ' );
 define( $constpref.'_UPLOAD_ALLOW_ADMIN_DESC' , 'MIME タイプを半角スペース区切りで記述。<br />all: 全て許可, none: 何も許可しない<br />例: image text/plain' );
+define( $constpref.'_SPECIAL_GROUPS' ,          '特定グループ' );
+define( $constpref.'_SPECIAL_GROUPS_DESC' ,     '特定グループとするグループを選択 (複数選択可)' );
+define( $constpref.'_UPLOAD_ALLOW_SPGROUPS' ,   '特定グループにアップロードを許可する MIME タイプ' );
+define( $constpref.'_UPLOAD_ALLOW_SPGROUPS_DESC','' );
 define( $constpref.'_UPLOAD_ALLOW_USER' ,       '登録ユーザーにアップロードを許可する MIME タイプ' );
 define( $constpref.'_UPLOAD_ALLOW_USER_DESC' ,  '' );
 define( $constpref.'_UPLOAD_ALLOW_GUEST' ,      'ゲストにアップロードを許可する MIME タイプ' );

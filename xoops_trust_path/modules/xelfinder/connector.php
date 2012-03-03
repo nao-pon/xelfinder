@@ -30,11 +30,13 @@ require dirname(__FILE__) . '/class/xelFinder.class.php';
 
 $isAdmin = false;
 $memberUid = 0;
+$memberGroups = array(XOOPS_GROUP_ANONYMOUS);
 if (is_object($xoopsUser)) {
 	if ($xoopsUser->isAdmin()) {
 		$isAdmin = true;
 	}
 	$memberUid = $xoopsUser->getVar('uid');
+	$memberGroups = $xoopsUser->getGroups();
 }
 
 $extras = array();
@@ -47,9 +49,13 @@ foreach(array('default', 'users_dir', 'guest_dir', 'group_dir') as $_key) {
 	$config[$_key.'_umask'] = strval(dechex(0xfff - intval(strval($config[$_key.'_item_perm']), 16)));
 }
 
+$inSpecialGroup = (array_intersect($memberGroups, ( isset($config['special_groups'])? $config['special_groups'] : array() )));
+
 // set uploadAllow
 if ($isAdmin && isset($config['upload_allow_admin'])) {
 	$config['uploadAllow'] = $config['upload_allow_admin'];
+} elseif ($inSpecialGroup && isset($config['upload_allow_spgroups'])) {
+	$config['uploadAllow'] = $config['upload_allow_spgroups'];
 } elseif ($memberUid && isset($config['upload_allow_user'])) {
 	$config['uploadAllow'] = $config['upload_allow_user'];
 } elseif (isset($config['upload_allow_guest'])) {
