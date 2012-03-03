@@ -152,7 +152,7 @@ function insertCode(align, thumb, format) {
 	} else if (format == 'xpwiki') {
 		var pa = null;
 		var o = null;
-		if (target) {
+		//if (target) {
 			try {
 				pa = window.opener;
 				o = pa.document.getElementById(target);
@@ -162,7 +162,7 @@ function insertCode(align, thumb, format) {
 					o = pa.document.getElementById(target);
 				} catch(e) {}
 			}
-		}
+		//}
 		if (isImg) {
 			if (thumb || o.tagName != 'TEXTAREA') {
 				code = '&ref(site://'+itemPath+','+align+size+');';
@@ -173,16 +173,20 @@ function insertCode(align, thumb, format) {
 			code = '[['+itemObject.name+':site://'+itemPath+']]';
 		}
 	}
-	if (target) {
+	//if (target) {
 		$().insertAtCaret(code);
 		window.close();
-	} else {
-		// for debug
-		$().toastmessage( 'showSuccessToast', code );
-	}
+	//} else {
+	//	// for debug
+	//	$().toastmessage( 'showSuccessToast', code );
+	//}
 }
 
-var getFileCallback_bbcode = function (file) {
+var getFileCallback_bbcode = function (file, fm) {
+	if (!target) {
+		fm.exec(fm.OS == 'mac' ? 'rename' : 'open')
+		return;
+	}
 	var path = file.url.replace(rootUrl+'/', '');
 	var basename = path.replace( /^.*\//, '' );
 	var module = path.replace( /^.*?(?:modules|uploads)\/([^\/]+)\/.*$/, '$1' );
@@ -217,6 +221,10 @@ var getFileCallback_bbcode = function (file) {
 };
 
 var getFileCallback_xpwiki = function (file, fm) {
+	if (!target) {
+		fm.exec(fm.OS == 'mac' ? 'rename' : 'open')
+		return;
+	}
 	var path = file.url.replace(rootUrl+'/', '');
 	var basename = path.replace( /^.*\//, '' );
 	var module = path.replace( /^.*?(?:modules|uploads)\/([^\/]+)\/.*$/, '$1' );
