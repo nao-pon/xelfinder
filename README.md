@@ -28,7 +28,23 @@ xelFinder に関する話題、質問、要望 はフォーラムーへ。
 
 その場合には、管理画面の一般設定で「ファイル参照URLの PathInfo を無効にする」を「はい」にしてください。
 
-## 依存ライブラリについて
+### ポップアップを IFRAME に変更したい場合
+
+elFinder のポップアップには XOOPS の xoops.js に含まれている openWithSelfMain() を使用しますが、
+openWithSelfMain() では、別ウィンドウが開きます。これを IFRAME を使ったポップアップに変更したい場合は、
+テーマの theme.html にて `<{$xoops_js}>` を読み込んだ後で、openWithSelfMain_iframe.js を読みこませることで
+それが可能になります。
+
+例 (theme.html):
+
+    <script type="text/javascript">
+    <!--
+    <{$xoops_js}>
+    //-->
+    </script>
+    <script type="text/javascript" src="<{$xoops_url}>/modules/xelfinder/include/js/openWithSelfMain_iframe.js" />
+
+### 依存ライブラリについて
 
 BBcode での参照時など用に任意の縮小サイズの画像を表示できますが、その機能を有効にするために HypCommonFunc が必須になっています。
 
@@ -50,8 +66,6 @@ elFinder の機能に加えて次のような機能を持っています。
 
 XOOPS_ROOT_PATH/imagemanager.php で mainfile.php を読み込んでいる行の直後に
 
- include 'modules/xelfinder/manager.php';
+    include 'modules/xelfinder/manager.php';
 
 を挿入すればOKです。
-
-
