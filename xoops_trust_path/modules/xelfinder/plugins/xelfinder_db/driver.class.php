@@ -276,7 +276,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	* @author Alexey Sukhotin
 	* @author nao-pon
 	**/
-	public function resize($hash, $width, $height, $x, $y, $mode = 'resize', $bg='', $deg=0) {
+	public function resize($hash, $width, $height, $x, $y, $mode = 'resize', $bg = '', $degree = 0) {
 		if ($this->commandDisabled('resize')) {
 			return $this->setError(elFinder::ERROR_PERM_DENIED);
 		}
@@ -314,8 +314,8 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 				$result = $this->imgSquareFit($local, $width, $height, 'center', 'middle', $bg ? $bg : $this->options['tmbBgColor']);
 				break;
 
-			case 'rotateonly':
-				$result = 'rotateonly';
+			case 'rotate':
+				$result = $this->imgRotate($local, $degree, ($bg ? $bg : $this->options['tmbBgColor']));
 				break;
 			
 			default:
@@ -324,11 +324,6 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		}
 		
 		if ($result) {
-			if ($deg) {
-				if (! $this->imgRotate($local, $deg) && $result === 'rotateonly' ) {
-					return false;
-				}
-			}
 			clearstatcache();
 			$size = filesize($local);
 			list($width, $height) = getimagesize($local);

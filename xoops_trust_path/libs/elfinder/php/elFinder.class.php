@@ -67,7 +67,7 @@ class elFinder {
 		'search'    => array('q' => true, 'mimes' => false),
 		'info'      => array('targets' => true),
 		'dim'       => array('target' => true),
-		'resize'    => array('target' => true, 'width' => true, 'height' => true, 'mode' => false, 'x' => false, 'y' => false, 'deg' => false)
+		'resize'    => array('target' => true, 'width' => true, 'height' => true, 'mode' => false, 'x' => false, 'y' => false, 'degree' => false)
 	);
 	
 	/**
@@ -323,34 +323,12 @@ class elFinder {
 		
 		$result = $this->$cmd($args);
 		
-		// normalize data
-		// if (isset($result['added'])) {
-		// 	$result['added'] = $this->toArray($result['added']);
-		// }
-		// if (isset($result['changed'])) {
-		// 	$result['changed'] = $this->toArray($result['changed']);
-		// }
-		// if (isset($result['removed'])) {
-		// 	$result['removed'] = $this->toArray($result['removed']);
-		// }
-		
 		if (isset($result['removed'])) {
 			foreach ($this->volumes as $volume) {
 				$result['removed'] = array_merge($result['removed'], $volume->removed());
 				$volume->resetRemoved();
 			}
 		}
-		
-		// some commands can remove/overwrite files
-		// if ($cmd == 'upload' || $cmd == 'paste' || $cmd == 'extract') {
-		// 	if (!isset($result['removed'])) {
-		// 		$result['removed'] = array();
-		// 	}
-		// 	foreach ($this->volumes as $volume) {
-		// 		$result['removed'] = array_merge($result['removed'], $volume->removed());
-		// 		$volume->resetRemoved();
-		// 	}
-		// }
 		
 		// call handlers for this command
 		if (!empty($this->listeners[$cmd])) {
@@ -365,9 +343,6 @@ class elFinder {
 		
 		// replace removed files info with removed files hashes
 		if (!empty($result['removed'])) {
-			// debug($result['removed']);
-			// $result['removed'] = $this->hashes($result['removed']);
-			// debug($result['removed']);
 			$removed = array();
 			foreach ($result['removed'] as $file) {
 				$removed[] = $file['hash'];
@@ -632,11 +607,11 @@ class elFinder {
 		}
 		
 		$filenameEncoded = rawurlencode($file['name']);
-		if (substr($filenameEncoded, '%') === false) { // ASCII only
+		if (strpos($filenameEncoded, '%') === false) { // ASCII only
 			$filename = 'filename="'.$file['name'].'"';
 		} else {
 			$ua = $_SERVER["HTTP_USER_AGENT"];
-			if (preg_match('/MSIE [4-8]/', $ua)) { // IE < 9 not support RFC 6266 (RFC 2231/RFC 5987) 
+			if (preg_match('/MSIE [4-8]/', $ua)) { // IE < 9 do not support RFC 6266 (RFC 2231/RFC 5987)
 				$filename = 'filename="'.$filenameEncoded.'"';
 			} else { // RFC 6266 (RFC 2231/RFC 5987)
 				$filename = 'filename*=UTF-8\'\''.$filenameEncoded;
@@ -1045,15 +1020,15 @@ class elFinder {
 		$x      = (int)$args['x'];
 		$y      = (int)$args['y'];
 		$mode   = $args['mode'];
-		$bg     = '';
-		$deg    = (int)$args['deg'];
+		$bg     = null;
+		$degree = (int)$args['degree'];
 		
 		if (($volume = $this->volume($target)) == false
 		|| ($file = $volume->file($target)) == false) {
 			return array('error' => $this->error(self::ERROR_RESIZE, '#'.$target, self::ERROR_FILE_NOT_FOUND));
 		}
 
-		return ($file = $volume->resize($target, $width, $height, $x, $y, $mode, $bg, $deg))
+		return ($file = $volume->resize($target, $width, $height, $x, $y, $mode, $bg, $degree))
 			? array('changed' => array($file))
 			: array('error' => $this->error(self::ERROR_RESIZE, $volume->path($target), $volume->error()));
 	}
@@ -1126,6 +1101,3 @@ class elFinder {
 	}
 	
 } // END class
-
-
-?>

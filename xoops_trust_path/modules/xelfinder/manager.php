@@ -64,8 +64,10 @@ while(ob_get_level()) {
 	<script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script>
 	-->
 	<script src="<?php echo $elfurl ?>/jquery/jquery-1.7.1.min.js" type="text/javascript" charset="utf-8"></script>
-	<script src="<?php echo $elfurl ?>/jquery/jquery-ui-1.8.16.custom.min.js" type="text/javascript" charset="utf-8"></script>
-	<link rel="stylesheet" href="<?php echo $elfurl ?>/jquery/ui-themes/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen" title="no title" charset="utf-8">
+	<script src="<?php echo $elfurl ?>/jquery/jquery-ui-1.8.18.custom.min.js" type="text/javascript" charset="utf-8"></script>
+	<link rel="stylesheet" href="<?php echo $elfurl ?>/jquery/ui-themes/smoothness/jquery-ui-1.8.18.custom.css" type="text/css" media="screen" title="no title" charset="utf-8">
+
+	<script src="<?php echo $elfurl ?>/jquery/jQueryRotateCompressed.2.1.js" type="text/javascript" charset="utf-8"></script>
 
 	<link rel="stylesheet" href="<?php echo $elfurl ?>/css/common.css"      type="text/css" media="screen" charset="utf-8">
 	<link rel="stylesheet" href="<?php echo $elfurl ?>/css/dialog.css"      type="text/css" media="screen" charset="utf-8">
