@@ -164,6 +164,9 @@ function insertCode(align, thumb, format) {
 			}
 		//}
 		if (isImg) {
+			if (size) {
+				size = ',mw:'+size+',mh:'+size
+			}
 			if (thumb || o.tagName != 'TEXTAREA') {
 				code = '&ref(site://'+itemPath+','+align+size+');';
 			} else {
