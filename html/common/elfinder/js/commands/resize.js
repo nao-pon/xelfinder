@@ -177,6 +177,7 @@ elFinder.prototype.commands.resize = function() {
 							spinner.text('Unable to load image').css('background', 'transparent');
 						}),
 					imgc = $('<img/>'),
+					basec = $('<div/>'),
 					imgr = $('<img/>'),
 					resetView = function() {
 						width.val(owidth);
@@ -190,14 +191,16 @@ elFinder.prototype.commands.resize = function() {
 						},
 						
 						updateView : function(w, h) {
-							if (ratio >= 1 && w > pwidth) {
-								img.width(pwidth).height(Math.ceil(img.width()/ratio));
-							} else if (h > pheight) {
-								img.height(pheight).width(Math.ceil(img.height()*ratio));
-							} else if (w <= pwidth && h <= pheight) {
-								img.width(w).height(h)
+							if (w > pwidth || h > pheight) {
+								if (w > pwidth && (w - pwidth) > (h - pheight)) {
+									img.width(pwidth).height(Math.ceil(img.width()/ratio));
+								} else {
+									img.height(pheight).width(Math.ceil(img.height()*ratio));
+								}
+							} else {
+								img.width(w).height(h);
 							}
-
+							
 							prop = img.width()/w;
 							uiprop.text('1 : '+(1/prop).toFixed(2))
 							resize.updateHandle();
@@ -263,6 +266,8 @@ elFinder.prototype.commands.resize = function() {
 							}
 							else {
 								uicrop.show();
+								basec.width(img.width()+10)
+									.height(img.height()+10);
 								imgc.show()
 									.width(img.width())
 									.height(img.height());
@@ -273,11 +278,11 @@ elFinder.prototype.commands.resize = function() {
 									.height(imgc.height())
 									.offset(imgc.offset())
 									.resizable({
-										containment : imgc,
+										containment : basec,
 										resize      : crop.update
 									})
 									.draggable({
-										containment : imgc,
+										containment : basec,
 										drag        : crop.update
 									});
 								crop.update();
@@ -425,7 +430,7 @@ elFinder.prototype.commands.resize = function() {
 					.append('<div class="'+rpoint+' '+rpoint+'-se"/>')
 					.append('<div class="'+rpoint+' '+rpoint+'-s"/>')
 
-				preview.append(rhandlec.hide()).append(imgc.hide());
+				preview.append(rhandlec.hide()).append(basec.append(imgc.hide()));
 				
 				preview.append(imgr.hide());
 					
