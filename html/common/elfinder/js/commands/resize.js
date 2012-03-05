@@ -261,12 +261,13 @@ elFinder.prototype.commands.resize = function() {
 								rhandlec.resizable('destroy');
 								rhandlec.draggable('destroy');
 								rhandlec.hide();
+								basec.hide();
 								imgc.hide();
 								uicrop.hide();
 							}
 							else {
 								uicrop.show();
-								basec.width(img.width()+10)
+								basec.show().width(img.width()+10)
 									.height(img.height()+10);
 								imgc.show()
 									.width(img.width())
@@ -430,10 +431,12 @@ elFinder.prototype.commands.resize = function() {
 					.append('<div class="'+rpoint+' '+rpoint+'-se"/>')
 					.append('<div class="'+rpoint+' '+rpoint+'-s"/>')
 
-				preview.append(rhandlec.hide()).append(basec.append(imgc.hide()));
+				preview.append(rhandlec.hide()).append(basec.hide().append(imgc.hide()));
 				
 				preview.append(imgr.hide());
-					
+				
+				preview.css('overflow', 'hidden');
+				
 				dialog.append(preview).append(control);
 				
 				buttons[fm.i18n('btnCancel')] = function() { dialog.elfinderdialog('close'); };
