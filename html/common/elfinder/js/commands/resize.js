@@ -177,7 +177,7 @@ elFinder.prototype.commands.resize = function() {
 							spinner.text('Unable to load image').css('background', 'transparent');
 						}),
 					imgc = $('<img/>'),
-					basec = $('<div/>'),
+					containc = $('<img/>'),
 					imgr = $('<img/>'),
 					resetView = function() {
 						width.val(owidth);
@@ -261,13 +261,12 @@ elFinder.prototype.commands.resize = function() {
 								rhandlec.resizable('destroy');
 								rhandlec.draggable('destroy');
 								rhandlec.hide();
-								basec.hide();
 								imgc.hide();
 								uicrop.hide();
 							}
 							else {
 								uicrop.show();
-								basec.show().width(img.width()+10)
+								containc.width(img.width()+10)
 									.height(img.height()+10);
 								imgc.show()
 									.width(img.width())
@@ -279,11 +278,11 @@ elFinder.prototype.commands.resize = function() {
 									.height(imgc.height())
 									.offset(imgc.offset())
 									.resizable({
-										containment : basec,
+										containment : containc,
 										resize      : crop.update
 									})
 									.draggable({
-										containment : basec,
+										containment : containc,
 										drag        : crop.update
 									});
 								crop.update();
@@ -431,7 +430,7 @@ elFinder.prototype.commands.resize = function() {
 					.append('<div class="'+rpoint+' '+rpoint+'-se"/>')
 					.append('<div class="'+rpoint+' '+rpoint+'-s"/>')
 
-				preview.append(rhandlec.hide()).append(basec.hide().append(imgc.hide()));
+				preview.append(rhandlec.hide()).append(containc.hide()).append(imgc.hide());
 				
 				preview.append(imgr.hide());
 				
