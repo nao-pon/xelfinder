@@ -981,6 +981,16 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 						$this->_unlink($id);
 						return $this->setError(elFinder::ERROR_UPLOAD_FILE_MIME);
 					}
+					if ($this->options['autoResize'] && strpos($mime, 'image') === 0 && max($w, $h) > $this->options['autoResize']) {
+						if ($this->imgResize($local, $this->options['autoResize'], $this->options['autoResize'], true, true)) {
+							clearstatcache();
+							$size = filesize($local);
+							list($width, $height) = getimagesize($local);
+							$sql = 'UPDATE %s SET width=%d, height=%d, size=%d WHERE file_id=%d LIMIT 1';
+							$sql = sprintf($sql, $this->tbf, $width, $height, $size, $id);
+							$this->query($sql);
+						}
+					}
 					return $id;
 				} else {
 					$this->_unlink($id);

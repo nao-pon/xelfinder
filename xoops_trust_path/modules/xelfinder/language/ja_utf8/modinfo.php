@@ -45,16 +45,29 @@ define( $constpref.'_GROUP_DIR_PERM' ,          'グループ別ホルダのパ�
 define( $constpref.'_GROUP_DIR_PERM_DESC' ,     '例: 768: オーナー 7 = -rwu, グループ 6 = -rw-, ゲスト 8 = h---' );
 define( $constpref.'_GROUP_DIR_ITEM_PERM' ,     'グループ別ホルダに作成されるアイテムのパーミッション' );
 define( $constpref.'_GROUP_DIR_ITEM_PERM_DESC' ,'例: 748: オーナー 7 = -rwu, グループ 4 = -r--, ゲスト 8 = h---' );
+
 define( $constpref.'_UPLOAD_ALLOW_ADMIN' ,      '管理者にアップロードを許可する MIME タイプ' );
 define( $constpref.'_UPLOAD_ALLOW_ADMIN_DESC' , 'MIME タイプを半角スペース区切りで記述。<br />all: 全て許可, none: 何も許可しない<br />例: image text/plain' );
+define( $constpref.'_AUTO_RESIZE_ADMIN' ,       '管理者用自動リサイズ (px)' );
+define( $constpref.'_AUTO_RESIZE_ADMIN_DESC' ,  '画像をアップロード時、指定した矩形サイズに収まるように自動リサイズする値(px)。<br />何も入力しないと自動リサイズは行われません。' );
+
 define( $constpref.'_SPECIAL_GROUPS' ,          '特定グループ' );
 define( $constpref.'_SPECIAL_GROUPS_DESC' ,     '特定グループとするグループを選択 (複数選択可)' );
 define( $constpref.'_UPLOAD_ALLOW_SPGROUPS' ,   '特定グループにアップロードを許可する MIME タイプ' );
 define( $constpref.'_UPLOAD_ALLOW_SPGROUPS_DESC','' );
+define( $constpref.'_AUTO_RESIZE_SPGROUPS' ,    '特定グループ用自動リサイズ (px)' );
+define( $constpref.'_AUTO_RESIZE_SPGROUPS_DESC','' );
+
 define( $constpref.'_UPLOAD_ALLOW_USER' ,       '登録ユーザーにアップロードを許可する MIME タイプ' );
 define( $constpref.'_UPLOAD_ALLOW_USER_DESC' ,  '' );
+define( $constpref.'_AUTO_RESIZE_USER' ,        '登録ユーザー用自動リサイズ (px)' );
+define( $constpref.'_AUTO_RESIZE_USER_DESC',    '' );
+
 define( $constpref.'_UPLOAD_ALLOW_GUEST' ,      'ゲストにアップロードを許可する MIME タイプ' );
 define( $constpref.'_UPLOAD_ALLOW_GUEST_DESC' , '' );
+define( $constpref.'_AUTO_RESIZE_GUEST' ,       'ゲスト用自動リサイズ (px)' );
+define( $constpref.'_AUTO_RESIZE_GUEST_DESC',   '' );
+
 define( $constpref.'_DISABLE_PATHINFO' ,        'ファイル参照URLの PathInfo を無効にする' );
 define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '' );
 

@@ -12,7 +12,7 @@ $constpref = '_MI_' . strtoupper( $mydirname ) ;
 $modversion['name'] = 'xelFinder' ;
 //$modversion['name'] = $constpref.'_NAME') ;
 $modversion['description'] = constant($constpref.'_DESC');
-$modversion['version'] = 0.04 ;
+$modversion['version'] = 0.05 ;
 $modversion['credits'] = "Hypweb.net";
 $modversion['author'] = "nao-pon" ;
 $modversion['help'] = "" ;
@@ -169,6 +169,14 @@ $modversion['config'][] = array(
 	'default'		=> 'all'
 ) ;
 $modversion['config'][] = array(
+		'name'			=> 'auto_resize_admin' ,
+		'title'			=> $constpref.'_AUTO_RESIZE_ADMIN' ,
+		'description'	=> $constpref.'_AUTO_RESIZE_ADMIN_DESC' ,
+		'formtype'		=> 'textbox' ,
+		'valuetype'		=> 'text' ,
+		'default'		=> ''
+) ;
+$modversion['config'][] = array(
 	'name'			=> 'special_groups' ,
 	'title'			=> $constpref.'_SPECIAL_GROUPS',
 	'description'	=> $constpref.'_SPECIAL_GROUPS_DESC',
@@ -185,6 +193,14 @@ $modversion['config'][] = array(
 	'default'		=> 'all'
 ) ;
 $modversion['config'][] = array(
+		'name'			=> 'auto_resize_spgroups' ,
+		'title'			=> $constpref.'_AUTO_RESIZE_SPGROUPS' ,
+		'description'	=> $constpref.'_AUTO_RESIZE_SPGROUPS_DESC' ,
+		'formtype'		=> 'textbox' ,
+		'valuetype'		=> 'text' ,
+		'default'		=> ''
+) ;
+$modversion['config'][] = array(
 	'name'			=> 'upload_allow_user' ,
 	'title'			=> $constpref.'_UPLOAD_ALLOW_USER',
 	'description'	=> $constpref.'_UPLOAD_ALLOW_USER_DESC',
@@ -193,12 +209,28 @@ $modversion['config'][] = array(
 	'default'		=> 'image text/plain'
 ) ;
 $modversion['config'][] = array(
+		'name'			=> 'auto_resize_user' ,
+		'title'			=> $constpref.'_AUTO_RESIZE_USER' ,
+		'description'	=> $constpref.'_AUTO_RESIZE_USER_DESC' ,
+		'formtype'		=> 'textbox' ,
+		'valuetype'		=> 'text' ,
+		'default'		=> '1024'
+) ;
+$modversion['config'][] = array(
 	'name'			=> 'upload_allow_guest' ,
 	'title'			=> $constpref.'_UPLOAD_ALLOW_GUEST',
 	'description'	=> $constpref.'_UPLOAD_ALLOW_GUEST_DESC',
 	'formtype'		=> 'textbox' ,
 	'valuetype'		=> 'text' ,
 	'default'		=> 'image'
+) ;
+$modversion['config'][] = array(
+		'name'			=> 'auto_resize_guest' ,
+		'title'			=> $constpref.'_AUTO_RESIZE_GUEST' ,
+		'description'	=> $constpref.'_AUTO_RESIZE_GUEST_DESC' ,
+		'formtype'		=> 'textbox' ,
+		'valuetype'		=> 'text' ,
+		'default'		=> '1024'
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'disable_pathinfo' ,

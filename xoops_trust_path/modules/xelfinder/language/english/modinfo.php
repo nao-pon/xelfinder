@@ -45,16 +45,29 @@ define( $constpref.'_GROUP_DIR_PERM' ,          'Permission of "holder for each 
 define( $constpref.'_GROUP_DIR_PERM_DESC' ,     'ex. 768: Owner 7 = -rwu, Group 6 = -rw-, Guest 8 = h---' );
 define( $constpref.'_GROUP_DIR_ITEM_PERM' ,     'Permission of the new items in "holder for each group"' );
 define( $constpref.'_GROUP_DIR_ITEM_PERM_DESC' ,'ex. 748: Owner 7 = -rwu, Group 4 = -r--, Guest 8 = h---' );
+
 define( $constpref.'_UPLOAD_ALLOW_ADMIN' ,      'Upload allow MIME types for Admin' );
 define( $constpref.'_UPLOAD_ALLOW_ADMIN_DESC' , 'Specifies the MIME types, separated by a space.<br />all: Allow all, none: Nothing<br />ex. image text/plain' );
+define( $constpref.'_AUTO_RESIZE_ADMIN' ,       'Auto resize for Admin (px)' );
+define( $constpref.'_AUTO_RESIZE_ADMIN_DESC' ,  'Value(px) which resizes a picture automatically so that it may fit in the specified rectangle size at the time of upload.<br />An input of nothing will not perform automatic resizing.' );
+
 define( $constpref.'_SPECIAL_GROUPS' ,          'Special groups' );
 define( $constpref.'_SPECIAL_GROUPS_DESC' ,     'Select groups you want to special group. (Multiple Select)' );
 define( $constpref.'_UPLOAD_ALLOW_SPGROUPS' ,   'Upload allow MIME types for Special groups' );
 define( $constpref.'_UPLOAD_ALLOW_SPGROUPS_DESC','' );
+define( $constpref.'_AUTO_RESIZE_SPGROUPS' ,    'Auto resize for Special groups (px)' );
+define( $constpref.'_AUTO_RESIZE_SPGROUPS_DESC','' );
+
 define( $constpref.'_UPLOAD_ALLOW_USER' ,       'Upload allow MIME types for Registed user' );
 define( $constpref.'_UPLOAD_ALLOW_USER_DESC' ,  '' );
+define( $constpref.'_AUTO_RESIZE_USER' ,        'Auto resize for Registed user (px)' );
+define( $constpref.'_AUTO_RESIZE_USER_DESC',    '' );
+
 define( $constpref.'_UPLOAD_ALLOW_GUEST' ,      'Upload allow MIME types for Guest' );
 define( $constpref.'_UPLOAD_ALLOW_GUEST_DESC' , '' );
+define( $constpref.'_AUTO_RESIZE_GUEST' ,       'Auto resize for Guest (px)' );
+define( $constpref.'_AUTO_RESIZE_GUEST_DESC',   '' );
+
 define( $constpref.'_DISABLE_PATHINFO' ,        'Disable PathInfo of file reference URL' );
 define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '' );
 
