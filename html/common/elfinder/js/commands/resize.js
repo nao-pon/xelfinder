@@ -4,6 +4,8 @@
  * Open dialog to resize image
  *
  * @author Dmitry (dio) Levashov
+ * @author Alexey Sukhotin
+ * @author nao-pon
  **/
 elFinder.prototype.commands.resize = function() {
 
@@ -113,6 +115,21 @@ elFinder.prototype.commands.resize = function() {
 					degree = $('<input type="text" size="3" maxlength="3" value="0" />')
 						.change(function() {
 							rotate.update();
+						}),
+					uidegslider = $('<div class="elfinder-resize-rotate-slider"/>')
+						.slider({
+							min: 0,
+							max: 359,
+							value: degree.val(),
+							animate: true,
+							change: function(event, ui) {
+								if (ui.value != uidegslider.slider('value')) {
+									rotate.update(ui.value);
+								}
+							},
+							slide: function(event, ui) {
+								rotate.update(ui.value, false);
+							}
 						}),
 					ratio   = 1,
 					prop    = 1,
@@ -248,11 +265,14 @@ elFinder.prototype.commands.resize = function() {
 						imageStartAngle : 0,
 						imageBeingRotated : false,
 							
-						update : function(value) {
+						update : function(value, animate) {
 							if (typeof value == 'undefined') {
 								rdegree = value = parseInt(degree.val());
 							}
-							if ($.browser.opera || ($.browser.msie && parseInt($.browser.version) < 9)) {
+							if (typeof animate == 'undefined') {
+								animate = true;
+							}
+							if (! animate || $.browser.opera || ($.browser.msie && parseInt($.browser.version) < 9)) {
 								imgr.rotate(value);
 							} else {
 								imgr.animate({rotate: value + 'deg'});
@@ -262,6 +282,8 @@ elFinder.prototype.commands.resize = function() {
 								value += 360;
 							}
 							degree.val(parseInt(value));
+
+							uidegslider.slider('value', degree.val());
 						},
 						
 						execute : function ( e ) {
@@ -287,6 +309,8 @@ elFinder.prototype.commands.resize = function() {
 								rotateAngle += 360;
 							}
 							degree.val(rotateAngle);
+
+							uidegslider.slider('value', degree.val());
 							
 							return false;
 						},
@@ -482,11 +506,13 @@ elFinder.prototype.commands.resize = function() {
 				
 				uirotate.append($(row)
 					.append($(label).text(fm.i18n('rotate')))
-					.append($('<div style="float:left">')
+					.append($('<div style="float:left; width: 130px;">')
 						.append(degree)
 						.append($('<span/>').text(fm.i18n('degree')))
 					).append($(uibuttonset).append(uideg270).append($(uiseparator)).append(uideg90))
+					.append(uidegslider)
 				);
+
 				
 				dialog.append(uitype);
 
