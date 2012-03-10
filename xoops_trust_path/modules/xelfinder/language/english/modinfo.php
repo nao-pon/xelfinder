@@ -71,4 +71,7 @@ define( $constpref.'_AUTO_RESIZE_GUEST_DESC',   '' );
 define( $constpref.'_DISABLE_PATHINFO' ,        'Disable PathInfo of file reference URL' );
 define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '' );
 
+define( $constpref.'_DEBUG' ,                   'Enable Debug mode' );
+define( $constpref.'_DEBUG_DESC' ,              'If it is set in a debug mode, an individual file will be read instead of "elfinder.min.css" and "elfinder.min.js" by elFinder.<br />Moreover, debugging information is included in the response of JavaScript.<br />We recommend "No debug" for performance improvement.' );
+
 }

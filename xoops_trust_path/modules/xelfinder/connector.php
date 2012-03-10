@@ -203,13 +203,13 @@ class elFinderSimpleLogger {
 
 $logger = new elFinderSimpleLogger(XOOPS_TRUST_PATH . '/cache/elfinder.log.txt');
 
-
+$debug = (! empty($config['debug']));
 $opts = array(
 	'locale' => 'ja_JP.UTF-8',
 	'bind' => array(
 		'mkdir mkfile rename duplicate upload rm paste' => array($logger, 'log'),
 	),
-	'debug' => true,
+	'debug' => $debug,
 
 	'roots' => $rootVolumes,
 );
