@@ -75,7 +75,9 @@ if (! $config['uploadAllow'] || $config['uploadAllow'] === 'none') {
 }
 $config['autoResize'] = (int)$config['autoResize'];
 
-if (empty($config['disable_pathinfo'])) {
+if (! empty($xoopsConfig['cool_uri'])) {
+	$config['URL'] = XOOPS_URL . '/' . $mydirname . '/view/';
+} else if (empty($config['disable_pathinfo'])) {
 	$config['URL'] = XOOPS_URL . '/modules/' . $mydirname . '/index.php/view/';
 } else {
 	$config['URL'] = XOOPS_URL . '/modules/' . $mydirname . '/index.php?page=view&file=';
