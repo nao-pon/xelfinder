@@ -71,4 +71,7 @@ define( $constpref.'_AUTO_RESIZE_GUEST_DESC',   '' );
 define( $constpref.'_DISABLE_PATHINFO' ,        'ファイル参照URLの PathInfo を無効にする' );
 define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '' );
 
+define( $constpref.'_DEBUG' ,                   'デバッグモードを有効にする' );
+define( $constpref.'_DEBUG_DESC' ,              'デバッグモードにすると elFinder の "elfinder.min.css", "elfinder.min.js" ではなく個別のファイルを読み込みます。<br />また、JavaScript のレスポンスにデバグ情報を含めます。<br />パフォーマンス向上のために、通常はデバッグモードは無効にして運用することをお勧めします。' );
+
 }
