@@ -38,9 +38,10 @@ elFinder.prototype.commands.perm = function() {
 		pattern     : 'ctrl+p'
 	}];
 
-	this.getstate = function() {
-		var sel = this.fm.selectedFiles();
-		return !this._disabled && sel.length == 1 && sel[0].isowner ? 0 : -1;
+	this.getstate = function(sel) {
+		var fm = this.fm;
+		sel = sel || fm.selected();
+		return !this._disabled && sel.length == 1 && fm.file(sel[0]).isowner ? 0 : -1;
 	};
 
 	this.exec = function(hashes) {
