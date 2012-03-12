@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-03-10)
+ * Version 2.0 rc1 (2012-03-13)
  * http://elfinder.org
  * 
  * Copyright 2009-2011, Studio 42
@@ -206,7 +206,7 @@ window.elFinder = function(node, opts) {
 		 * @default 400
 		 **/
 		height = 400,
-		
+				
 		beeper = $(document.createElement('audio')).hide().appendTo('body')[0],
 			
 		syncInterval,
@@ -280,7 +280,10 @@ window.elFinder = function(node, opts) {
 				// prevent tab out of elfinder
 				code == 9 && e.preventDefault();
 			}
-		}
+		},
+		date = new Date(),
+		utc,
+		i18n
 		;
 
 
@@ -379,20 +382,64 @@ window.elFinder = function(node, opts) {
 	 **/
 	this.lang = this.i18[this.options.lang] && this.i18[this.options.lang].messages ? this.options.lang : 'en';
 	
+	i18n = this.lang == 'en' 
+		? this.i18['en'] 
+		: $.extend(true, {}, this.i18['en'], this.i18[this.lang]);
+	
 	/**
 	 * Interface direction
 	 *
 	 * @type String
 	 * @default "ltr"
 	 **/
-	this.direction = this.i18[this.lang].direction;
+	this.direction = i18n.direction;
 	
 	/**
 	 * i18 messages
 	 *
 	 * @type Object
 	 **/
-	this.messages = $.extend({}, this.i18.en && this.i18.en.messages, this.lang != 'en' ? this.i18[this.lang].messages : {});
+	this.messages = i18n.messages;
+	
+	/**
+	 * Date/time format
+	 *
+	 * @type String
+	 * @default "m.d.Y"
+	 **/
+	this.dateFormat = this.options.dateFormat || i18n.dateFormat;
+	
+	/**
+	 * Date format like "Yesterday 10:20:12"
+	 *
+	 * @type String
+	 * @default "{day} {time}"
+	 **/
+	this.fancyFormat = this.options.fancyDateFormat || i18n.fancyDateFormat;
+
+	/**
+	 * Today timestamp
+	 *
+	 * @type Number
+	 **/
+	this.today = (new Date(date.getFullYear(), date.getMonth(), date.getDate())).getTime()/1000;
+	
+	/**
+	 * Yesterday timestamp
+	 *
+	 * @type Number
+	 **/
+	this.yesterday = this.today - 86400;
+	
+	utc = this.options.UTCDate ? 'UTC' : '';
+	
+	this.getHours    = 'get'+utc+'Hours';
+	this.getMinutes  = 'get'+utc+'Minutes';
+	this.getSeconds  = 'get'+utc+'Seconds';
+	this.getDate     = 'get'+utc+'Date';
+	this.getDay      = 'get'+utc+'Day';
+	this.getMonth    = 'get'+utc+'Month';
+	this.getFullYear = 'get'+utc+'FullYear';
 	
 	/**
 	 * Css classes 
@@ -413,14 +460,6 @@ window.elFinder = function(node, opts) {
 	    return self.cookie;
 	  }
 	})();
-
-	// this.storage= this.cookie;
-	/**
-	 * Sort files type
-	 *
-	 * @type String
-	 **/
-	// this.sort = self.sorts[this.options.sort] || 1;
 
 
 	/**
@@ -1658,11 +1697,18 @@ elFinder.prototype = {
 	 */
 	i18 : {
 		en : {
-			translator  : '',
-			language    : 'English',
-			direction   : 'ltr',
-			messages    : {}
-		}
+			translator      : '',
+			language        : 'English',
+			direction       : 'ltr',
+			dateFormat      : 'd.m.Y H:i',
+			fancyDateFormat : '$1 H:i',
+			messages        : {}
+		},
+		months : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+		monthsShort : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+
+		days : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+		daysShort : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 	},
 	
 	/**
@@ -1937,9 +1983,24 @@ elFinder.prototype = {
 						notifyto && clearTimeout(notifyto);
 						notify && self.notify({type : 'upload', cnt : -cnt, progress : 100*cnt});
 					}),
+				checkFile   = function(files) {
+					if (typeof files[0] == 'string') {
+						var ret = [];
+						var regex = /<img[^>]+src=["']?([^"'> ]+)/ig;
+						var m = [];
+						var url = '';
+						while (m = regex.exec(files[0])) {
+							url = m[1].replace(/&amp;/g, '&');
+							if (url.match(/^http/) && $.inArray(url, ret) == -1) ret.push(url);
+						}
+						return ret;
+					} else {
+						return files;
+					}
+				},
 				xhr         = new XMLHttpRequest(),
 				formData    = new FormData(),
-				files       = data.input ? data.input.files : data.files, 
+				files       = checkFile(data.input ? data.input.files : data.files), 
 				cnt         = files.length,
 				loaded      = 5,
 				notify      = false,
@@ -2496,8 +2557,7 @@ elFinder.prototype = {
 		
 		mime = mime.split('/');
 		
-		return prefix+mime[0]+(mime[0] != 'image' && mime[1] ? ' '+prefix+mime[1].replace(/(\.|\+)/g, '-') : '')
-		// return 'elfinder-cwd-icon-'+mime.replace('/' , ' elfinder-cwd-icon-').replace(/(\.|\+)/g, '-');
+		return prefix+mime[0]+(mime[0] != 'image' && mime[1] ? ' '+prefix+mime[1].replace(/(\.|\+)/g, '-') : '');
 	},
 	
 	/**
@@ -2556,15 +2616,64 @@ elFinder.prototype = {
 	/**
 	 * Return localized date
 	 * 
-	 * @param  String  date
+	 * @param  Object  file object
 	 * @return String
 	 */
-	formatDate : function(d) {
-		var self = this;
+	formatDate : function(file) {
+		var self = this, 
+			ts   = file.ts, 
+			i18  = self.i18,
+			date, format, output, d, dw, m, y, h, g, i, s;
 
-		return d == 'unknown' 
-			? self.i18n('dateUnknown') 
-			: (''+d).replace(/([a-z]+)\s/i, function(a1, a2) { return self.i18n(a2)+' '; });
+		if (self.options.clientFormatDate && ts > 0) {
+
+			date = new Date(file.ts*1000);
+			
+			h  = date[self.getHours]();
+			g  = h > 12 ? h - 12 : h;
+			i  = date[self.getMinutes]();
+			s  = date[self.getSeconds]();
+			d  = date[self.getDate]();
+			dw = date[self.getDay]();
+			m  = date[self.getMonth]() + 1;
+			y  = date[self.getFullYear]();
+			
+			format = ts >= this.yesterday 
+				? this.fancyFormat 
+				: this.dateFormat;
+
+			output = format.replace(/[a-z]/gi, function(val) {
+				switch (val) {
+					case 'd': return d > 9 ? d : '0'+d;
+					case 'j': return d;
+					case 'D': return self.i18n(i18.daysShort[dw]);
+					case 'l': return self.i18n(i18.days[dw]);
+					case 'm': return m > 9 ? m : '0'+m;
+					case 'n': return m;
+					case 'M': return self.i18n(i18.monthsShort[m-1]);
+					case 'F': return self.i18n(i18.months[m-1]);
+					case 'Y': return y;
+					case 'y': return (''+y).substr(2);
+					case 'H': return h > 9 ? h : '0'+h;
+					case 'G': return h;
+					case 'g': return g;
+					case 'h': return g > 9 ? g : '0'+g;
+					case 'a': return h > 12 ? 'pm' : 'am';
+					case 'A': return h > 12 ? 'PM' : 'AM';
+					case 'i': return i > 9 ? i : '0'+i;
+					case 's': return s > 9 ? s : '0'+s;
+				}
+				return val;
+			});
+			
+			return ts >= this.yesterday
+				? output.replace('$1', this.i18n(ts >= this.today ? 'Today' : 'Yesterday'))
+				: output;
+		} else if (file.date) {
+			return file.date.replace(/([a-z]+)\s/i, function(a1, a2) { return self.i18n(a2)+' '; });
+		}
+		
+		return self.i18n('dateUnknown');
 	},
 	
 	/**
@@ -3003,6 +3112,44 @@ elFinder.prototype._options = {
 	 *   - sort : 'desc' // descent sorting
 	 */
 	sortDirect : 'asc',
+	
+	/**
+	 * If true - elFinder will formating dates itself, 
+	 * otherwise - backend date will be used.
+	 *
+	 * @type Boolean
+	 */
+	clientFormatDate : true,
+	
+	/**
+	 * Show UTC dates.
+	 * Required set clientFormatDate to true
+	 *
+	 * @type Boolean
+	 */
+	UTCDate : false,
+	
+	/**
+	 * File modification datetime format.
+	 * Value from selected language data  is used by default.
+	 * Set format here to overwrite it.
+	 *
+	 * @type String
+	 * @default  ""
+	 */
+	dateFormat : '',
+	
+	/**
+	 * File modification datetime format in form "Yesterday 12:23:01".
+	 * Value from selected language data is used by default.
+	 * Set format here to overwrite it.
+	 * Use $1 for "Today"/"Yesterday" placeholder
+	 *
+	 * @type String
+	 * @default  ""
+	 * @example "$1 H:m:i"
+	 */
+	fancyDateFormat : '',
 	
 	/**
 	 * elFinder width
@@ -3779,6 +3926,8 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 		translator : 'Troex Nevelin &lt;troex@fury.scancode.ru&gt;',
 		language   : 'English',
 		direction  : 'ltr',
+		dateFormat : 'M d, Y h:i A',
+		fancyDateFormat : '$1 h:i A', // will produce smth like: Today 10 PM 12:25
 		messages   : {
 			
 			/********************************** errors **********************************/
@@ -4469,7 +4618,7 @@ $.fn.elfindercwd = function(fm) {
 					return fm.formatSize(f.size);
 				},
 				date : function(f) {
-					return fm.formatDate(f.date);
+					return fm.formatDate(f);
 				},
 				kind : function(f) {
 					return fm.mime2kind(f);
@@ -5126,8 +5275,15 @@ $.fn.elfindercwd = function(fm) {
 			wrapper[0].addEventListener('drop', function(e) {
 			  	e.preventDefault();
 				wrapper.removeClass(clDropActive);
-
-				e.dataTransfer && e.dataTransfer.files &&  e.dataTransfer.files.length && fm.exec('upload', {files : e.dataTransfer.files})//fm.upload({files : e.dataTransfer.files});
+				var file = false;
+				if (e.dataTransfer && e.dataTransfer.files &&  e.dataTransfer.files.length) {
+					file = e.dataTransfer.files;
+				} else if (e.dataTransfer.getData('text/html')) {
+					file = [ e.dataTransfer.getData('text/html') ];
+				}
+				if (file) {
+					fm.exec('upload', {files : file});
+				}
 			}, false);
 		}
 
@@ -5256,7 +5412,7 @@ $.fn.elfindercwd = function(fm) {
 				description : 'selectffile',
 				callback    : function(e) { 
 					unselectAll();
-					cwd.find('[id]:first').trigger(evtSelect) ;
+					scrollToView(cwd.find('[id]:first').trigger(evtSelect))
 					trigger();
 				}
 			})
@@ -5265,7 +5421,7 @@ $.fn.elfindercwd = function(fm) {
 				description : 'selectlfile',
 				callback    : function(e) { 
 					unselectAll();
-					cwd.find('[id]:last').trigger(evtSelect) ;
+					scrollToView(cwd.find('[id]:last').trigger(evtSelect)) ;
 					trigger();
 				}
 			});
@@ -5449,7 +5605,6 @@ $.fn.elfinderdialog = function(opts) {
 					if (e.keyCode == $.ui.keyCode.ENTER) {
 						$(this).click();
 					}  else if (e.keyCode == $.ui.keyCode.TAB) {
-						console.log('here')
 						next = $(this).next('.ui-button');
 						next.length ? next.focus() : $(this).parent().children('.ui-button:first').focus()
 					}
@@ -6014,10 +6169,13 @@ $.fn.elfindersearchbutton = function(cmd) {
 		
 		cmd.fm
 			.error(function() {
-				input.unbind('keydown')
+				input.unbind('keydown');
 			})
 			.select(function() {
 				input.blur();
+			})
+			.bind('searchend', function() {
+				input.val('');
 			})
 			.viewchange(abort)
 			.shortcut({
@@ -6568,6 +6726,8 @@ $.fn.elfindertree = function(fm, opts) {
 						hash = fm.navId2Hash(link.attr('id')),
 						file = fm.file(hash);
 				
+					fm.trigger('searchend');
+				
 					if (hash != fm.cwd().hash && !link.is('.'+disabled)) {
 						fm.exec('open', file.thash || hash);
 					} else if (link.is('.'+collapsed)) {
@@ -7039,6 +7199,7 @@ elFinder.prototype.commands.download = function() {
 			files   = filter(hashes),
 			dfrd    = $.Deferred(),
 			iframes = '',
+			cdata   = '',
 			i, url;
 			
 		if (this.disabled()) {
@@ -7049,11 +7210,15 @@ elFinder.prototype.commands.download = function() {
 			fm.error('errCmdNoSupport');
 			return dfrd.reject();
 		}
-			
+		
+		$.each(fm.options.customData || {}, function(k, v) {
+			cdata += '&'+k+'='+v;
+		});
+		
 		base += base.indexOf('?') === -1 ? '?' : '&';
 		
 		for (i = 0; i < files.length; i++) {
-			iframes += '<iframe class="downloader" id="downloader-' + files[i].hash+'" style="display:none" src="'+base + 'cmd=file&target=' + files[i].hash+'&download=1'+'"/>';
+			iframes += '<iframe class="downloader" id="downloader-' + files[i].hash+'" style="display:none" src="'+base + 'cmd=file&target=' + files[i].hash+'&download=1'+cdata+'"/>';
 		}
 		$(iframes)
 			.appendTo('body')
@@ -7676,51 +7841,53 @@ elFinder.prototype.commands.help = function() {
 		description : this.title
 	}];
 	
-	this.fm.one('open', function() {
-		setTimeout(function() {
-			var parts = self.options.view || ['about', 'shortcuts', 'help'];
-			
-			$.each(parts, function(i, title) {
-				html.push(tab[r](/\{id\}/, title)[r](/\{title\}/, fm.i18n(title)));
-			});
-			
-			html.push('</ul>');
+	setTimeout(function() {
+		var parts = self.options.view || ['about', 'shortcuts', 'help'];
+		
+		$.each(parts, function(i, title) {
+			html.push(tab[r](/\{id\}/, title)[r](/\{title\}/, fm.i18n(title)));
+		});
+		
+		html.push('</ul>');
 
-			$.inArray('about', parts) !== -1 && about();
-			$.inArray('shortcuts', parts) !== -1 && shortcuts();
-			$.inArray('help', parts) !== -1 && help();
-			
-			html.push('</div>');
-			content = $(html.join(''));
-			
-			content.find('.ui-tabs-nav li')
-				.hover(function() {
-					$(this).toggleClass('ui-state-hover')
-				})
-				.children()
-				.click(function(e) {
-					var link = $(this);
-					
-					e.preventDefault();
-					e.stopPropagation();
-					
-					if (!link.is('.ui-tabs-selected')) {
-						link.parent().addClass('ui-tabs-selected ui-state-active').siblings().removeClass('ui-tabs-selected').removeClass('ui-state-active');
-						content.find('.ui-tabs-panel').hide().filter(link.attr('href')).show();
-					}
-					
-				})
-				.filter(':first').click();
-			
-		}, 200)
-	})
+		$.inArray('about', parts) !== -1 && about();
+		$.inArray('shortcuts', parts) !== -1 && shortcuts();
+		$.inArray('help', parts) !== -1 && help();
+		
+		html.push('</div>');
+		content = $(html.join(''));
+		
+		content.find('.ui-tabs-nav li')
+			.hover(function() {
+				$(this).toggleClass('ui-state-hover')
+			})
+			.children()
+			.click(function(e) {
+				var link = $(this);
+				
+				e.preventDefault();
+				e.stopPropagation();
+				
+				if (!link.is('.ui-tabs-selected')) {
+					link.parent().addClass('ui-tabs-selected ui-state-active').siblings().removeClass('ui-tabs-selected').removeClass('ui-state-active');
+					content.find('.ui-tabs-panel').hide().filter(link.attr('href')).show();
+				}
+				
+			})
+			.filter(':first').click();
+		
+	}, 200)
 	
 	this.getstate = function() {
 		return 0;
 	}
 	
 	this.exec = function() {
-		this.fm.dialog(content, {title : this.title, width : 530});
+		if (!this.dialog) {
+			this.dialog = this.fm.dialog(content, {title : this.title, width : 530, autoOpen : false, destroyOnClose : false});
+		}
+		
+		this.dialog.elfinderdialog('open').find('.ui-tabs-nav li a:first').click();
 	}
 
 }
@@ -7887,7 +8054,7 @@ elFinder.prototype.commands.info = function() {
 			}
 			
 			
-			content.push(row.replace(l, msg.modify).replace(v, fm.formatDate(file.date)));
+			content.push(row.replace(l, msg.modify).replace(v, fm.formatDate(file)));
 			content.push(row.replace(l, msg.perms).replace(v, fm.formatPermissions(file)));
 			content.push(row.replace(l, msg.locked).replace(v, file.locked ? msg.yes : msg.no));
 		} else {
@@ -10370,8 +10537,15 @@ elFinder.prototype.commands.upload = function() {
 			dropbox.addEventListener('drop', function(e) {
 				e.stopPropagation();
 			  	e.preventDefault();
-			
-				upload({files : e.dataTransfer.files});
+				var file = false;
+				if (e.dataTransfer && e.dataTransfer.files &&  e.dataTransfer.files.length) {
+					file = e.dataTransfer.files;
+				} else if (e.dataTransfer.getData('text/html')) {
+					file = [ e.dataTransfer.getData('text/html') ];
+				}
+				if (file) {
+					upload({files : file});
+				}
 			}, false);
 			
 		}

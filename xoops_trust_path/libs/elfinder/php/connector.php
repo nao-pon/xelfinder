@@ -27,55 +27,42 @@ function debug($o) {
 
 
 /**
- * Simple logger function.
- * Demonstrate how to work with elFinder event api.
+ * Smart logger function
+ * Demonstrate how to work with elFinder event api
  *
  * @param  string   $cmd       command name
  * @param  array    $result    command result
  * @param  array    $args      command arguments from client
  * @param  elFinder $elfinder  elFinder instance
  * @return void|true
- * @author Dmitry (dio) Levashov
+ * @author Troex Nevelin
  **/
 function logger($cmd, $result, $args, $elfinder) {
-	$logfile = '../files/temp/log.txt';
+	$log = sprintf('[%s] %s:', date('r'), strtoupper($cmd));
+	foreach ($result as $key => $value) {
+		if (empty($value)) {
+			continue;
+		}
+		$data = array();
+		if (in_array($key, array('error', 'warning'))) {
+			array_push($data, implode(' ', $value));
+		} else { // changes made to files
+			foreach ($value as $file) {
+				$filepath = (isset($file['realpath']) ? $file['realpath'] : $elfinder->realpath($file['hash']));
+				array_push($data, $filepath);
+			}
+		}
+		$log .= sprintf(' %s(%s)', $key, implode(', ', $data));
+	}
+	$log .= "\n";
 
+	$logfile = '../files/temp/log.txt';
 	$dir = dirname($logfile);
 	if (!is_dir($dir) && !mkdir($dir)) {
 		return;
 	}
-	
-	$log = $cmd.' ['.date('d.m H:s')."]\n";
-	
-	if (!empty($result['error'])) {
-		$log .= "\tERROR: ".implode(' ', $result['error'])."\n";
-	}
-	
-	if (!empty($result['warning'])) {
-		$log .= "\tWARNING: ".implode(' ', $result['warning'])."\n";
-	}
-	
-	if (!empty($result['removed'])) {
-		foreach ($result['removed'] as $file) {
-			// removed file contain additional field "realpath"
-			$log .= "\tREMOVED: ".$file['realpath']."\n";
-		}
-	}
-	
-	if (!empty($result['added'])) {
-		foreach ($result['added'] as $file) {
-			$log .= "\tADDED: ".$elfinder->realpath($file['hash'])."\n";
-		}
-	}
-	
-	if (!empty($result['changed'])) {
-		foreach ($result['changed'] as $file) {
-			$log .= "\tCHANGED: ".$elfinder->realpath($file['hash'])."\n";
-		}
-	}
-	
 	if (($fp = fopen($logfile, 'a'))) {
-		fwrite($fp, $log."\n");
+		fwrite($fp, $log);
 		fclose($fp);
 	}
 }
@@ -175,16 +162,16 @@ class elFinderSimpleLogger {
 
 /**
  * Simple function to demonstrate how to control file access using "accessControl" callback.
+ * This method will disable accessing files/folders starting from  '.' (dot)
  *
  * @param  string  $attr  attribute name (read|write|locked|hidden)
- * @param  string  $path  file path. Attention! This is path relative to volume root directory started with directory separator.
- * @return bool
- * @author Dmitry (dio) Levashov
+ * @param  string  $path  file path relative to volume root directory started with directory separator
+ * @return bool|null
  **/
 function access($attr, $path, $data, $volume) {
-	return strpos(basename($path), '.') === 0
-		? !($attr == 'read' || $attr == 'write')
-		: $attr == 'read' || $attr == 'write';
+	return strpos(basename($path), '.') === 0       // if file/folder begins with '.' (dot)
+		? !($attr == 'read' || $attr == 'write')    // set read+write to false, other (locked+hidden) set to true
+		:  null;                                    // else elFinder decide it itself
 }
 
 /**
@@ -231,12 +218,10 @@ $logger = new elFinderSimpleLogger('../files/temp/log.txt');
 $opts = array(
 	'locale' => 'en_US.UTF-8',
 	'bind' => array(
-		'mkdir mkfile  rename duplicate upload rm paste' => array($logger, 'log'), 
+		'mkdir mkfile rename duplicate upload rm paste' => 'logger'
 	),
 	'debug' => true,
-	
 	'roots' => array(
-		
 		array(
 			'driver'     => 'LocalFileSystem',
 			'path'       => '../files/',
@@ -247,28 +232,8 @@ $opts = array(
 			'utf8fix'    => true,
 			'tmbCrop'    => false,
 			'tmbBgColor' => 'transparent',
-			// 'startPath'  => '../files/test',
-			// 'deep' => 3,	
-			// 'separator' => ':',
-			'attributes' => array(
-				array(
-					'pattern' => '~/\.~',
-					// 'pattern' => '/^\/\./',
-					'read' => false,
-					'write' => false,
-					'hidden' => true,
-					'locked' => false
-				),
-				array(
-					'pattern' => '~/replace/.+png$~',
-					// 'pattern' => '/^\/\./',
-					'read' => false,
-					'write' => false,
-					// 'hidden' => true,
-					'locked' => true
-				)
-			),
-			// 'defaults' => array('read' => false, 'write' => true)
+			'accessControl' => 'access',
+			// 'uploadDeny' => array('application', 'text/xml')
 		),
 		// array(
 		// 	'driver'     => 'LocalFileSystem',
@@ -359,7 +324,7 @@ $opts = array(
 		// ),
 		
 		array(
-			'driver' => 'MySQL',
+			'driver' => 'MySQL2',
 			'path' => 1,
 			// 'treeDeep' => 2,
 			'socket'          => '/opt/local/var/run/mysql5/mysqld.sock',

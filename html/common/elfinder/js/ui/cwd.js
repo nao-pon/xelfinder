@@ -147,7 +147,7 @@ $.fn.elfindercwd = function(fm) {
 					return fm.formatSize(f.size);
 				},
 				date : function(f) {
-					return fm.formatDate(f.date);
+					return fm.formatDate(f);
 				},
 				kind : function(f) {
 					return fm.mime2kind(f);
@@ -941,7 +941,7 @@ $.fn.elfindercwd = function(fm) {
 				description : 'selectffile',
 				callback    : function(e) { 
 					unselectAll();
-					cwd.find('[id]:first').trigger(evtSelect) ;
+					scrollToView(cwd.find('[id]:first').trigger(evtSelect))
 					trigger();
 				}
 			})
@@ -950,7 +950,7 @@ $.fn.elfindercwd = function(fm) {
 				description : 'selectlfile',
 				callback    : function(e) { 
 					unselectAll();
-					cwd.find('[id]:last').trigger(evtSelect) ;
+					scrollToView(cwd.find('[id]:last').trigger(evtSelect)) ;
 					trigger();
 				}
 			});

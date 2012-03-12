@@ -8,6 +8,8 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 		translator : 'Troex Nevelin &lt;troex@fury.scancode.ru&gt;',
 		language   : 'English',
 		direction  : 'ltr',
+		dateFormat : 'M d, Y h:i A',
+		fancyDateFormat : '$1 h:i A', // will produce smth like: Today 10 PM 12:25
 		messages   : {
 			
 			/********************************** errors **********************************/
