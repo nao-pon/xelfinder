@@ -475,6 +475,54 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	/*                               FS API                              */
 	/*********************************************************************/
 
+	/*********************** file stat *********************/
+	
+	/**
+	 * Check file attribute
+	 *
+	 * @param  string  $path  file path
+	 * @param  string  $name  attribute name (read|write|locked|hidden)
+	 * @param  bool    $val   attribute value returned by file system
+	 * @return bool
+	 * @author Dmitry (dio) Levashov
+	 **/
+	protected function attr($path, $name, $val=false) {
+		if (!isset($this->defaults[$name])) {
+			return false;
+		}
+		
+		$defaults = $perm1 = $perm2 = $perm3 = $this->defaults[$name];
+		$perm1 = !!$val;
+		
+		$path = $this->separator.$this->_relpath($path);
+		
+		if ($this->access) {
+			if (is_array($this->access)) {
+				$obj    = $this->access[0];
+				$method = $this->access[1];
+				$perm2  = $obj->{$method}($name, $path, $this->options['accessControlData'], $this);
+			} else {
+				$func  = $this->access;
+				$perm2 = $func($name, $path, $this->options['accessControlData'], $this);
+			}
+		}
+		
+		for ($i = 0, $c = count($this->attributes); $i < $c; $i++) {
+			$attrs = $this->attributes[$i];
+
+			if (isset($attrs[$name]) && isset($attrs['pattern']) && preg_match($attrs['pattern'], $path)) {
+				$perm3 = $attrs[$name];
+				break;
+			} 
+		}
+		
+		$ret = $name == 'read' || $name == 'write' 
+			? $defaults & $perm1 & $perm2 & $perm3
+			: $defaults ^ $perm1 ^ $perm2 ^ $perm3;
+
+		return $ret;
+	}
+	
 	/**
 	* Put file stat in cache and return it
 	*
