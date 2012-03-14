@@ -20,13 +20,12 @@ if (is_dir(XOOPS_TRUST_PATH . $path)) {
 		'quarantine' => XOOPS_ROOT_PATH . '/modules/'.$mydirname.'/cache/tmb/.quarantine',
 		//'tmbSize'    => 140,
 		//'tmbCrop'    => false,
-		// 'startPath'  => '../files/test',
-		// 'deep' => 3,
-		// 'separator' => ':',
-		// mimetypes allowed to upload
 		'uploadAllow'     => array('image'),
+		// mimetypes not allowed to upload
+		'uploadDeny'      => array('all'),
+		// order to proccess uploadAllow and uploadDeny options
+		'uploadOrder'     => array('deny', 'allow'),
 		// regexp or function name to validate new file name
-		//'acceptedName'    => '/^[^.\/\\?*:|"<>][^\/\\?*:|"<>]*[^.\/\\?*:|"<>]$/',
 		'acceptedName'    => '/^[^\/\\?*:|"<>]*[^.\/\\?*:|"<>]$/',
 		'defaults' => array('read' => true, 'write' => true, 'hidden' => false, 'locked' => false)
 	);
