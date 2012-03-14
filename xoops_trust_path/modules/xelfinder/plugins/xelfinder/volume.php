@@ -20,8 +20,11 @@ if (is_dir(XOOPS_ROOT_PATH . $path)) {
 		// 'startPath'  => '../files/test',
 		// 'deep' => 3,
 		// 'separator' => ':',
-		// mimetypes allowed to upload
 		'uploadAllow'     => array('image'),
+		// mimetypes not allowed to upload
+		'uploadDeny'      => array('all'),
+		// order to proccess uploadAllow and uploadDeny options
+		'uploadOrder'     => array('deny', 'allow'),
 		// regexp or function name to validate new file name
 		'acceptedName'    => '/^(?:\w+|\w[\w\s\.\%\-\(\)\[\]]*\.(?:txt|gif|jpeg|jpg|png))$/ui',
 		'defaults' => array('read' => true, 'write' => true)
