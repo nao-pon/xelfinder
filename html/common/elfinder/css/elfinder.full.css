@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-03-13)
+ * Version 2.0 rc1 (2012-03-15)
  * http://elfinder.org
  * 
  * Copyright 2009-2011, Studio 42
@@ -572,6 +572,7 @@
 .elfinder-cwd-icon-x-php             { background-position: 0 -950px; }
 .elfinder-cwd-icon-xml               { background-position: 0 -1000px; }
 .elfinder-cwd-icon-zip, 
+.elfinder-cwd-icon-x-zip, 
 .elfinder-cwd-icon-x-7z-compressed   { background-position: 0 -1050px; }
 .elfinder-cwd-icon-x-gzip,  
 .elfinder-cwd-icon-x-tar             { background-position: 0 -1100px; }

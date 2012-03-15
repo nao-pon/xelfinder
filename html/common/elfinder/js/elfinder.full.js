@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-03-13)
+ * Version 2.0 rc1 (2012-03-15)
  * http://elfinder.org
  * 
  * Copyright 2009-2011, Studio 42
@@ -1746,6 +1746,7 @@ elFinder.prototype = {
 			'application/x-gzip'            : 'GZIP',
 			'application/x-bzip2'           : 'BZIP',
 			'application/zip'               : 'ZIP',
+			'application/x-zip'               : 'ZIP',
 			'application/x-rar'             : 'RAR',
 			'application/x-tar'             : 'TAR',
 			'application/x-7z-compressed'   : '7z',
