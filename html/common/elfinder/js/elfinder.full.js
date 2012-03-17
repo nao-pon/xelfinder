@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-03-15)
+ * Version 2.0 rc1 (2012-03-17)
  * http://elfinder.org
  * 
  * Copyright 2009-2011, Studio 42
@@ -2943,7 +2943,7 @@ elFinder.prototype._options = {
 	commands : [
 		'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook', 
 		'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy', 
-		'cut', 'paste', 'edit', 'extract', 'archive', 'search', 'info', 'view', 'help', 'resize', 'sort'
+		'cut', 'paste', 'edit', 'extract', 'archive', 'search', 'info', 'view', 'help', 'resize', 'sort', 'pixlr'
 	],
 	
 	/**
@@ -3269,7 +3269,7 @@ elFinder.prototype._options = {
 		// current directory menu
 		cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'sort', '|', 'info'],
 		// current directory file menu
-		files  : ['getfile', '|','open', 'quicklook', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', '|', 'archive', 'extract', '|', 'info']
+		files  : ['getfile', '|','open', 'quicklook', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', 'pixlr', '|', 'archive', 'extract', '|', 'info']
 	},
 
 	/**
@@ -3920,7 +3920,7 @@ $.fn.dialogelfinder = function(opts) {
 /**
  * English translation
  * @author Troex Nevelin <troex@fury.scancode.ru>
- * @version 2012-02-25
+ * @version 2012-03-17
  */
 if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object') {
 	elFinder.prototype.i18.en = {
@@ -4024,6 +4024,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'cmdview'      : 'View',
 			'cmdresize'    : 'Resize & Rotate',
 			'cmdsort'      : 'Sort',
+			'cmdpixlr'     : 'Edit on Pixlr',
 			
 			/*********************************** buttons ***********************************/ 
 			'btnClose'  : 'Close',
@@ -8495,6 +8496,53 @@ elFinder.prototype.commands.paste = function() {
 	}
 
 }
+
+/*
+ * File: /home/osc/elFinder/js/commands/pixlr.js
+ */
+
+elFinder.prototype.commands.pixlr = function() {
+	this.updateOnSelect = false;
+
+	this.getstate = function(sel) {
+		var fm = this.fm;
+		var sel = fm.selectedFiles();
+		return !this._disabled && sel.length == 1 && sel[0].read && sel[0].mime.indexOf('image/') !== -1 && fm.file(sel[0].phash).write ? 0 : -1;
+	};
+
+	this.exec = function(hashes) {
+		var fm    = this.fm, 
+		dfrd  = $.Deferred().fail(function(error) { error && fm.error(error); }),
+		files = this.files(hashes),
+		cnt   = files.length,
+		file, url, s, w;
+		
+		var target;
+		
+		if (!cnt) {
+			return dfrd.reject();
+		}
+		
+		file = files[0]
+		
+		target = fm.options.url;
+		target = target + (target.indexOf('?') === -1 ? '?' : '&')
+			+ 'cmd=pixlr'
+			+ '&target=' + file.phash
+			+ '&node=' + encodeURIComponent(fm.id);
+
+		
+		url = 'http://pixlr.com/editor/?image=' + encodeURIComponent(fm.url(file.hash))
+			+ '&target=' + encodeURIComponent(target)
+			+ '&title=' + encodeURIComponent('pixlr_'+file.name);
+		
+		if (!window.open(url)) {
+			return dfrd.reject('errPopup');
+		}
+
+		return dfrd.resolve(hashes);
+	};
+};
 
 /*
  * File: /home/osc/elFinder/js/commands/quicklook.js

@@ -59,7 +59,7 @@ class elFinder {
 		'rename'    => array('target' => true, 'name' => true, 'mimes' => false),
 		'duplicate' => array('targets' => true, 'suffix' => false),
 		'paste'     => array('dst' => true, 'targets' => true, 'cut' => false, 'mimes' => false),
-		'upload'    => array('target' => true, 'FILES' => true, 'mimes' => false, 'html' => false, 'upload' => false),
+		'upload'    => array('target' => true, 'FILES' => true, 'mimes' => false, 'html' => false, 'upload' => false, 'name' => false),
 		'get'       => array('target' => true),
 		'put'       => array('target' => true, 'content' => '', 'mimes' => false),
 		'archive'   => array('targets' => true, 'type' => true, 'mimes' => false),
@@ -67,7 +67,8 @@ class elFinder {
 		'search'    => array('q' => true, 'mimes' => false),
 		'info'      => array('targets' => true),
 		'dim'       => array('target' => true),
-		'resize'    => array('target' => true, 'width' => true, 'height' => true, 'mode' => false, 'x' => false, 'y' => false, 'degree' => false)
+		'resize'    => array('target' => true, 'width' => true, 'height' => true, 'mode' => false, 'x' => false, 'y' => false, 'degree' => false),
+		'pixlr'     => array('target' => true, 'node' => true, 'image' => true, 'type' => true, 'title' => true)
 	);
 	
 	/**
@@ -814,7 +815,8 @@ class elFinder {
 						$tmpfname = tempnam(sys_get_temp_dir(), 'UPL');
 						file_put_contents($tmpfname, $data);
 						$files['tmp_name'][$i] = $tmpfname;
-						$files['name'][$i] = preg_replace('/[\/\\?*:|"<>]/', '_', preg_replace('#^.*?([^/]+)$#', '$1', $url));
+						$_name = isset($args['name'][$i])? $args['name'][$i] : preg_replace('#^.*?([^/]+)$#', '$1', rawurldecode($url));
+						$files['name'][$i] = preg_replace('/[\/\\?*:|"<>]/', '_', $_name);
 						$files['error'][$i] = 0;
 					}
 				}
@@ -1075,7 +1077,31 @@ class elFinder {
 			? array('changed' => array($file))
 			: array('error' => $this->error(self::ERROR_RESIZE, $volume->path($target), $volume->error()));
 	}
+
+	/**
+	 * Edit on Pixlr.com
+	 *
+	 * @param  array  command arguments
+	 * @return array
+	 * @author Naoki Sawada
+	 **/
+	 protected function pixlr($args) {
+		$args['upload'] = array( $args['image'] );
+		$args['name']   = array( $args['title'].'.'.$args['type'] );
 	
+		$res = $this->upload($args);
+		if (isset($res['warning'])) {
+			$cmd = 'error(elf.i18n("'.join('","', $res['warning']).'"))';
+		} else {
+			$cmd = 'exec("reload")';
+		}
+		$script = 'var elf=window.opener.document.getElementById(\''.htmlspecialchars($args['node']).'\').elfinder; elf.'.$cmd.'; window.close();';
+		
+		echo '<html><head><script>'.$script.'</script></head><body><a href="#" onlick="window.close();return false;">Close this window</a></body></html>';
+		
+		exit();
+	}
+
 	/***************************************************************************/
 	/*                                   utils                                 */
 	/***************************************************************************/
