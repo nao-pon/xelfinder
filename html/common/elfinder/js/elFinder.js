@@ -2606,15 +2606,15 @@ elFinder.prototype = {
 	 * @param  Object  file object
 	 * @return String
 	 */
-	formatDate : function(file) {
+	formatDate : function(file, ts) {
 		var self = this, 
-			ts   = file.ts, 
+			ts   = ts || file.ts, 
 			i18  = self.i18,
 			date, format, output, d, dw, m, y, h, g, i, s;
 
 		if (self.options.clientFormatDate && ts > 0) {
 
-			date = new Date(file.ts*1000);
+			date = new Date(ts*1000);
 			
 			h  = date[self.getHours]();
 			g  = h > 12 ? h - 12 : h;
