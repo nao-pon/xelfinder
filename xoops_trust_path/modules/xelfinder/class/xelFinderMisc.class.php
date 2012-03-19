@@ -2,7 +2,12 @@
 
 class xelFinderMisc {
 	
-	function readAuth($perm, $f_uid) {
+	var $myConfig;
+	var $db;
+	var $mydirname;
+	var $mode;
+	
+	function readAuth($perm, $f_uid, $file_id) {
 		global $xoopsUser, $xoopsModule;
 		if (is_object($xoopsUser)) {
 			$uid = $xoopsUser->getVar('uid');
@@ -22,7 +27,21 @@ class xelFinderMisc {
 		$grp = intval($perm[1], 16);
 		$gus = intval($perm[2], 16);
 	
-		return (($isOwner && (4 & $own) === 4) || ($inGroup && (4 & $grp) === 4) || (4 & $gus) === 4);
+		if ($readable = (($isOwner && (4 & $own) === 4) || ($inGroup && (4 & $grp) === 4) || (4 & $gus) === 4)) {
+			if ($this->mode === 'view' && ! empty($this->myConfig['edit_disable_linked'])) {
+				if ((2 & $own) === 2 || (2 & $grp) === 2 || (2 & $gus) === 2 || (1 & $own) === 1 || (1 & $grp) === 1 || (1 & $gus) === 1) {
+					$refer = @ $_SERVER['HTTP_REFERER'];
+					if (strpos($refer, 'http') === 0 && ! preg_match('#^'.preg_quote(XOOPS_URL).'/[^?]+manager\.php#', $refer)) {
+						$perm = dechex($own & ~3).dechex($grp & ~3).dechex($gus & ~3);
+						$tbf = $this->db->prefix($this->mydirname) . '_file';
+						$sql = sprintf('UPDATE %s SET `perm`="%s" WHERE `file_id` = "%d" LIMIT 1', $tbf, $perm, $file_id);
+						$this->db->queryF($sql);
+					}
+				}
+			}
+		}
+		
+		return $readable;
 	
 	}
 	

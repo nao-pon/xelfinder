@@ -27,24 +27,24 @@ define( $constpref.'_DEFAULT_ITEM_PERM_DESC' ,  'パーミッションは3桁で
 define( $constpref.'_USE_USERS_DIR' ,           'ユーザー別ホルダの使用' );
 define( $constpref.'_USE_USERS_DIR_DESC' ,      '' );
 define( $constpref.'_USERS_DIR_PERM' ,          'ユーザー別ホルダのパーミッション' );
-define( $constpref.'_USERS_DIR_PERM_DESC' ,     '例: 7cc: オーナー 7 = -rwu, グループ c = hr--, ゲスト c = hr--' );
+define( $constpref.'_USERS_DIR_PERM_DESC' ,     'ここでの設定は作成時のみ参照されます。作成後は elFinder で直接変更してください。<br />例: 7cc: オーナー 7 = -rwu, グループ c = hr--, ゲスト c = hr--' );
 define( $constpref.'_USERS_DIR_ITEM_PERM' ,     'ユーザー別ホルダに作成されるアイテムのパーミッション' );
-define( $constpref.'_USERS_DIR_ITEM_PERM_DESC' ,'例: 7cc: オーナー 7 = -rwu, グループ c = hr--, ゲスト c = hr--' );
+define( $constpref.'_USERS_DIR_ITEM_PERM_DESC' ,'ここでの設定は作成時のみ参照されます。作成後は elFinder で直接変更してください。<br />例: 7cc: オーナー 7 = -rwu, グループ c = hr--, ゲスト c = hr--' );
 define( $constpref.'_USE_GUEST_DIR' ,           'ゲスト用ホルダの使用' );
 define( $constpref.'_USE_GUEST_DIR_DESC' ,      '' );
 define( $constpref.'_GUEST_DIR_PERM' ,          'ゲスト用ホルダのパーミッション' );
-define( $constpref.'_GUEST_DIR_PERM_DESC' ,     '例: 766: オーナー 7 = -rwu, グループ 6 = -rw-, ゲスト 6 = -rw-' );
+define( $constpref.'_GUEST_DIR_PERM_DESC' ,     'ここでの設定は作成時のみ参照されます。作成後は elFinder で直接変更してください。<br />例: 766: オーナー 7 = -rwu, グループ 6 = -rw-, ゲスト 6 = -rw-' );
 define( $constpref.'_GUEST_DIR_ITEM_PERM' ,     'ゲスト用ホルダに作成されるアイテムのパーミッション' );
-define( $constpref.'_GUEST_DIR_ITEM_PERM_DESC' ,'例: 744: オーナー 7 = -rwu, グループ 4 = -r--, ゲスト 4 = -r--' );
+define( $constpref.'_GUEST_DIR_ITEM_PERM_DESC' ,'ここでの設定は作成時のみ参照されます。作成後は elFinder で直接変更してください。<br />例: 744: オーナー 7 = -rwu, グループ 4 = -r--, ゲスト 4 = -r--' );
 define( $constpref.'_USE_GROUP_DIR' ,           'グループ別ホルダの使用' );
 define( $constpref.'_USE_GROUP_DIR_DESC' ,      '' );
 define( $constpref.'_GROUP_DIR_PARENT' ,        'グループ別ホルダの親ホルダ名' );
 define( $constpref.'_GROUP_DIR_PARENT_DESC' ,   '' );
 define( $constpref.'_GROUP_DIR_PARENT_NAME' ,   'グループ毎閲覧');
 define( $constpref.'_GROUP_DIR_PERM' ,          'グループ別ホルダのパーミッション' );
-define( $constpref.'_GROUP_DIR_PERM_DESC' ,     '例: 768: オーナー 7 = -rwu, グループ 6 = -rw-, ゲスト 8 = h---' );
+define( $constpref.'_GROUP_DIR_PERM_DESC' ,     'ここでの設定は作成時のみ参照されます。作成後は elFinder で直接変更してください。<br />例: 768: オーナー 7 = -rwu, グループ 6 = -rw-, ゲスト 8 = h---' );
 define( $constpref.'_GROUP_DIR_ITEM_PERM' ,     'グループ別ホルダに作成されるアイテムのパーミッション' );
-define( $constpref.'_GROUP_DIR_ITEM_PERM_DESC' ,'例: 748: オーナー 7 = -rwu, グループ 4 = -r--, ゲスト 8 = h---' );
+define( $constpref.'_GROUP_DIR_ITEM_PERM_DESC' ,'ここでの設定は作成時のみ参照されます。作成後は elFinder で直接変更してください。<br />例: 748: オーナー 7 = -rwu, グループ 4 = -r--, ゲスト 8 = h---' );
 
 define( $constpref.'_UPLOAD_ALLOW_ADMIN' ,      '管理者にアップロードを許可する MIME タイプ' );
 define( $constpref.'_UPLOAD_ALLOW_ADMIN_DESC' , 'MIME タイプを半角スペース区切りで記述。<br />all: 全て許可, none: 何も許可しない<br />例: image text/plain' );
@@ -70,6 +70,9 @@ define( $constpref.'_AUTO_RESIZE_GUEST_DESC',   '' );
 
 define( $constpref.'_DISABLE_PATHINFO' ,        'ファイル参照URLの PathInfo を無効にする' );
 define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '' );
+
+define( $constpref.'_EDIT_DISABLE_LINKED' ,     'リンク済みファイルの書き込み禁止' );
+define( $constpref.'_EDIT_DISABLE_LINKED_DESC' ,'リンク切れや不用意な上書きを防止するためにリンク・参照されたファイルを自動的に書き込み禁止に設定します。' );
 
 define( $constpref.'_DEBUG' ,                   'デバッグモードを有効にする' );
 define( $constpref.'_DEBUG_DESC' ,              'デバッグモードにすると elFinder の "elfinder.min.css", "elfinder.min.js" ではなく個別のファイルを読み込みます。<br />また、JavaScript のレスポンスにデバグ情報を含めます。<br />パフォーマンス向上のために、通常はデバッグモードは無効にして運用することをお勧めします。' );

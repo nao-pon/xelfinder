@@ -2,6 +2,11 @@
 
 require_once dirname(dirname(__FILE__)) . '/class/xelFinderMisc.class.php';
 $xelFinderMisc = new xelFinderMisc();
+$xelFinderMisc->myConfig = $xoopsModuleConfig;
+$xelFinderMisc->db = $xoopsDB;
+$xelFinderMisc->mydirname = $mydirname;
+
+$xelFinderMisc->mode = 'view';
 
 $file_id = 0;
 if (isset($path_info)) {
@@ -21,7 +26,7 @@ $query = 'SELECT `mime`, `size`, `mtime`, `perm`, `uid` FROM `' . $xoopsDB->pref
 if ($file_id && ($res = $xoopsDB->query($query)) && $xoopsDB->getRowsNum($res)) {
 	
 	list($mime, $size, $mtime, $perm, $uid) = $xoopsDB->fetchRow($res);
-	if ($xelFinderMisc->readAuth($perm, $uid)) {
+	if ($xelFinderMisc->readAuth($perm, $uid, $file_id)) {
 		$file = XOOPS_TRUST_PATH . '/uploads/xelfinder/'. rawurlencode(substr(XOOPS_URL, 7)) . '_' . $mydirname . '_' . $file_id;
 		
 		if (! is_file($file)) {

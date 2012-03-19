@@ -27,24 +27,24 @@ define( $constpref.'_DEFAULT_ITEM_PERM_DESC' ,  '¥Ñ¡¼¥ß¥Ã¥·¥ç¥ó¤Ï3·å¤Ç[¥Õ¥¡¥¤¥ë¥
 define( $constpref.'_USE_USERS_DIR' ,           '¥æ¡¼¥¶¡¼ÊÌ¥Û¥ë¥À¤Î»ÈÍÑ' );
 define( $constpref.'_USE_USERS_DIR_DESC' ,      '' );
 define( $constpref.'_USERS_DIR_PERM' ,          '¥æ¡¼¥¶¡¼ÊÌ¥Û¥ë¥À¤Î¥Ñ¡¼¥ß¥Ã¥·¥ç¥ó' );
-define( $constpref.'_USERS_DIR_PERM_DESC' ,     'Îã: 7cc: ¥ª¡¼¥Ê¡¼ 7 = -rwu, ¥°¥ë¡¼¥× c = hr--, ¥²¥¹¥È c = hr--' );
+define( $constpref.'_USERS_DIR_PERM_DESC' ,     '¤³¤³¤Ç¤ÎÀßÄê¤ÏºîÀ®»þ¤Î¤ß»²¾È¤µ¤ì¤Þ¤¹¡£ºîÀ®¸å¤Ï elFinder ¤ÇÄ¾ÀÜÊÑ¹¹¤·¤Æ¤¯¤À¤µ¤¤¡£<br />Îã: 7cc: ¥ª¡¼¥Ê¡¼ 7 = -rwu, ¥°¥ë¡¼¥× c = hr--, ¥²¥¹¥È c = hr--' );
 define( $constpref.'_USERS_DIR_ITEM_PERM' ,     '¥æ¡¼¥¶¡¼ÊÌ¥Û¥ë¥À¤ËºîÀ®¤µ¤ì¤ë¥¢¥¤¥Æ¥à¤Î¥Ñ¡¼¥ß¥Ã¥·¥ç¥ó' );
-define( $constpref.'_USERS_DIR_ITEM_PERM_DESC' ,'Îã: 7cc: ¥ª¡¼¥Ê¡¼ 7 = -rwu, ¥°¥ë¡¼¥× c = hr--, ¥²¥¹¥È c = hr--' );
+define( $constpref.'_USERS_DIR_ITEM_PERM_DESC' ,'¤³¤³¤Ç¤ÎÀßÄê¤ÏºîÀ®»þ¤Î¤ß»²¾È¤µ¤ì¤Þ¤¹¡£ºîÀ®¸å¤Ï elFinder ¤ÇÄ¾ÀÜÊÑ¹¹¤·¤Æ¤¯¤À¤µ¤¤¡£<br />Îã: 7cc: ¥ª¡¼¥Ê¡¼ 7 = -rwu, ¥°¥ë¡¼¥× c = hr--, ¥²¥¹¥È c = hr--' );
 define( $constpref.'_USE_GUEST_DIR' ,           '¥²¥¹¥ÈÍÑ¥Û¥ë¥À¤Î»ÈÍÑ' );
 define( $constpref.'_USE_GUEST_DIR_DESC' ,      '' );
 define( $constpref.'_GUEST_DIR_PERM' ,          '¥²¥¹¥ÈÍÑ¥Û¥ë¥À¤Î¥Ñ¡¼¥ß¥Ã¥·¥ç¥ó' );
-define( $constpref.'_GUEST_DIR_PERM_DESC' ,     'Îã: 766: ¥ª¡¼¥Ê¡¼ 7 = -rwu, ¥°¥ë¡¼¥× 6 = -rw-, ¥²¥¹¥È 6 = -rw-' );
+define( $constpref.'_GUEST_DIR_PERM_DESC' ,     '¤³¤³¤Ç¤ÎÀßÄê¤ÏºîÀ®»þ¤Î¤ß»²¾È¤µ¤ì¤Þ¤¹¡£ºîÀ®¸å¤Ï elFinder ¤ÇÄ¾ÀÜÊÑ¹¹¤·¤Æ¤¯¤À¤µ¤¤¡£<br />Îã: 766: ¥ª¡¼¥Ê¡¼ 7 = -rwu, ¥°¥ë¡¼¥× 6 = -rw-, ¥²¥¹¥È 6 = -rw-' );
 define( $constpref.'_GUEST_DIR_ITEM_PERM' ,     '¥²¥¹¥ÈÍÑ¥Û¥ë¥À¤ËºîÀ®¤µ¤ì¤ë¥¢¥¤¥Æ¥à¤Î¥Ñ¡¼¥ß¥Ã¥·¥ç¥ó' );
-define( $constpref.'_GUEST_DIR_ITEM_PERM_DESC' ,'Îã: 744: ¥ª¡¼¥Ê¡¼ 7 = -rwu, ¥°¥ë¡¼¥× 4 = -r--, ¥²¥¹¥È 4 = -r--' );
+define( $constpref.'_GUEST_DIR_ITEM_PERM_DESC' ,'¤³¤³¤Ç¤ÎÀßÄê¤ÏºîÀ®»þ¤Î¤ß»²¾È¤µ¤ì¤Þ¤¹¡£ºîÀ®¸å¤Ï elFinder ¤ÇÄ¾ÀÜÊÑ¹¹¤·¤Æ¤¯¤À¤µ¤¤¡£<br />Îã: 744: ¥ª¡¼¥Ê¡¼ 7 = -rwu, ¥°¥ë¡¼¥× 4 = -r--, ¥²¥¹¥È 4 = -r--' );
 define( $constpref.'_USE_GROUP_DIR' ,           '¥°¥ë¡¼¥×ÊÌ¥Û¥ë¥À¤Î»ÈÍÑ' );
 define( $constpref.'_USE_GROUP_DIR_DESC' ,      '' );
 define( $constpref.'_GROUP_DIR_PARENT' ,        '¥°¥ë¡¼¥×ÊÌ¥Û¥ë¥À¤Î¿Æ¥Û¥ë¥ÀÌ¾' );
 define( $constpref.'_GROUP_DIR_PARENT_DESC' ,   '' );
 define( $constpref.'_GROUP_DIR_PARENT_NAME' ,   '¥°¥ë¡¼¥×Ëè±ÜÍ÷');
 define( $constpref.'_GROUP_DIR_PERM' ,          '¥°¥ë¡¼¥×ÊÌ¥Û¥ë¥À¤Î¥Ñ¡¼¥ß¥Ã¥·¥ç¥ó' );
-define( $constpref.'_GROUP_DIR_PERM_DESC' ,     'Îã: 768: ¥ª¡¼¥Ê¡¼ 7 = -rwu, ¥°¥ë¡¼¥× 6 = -rw-, ¥²¥¹¥È 8 = h---' );
+define( $constpref.'_GROUP_DIR_PERM_DESC' ,     '¤³¤³¤Ç¤ÎÀßÄê¤ÏºîÀ®»þ¤Î¤ß»²¾È¤µ¤ì¤Þ¤¹¡£ºîÀ®¸å¤Ï elFinder ¤ÇÄ¾ÀÜÊÑ¹¹¤·¤Æ¤¯¤À¤µ¤¤¡£<br />Îã: 768: ¥ª¡¼¥Ê¡¼ 7 = -rwu, ¥°¥ë¡¼¥× 6 = -rw-, ¥²¥¹¥È 8 = h---' );
 define( $constpref.'_GROUP_DIR_ITEM_PERM' ,     '¥°¥ë¡¼¥×ÊÌ¥Û¥ë¥À¤ËºîÀ®¤µ¤ì¤ë¥¢¥¤¥Æ¥à¤Î¥Ñ¡¼¥ß¥Ã¥·¥ç¥ó' );
-define( $constpref.'_GROUP_DIR_ITEM_PERM_DESC' ,'Îã: 748: ¥ª¡¼¥Ê¡¼ 7 = -rwu, ¥°¥ë¡¼¥× 4 = -r--, ¥²¥¹¥È 8 = h---' );
+define( $constpref.'_GROUP_DIR_ITEM_PERM_DESC' ,'¤³¤³¤Ç¤ÎÀßÄê¤ÏºîÀ®»þ¤Î¤ß»²¾È¤µ¤ì¤Þ¤¹¡£ºîÀ®¸å¤Ï elFinder ¤ÇÄ¾ÀÜÊÑ¹¹¤·¤Æ¤¯¤À¤µ¤¤¡£<br />Îã: 748: ¥ª¡¼¥Ê¡¼ 7 = -rwu, ¥°¥ë¡¼¥× 4 = -r--, ¥²¥¹¥È 8 = h---' );
 
 define( $constpref.'_UPLOAD_ALLOW_ADMIN' ,      '´ÉÍý¼Ô¤Ë¥¢¥Ã¥×¥í¡¼¥É¤òµö²Ä¤¹¤ë MIME ¥¿¥¤¥×' );
 define( $constpref.'_UPLOAD_ALLOW_ADMIN_DESC' , 'MIME ¥¿¥¤¥×¤òÈ¾³Ñ¥¹¥Ú¡¼¥¹¶èÀÚ¤ê¤Çµ­½Ò¡£<br />all: Á´¤Æµö²Ä, none: ²¿¤âµö²Ä¤·¤Ê¤¤<br />Îã: image text/plain' );
@@ -70,6 +70,9 @@ define( $constpref.'_AUTO_RESIZE_GUEST_DESC',   '' );
 
 define( $constpref.'_DISABLE_PATHINFO' ,        '¥Õ¥¡¥¤¥ë»²¾ÈURL¤Î PathInfo ¤òÌµ¸ú¤Ë¤¹¤ë' );
 define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '' );
+
+define( $constpref.'_EDIT_DISABLE_LINKED' ,     '¥ê¥ó¥¯ºÑ¤ß¥Õ¥¡¥¤¥ë¤Î½ñ¤­¹þ¤ß¶Ø»ß' );
+define( $constpref.'_EDIT_DISABLE_LINKED_DESC' ,'¥ê¥ó¥¯ÀÚ¤ì¤äÉÔÍÑ°Õ¤Ê¾å½ñ¤­¤òËÉ»ß¤¹¤ë¤¿¤á¤Ë¥ê¥ó¥¯¡¦»²¾È¤µ¤ì¤¿¥Õ¥¡¥¤¥ë¤ò¼«Æ°Åª¤Ë½ñ¤­¹þ¤ß¶Ø»ß¤ËÀßÄê¤·¤Þ¤¹¡£' );
 
 define( $constpref.'_DEBUG' ,                   '¥Ç¥Ð¥Ã¥°¥â¡¼¥É¤òÍ­¸ú¤Ë¤¹¤ë' );
 define( $constpref.'_DEBUG_DESC' ,              '¥Ç¥Ð¥Ã¥°¥â¡¼¥É¤Ë¤¹¤ë¤È elFinder ¤Î "elfinder.min.css", "elfinder.min.js" ¤Ç¤Ï¤Ê¤¯¸ÄÊÌ¤Î¥Õ¥¡¥¤¥ë¤òÆÉ¤ß¹þ¤ß¤Þ¤¹¡£<br />¤Þ¤¿¡¢JavaScript ¤Î¥ì¥¹¥Ý¥ó¥¹¤Ë¥Ç¥Ð¥°¾ðÊó¤ò´Þ¤á¤Þ¤¹¡£<br />¥Ñ¥Õ¥©¡¼¥Þ¥ó¥¹¸þ¾å¤Î¤¿¤á¤Ë¡¢ÄÌ¾ï¤Ï¥Ç¥Ð¥Ã¥°¥â¡¼¥É¤ÏÌµ¸ú¤Ë¤·¤Æ±¿ÍÑ¤¹¤ë¤³¤È¤ò¤ª´«¤á¤·¤Þ¤¹¡£' );

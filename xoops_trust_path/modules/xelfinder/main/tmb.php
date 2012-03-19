@@ -2,6 +2,11 @@
 
 require_once dirname(dirname(__FILE__)) . '/class/xelFinderMisc.class.php';
 $xelFinderMisc = new xelFinderMisc();
+$xelFinderMisc->myConfig = $xoopsModuleConfig;
+$xelFinderMisc->db = $xoopsDB;
+$xelFinderMisc->mydirname = $mydirname;
+
+$xelFinderMisc->mode = 'tmb';
 
 $file_id = 0;
 $s = 0;

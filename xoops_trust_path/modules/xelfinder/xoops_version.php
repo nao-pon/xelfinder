@@ -12,7 +12,7 @@ $constpref = '_MI_' . strtoupper( $mydirname ) ;
 $modversion['name'] = 'xelFinder' ;
 //$modversion['name'] = $constpref.'_NAME') ;
 $modversion['description'] = constant($constpref.'_DESC');
-$modversion['version'] = 0.06 ;
+$modversion['version'] = 0.07 ;
 $modversion['credits'] = "Hypweb.net";
 $modversion['author'] = "nao-pon" ;
 $modversion['help'] = "" ;
@@ -126,7 +126,7 @@ $modversion['config'][] = array(
 	'description'	=> $constpref.'_GUEST_DIR_ITEM_PERM_DESC',
 	'formtype'		=> 'textbox' ,
 	'valuetype'		=> 'text' ,
-	'default'		=> '744'
+	'default'		=> '777'
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'use_group_dir' ,
@@ -239,6 +239,14 @@ $modversion['config'][] = array(
 	'formtype'		=> 'yesno' ,
 	'valuetype'		=> 'int' ,
 	'default'		=> 0
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'edit_disable_linked' ,
+	'title'			=> $constpref.'_EDIT_DISABLE_LINKED',
+	'description'	=> $constpref.'_EDIT_DISABLE_LINKED_DESC',
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> 1
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'debug' ,
