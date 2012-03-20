@@ -10,7 +10,7 @@ class xelFinder extends elFinder {
 	 **/
 	public function __construct($opts) {
 		parent::__construct($opts);
-		$this->commands['perm'] = array('target' => true, 'perm' => true, 'umask' => false);
+		$this->commands['perm'] = array('target' => true, 'perm' => true, 'umask' => false, 'gids' => false);
 	}
 
 	/**
@@ -30,8 +30,13 @@ class xelFinder extends elFinder {
 					return array('error' => $this->error(self::ERROR_PERM_DENIED));
 				}
 
-				$file = $volume->savePerm($target, $args['perm'], $args['umask']);
-				return $file? array('changed' => array($file)) : array('error' => $this->error($volume->error()));
+				if ($args['perm'] === 'getgroups') {
+					$groups = $volume->getGroups($target);
+					return $groups? $groups : array('error' => $this->error($volume->error()));
+				} else {
+					$file = $volume->savePerm($target, $args['perm'], $args['umask'], $args['gids']);
+					return $file? array('changed' => array($file)) : array('error' => $this->error($volume->error()));
+				}
 			}
 		}
 		return array('error' => $this->error(self::ERROR_UNKNOWN_CMD));

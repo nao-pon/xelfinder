@@ -11,6 +11,7 @@ $().ready(function() {
 	elFinder.prototype.i18.en.messages.perm    = 'Permission';
 	elFinder.prototype.i18.en.messages.unlock  = 'Unlock';
 	elFinder.prototype.i18.en.messages.hidden  = 'Hidden';
+	elFinder.prototype.i18.jp.messages.targetgroups  = 'Target groups';
 
 	elFinder.prototype.i18.jp.messages.ntfperm = 'アイテム属性を変更';
 	elFinder.prototype.i18.jp.messages.cmdperm = '属性変更';
@@ -21,6 +22,7 @@ $().ready(function() {
 	elFinder.prototype.i18.jp.messages.perm    = 'パーミッション';
 	elFinder.prototype.i18.jp.messages.unlock  = 'ロック解除';
 	elFinder.prototype.i18.jp.messages.hidden  = '非表示';
+	elFinder.prototype.i18.jp.messages.targetgroups  = '対象グループ';
 
 	elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
 	

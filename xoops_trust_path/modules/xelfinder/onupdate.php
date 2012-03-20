@@ -25,7 +25,11 @@ function xelfinder_onupdate_base( $module , $mydirname )
 
 
 	// TABLES (write here ALTER TABLE etc. if necessary)
-
+	$query = "SELECT `gids` FROM ".$db->prefix($mydirname."_file") ;
+	if(! $db->query($query)) {
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` ADD `gids` VARCHAR( 255 ) NOT NULL');
+	}
+	
 
 	// TEMPLATES (all templates have been already removed by modulesadmin)
 	$tplfile_handler =& xoops_gethandler( 'tplfile' ) ;

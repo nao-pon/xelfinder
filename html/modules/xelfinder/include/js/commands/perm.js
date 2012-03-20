@@ -2,6 +2,7 @@ elFinder.prototype.commands.perm = function() {
 	this.updateOnSelect = false;
 
 	var fm  = this.fm,
+	spclass = 'elfinder-info-spinner',
 	level = {
 		0 : 'owner',
 		1 : 'group',
@@ -21,8 +22,8 @@ elFinder.prototype.commands.perm = function() {
 
 	this.tpl = {
 		main       : '<div class="ui-helper-clearfix elfinder-info-title"><span class="elfinder-cwd-icon {class} ui-corner-all"/>{title}</div>'
-					+'{dataTable}',
-		itemTitle  : '<strong>{name}</strong><span id="elfinder-info-kind">{kind}</span>',
+					+'{dataTable}{targetGroups}',
+		itemTitle  : '<strong>{name}</strong><span id="elfinder-info-kind">{kind}</span> ('+fm.i18n('owner')+':<span id="{id}-owner-name"><span class="'+spclass+'"/></span>)',
 		dataTable  : '<table id="{id}-table-{type}"><tr><td>{0}</td><td>{1}</td><td>{2}</td></tr></table>'
 					+'<div class="">'+msg.perm+': <input id="{id}-{type}" type="text" size="4" maxlength="3" value="{value}"></div>',
 		fieldset   : '<fieldset id="{id}-fieldset-{level}"><legend>{f_title}</legend>'
@@ -31,7 +32,9 @@ elFinder.prototype.commands.perm = function() {
 					+'<input type="checkbox" value="5" id="{id}-unlock-{level}-{type}"{checked-u}> <label for="{id}-unlock-{level}-{type}">'+msg.unlock+'</label><br>'
 					+'<input type="checkbox" value="8" id="{id}-hidden-{level}-{type}"{checked-h}{disabled-h}> <label for="{id}-hidden-{level}-{type}">'+msg.hidden+'</label></fieldset>',
 		tab        : '<div id="{id}-tab"><ul><li><a href="#{id}-tab-perm">'+msg.perms+'</a></li><li><a href="#{id}-tab-umask">'+msg.newitem+'</a></li></ul>'
-					+'<div id="{id}-tab-perm">{permTable}</div><div id="{id}-tab-umask">{umaskTable}</div></div>'
+					+'<div id="{id}-tab-perm">{permTable}</div><div id="{id}-tab-umask">{umaskTable}</div></div>',
+		groups     : '<fieldset id="{id}-fieldset-groups"><legend>'+fm.i18n('targetgroups')+'</legend><div id="{id}-groups"><span class="'+spclass+'"/></div></fieldset>',
+		groupCheck : '<input type="checkbox" id="{id}-group-{gid}" name="gids" value="{gid}"{checked} /><label for="{id}-group-{gid}">{gname}</label>'
 	};
 
 	this.shortcuts = [{
@@ -64,7 +67,11 @@ elFinder.prototype.commands.perm = function() {
 		save = function() {
 			var perm = $('#'+id+'-perm').val();
 			var umask = $('#'+id+'-umask').val();
-
+			var gids = [];
+			$('#'+id+'-fieldset-groups input[name=gids]:checked').map(function() {
+				 gids.push($(this).val());
+			});
+			
 			dialog.elfinderdialog('close');
 
 			if (umask) {
@@ -72,12 +79,14 @@ elFinder.prototype.commands.perm = function() {
 			} else {
 				umask = '';
 			}
+			
 			fm.request({
 				data : {
 					cmd    : 'perm',
 					target : file.hash,
 					perm   : perm,
-					umask  : umask
+					umask  : umask,
+					gids   : gids
 				},
 				notify : {type : 'perm', cnt : 1}
 			})
@@ -148,6 +157,13 @@ elFinder.prototype.commands.perm = function() {
 			dataTable = dataTable.replace('{value}', value).replace(/{type}/g, type).replace('{valueCaption}', msg[type]);
 			return dataTable;
 		},
+		replSpinner = function(msg, id) {
+			if (id) {
+				$('#'+id).html(msg);
+			} else {
+				dialog.find('.'+spclass).parent().html(msg);
+			}
+		},
 		opts    = {
 			title : this.title,
 			width : 'auto',
@@ -155,7 +171,7 @@ elFinder.prototype.commands.perm = function() {
 			close : function() { $(this).elfinderdialog('destroy'); }
 		},
 		dialog = fm.getUI().find('#'+id),
-		tmb = '', title, dataTable;
+		tmb = '', title, dataTable, targetGroups;
 
 		if (dialog.length) {
 			dialog.elfinderdialog('toTop');
@@ -174,9 +190,10 @@ elFinder.prototype.commands.perm = function() {
 		} else {
 			dataTable = makeDataTable(file.perm, 'perm');
 		}
-		dataTable = dataTable.replace(/{id}/g, id);
+		//dataTable = dataTable.replace(/{id}/g, id);
+		targetGroups = tpl.groups;
 
-		view = view.replace('{title}', title).replace('{dataTable}', dataTable);
+		view = view.replace('{title}', title).replace('{dataTable}', dataTable).replace('{targetGroups}', targetGroups).replace(/{id}/g, id);
 
 		buttons[fm.i18n('btnCancel')] = function() { dialog.elfinderdialog('close'); };
 		buttons[fm.i18n('btnApply')] = save;
@@ -223,6 +240,29 @@ elFinder.prototype.commands.perm = function() {
 				}
 			});
 		}
+		
+		fm.request({
+			data : {cmd : 'perm', target : file.hash, perm : 'getgroups'},
+			preventDefault : true
+		})
+		.fail(function() {
+			replSpinner(msg.unknown);
+		})
+		.done(function(data) {
+			var groups = data.groups;
+			var html = '';
+			//fm.log(groups);
+			if (groups) {
+				for (var gid in groups) {
+					var gname = groups[gid].name;
+					var checked = groups[gid].on? ' checked="checked"' : '';
+					html += tpl.groupCheck.replace(/\{gid\}/g, gid).replace('{gname}', gname).replace('{checked}', checked).replace(/\{id\}/g, id);
+				};
+			}
+			replSpinner(html ? html : msg.unknown, id+'-groups');
+			replSpinner(data.uname, id+'-owner-name');
+		});
+
 		return dfrd;
 	};
 };

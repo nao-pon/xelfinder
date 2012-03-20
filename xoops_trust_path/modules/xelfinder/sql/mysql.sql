@@ -13,6 +13,7 @@ CREATE TABLE `file` (
   `mime` varchar(25) NOT NULL DEFAULT 'unknown',
   `width` int(11) NOT NULL,
   `height` int(11) NOT NULL,
+  `gids` varchar(255) NOT NULL,
   PRIMARY KEY (`file_id`),
   UNIQUE KEY `parent_name` (`parent_id`,`name`),
   KEY `parent_id` (`parent_id`)
