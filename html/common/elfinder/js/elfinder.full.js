@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-03-18)
+ * Version 2.0 rc1 (2012-03-20)
  * http://elfinder.org
  * 
  * Copyright 2009-2011, Studio 42
@@ -2262,8 +2262,8 @@ elFinder.prototype = {
 			d2   = file2.mime == 'directory',
 			n1   = f1.name.toLowerCase(),
 			n2   = f2.name.toLowerCase(),
-			s1   = d1 ? 0 : f1.size || 0,
-			s2   = d2 ? 0 : f2.size || 0,
+			s1   = d1 ? 0 : parseInt(f1.size) || 0,
+			s2   = d2 ? 0 : parseInt(f2.size) || 0,
 			t1   = f1.ts || f1.date || '',
 			t2   = f2.ts || f2.date || '';
 
@@ -4585,6 +4585,13 @@ $.fn.elfindercwd = function(fm) {
 			tmbNum = fm.options.loadTmbs > 0 ? fm.options.loadTmbs : 5,
 			
 			/**
+			 * Current search query.
+			 *
+			 * @type String
+			 */
+			query = '',
+			
+			/**
 			 * File templates
 			 *
 			 * @type Object
@@ -5296,6 +5303,12 @@ $.fn.elfindercwd = function(fm) {
 			.bind('searchend sortchange', function() {
 				content(fm.files());
 			})
+			.bind('searchstart', function(e) {
+				query = e.data.query;
+			})
+			.bind('searchend', function() {
+				query = '';
+			})
 			.bind('viewchange', function() {
 				var sel = fm.selected(),
 					l   = fm.storage('view') == 'list';
@@ -5312,23 +5325,35 @@ $.fn.elfindercwd = function(fm) {
 				resize();
 			})
 			.add(function(e) {
-				var phash = fm.cwd().hash;
-
-				add($.map(e.data.added || [], function(f) { return f.phash == phash ? f : null; }));
+				var phash = fm.cwd().hash,
+					files = query
+						? $.map(e.data.added || [], function(f) { return f.name.indexOf(query) === -1 ? null : f })
+						: $.map(e.data.added || [], function(f) { return f.phash == phash ? f : null; })
+						;
+				add(files)
+				// add($.map(e.data.added || [], function(f) { return f.phash == phash ? f : null; }));
 			})
 			.change(function(e) {
 				var phash = fm.cwd().hash,
-					sel   = fm.selected();
+					sel   = fm.selected(),
+					files;
 
-				$.each($.map(e.data.changed || [], function(f) { return f.phash == phash ? f : null; }), function(i, file) {
-					// force to load updated thumbnail
-					// if (file.tmb && (''+file.tmb).indexOf('?') === -1) {
-					// 	file.tmb += '?_='+Math.random()
-					// }
-					remove([file.hash]);
-					add([file]);
-					$.inArray(file.hash, sel) !== -1 && selectFile(file.hash);
-				})
+				if (query) {
+					$.each(e.data.changed || [], function(i, file) {
+						remove([file.hash]);
+						if (file.name.indexOf(query) !== -1) {
+							add([file]);
+							$.inArray(file.hash, sel) !== -1 && selectFile(file.hash);
+						}
+					})
+				} else {
+					$.each($.map(e.data.changed || [], function(f) { return f.phash == phash ? f : null; }), function(i, file) {
+						remove([file.hash]);
+						add([file]);
+						$.inArray(file.hash, sel) !== -1 && selectFile(file.hash);
+					});
+				}
+				
 				trigger();
 			})
 			.remove(function(e) {
@@ -6209,7 +6234,7 @@ $.fn.elfindersortbutton = function(cmd) {
 			item     = 'elfinder-button-menu-item',
 			selected = 'elfinder-button-menu-item-selected',
 			menu,
-			button   = $(this).addClass('ui-state-default elfinder-button')
+			button   = $(this).addClass('ui-state-default elfinder-button elfiner-button-'+cmd.name)
 				.attr('title', cmd.title)
 				.append('<span class="elfinder-button-icon elfinder-button-icon-'+cmd.name+'"/>')
 				.hover(function(e) { !button.is('.'+disabled) && button.toggleClass(hover); })
@@ -7250,8 +7275,6 @@ elFinder.prototype.commands.download = function() {
  */
 elFinder.prototype.commands.duplicate = function() {
 	var fm = this.fm;
-	
-	this.disableOnSearch = true;
 	
 	this.getstate = function(sel) {
 		var sel = this.files(sel),
@@ -9393,7 +9416,6 @@ elFinder.prototype.commands.reload = function() {
  * @author Dmitry (dio) Levashov, dio@std42.ru
  **/
 elFinder.prototype.commands.rename = function() {
-	this.disableOnSearch = true;
 	
 	this.shortcuts = [{
 		pattern     : 'f2'+(this.fm.OS == 'mac' ? ' enter' : '')
@@ -10429,6 +10451,8 @@ elFinder.prototype.commands.search = function() {
 		var fm = this.fm;
 		
 		if (typeof(q) == 'string' && q) {
+			fm.trigger('searchstart', {query : q});
+			
 			return fm.request({
 				data   : {cmd : 'search', q : q},
 				notify : {type : 'search', cnt : 1, hideCnt : true}
