@@ -48,6 +48,8 @@ $debug = (! empty($config['debug']));
 
 $viewport = (preg_match('/Mobile/i', $_SERVER['HTTP_USER_AGENT']))? '<meta name="viewport" content="width=device-width" />' : '';
 
+$userLang = xelfinder_detect_lang();
+
 while(ob_get_level()) {
 	if (! ob_end_clean()) break;
 }
@@ -150,7 +152,7 @@ while(ob_get_level()) {
 		<script type="text/javascript" src="<?php echo $elfurl ?>/js/elfinder.min.js"></script>
 		<?php }?>
 		
-		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.jp.js"    type="text/javascript" charset="utf-8"></script>
+		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.<?php echo $userLang?>.js"    type="text/javascript" charset="utf-8"></script>
 
 		<link rel="stylesheet" type="text/css" media="screen" href="<?php echo XOOPS_URL ?>/common/js/toastmessage/css/jquery.toastmessage.css">
 		<script type="text/javascript" src="<?php echo XOOPS_URL ?>/common/js/toastmessage/jquery.toastmessage.js" charset="utf-8"></script>
@@ -166,6 +168,7 @@ while(ob_get_level()) {
 			var itemPath = '';
 			var itemObject = [];
 			var defaultTmbSize = <?php echo $default_tmbsize?>;
+			var lang = '<?php echo $userLang?>';
 		</script>
 		<script type="text/javascript" src="<?php echo $myurl ?>/include/js/commands/perm.js" charset="utf-8"></script>
 		<script type="text/javascript" src="<?php echo $myurl ?>/include/js/manager.js" charset="utf-8"></script>
@@ -182,3 +185,27 @@ while(ob_get_level()) {
 	</body>
 </html>
 <?php exit();
+
+function xelfinder_detect_lang() {
+	$replaser = array('ja' => 'jp');
+	if ($accept = @ $_SERVER['HTTP_ACCEPT_LANGUAGE']) {
+		if (preg_match_all("/([\w_-]+)/i",$accept,$match,PREG_PATTERN_ORDER)) {
+			foreach($match[1] as $lang) {
+				list($l, $c) = array_pad(preg_split('/[_-]/', $lang), 2, '');
+				$lang = strtolower($l);
+				if ($c) {
+					$lang .= '_' . strtoupper($c);
+				}
+				if (isset($replaser[$lang])) {
+					$lang = $replaser[$lang];
+				}
+				if (is_file( XOOPS_ROOT_PATH.'/common/elfinder/js/i18n/elfinder.'.$lang.'.js')) {
+					return $lang;
+				} else if (is_file( XOOPS_ROOT_PATH.'/common/elfinder/js/i18n/elfinder.'.substr($lang, 0, 2).'.js')) {
+					return substr($lang, 0, 2);
+				}
+			}
+		}
+	}
+	return 'en';
+}

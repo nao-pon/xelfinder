@@ -2,7 +2,7 @@ $().ready(function() {
 
 	$().toastmessage( { sticky : true } );
 
-	elFinder.prototype.i18.jp.messages.ntfperm = 'Changing permission';
+	elFinder.prototype.i18.en.messages.ntfperm = 'Changing permission';
 	elFinder.prototype.i18.en.messages.cmdperm = 'Chage permission';
 	elFinder.prototype.i18.en.messages.newitem = 'New item';
 	elFinder.prototype.i18.en.messages.owner   = 'Owner';
@@ -11,23 +11,25 @@ $().ready(function() {
 	elFinder.prototype.i18.en.messages.perm    = 'Permission';
 	elFinder.prototype.i18.en.messages.unlock  = 'Unlock';
 	elFinder.prototype.i18.en.messages.hidden  = 'Hidden';
-	elFinder.prototype.i18.jp.messages.targetgroups  = 'Target groups';
+	elFinder.prototype.i18.en.messages.targetgroups  = 'Target groups';
 
-	elFinder.prototype.i18.jp.messages.ntfperm = 'アイテム属性を変更';
-	elFinder.prototype.i18.jp.messages.cmdperm = '属性変更';
-	elFinder.prototype.i18.jp.messages.newitem = '新規アイテム';
-	elFinder.prototype.i18.jp.messages.owner   = 'オーナー';
-	elFinder.prototype.i18.jp.messages.group   = 'グループ';
-	elFinder.prototype.i18.jp.messages.guest   = 'ゲスト';
-	elFinder.prototype.i18.jp.messages.perm    = 'パーミッション';
-	elFinder.prototype.i18.jp.messages.unlock  = 'ロック解除';
-	elFinder.prototype.i18.jp.messages.hidden  = '非表示';
-	elFinder.prototype.i18.jp.messages.targetgroups  = '対象グループ';
+	if (typeof elFinder.prototype.i18.jp != "undefined") {
+		elFinder.prototype.i18.jp.messages.ntfperm = 'アイテム属性を変更';
+		elFinder.prototype.i18.jp.messages.cmdperm = '属性変更';
+		elFinder.prototype.i18.jp.messages.newitem = '新規アイテム';
+		elFinder.prototype.i18.jp.messages.owner   = 'オーナー';
+		elFinder.prototype.i18.jp.messages.group   = 'グループ';
+		elFinder.prototype.i18.jp.messages.guest   = 'ゲスト';
+		elFinder.prototype.i18.jp.messages.perm    = 'パーミッション';
+		elFinder.prototype.i18.jp.messages.unlock  = 'ロック解除';
+		elFinder.prototype.i18.jp.messages.hidden  = '非表示';
+		elFinder.prototype.i18.jp.messages.targetgroups  = '対象グループ';
 
-	elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
+		elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
+	}
 	
 	$('#elfinder').elfinder({
-		lang: 'ja',
+		lang: lang,
 		url : myUrl + 'connector.php',
 		height: $(window).height() - 20,
 		getFileCallback : callbackFunc,
