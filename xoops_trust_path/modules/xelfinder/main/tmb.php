@@ -33,7 +33,7 @@ if ($file_id && ($res = $xoopsDB->query($query)) && $xoopsDB->getRowsNum($res)) 
 		
 		@include_once XOOPS_TRUST_PATH . '/class/hyp_common/hyp_common_func.php';
 		
-		$out = $file = XOOPS_TRUST_PATH . '/uploads/xelfinder/'. rawurlencode(substr(XOOPS_URL, 7)) . '_' . $mydirname . '_' . $file_id;
+		$out = $file = XOOPS_TRUST_PATH . '/uploads/xelfinder/'. rawurlencode(substr(XOOPS_URL, strpos(XOOPS_URL, '://') + 3)) . '_' . $mydirname . '_' . $file_id;
 		
 		if (! is_file($file)) {
 			$xelFinderMisc->exitOut(404);

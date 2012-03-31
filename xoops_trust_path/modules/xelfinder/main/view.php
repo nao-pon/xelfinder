@@ -27,7 +27,7 @@ if ($file_id && ($res = $xoopsDB->query($query)) && $xoopsDB->getRowsNum($res)) 
 	
 	list($mime, $size, $mtime, $perm, $uid) = $xoopsDB->fetchRow($res);
 	if ($xelFinderMisc->readAuth($perm, $uid, $file_id)) {
-		$file = XOOPS_TRUST_PATH . '/uploads/xelfinder/'. rawurlencode(substr(XOOPS_URL, 7)) . '_' . $mydirname . '_' . $file_id;
+		$file = XOOPS_TRUST_PATH . '/uploads/xelfinder/'. rawurlencode(substr(XOOPS_URL, strpos(XOOPS_URL, '://') + 3)) . '_' . $mydirname . '_' . $file_id;
 		
 		if (! is_file($file)) {
 			$xelFinderMisc->exitOut(404);
