@@ -39,4 +39,4 @@ class xelfinderPreloadBase extends XCube_ActionFilter {
 
 }
 
-eval( 'class '.ucfirst( $mydirname ).'_xelfinderPreload extends xelfinderPreloadBase { var $mydirname = "'.$mydirname.'" ; var $mydirpath = "'.$mydirpath.'" ; }' ) ;
+eval( 'class '.ucfirst( $mydirname ).'_xelfinderPreload extends xelfinderPreloadBase { var $mydirname = \''.$mydirname.'\' ; var $mydirpath = \''.$mydirpath.'\' ; }' ) ;
