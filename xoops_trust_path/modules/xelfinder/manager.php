@@ -50,6 +50,9 @@ $viewport = (preg_match('/Mobile/i', $_SERVER['HTTP_USER_AGENT']))? '<meta name=
 
 $userLang = xelfinder_detect_lang();
 
+$jQueryVersion   = '1.7.2';
+$jQueryUIVersion = '1.8.18';
+
 while(ob_get_level()) {
 	if (! ob_end_clean()) break;
 }
@@ -63,9 +66,9 @@ while(ob_get_level()) {
 		<?php echo $viewport ?>
 		<base href="<?php echo XOOPS_URL ?>/modules/<?php echo $mydirname?>/">
 
-		<script src="<?php echo $elfurl ?>/jquery/jquery-1.7.1.min.js" type="text/javascript" charset="utf-8"></script>
-		<script src="<?php echo $elfurl ?>/jquery/jquery-ui-1.8.18.custom.min.js" type="text/javascript" charset="utf-8"></script>
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/jquery/ui-themes/smoothness/jquery-ui-1.8.18.custom.css" type="text/css" media="screen" title="no title" charset="utf-8">
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/<?php echo $jQueryVersion?>/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/<?php echo $jQueryUIVersion?>/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>
+		<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/<?php echo $jQueryUIVersion?>/themes/smoothness/jquery-ui.css" type="text/css" media="screen" charset="utf-8">
 	
 		<?php if ($debug) {?>
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/common.css"      type="text/css" media="screen" charset="utf-8">
