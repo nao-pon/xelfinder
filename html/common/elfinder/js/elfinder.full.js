@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-03-24)
+ * Version 2.0 rc1 (2012-04-02)
  * http://elfinder.org
  * 
  * Copyright 2009-2011, Studio 42
@@ -5246,14 +5246,13 @@ $.fn.elfindercwd = function(fm) {
 				}),
 			
 			resize = function() {
-				var h = 0,
-					delta = wrapper.outerHeight(true) - wrapper.height();
-				// return
+				var h = 0;
+
 				wrapper.siblings('.elfinder-panel:visible').each(function() {
-					h += $(this).outerHeight(true)
+					h += $(this).outerHeight(true);
 				});
 
-				wrapper.height(wz.height() - delta - h);
+				wrapper.height(wz.height() - h);
 			},
 			// elfinder node
 			parent = $(this).parent().resize(resize),
