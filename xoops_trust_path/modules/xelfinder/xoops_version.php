@@ -62,6 +62,7 @@ $modversion['config'][] = array(
 	'default'		=> 'xelfinder:xelfinder_db:uploads/xelfinder:'.constant($constpref.'_SHARE_HOLDER' ).'
 #xelfinder:xelfinder:uploads/elfinder:elFinder
 #myalbum:myalbum:uploads/photos:MyAlbum
+#gnavi:gnavi:uploads/gnavi:GNAVI
 #mailbbs:mailbbs:modules/mailbbs/imgs:MailBBS'
 ) ;
 $modversion['config'][] = array(
