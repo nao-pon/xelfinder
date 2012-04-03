@@ -16,27 +16,34 @@ $config = $config_handler->getConfigsByCat(0, $xelfinderModule->getVar('mid'));
 
 $managerJs = '';
 $_plugin_dir = dirname(__FILE__) . '/plugins/';
-$_js_cache_files = array();
+$_js_cache_path = $_js_cache_times = array();
 foreach(explode("\n", $config['volume_setting']) as $_vol) {
 	$_vol = trim($_vol);
 	if (! $_vol || $_vol[0] === '#') continue;
-	list(, $_plugin) = explode(':', $_vol);
+	list(, $_plugin, $_dirname) = explode(':', $_vol);
 	$_plugin = trim($_plugin);
+	if (preg_match('#(?:uploads|modules)/([^/]+)#i', trim($_dirname), $_match)) {
+		$_dirname = $_match[1];
+	} else {
+		$_dirname = $_plugin;
+	}
+	$_key = ($_dirname !== $_plugin)? ($_dirname.'!'.$_plugin) : $_dirname;
 	$_js = $_plugin_dir . $_plugin . '/manager.js';
 	if (is_file($_js)) {
-		$_js_cache_files[$_plugin] = filemtime($_js);
-		$_js_cache_path[$_plugin] = $_js;
+		$_js_cache_times[$_key] = filemtime($_js);
+		$_js_cache_path[$_key] = $_js;
 	}
 }
-if ($_js_cache_files) {
-	ksort($_js_cache_files);
-	$_plugins = array_keys($_js_cache_files);
-	$_managerJs = '/cache/' . join(',', $_plugins) . '_manager.js';
+if ($_js_cache_path) {
+	ksort($_js_cache_path);
+	$_keys = array_keys($_js_cache_path);
+	$_managerJs = '/cache/' . join(',', $_keys) . '_manager.js';
 	$_js_cacahe = $mydirpath . $_managerJs;
-	if (! is_file($_js_cacahe) || filemtime($_js_cacahe) < max($_js_cache_files)) {
+	if (! is_file($_js_cacahe) || filemtime($_js_cacahe) < max($_js_cache_times)) {
 		$_src = '';
-		foreach($_plugins as $_plugin) {
-			$_src .= file_get_contents($_js_cache_path[$_plugin]);
+		foreach($_keys as $_key) {
+			list($_dirname) = explode('!', $_key);
+			$_src .= str_replace('$dirname', $_dirname, file_get_contents($_js_cache_path[$_key]));
 		}
 		file_put_contents($_js_cacahe, $_src);
 	}

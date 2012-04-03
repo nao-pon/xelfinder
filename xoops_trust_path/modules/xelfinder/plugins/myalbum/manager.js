@@ -1,3 +1,3 @@
-function get_thumb_photos(name, file) {
-	return 'uploads/thumb/' + name;
+function get_thumb_$dirname(name, file) {
+	return file.simg + '/' + name;
 }

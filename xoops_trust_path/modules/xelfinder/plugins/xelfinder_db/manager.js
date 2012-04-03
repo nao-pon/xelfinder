@@ -1,4 +1,4 @@
-function get_thumb_xelfinder(name, file) {
+function get_thumb_$dirname(name, file) {
 	if (file.url.match(/\?/)) {
 		file.tmb = file.url.replace('=view', '=tmb&s=_tmbsize_');
 	} else {

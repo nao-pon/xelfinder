@@ -1,3 +1,3 @@
-function get_thumb_elfinder(name, file) {
+function get_thumb_$dirname(name, file) {
 	return file.tmb.replace(rootUrl+'/', '');
 }
