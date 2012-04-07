@@ -46,7 +46,8 @@ $().ready(function() {
 				['copy', 'cut', 'paste'],
 				['rm'],
 				['duplicate', 'rename', 'edit', 'resize', 'pixlr'],
-				//['extract', 'archive'],
+				// ['extract', 'archive'],
+				['archive'],
 				['search'],
 				['view', 'sort'],
 				['help']
@@ -69,6 +70,7 @@ $().ready(function() {
     		'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy',
     		'cut', 'paste', 'edit',
     		//'extract', 'archive',
+    		'archive',
     		'search', 'info', 'view', 'help', 'resize', 'sort', 'pixlr', 'perm'
     	],
 		commandsOptions : {
@@ -85,7 +87,8 @@ $().ready(function() {
 			cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'sort', '|', 'info', 'perm'],
 			// current directory file menu
 			files  : ['getfile', '|','open', 'quicklook', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', 'pixlr',
-			          //'|', 'archive', 'extract',
+			         // '|', 'archive', 'extract',
+			          '|', 'archive',
 			          '|', 'info', 'perm']
 		}
 	}).elfinder('instance');
