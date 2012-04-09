@@ -600,12 +600,12 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 		}
 		
 		//exec('zip --version', $o, $c);
-		$this->procExec('zip --version', $o, $c);
+		$this->procExec('zip -v', $o, $c);
 		if ($c == 0) {
 			$arcs['create']['application/zip']  = array('cmd' => 'zip', 'argc' => '-r9', 'ext' => 'zip');
 		}
 		
-		$this->procExec('unzip --help', $o, $c);
+		$this->procExec('unzip -v', $o, $c);
 		if ($c == 0) {
 			$arcs['extract']['application/zip'] = array('cmd' => 'unzip', 'argc' => '',  'ext' => 'zip');
 		} 
