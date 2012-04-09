@@ -31,6 +31,7 @@ $().ready(function() {
 	$('#elfinder').elfinder({
 		lang: lang,
 		url : myUrl + 'connector.php',
+		customData : { admin : adminMode },
 		height: $(window).height() - 20,
 		getFileCallback : callbackFunc,
 		uiOptions : {
