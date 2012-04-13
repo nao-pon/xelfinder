@@ -12,6 +12,7 @@ $().ready(function() {
 	elFinder.prototype.i18.en.messages.unlock  = 'Unlock';
 	elFinder.prototype.i18.en.messages.hidden  = 'Hidden';
 	elFinder.prototype.i18.en.messages.targetgroups  = 'Target groups';
+	elFinder.prototype.i18.en.messages.mimeserach    = 'MIME type Serach';
 
 	if (typeof elFinder.prototype.i18.jp != "undefined") {
 		elFinder.prototype.i18.jp.messages.ntfperm = 'アイテム属性を変更';
@@ -24,6 +25,7 @@ $().ready(function() {
 		elFinder.prototype.i18.jp.messages.unlock  = 'ロック解除';
 		elFinder.prototype.i18.jp.messages.hidden  = '非表示';
 		elFinder.prototype.i18.jp.messages.targetgroups  = '対象グループ';
+		elFinder.prototype.i18.jp.messages.mimeserach    = 'MIMEタイプで検索';
 
 		elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
 	}
