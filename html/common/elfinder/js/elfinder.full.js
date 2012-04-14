@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-04-13)
+ * Version 2.0 rc1 (2012-04-15)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -2003,6 +2003,16 @@ elFinder.prototype = {
 						while (m = regex.exec(files[0])) {
 							url = m[1].replace(/&amp;/g, '&');
 							if (url.match(/^http/) && $.inArray(url, ret) == -1) ret.push(url);
+						}
+						links = files[0].match(/<\/a>/i);
+						if (links && links.length == 1) {
+							regex = /<a[^>]+href=["']?([^"'> ]+)((?:.|\s)+)<\/a>/i;
+							if (m = regex.exec(files[0])) {
+								if (! m[2].match(/<img/i)) {
+									url = m[1].replace(/&amp;/g, '&');
+									if (url.match(/^http/) && $.inArray(url, ret) == -1) ret.push(url);
+								}
+							}
 						}
 						links = files[0].match(/<\/a>/i);
 						if (links && links.length == 1) {
@@ -7607,7 +7617,7 @@ elFinder.prototype.commands.extract = function() {
 		var sel = this.files(sel),
 			cnt = sel.length;
 		
-		return !this._disabled && cnt && filter(sel).length == cnt ? 0 : -1;
+		return !this._disabled && cnt && this.fm.cwd().write && filter(sel).length == cnt ? 0 : -1;
 	}
 	
 	this.exec = function(hashes) {
@@ -8329,7 +8339,6 @@ elFinder.prototype.commands.open = function() {
  **/
 elFinder.prototype.commands.paste = function() {
 	
-	this.disableOnSearch = true;
 	this.updateOnSelect  = false;
 	
 	this.handlers = {
@@ -8464,7 +8473,7 @@ elFinder.prototype.commands.paste = function() {
 							});
 					}
 					;
-				
+
 				if (self._disabled || !files.length) {
 					return dfrd.resolve();
 				}
@@ -8497,6 +8506,7 @@ elFinder.prototype.commands.paste = function() {
 
 
 		if (!cnt || !dst || dst.mime != 'directory') {
+			console.log('here')
 			return dfrd.reject();
 		}
 			

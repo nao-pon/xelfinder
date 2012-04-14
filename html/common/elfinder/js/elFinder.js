@@ -2000,6 +2000,16 @@ elFinder.prototype = {
 								}
 							}
 						}
+						links = files[0].match(/<\/a>/i);
+						if (links && links.length == 1) {
+							regex = /<a[^>]+href=["']?([^"'> ]+)((?:.|\s)+)<\/a>/i;
+							if (m = regex.exec(files[0])) {
+								if (! m[2].match(/<img/i)) {
+									url = m[1].replace(/&amp;/g, '&');
+									if (url.match(/^http/) && $.inArray(url, ret) == -1) ret.push(url);
+								}
+							}
+						}
 						return ret;
 					} else {
 						return files;
