@@ -1167,10 +1167,21 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	protected function _move($source, $targetDir, $name) {
 		$gid = 0;
 		$umask = $this->getUmask($targetDir, $gid);
-		$perm = $this->getDefaultPerm($mime, $umask);
-		$sql = 'UPDATE %s SET parent_id=%d, name="%s", perm="%s", umask="%s", gid=%d WHERE file_id=%d LIMIT 1';
+		$stat = $this->stat($source);
+		if (! isset($stat['uid']) || $stat['uid'] != $this->x_uid) {
+			$perm = 'perm';
+			$sql = 'UPDATE %s SET `parent_id`=%d, `name`="%s", `perm`=`%s`, `umask`="%s", `gid`=%d WHERE `file_id`=%d LIMIT 1';
+		} else {
+			$perm = $this->getDefaultPerm($mime, $umask);
+			$sql = 'UPDATE %s SET `parent_id`=%d, `name`="%s", `perm`="%s", `umask`="%s", `gid`=%d WHERE `file_id`=%d LIMIT 1';
+		}
 		$sql = sprintf($sql, $this->tbf, $targetDir, mysql_escape_string($name), $perm, $umask, $gid, $source);
-		return ($this->query($sql) && $this->db->getAffectedRows() > 0);
+		if  ($this->query($sql) && $this->db->getAffectedRows() > 0) {
+			unset($this->cache[$source]);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
