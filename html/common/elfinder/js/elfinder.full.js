@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-04-17)
+ * Version 2.0 rc1 (2012-04-18)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -772,7 +772,7 @@ window.elFinder = function(node, opts) {
 	 * @todo
 	 * @return $.Deferred
 	 */
-	this.request = function(options) {
+	this.request = function(options) { console.log(options)
 		var self     = this,
 			o        = this.options,
 			dfrd     = $.Deferred(),
@@ -1681,6 +1681,24 @@ window.elFinder = function(node, opts) {
 			}, self.options.sync)
 			
 		}
+
+		// self.request({
+		// 	data : {
+		// 		cmd : 'netmount',
+		// 		protocol : 'ftp',
+		// 		host : 'ftp://work.std42.ru',
+		// 		path : '/',
+		// 		user : 'dio',
+		// 		pass : 'wallrus',
+		// 		alias : 'Sora',
+		// 		options : {main : 42}
+
+		// 	},
+		// 	// preventDone : true
+		// })
+		// .done(function(data) {
+		// 	console.log(data);
+		// })
 	});
 	
 	// self.timeEnd('load'); 
@@ -4030,7 +4048,9 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'errResize'            : 'Unable to resize "$1".',
 			'errUsupportType'      : 'Unsupported file type.',
 			'errNotUTF8Content'    : 'File "$1" is not in UTF-8 and cannot be edited.',  // added 9.11.2011
-			
+			'errNetMount'          : 'Unable to mount "$1".', // added 17.04.2012
+			'errNetMountNoDriver'  : 'Unsupported protocol.',     // added 17.04.2012
+			'errNetMountFailed'    : 'Mount failed.',         // added 17.04.2012
 			/******************************* commands names ********************************/
 			'cmdarchive'   : 'Create archive',
 			'cmdback'      : 'Back',
