@@ -155,6 +155,7 @@ while(ob_get_level()) {
 		<script src="<?php echo $elfurl ?>/js/commands/view.js"      type="text/javascript" charset="utf-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/resize.js"    type="text/javascript" charset="utf-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/sort.js"      type="text/javascript" charset="utf-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/netmount.js"  type="text/javascript" charset="utf-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/pixlr.js"     type="text/javascript" charset="utf-8"></script>
 	
 		<!-- elfinder languages -->

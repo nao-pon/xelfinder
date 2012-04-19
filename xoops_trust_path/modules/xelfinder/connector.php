@@ -20,13 +20,13 @@ require _MD_ELFINDER_LIB_PATH . '/php/elFinder.class.php';
 require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeDriver.class.php';
 require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeLocalFileSystem.class.php';
 
-
 //////////////////////////////////////////////////////
 // for XOOPS
 
 define('_MD_ELFINDER_MYDIRNAME', $mydirname);
 
 require dirname(__FILE__) . '/class/xelFinder.class.php';
+require dirname(__FILE__) . '/class/xelFinderVolumeFTP.class.php';
 
 $isAdmin = false;
 $memberUid = 0;
@@ -100,6 +100,32 @@ $xoops_elFinder = new xoops_elFinder();
 
 // Get volumes
 $rootVolumes = $xoops_elFinder->getRootVolumes($config['volume_setting'], $extras);
+
+// Add net(FTP) volume
+if ($isAdmin && !empty($config['ftp_host']) && !empty($config['ftp_port']) && !empty($config['ftp_user']) && !empty($config['ftp_pass'])) {
+	$ftp = array(
+		'driver'  => 'FTPx',
+		'alias'   => $config['ftp_name'],
+		'host'    => $config['ftp_host'],
+		'port'    => $config['ftp_port'],
+		'path'    => $config['ftp_path'],
+		'user'    => $config['ftp_user'],
+		'pass'    => $config['ftp_pass'],
+		'tmpPath' => XOOPS_ROOT_PATH . '/modules/'._MD_ELFINDER_MYDIRNAME.'/cache',
+		'utf8fix' => true,
+		'defaults' => array('read' => true, 'write' => true, 'hidden' => false, 'locked' => false),
+		'attributes' => array(
+			array(
+				'pattern' => '~/\.~',
+				'read' => false,
+				'write' => false,
+				'hidden' => true,
+				'locked' => false
+			),
+		)
+	);
+	$rootVolumes[] = $ftp;
+}
 
 // End for XOOPS
 //////////////////////////////////////////////////////

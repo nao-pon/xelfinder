@@ -12,7 +12,7 @@ $constpref = '_MI_' . strtoupper( $mydirname ) ;
 $modversion['name'] = 'xelFinder' ;
 //$modversion['name'] = $constpref.'_NAME') ;
 $modversion['description'] = constant($constpref.'_DESC');
-$modversion['version'] = 0.10 ;
+$modversion['version'] = 0.11 ;
 $modversion['credits'] = "Hypweb.net";
 $modversion['author'] = "nao-pon" ;
 $modversion['help'] = "" ;
@@ -64,6 +64,54 @@ xelfinder:xelfinder:uploads/elfinder:elFinder
 myalbum:myalbum:uploads/photos:MyAlbum
 gnavi:gnavi:uploads/gnavi:GNAVI
 mailbbs:mailbbs:modules/mailbbs/imgs:MailBBS'
+) ;
+$modversion['config'][] = array(
+		'name'			=> 'ftp_name' ,
+		'title'			=> $constpref.'_FTP_NAME' ,
+		'description'	=> $constpref.'_FTP_NAME_DESC' ,
+		'formtype'		=> 'textbox' ,
+		'valuetype'		=> 'text' ,
+		'default'		=> 'Local-FTP'
+) ;
+$modversion['config'][] = array(
+		'name'			=> 'ftp_host' ,
+		'title'			=> $constpref.'_FTP_HOST' ,
+		'description'	=> $constpref.'_FTP_HOST_DESC' ,
+		'formtype'		=> 'textbox' ,
+		'valuetype'		=> 'text' ,
+		'default'		=> 'localhost'
+) ;
+$modversion['config'][] = array(
+		'name'			=> 'ftp_port' ,
+		'title'			=> $constpref.'_FTP_PORT' ,
+		'description'	=> $constpref.'_FTP_PORT_DESC' ,
+		'formtype'		=> 'textbox' ,
+		'valuetype'		=> 'text' ,
+		'default'		=> '21'
+) ;
+$modversion['config'][] = array(
+		'name'			=> 'ftp_path' ,
+		'title'			=> $constpref.'_FTP_PATH' ,
+		'description'	=> $constpref.'_FTP_PATH_DESC' ,
+		'formtype'		=> 'textbox' ,
+		'valuetype'		=> 'text' ,
+		'default'		=> XOOPS_ROOT_PATH
+) ;
+$modversion['config'][] = array(
+		'name'			=> 'ftp_user' ,
+		'title'			=> $constpref.'_FTP_USER' ,
+		'description'	=> $constpref.'_FTP_USER_DESC' ,
+		'formtype'		=> 'textbox' ,
+		'valuetype'		=> 'text' ,
+		'default'		=> ''
+) ;
+$modversion['config'][] = array(
+		'name'			=> 'ftp_pass' ,
+		'title'			=> $constpref.'_FTP_PASS' ,
+		'description'	=> $constpref.'_FTP_PASS_DESC' ,
+		'formtype'		=> 'textbox' ,
+		'valuetype'		=> 'text' ,
+		'default'		=> ''
 ) ;
 $modversion['config'][] = array(
 		'name'			=> 'thumbnail_size' ,

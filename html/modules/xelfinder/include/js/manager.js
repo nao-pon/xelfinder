@@ -40,6 +40,7 @@ $().ready(function() {
 			// toolbar configuration
 			toolbar : [
 				['back', 'forward'],
+				['netmount'],
 				// ['reload'],
 				// ['home', 'up'],
 				['mkdir', 'mkfile', 'upload'],
@@ -72,7 +73,7 @@ $().ready(function() {
     		'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy',
     		'cut', 'paste', 'edit',
     		'extract', 'archive',
-    		'search', 'info', 'view', 'help', 'resize', 'sort', 'pixlr', 'perm'
+    		'search', 'info', 'view', 'help', 'resize', 'sort', 'netmount', 'pixlr', 'perm'
     	],
 		commandsOptions : {
 			  getfile : {
