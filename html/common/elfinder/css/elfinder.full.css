@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-04-18)
+ * Version 2.0 rc1 (2012-04-19)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -821,6 +821,8 @@
 	margin:0 5px; 
 }
 
+.elfinder-netmount-tb { margin:0 auto; }
+.elfinder-netmount-tb input { border:1px solid #ccc; }
 /*********************** UPLOAD DIALOG **************************/
 
 .elfinder-upload-dropbox {

@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-04-18)
+ * Version 2.0 rc1 (2012-04-19)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -278,7 +278,10 @@ window.elFinder = function(node, opts) {
 				});
 				
 				// prevent tab out of elfinder
-				code == 9 && e.preventDefault();
+				if (code == 9 && !$(e.target).is(':input')) {
+					e.preventDefault();
+				}
+
 			}
 		},
 		date = new Date(),
@@ -772,7 +775,7 @@ window.elFinder = function(node, opts) {
 	 * @todo
 	 * @return $.Deferred
 	 */
-	this.request = function(options) { console.log(options)
+	this.request = function(options) { 
 		var self     = this,
 			o        = this.options,
 			dfrd     = $.Deferred(),
@@ -889,6 +892,10 @@ window.elFinder = function(node, opts) {
 				
 				if (response.options) {
 					cwdOptions = $.extend({}, cwdOptions, response.options);
+				}
+
+				if (response.netDrivers) {
+					self.netDrivers = response.netDrivers;
 				}
 
 				dfrd.resolve(response);
@@ -1682,23 +1689,6 @@ window.elFinder = function(node, opts) {
 			
 		}
 
-		// self.request({
-		// 	data : {
-		// 		cmd : 'netmount',
-		// 		protocol : 'ftp',
-		// 		host : 'ftp://work.std42.ru',
-		// 		path : '/',
-		// 		user : 'dio',
-		// 		pass : 'wallrus',
-		// 		alias : 'Sora',
-		// 		options : {main : 42}
-
-		// 	},
-		// 	// preventDone : true
-		// })
-		// .done(function(data) {
-		// 	console.log(data);
-		// })
 	});
 	
 	// self.timeEnd('load'); 
@@ -2995,7 +2985,7 @@ elFinder.prototype._options = {
 	commands : [
 		'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook', 
 		'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy', 
-		'cut', 'paste', 'edit', 'extract', 'archive', 'search', 'info', 'view', 'help', 'resize', 'sort', 'pixlr'
+		'cut', 'paste', 'edit', 'extract', 'archive', 'search', 'info', 'view', 'help', 'resize', 'sort', 'netmount', 'pixlr'
 	],
 	
 	/**
@@ -3068,6 +3058,7 @@ elFinder.prototype._options = {
 			]
 		},
 		
+
 		help : {view : ['about', 'shortcuts', 'help']}
 	},
 	
@@ -3099,6 +3090,7 @@ elFinder.prototype._options = {
 		// toolbar configuration
 		toolbar : [
 			['back', 'forward'],
+			['netmount'],
 			// ['reload'],
 			// ['home', 'up'],
 			['mkdir', 'mkfile', 'upload'],
@@ -4051,6 +4043,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'errNetMount'          : 'Unable to mount "$1".', // added 17.04.2012
 			'errNetMountNoDriver'  : 'Unsupported protocol.',     // added 17.04.2012
 			'errNetMountFailed'    : 'Mount failed.',         // added 17.04.2012
+			'errNetMountHostReq'   : 'Host required.', // added 18.04.2012
 			/******************************* commands names ********************************/
 			'cmdarchive'   : 'Create archive',
 			'cmdback'      : 'Back',
@@ -4079,6 +4072,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'cmdview'      : 'View',
 			'cmdresize'    : 'Resize & Rotate',
 			'cmdsort'      : 'Sort',
+			'cmdnetmount'  : 'Mount network volume', // added 18.04.2012
 			'cmdpixlr'     : 'Edit on Pixlr',
 			
 			/*********************************** buttons ***********************************/ 
@@ -4089,7 +4083,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'btnCancel' : 'Cancel',
 			'btnNo'     : 'No',
 			'btnYes'    : 'Yes',
-			
+			'btnMount'  : 'Mount',  // added 18.04.2012
 			/******************************** notifications ********************************/
 			'ntfopen'     : 'Open folder',
 			'ntffile'     : 'Open file',
@@ -4109,7 +4103,8 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'ntfsearch'   : 'Searching files',
 			'ntfresize'   : 'Resizing images',
 			'ntfsmth'     : 'Doing something >_<',
-      'ntfloadimg'  : 'Loading image',
+      		'ntfloadimg'  : 'Loading image',
+      		'ntfnetmount' : 'Mounting network volume', // added 18.04.2012
 			
 			/************************************ dates **********************************/
 			'dateUnknown' : 'unknown',
@@ -4178,7 +4173,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'help'            : 'Help',
 			'webfm'           : 'Web file manager',
 			'ver'             : 'Version',
-			'protocol'        : 'protocol version',
+			'protocolver'     : 'protocol version',
 			'homepage'        : 'Project home',
 			'docs'            : 'Documentation',
 			'github'          : 'Fork us on Github',
@@ -4209,7 +4204,13 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'rotate-cw'       : 'Rotate 90 degrees CW',
 			'rotate-ccw'      : 'Rotate 90 degrees CCW',
 			'degree'          : '°',
-			
+			'netMountDialogTitle' : 'Mount network volume', // added 18.04.2012
+			'protocol'            : 'Protocol', // added 18.04.2012
+			'host'                : 'Host', // added 18.04.2012
+			'port'                : 'Port', // added 18.04.2012
+			'user'                : 'User', // added 18.04.2012
+			'pass'                : 'Password', // added 18.04.2012
+
 			/********************************** mimetypes **********************************/
 			'kindUnknown'     : 'Unknown',
 			'kindFolder'      : 'Folder',
@@ -7869,7 +7870,7 @@ elFinder.prototype.commands.help = function() {
 			html.push('<div id="about" class="ui-tabs-panel ui-widget-content ui-corner-bottom"><div class="elfinder-help-logo"/>')
 			html.push('<h3>elFinder</h3>');
 			html.push('<div class="'+prim+'">'+fm.i18n('webfm')+'</div>');
-			html.push('<div class="'+sec+'">'+fm.i18n('ver')+': '+fm.version+', '+fm.i18n('protocol')+': '+fm.api+'</div>');
+			html.push('<div class="'+sec+'">'+fm.i18n('ver')+': '+fm.version+', '+fm.i18n('protocolver')+': '+fm.api+'</div>');
 			html.push('<div class="'+sec+'">jQuery/jQuery UI: '+$().jquery+'/'+$.ui.version+'</div>');
 			
 			html.push(sep);
@@ -8264,6 +8265,108 @@ elFinder.prototype.commands.mkfile = function() {
 
 
 /*
+ * File: /home/osc/elFinder/js/commands/netmount.js
+ */
+
+/**
+ * @class  elFinder command "netmount"
+ * Mount network volume with user credentials.
+ *
+ * @author Dmitry (dio) Levashov
+ **/
+elFinder.prototype.commands.netmount = function() {
+	var self = this;
+
+	this.alwaysEnabled  = true;
+	this.updateOnSelect = false;
+
+	this.drivers = [];
+	
+	this.handlers = {
+		load : function() {
+			this.drivers = this.fm.netDrivers;
+		}
+	}
+
+	this.getstate = function() {
+		return this.drivers.length ? 0 : -1;
+	}
+	
+	this.exec = function() {
+		var fm = self.fm,
+			dfrd = $.Deferred(),
+			create = function() {
+				var inputs = {
+						protocol : $('<select/>'),
+						host     : $('<input type="text"/>'),
+						port     : $('<input type="text"/>'),
+						path     : $('<input type="text" value="/"/>'),
+						user     : $('<input type="text"/>'),
+						pass     : $('<input type="password"/>')
+					},
+					opts = {
+						title          : fm.i18n('netMountDialogTitle'),
+						resizable      : false,
+						modal          : true,
+						destroyOnClose : true,
+						close          : function() { 
+							delete self.dialog; 
+							!dfrd.isResolved() && !dfrd.isRejected() && dfrd.reject();
+						},
+						buttons        : {}
+					},
+					content = $('<table class="elfinder-info-tb elfinder-netmount-tb"/>');
+
+				$.each(self.drivers, function(i, protocol) {
+					inputs.protocol.append('<option value="'+protocol+'">'+fm.i18n(protocol)+'</option>');
+				});
+
+
+				$.each(inputs, function(name, input) {
+					name != 'protocol' && input.addClass('ui-corner-all');
+					content.append($('<tr/>').append($('<td>'+fm.i18n(name)+'</td>')).append($('<td/>').append(input)));
+				});
+
+				opts.buttons[fm.i18n('btnMount')] = function() {
+					var data = {cmd : 'netmount'};
+
+					$.each(inputs, function(name, input) {
+						var val = $.trim(input.val());
+
+						if (val) {
+							data[name] = val;
+						}
+					});
+
+					if (!data.host) {
+						return self.fm.trigger('error', {error : 'errNetMountHostReq'});
+					}
+
+					self.fm.request({data : data, notify : {type : 'netmount', cnt : 1}})
+						.done(function() { dfrd.resolve(); })
+						.fail(function(error) { dfrd.reject(error); });
+
+					self.dialog.elfinderdialog('close');	
+				}
+
+				opts.buttons[fm.i18n('btnCancel')] = function() {
+					self.dialog.elfinderdialog('close');
+				}
+
+				return fm.dialog(content, opts);
+			}
+			;
+
+		if (!self.dialog) {
+			self.dialog = create()
+		}
+
+		return dfrd.promise();
+	}
+
+}
+
+/*
  * File: /home/osc/elFinder/js/commands/open.js
  */
 
@@ -8535,7 +8638,6 @@ elFinder.prototype.commands.paste = function() {
 
 
 		if (!cnt || !dst || dst.mime != 'directory') {
-			console.log('here')
 			return dfrd.reject();
 		}
 			
@@ -10579,8 +10681,8 @@ elFinder.prototype.commands.sort = function() {
 	
 	this.exec = function(hashes, type) {
 		var dir = $.inArray(type, sorts)+1 == this.fm.sort ? (this.fm.sortDirect == 'asc' ? 'desc' : 'asc') : this.fm.sortDirect;
-		// console.log(type, dir)
 		this.fm.setSort(type, dir);
+		return $.Deferred().resolve();
 	}
 
 }
