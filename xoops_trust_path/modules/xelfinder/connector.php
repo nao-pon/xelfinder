@@ -111,6 +111,7 @@ if ($isAdmin && !empty($config['ftp_host']) && !empty($config['ftp_port']) && !e
 		'path'    => $config['ftp_path'],
 		'user'    => $config['ftp_user'],
 		'pass'    => $config['ftp_pass'],
+		'enable_search' => !empty($config['ftp_search']),
 		'tmpPath' => XOOPS_ROOT_PATH . '/modules/'._MD_ELFINDER_MYDIRNAME.'/cache',
 		'utf8fix' => true,
 		'defaults' => array('read' => true, 'write' => true, 'hidden' => false, 'locked' => false),

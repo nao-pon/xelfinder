@@ -114,6 +114,14 @@ $modversion['config'][] = array(
 		'default'		=> ''
 ) ;
 $modversion['config'][] = array(
+		'name'			=> 'ftp_search' ,
+		'title'			=> $constpref.'_FTP_SEARCH' ,
+		'description'	=> $constpref.'_FTP_SEARCH_DESC' ,
+		'formtype'		=> 'yesno' ,
+		'valuetype'		=> 'int' ,
+		'default'		=> '0'
+) ;
+$modversion['config'][] = array(
 		'name'			=> 'thumbnail_size' ,
 		'title'			=> $constpref.'_THUMBNAIL_SIZE' ,
 		'description'	=> $constpref.'_THUMBNAIL_SIZE_DESC' ,

@@ -32,6 +32,8 @@ define( $constpref.'_FTP_USER' ,                'FTP ユーザー名' );
 define( $constpref.'_FTP_USER_DESC' ,           '' );
 define( $constpref.'_FTP_PASS' ,                'FTP パスワード' );
 define( $constpref.'_FTP_PASS_DESC' ,           '' );
+define( $constpref.'_FTP_SEARCH' ,              'FTP ボリュームを検索対象にする' );
+define( $constpref.'_FTP_SEARCH_DESC' ,         'FTP ネットボリュームを検索対象にすると、検索に時間がかかりタイムアウトすることがあります。<br />有効にした場合は問題なく検索できるかの確認をお忘れなく。' );
 define( $constpref.'_THUMBNAIL_SIZE' ,          '画像挿入時のサムネイルサイズ' );
 define( $constpref.'_THUMBNAIL_SIZE_DESC' ,     'BBコードでの画像挿入時のサムネイルサイズの規定値(px)' );
 define( $constpref.'_DEFAULT_ITEM_PERM' ,       '作成されるアイテムのパーミッション' );

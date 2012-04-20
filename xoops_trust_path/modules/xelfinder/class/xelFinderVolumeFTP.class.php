@@ -14,7 +14,10 @@ class elFinderVolumeFTPx extends elFinderVolumeFTP {
 	}
 	
 	protected function doSearch($path, $q, $mimes) {
-		$result = array();
-		return $result;
+		if ($this->options['enable_search']) {
+			return parent::doSearch($path, $q, $mimes);
+		} else {
+			return array();
+		}
 	}
 }
