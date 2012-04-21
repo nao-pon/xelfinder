@@ -1240,12 +1240,6 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$perm = $this->getDefaultPerm($mime, $umask);
 		$gigs = join(',', $this->getGroupsByUid($uid));
 		
-		if ($mime === 'application/octet-stream' && substr($name, -3) === '.7z' && fread($fp, 2) === '7z') {
-			// @todo need check file contents (it's realy 7z?)
-			$mime = 'application/x-7z-compressed';
-		}
-		rewind($fp);
-		
 		$sql = $id > 0
 			? 'REPLACE INTO %s (`file_id`, `parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `umask`, `uid`, `gid`, `mime`, `width`, `height`, `gids`) VALUES ('.$id.', %d, "%s", %d, %d, %d, "%s", "%s", %d, %d, "%s", %d, %d, "%s")'
 			: 'INSERT INTO %s (`parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `umask`, `uid`, `gid`, `mime`, `width`, `height`, `gids`) VALUES (%d, "%s", %d, %d, %d, "%s", "%s", %d, %d, "%s", %d, %d, "%s")';
