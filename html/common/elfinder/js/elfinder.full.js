@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-04-22)
+ * Version 2.0 rc1 (2012-04-23)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -8764,13 +8764,13 @@ elFinder.prototype.commands.pixlr = function() {
 			var file, url, target, exit;
 			file = files[0];
 			
-			target = fm.options.url;
+			target = fm.uploadURL;
 			target = target + (target.indexOf('?') === -1 ? '?' : '&')
 				+ 'cmd=pixlr'
 				+ '&target=' + file.phash
 				+ '&node=' + encodeURIComponent(fm.id);
 
-			exit = fm.options.url;
+			exit = fm.uploadURL;
 			exit = exit + (exit.indexOf('?') === -1 ? '?' : '&')
 				+ 'cmd=pixlr';
 			
