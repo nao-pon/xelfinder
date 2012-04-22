@@ -46,7 +46,7 @@ $().ready(function() {
 	$('#elfinder').elfinder({
 		lang: lang,
 		url : connectorUrl,
-		fixUrl : myUrl + 'connector.php',
+		urlUpload : myUrl + 'connector.php',
 		customData : customData,
 		requestType : 'POST',
 		height: $(window).height() - 20,
