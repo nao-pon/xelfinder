@@ -12,7 +12,7 @@ $constpref = '_MI_' . strtoupper( $mydirname ) ;
 $modversion['name'] = 'xelFinder' ;
 //$modversion['name'] = $constpref.'_NAME') ;
 $modversion['description'] = constant($constpref.'_DESC');
-$modversion['version'] = 0.13 ;
+$modversion['version'] = 0.14 ;
 $modversion['credits'] = "Hypweb.net";
 $modversion['author'] = "nao-pon" ;
 $modversion['help'] = "" ;
@@ -304,6 +304,14 @@ $modversion['config'][] = array(
 	'formtype'		=> 'yesno' ,
 	'valuetype'		=> 'int' ,
 	'default'		=> 1
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'ssl_connector_url' ,
+	'title'			=> $constpref.'_SSL_CONNECTOR_URL',
+	'description'	=> $constpref.'_SSL_CONNECTOR_URL_DESC',
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> ''
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'unzip_lang_value' ,

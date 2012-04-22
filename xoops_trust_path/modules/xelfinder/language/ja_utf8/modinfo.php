@@ -88,6 +88,9 @@ define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '' );
 define( $constpref.'_EDIT_DISABLE_LINKED' ,     'リンク済みファイルの書き込み禁止' );
 define( $constpref.'_EDIT_DISABLE_LINKED_DESC' ,'リンク切れや不用意な上書きを防止するためにリンク・参照されたファイルを自動的に書き込み禁止に設定します。' );
 
+define( $constpref.'_SSL_CONNECTOR_URL' ,       'セキュア接続 URL' );
+define( $constpref.'_SSL_CONNECTOR_URL_DESC' ,  'バックエンドとの通信のみセキュアな環境を利用する場合に https:// から始まる connector.php の URL を指定してください。' );
+
 define( $constpref.'_UNZIP_LANG_VALUE' ,        'unzip 実行時のロケール' );
 define( $constpref.'_UNZIP_LANG_VALUE_DESC' ,   'アーカイブ解凍のコマンド unzip 使用時の言語ロケール設定。<br />通常は指定なしで問題ないと思われるが、解凍後のファイル名が文字化けする場合には ja_JP.Shift_JIS などとすると解消される場合がある。' );
 

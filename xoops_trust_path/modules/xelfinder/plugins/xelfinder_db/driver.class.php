@@ -79,7 +79,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$this->options['separator'] = '/';
 		$this->options['mydirname'] = 'xelfinder';
 		$this->options['checkSubfolders'] = true;
-		$this->options['tempPath'] = XOOPS_ROOT_PATH . '/modules/'._MD_ELFINDER_MYDIRNAME.'/cache';
+		$this->options['tempPath'] = XOOPS_MODULE_PATH . '/'._MD_ELFINDER_MYDIRNAME.'/cache';
 		$this->options['tmbPath'] = $this->options['tempPath'].'/tmb/';
 		$this->options['tmbURL'] = $this->options['tempPath'].'/tmb/';
 		$this->options['default_umask'] = '8bb';
@@ -198,7 +198,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$this->x_uid = $xoopsUser->getVar('uid');
 			$this->x_uname = $this->strToUTF8($xoopsUser->uname('n'));
 			$this->x_groups = $xoopsUser->getGroups();
-			$this->x_isAdmin = (!empty($_GET['admin']) && $xoopsUser->isAdmin($this->x_mid));
+			$this->x_isAdmin = (!empty($_REQUEST['admin']) && $xoopsUser->isAdmin($this->x_mid));
 		} else {
 			$this->x_uid = 0;
 			$this->x_groups = array(XOOPS_GROUP_ANONYMOUS);
