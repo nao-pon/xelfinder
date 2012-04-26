@@ -57,7 +57,7 @@ if (strtoupper(_CHARSET) !== 'UTF-8') {
 
 // dropbox
 if (!empty($config['dropbox_token']) && !empty($config['dropbox_seckey'])) {
-	require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeDropbox.class.php';
+	require dirname(__FILE__) . '/class/xelFinderVolumeDropbox.class.php';
 	define('ELFINDER_DROPBOX_CONSUMERKEY',    $config['dropbox_token']);
 	define('ELFINDER_DROPBOX_CONSUMERSECRET', $config['dropbox_seckey']);
 }
