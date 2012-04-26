@@ -35,7 +35,7 @@ define( $constpref.'_FTP_PASS_DESC' ,           '' );
 define( $constpref.'_FTP_SEARCH' ,              'FTP volume include in search results' );
 define( $constpref.'_FTP_SEARCH_DESC' ,         'If in search results include FTP net volume, the search may time out.' );
 define( $constpref.'_DROPBOX_TOKEN' ,           'Dropbox.com App key' );
-define( $constpref.'_DROPBOX_TOKEN_DESC' ,      'Developers - Dropbox <https://www.dropbox.com/developers>' );
+define( $constpref.'_DROPBOX_TOKEN_DESC' ,      'Developers - Dropbox [ https://www.dropbox.com/developers ]' );
 define( $constpref.'_DROPBOX_SECKEY' ,          'Dropbox.com App secret' );
 define( $constpref.'_DROPBOX_SECKEY_DESC' ,     '' );
 define( $constpref.'_THUMBNAIL_SIZE' ,          'Thumbnail size of image insertion' );
