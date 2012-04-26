@@ -13,6 +13,13 @@ ini_set('mbstring.func_overload', 2);
 
 //error_reporting(E_ALL | E_STRICT); // Set E_ALL for debuging
 
+// Add PEAR Dirctory into include path
+$incPath = get_include_path();
+$addPath = XOOPS_TRUST_PATH . '/PEAR';
+if (strpos($incPath, $addPath) === FALSE) {
+	set_include_path( $incPath . PATH_SEPARATOR . $addPath );
+}
+
 define('_MD_ELFINDER_LIB_PATH', XOOPS_TRUST_PATH . '/libs/elfinder');
 
 require _MD_ELFINDER_LIB_PATH . '/php/elFinderConnector.class.php';
