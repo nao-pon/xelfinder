@@ -93,7 +93,7 @@ define( $constpref.'_EDIT_DISABLE_LINKED' ,     'еъеєеп║╤д▀е╒ебедеыд╬╜ёдн╣■д▀╢╪╗
 define( $constpref.'_EDIT_DISABLE_LINKED_DESC' ,'еъеєеп└┌дьдф╔╘═╤░╒д╩╛х╜ёдндЄ╦╔╗▀д╣дыд┐дсд╦еъеєепбж╗▓╛╚д╡дьд┐е╒ебедеыдЄ╝л╞░┼кд╦╜ёдн╣■д▀╢╪╗▀д╦└▀─ъд╖д▐д╣бг' );
 
 define( $constpref.'_SSL_CONNECTOR_URL' ,       'е╗енехев└▄┬│ URL' );
-define( $constpref.'_SSL_CONNECTOR_URL_DESC' ,  'е╨е├епеиеєе╔д╚д╬─╠┐од╬д▀е╗енехевд╩┤─╢ндЄ═°═╤д╣ды╛ь╣чд╦ https:// длдщ╗╧д▐ды connector.php д╬ URL дЄ╗╪─ъд╖д╞дпд└д╡ддбг' );
+define( $constpref.'_SSL_CONNECTOR_URL_DESC' ,  'е╨е├епеиеєе╔д╚д╬─╠┐од╬д▀е╗енехевд╩┤─╢ндЄ═°═╤д╣ды╛ь╣чд╦ https:// длдщ╗╧д▐ды connector.php д╬ URL дЄ╗╪─ъд╖д╞дпд└д╡ддбг<br />е╓ещеже╢д╬ User Agent д╦ "Firefox" "Chrome" "Safari" дм┤▐д▐дьды╛ь╣чд╬д▀═н╕·д╦д╩дъд▐д╣бг' );
 
 define( $constpref.'_UNZIP_LANG_VALUE' ,        'unzip ╝┬╣╘╗■д╬еэе▒б╝еы' );
 define( $constpref.'_UNZIP_LANG_VALUE_DESC' ,   'евб╝еледе╓▓Є┼рд╬е│е▐еєе╔ unzip ╗╚═╤╗■д╬╕└╕ьеэе▒б╝еы└▀─ъбг<br />─╠╛яд╧╗╪─ъд╩д╖д╟╠ф┬ъд╩ддд╚╗╫дядьдыдмбв▓Є┼р╕хд╬е╒ебедеы╠╛дм╩╕╗·▓╜д▒д╣ды╛ь╣чд╦д╧ ja_JP.Shift_JIS д╩д╔д╚д╣дыд╚▓Є╛├д╡дьды╛ь╣чдмдвдыбг' );
