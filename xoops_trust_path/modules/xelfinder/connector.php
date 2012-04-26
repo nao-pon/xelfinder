@@ -37,7 +37,6 @@ if (empty($_REQUEST['xoopsUrl'])) {
 
 require dirname(__FILE__) . '/class/xelFinder.class.php';
 require dirname(__FILE__) . '/class/xelFinderVolumeFTP.class.php';
-require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeDropbox.class.php';
 
 $isAdmin = false;
 $memberUid = 0;
@@ -55,6 +54,14 @@ $config = $xoopsModuleConfig;
 if (strtoupper(_CHARSET) !== 'UTF-8') {
 	mb_convert_variables('UTF-8', _CHARSET, $config);
 }
+
+// dropbox
+if (!empty($config['dropbox_token']) && !empty($config['dropbox_seckey'])) {
+	require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeDropbox.class.php';
+	define('ELFINDER_DROPBOX_CONSUMERKEY',    $config['dropbox_token']);
+	define('ELFINDER_DROPBOX_CONSUMERSECRET', $config['dropbox_seckey']);
+}
+
 // set umask
 foreach(array('default', 'users_dir', 'guest_dir', 'group_dir') as $_key) {
 	$config[$_key.'_umask'] = strval(dechex(0xfff - intval(strval($config[$_key.'_item_perm']), 16)));
