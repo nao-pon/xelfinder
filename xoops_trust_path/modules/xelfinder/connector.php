@@ -37,6 +37,7 @@ if (empty($_REQUEST['xoopsUrl'])) {
 
 require dirname(__FILE__) . '/class/xelFinder.class.php';
 require dirname(__FILE__) . '/class/xelFinderVolumeFTP.class.php';
+require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeDropbox.class.php';
 
 $isAdmin = false;
 $memberUid = 0;
