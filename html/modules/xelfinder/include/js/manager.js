@@ -88,7 +88,7 @@ $().ready(function() {
     		'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy',
     		'cut', 'paste', 'edit',
     		'extract', 'archive',
-    		'search', 'info', 'view', 'help', 'resize', 'sort', 'netmount', 'pixlr', 'perm'
+    		'search', 'info', 'view', 'help', 'resize', 'sort', 'netmount', 'netunmount', 'pixlr', 'perm'
     	],
 		commandsOptions : {
 			  getfile : {
@@ -99,7 +99,7 @@ $().ready(function() {
 		},
 		contextmenu : {
 			// navbarfolder menu
-			navbar : ['open', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'info', 'perm'],
+			navbar : ['open', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'info', 'perm', 'netunmount'],
 			// current directory menu
 			cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'sort', '|', 'info', 'perm'],
 			// current directory file menu
