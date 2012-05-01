@@ -34,7 +34,6 @@ function xelfinder_onupdate_base( $module , $mydirname )
 	$query = "SELECT `mime_filter` FROM ".$db->prefix($mydirname."_file") ;
 	if(! $db->query($query)) {
 		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` ADD `mime_filter` VARCHAR( 255 ) NOT NULL');
-		//$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `mime` `mime` varchar(60) NOT NULL DEFAULT \'unknown\'');
 	}
 	
 	// from v 0.13
@@ -43,6 +42,22 @@ function xelfinder_onupdate_base( $module , $mydirname )
 	$dat = $db->fetchArray($res);
 	if ($dat['Type'] !== 'varchar(255)') {
 		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `mime` `mime` varchar(255) NOT NULL DEFAULT \'unknown\'');
+	}
+
+	// from v 0.17
+	$query = "SELECT `id` FROM ".$db->prefix($mydirname."_userdat") ;
+	if(! $db->query($query)) {
+		$db->queryF(
+				'CREATE TABLE `'.$db->prefix($mydirname.'_userdat').'`'.
+				'(
+				  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+				  `uid` int(10) unsigned NOT NULL,
+				  `key` varchar(255) NOT NULL,
+				  `data` blob NOT NULL,
+				  `mtime` int(10) unsigned NOT NULL,
+				  PRIMARY KEY (`id`),
+				  KEY `uid_key` (`uid`,`key`)
+				) ENGINE=MyISAM' );
 	}
 	
 	// TEMPLATES (all templates have been already removed by modulesadmin)

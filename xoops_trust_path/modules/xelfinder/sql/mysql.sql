@@ -33,3 +33,13 @@ CREATE TABLE `link` (
   KEY `uri` (`uri`(255)),
   KEY `file_id` (`file_id`)
 ) ENGINE=MyISAM;
+
+CREATE TABLE `userdat` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `uid` int(10) unsigned NOT NULL,
+  `key` varchar(255) NOT NULL,
+  `data` mediumtext NOT NULL,
+  `mtime` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uid_key` (`uid`,`key`)
+) ENGINE=MyISAM;
