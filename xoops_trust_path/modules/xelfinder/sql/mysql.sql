@@ -38,7 +38,7 @@ CREATE TABLE `userdat` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `uid` int(10) unsigned NOT NULL,
   `key` varchar(255) NOT NULL,
-  `data` mediumtext NOT NULL,
+  `data` blob NOT NULL,
   `mtime` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `uid_key` (`uid`,`key`)
