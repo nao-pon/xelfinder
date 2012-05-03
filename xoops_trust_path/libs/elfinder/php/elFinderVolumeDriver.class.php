@@ -1406,7 +1406,7 @@ abstract class elFinderVolumeDriver {
 				} elseif ($file['mime'] == 'directory') {
 					return $this->setError(elFinder::ERROR_NOT_REPLACE, $name);
 				} 
-				$this->remove($file);
+				$this->remove($test);
 			} else {
 				$name = $this->uniqueName($dstpath, $name, '-', false);
 			}
