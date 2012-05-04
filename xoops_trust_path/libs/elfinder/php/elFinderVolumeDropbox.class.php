@@ -115,7 +115,7 @@ class elFinderVolumeDropbox extends elFinderVolumeDriver {
 			'tmbPath'           => '../files/.tmb',
 			'tmbURL'            => 'files/.tmb',
 			'tmpPath'           => '',
-			'getTnbSize'        => 'medium', // small: 32x32, medium or s: 64x64, large or m: 128x128, l: 640x480, xl: 1024x768
+			'getTmbSize'        => 'medium', // small: 32x32, medium or s: 64x64, large or m: 128x128, l: 640x480, xl: 1024x768
 			'metaCachePath'     => '',
 			'metaCacheTime'     => '600' // 10m
 		);
@@ -581,6 +581,52 @@ class elFinderVolumeDropbox extends elFinderVolumeDriver {
 	}
 	
 	/**
+	* Remove file/ recursive remove dir
+	*
+	* @param  string  $path   file path
+	* @param  bool    $force  try to remove even if file locked
+	* @return bool
+	* @author Dmitry (dio) Levashov
+	* @author Naoki Sawada
+	**/
+	protected function remove($path, $force = false, $recursive = false) {
+		$stat = $this->stat($path);
+		$stat['realpath'] = $path;
+		if (!empty($stat['tmb']) && $stat['tmb'] != "1") {
+			$this->rmTmb($stat['tmb']);
+		}
+		$this->clearcache();
+	
+		if (empty($stat)) {
+			return $this->setError(elFinder::ERROR_RM, $this->_path($path), elFinder::ERROR_FILE_NOT_FOUND);
+		}
+	
+		if (!$force && !empty($stat['locked'])) {
+			return $this->setError(elFinder::ERROR_LOCKED, $this->_path($path));
+		}
+	
+		if ($stat['mime'] == 'directory') {
+			foreach ($this->_scandir($path) as $p) {
+				$name = $this->_basename($p);
+				if ($name != '.' && $name != '..' && !$this->remove($p, false, true)) {
+					return false;
+				}
+			}
+			if (!$recursive && !$this->_rmdir($path)) {
+				return $this->setError(elFinder::ERROR_RM, $this->_path($path));
+			}
+				
+		} else {
+			if (!$recursive && !$this->_unlink($path)) {
+				return $this->setError(elFinder::ERROR_RM, $this->_path($path));
+			}
+		}
+	
+		$this->removed[] = $stat;
+		return true;
+	}
+	
+	/**
 	 * Resize image
 	 *
 	 * @param  string   $hash    image file
@@ -619,7 +665,8 @@ class elFinderVolumeDropbox extends elFinderVolumeDriver {
 			return false;
 		}
 		
-		if (! $contents = $this->getThumbnail($path4stat, $this->options['getTmbSize'])) {
+		//if (! $contents = $this->getThumbnail($path4stat, $this->options['getTmbSize'])) {
+		if (! $contents = $this->_getContents($path4stat)) {
 			return false;
 		}
 		
@@ -668,6 +715,72 @@ class elFinderVolumeDropbox extends elFinderVolumeDriver {
 		is_file($path) && @unlink($path);
 		
 		return false;
+	}
+	
+	/**
+	* Create thumnbnail and return it's URL on success
+	*
+	* @param  string  $path  file path
+	* @param  string  $mime  file mime type
+	* @return string|false
+	* @author Dmitry (dio) Levashov
+	* @author Naoki Sawada
+	**/
+	protected function createTmb($path, $stat) {
+		if (!$stat || !$this->canCreateTmb($path, $stat)) {
+			return false;
+		}
+	
+		$name = $this->tmbname($stat);
+		$tmb  = $this->tmbPath.DIRECTORY_SEPARATOR.$name;
+	
+		// copy image into tmbPath so some drivers does not store files on local fs
+		if (! $data = $this->getThumbnail($path, $this->options['getTmbSize'])) {
+			return false;
+		}
+		if (! file_put_contents($tmb, $data)) {
+			return false;
+		}
+	
+		$result = false;
+	
+		$tmbSize = $this->tmbSize;
+	
+		if (($s = getimagesize($tmb)) == false) {
+			return false;
+		}
+	
+		/* If image smaller or equal thumbnail size - just fitting to thumbnail square */
+		if ($s[0] <= $tmbSize && $s[1]  <= $tmbSize) {
+			$result = $this->imgSquareFit($tmb, $tmbSize, $tmbSize, 'center', 'middle', $this->options['tmbBgColor'], 'png' );
+	
+		} else {
+	
+			if ($this->options['tmbCrop']) {
+	
+				/* Resize and crop if image bigger than thumbnail */
+				if (!(($s[0] > $tmbSize && $s[1] <= $tmbSize) || ($s[0] <= $tmbSize && $s[1] > $tmbSize) ) || ($s[0] > $tmbSize && $s[1] > $tmbSize)) {
+					$result = $this->imgResize($tmb, $tmbSize, $tmbSize, true, false, 'png');
+				}
+	
+				if (($s = getimagesize($tmb)) != false) {
+					$x = $s[0] > $tmbSize ? intval(($s[0] - $tmbSize)/2) : 0;
+					$y = $s[1] > $tmbSize ? intval(($s[1] - $tmbSize)/2) : 0;
+					$result = $this->imgCrop($tmb, $tmbSize, $tmbSize, $x, $y, 'png');
+				}
+	
+			} else {
+				$result = $this->imgResize($tmb, $tmbSize, $tmbSize, true, true, $this->imgLib, 'png');
+				$result = $this->imgSquareFit($tmb, $tmbSize, $tmbSize, 'center', 'middle', $this->options['tmbBgColor'], 'png' );
+			}
+	
+		}
+		if (!$result) {
+			unlink($tmb);
+			return false;
+		}
+	
+		return $name;
 	}
 	
 	/**
