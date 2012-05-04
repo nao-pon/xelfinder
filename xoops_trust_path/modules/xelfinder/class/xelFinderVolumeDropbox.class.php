@@ -8,6 +8,7 @@ class elFinderVolumeDropboxX extends elFinderVolumeDropbox {
 		$this->options['tmpPath'] = XOOPS_MODULE_PATH.'/'._MD_ELFINDER_MYDIRNAME.'/cache';
 		$this->options['tmbPath'] = XOOPS_MODULE_PATH.'/'._MD_ELFINDER_MYDIRNAME.'/cache/tmb';
 		$this->options['tmbURL']  = _MD_XELFINDER_MODULE_URL.'/'._MD_ELFINDER_MYDIRNAME.'/cache/tmb';
+		$this->options['metaCachePath'] = XOOPS_TRUST_PATH.'/cache';
 		return parent::init();
 	}
 	protected function configure() {
