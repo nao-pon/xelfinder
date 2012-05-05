@@ -239,8 +239,8 @@ var getFileCallback_bbcode = function (file, fm) {
 		eval('if (typeof get_thumb_'+module+' == "function" ){' +
 			'thumb = get_thumb_'+module+'(basename, file);}' );
 	}
-	imgThumb = encodeURI(thumb);
-	itemPath = encodeURI(path);
+	imgThumb = encodeURI(decodeURI(thumb));
+	itemPath = encodeURI(decodeURI(path));
 	itemObject = file;
 
 	if (isImg) {
@@ -278,8 +278,8 @@ var getFileCallback_xpwiki = function (file, fm) {
 		eval('if (typeof get_thumb_'+module+' == "function" ){' +
 			'thumb = get_thumb_'+module+'(basename, file);}' );
 	}
-	imgThumb = encodeURI(thumb);
-	itemPath = encodeURI(path);
+	imgThumb = encodeURI(decodeURI(thumb));
+	itemPath = encodeURI(decodeURI(path));
 	itemObject = file;
 
 	if (isImg) {
