@@ -166,6 +166,9 @@ function insertCode(align, thumb, format) {
 		}
 	}
 	if (! format) {
+		if (itemPath.match(/^http/)) {
+			urlTag = 'url';
+		}
 		if (isImg) {
 			if (imgThumb.match(/_tmbsize_/)) {
 				if (size) {
@@ -175,9 +178,6 @@ function insertCode(align, thumb, format) {
 				}
 			}
 			if (thumb && imgThumb) {
-				if (itemPath.match(/^http/)) {
-					urlTag = 'url';
-				}
 				code = '['+urlTag+'='+itemPath+']['+imgTag+' align='+align+']'+ (useSiteImg? '' : rootUrl+'/') + imgThumb + '[/'+imgTag+'][/'+urlTag+']';
 			} else {
 				if (itemPath.match(/^http/)) {
@@ -188,7 +188,7 @@ function insertCode(align, thumb, format) {
 				}
 			}
 		} else {
-			code = '[siteurl='+itemPath+']'+itemObject.name+'[/siteurl]';
+			code = '['+urlTag+'='+itemPath+']'+itemObject.name+'[/'+urlTag+']';
 		}
 	} else if (format == 'xpwiki') {
 		var pa = null;
