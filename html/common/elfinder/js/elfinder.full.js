@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-05-03)
+ * Version 2.0 rc1 (2012-05-05)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -700,6 +700,20 @@ window.elFinder = function(node, opts) {
 		
 		if (!file || !file.read) {
 			return '';
+		}
+		
+		if (file.url == '1') {
+			this.request({
+				data : {cmd : 'url', target : hash},
+				preventFail : true,
+				options: {async: false}
+			})
+			.done(function(data) {
+				file.url = data.url || '';
+			})
+			.fail(function() {
+				file.url = '';
+			});
 		}
 		
 		if (file.url) {

@@ -157,6 +157,7 @@ function insertCode(align, thumb, format) {
 	var code = '';
 	var size = '';
 	var isImg = (itemObject.mime.match(/^image/));
+	var urlTag = 'siteurl';
 	var imgTag = useSiteImg? 'siteimg' : 'img';
 	if (isImg && $('#resize_px')) {
 		size = $('#resize_px').val();
@@ -174,9 +175,17 @@ function insertCode(align, thumb, format) {
 				}
 			}
 			if (thumb && imgThumb) {
-				code = '[siteurl='+itemPath+']['+imgTag+' align='+align+']'+ (useSiteImg? '' : rootUrl+'/') + imgThumb + '[/'+imgTag+'][/siteurl]';
+				if (itemPath.match(/^http/)) {
+					urlTag = 'url';
+				}
+				code = '['+urlTag+'='+itemPath+']['+imgTag+' align='+align+']'+ (useSiteImg? '' : rootUrl+'/') + imgThumb + '[/'+imgTag+'][/'+urlTag+']';
 			} else {
-				code = '['+imgTag+' align='+align+']' + (useSiteImg? '' : rootUrl+'/') + itemPath + '[/'+imgTag+']';
+				if (itemPath.match(/^http/)) {
+					imgTag = 'img';
+					code = '['+imgTag+' align='+align+']' + itemPath + '[/'+imgTag+']';
+				} else {
+					code = '['+imgTag+' align='+align+']' + (useSiteImg? '' : rootUrl+'/') + itemPath + '[/'+imgTag+']';
+				}
 			}
 		} else {
 			code = '[siteurl='+itemPath+']'+itemObject.name+'[/siteurl]';
@@ -193,18 +202,22 @@ function insertCode(align, thumb, format) {
 				o = pa.document.getElementById(target);
 			} catch(e) {}
 		}
-
+		
+		if (! itemPath.match(/^http/)) {
+			itemPath = 'site://' + itemPath;
+		}
+		
 		if (isImg) {
 			if (size) {
 				size = ',mw:'+size+',mh:'+size
 			}
 			if (thumb || o.tagName != 'TEXTAREA') {
-				code = '&ref(site://'+itemPath+','+align+size+');';
+				code = '&ref('+itemPath+','+align+size+');';
 			} else {
-				code = '\n#ref(site://'+itemPath+','+align+size+')\n';
+				code = '\n#ref('+itemPath+','+align+size+')\n';
 			}
 		} else {
-			code = '[['+itemObject.name+':site://'+itemPath+']]';
+			code = '[['+itemObject.name+':'+itemPath+']]';
 		}
 	}
 	$().insertAtCaret(code);

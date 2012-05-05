@@ -77,6 +77,7 @@ class elFinder {
 		'dim'       => array('target' => true),
 		'resize'    => array('target' => true, 'width' => true, 'height' => true, 'mode' => false, 'x' => false, 'y' => false, 'degree' => false),
 		'netmount'  => array('protocol' => true, 'host' => true, 'path' => false, 'port' => false, 'user' => true, 'pass' => true, 'alias' => false, 'options' => false),
+		'url'       => array('target' => true, 'options' => false),
 		'pixlr'     => array('target' => false, 'node' => false, 'image' => false, 'type' => false, 'title' => false)
 		);
 	
@@ -1203,6 +1204,23 @@ class elFinder {
 		return ($file = $volume->resize($target, $width, $height, $x, $y, $mode, $bg, $degree))
 			? array('changed' => array($file))
 			: array('error' => $this->error(self::ERROR_RESIZE, $volume->path($target), $volume->error()));
+	}
+	
+	/**
+	* Return content URL
+	*
+	* @param  array  $args  command arguments
+	* @return array
+	* @author Naoki Sawada
+	**/
+	protected function url($args) {
+		$target = $args['target'];
+		$options = isset($args['options'])? $args['options'] : array();
+		if (($volume = $this->volume($target)) != false) {
+			$url = $volume->getContentUrl($target, $options);
+			return $url ? array('url' => $url) : array();
+		}
+		return array();
 	}
 
 	/**
