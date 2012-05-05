@@ -166,7 +166,11 @@ $opts = array(
 	'roots' => $rootVolumes,
 );
 
-error_reporting(0);
+if ($debug) {
+	error_reporting(E_ALL);
+} else {
+	error_reporting(0);
+}
 
 // clear output buffer
 while( ob_get_level() ) {
