@@ -11,9 +11,4 @@ class elFinderVolumeDropboxX extends elFinderVolumeDropbox {
 		$this->options['metaCachePath'] = XOOPS_TRUST_PATH.'/cache';
 		return parent::init();
 	}
-	protected function configure() {
-		parent::configure();
-		$this->disabled[] = 'pixlr';
-	}
-	
 }
