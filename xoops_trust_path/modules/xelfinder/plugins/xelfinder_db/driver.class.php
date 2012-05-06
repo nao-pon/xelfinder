@@ -65,7 +65,12 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 **/
 	protected $dbError = '';
 
-
+	/**
+	* Debug message
+	*
+	* @var string
+	**/
+	protected $debugMsg = '';
 
 	/**
 	 * Constructor
