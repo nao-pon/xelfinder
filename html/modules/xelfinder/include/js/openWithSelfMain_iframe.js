@@ -49,7 +49,8 @@ function openWithSelfMain(url, name, w, h, returnwindow) {
 		dataCss:{
 			padding:			0
 		},
-		overlayClose:		 true
+		overlayClose:			true,
+		zIndex:					100000
 	});
 
 	$('#xelf_window').load(

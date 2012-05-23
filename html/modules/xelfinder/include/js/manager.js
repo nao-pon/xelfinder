@@ -209,7 +209,7 @@ function insertCode(align, thumb, format) {
 		
 		if (isImg) {
 			if (size) {
-				size = ',mw:'+size+',mh:'+size
+				size = ',mw:'+size+',mh:'+size;
 			}
 			if (thumb || o.tagName != 'TEXTAREA') {
 				code = '&ref('+itemPath+','+align+size+');';
@@ -225,7 +225,7 @@ function insertCode(align, thumb, format) {
 
 var getFileCallback_bbcode = function (file, fm) {
 	if (!target) {
-		fm.exec(fm.OS == 'mac' ? 'rename' : 'open')
+		fm.exec(fm.OS == 'mac' ? 'rename' : 'open');
 		return;
 	}
 	var path = file.url.replace(rootUrl+'/', '');
@@ -264,7 +264,7 @@ var getFileCallback_bbcode = function (file, fm) {
 
 var getFileCallback_xpwiki = function (file, fm) {
 	if (!target) {
-		fm.exec(fm.OS == 'mac' ? 'rename' : 'open')
+		fm.exec(fm.OS == 'mac' ? 'rename' : 'open');
 		return;
 	}
 	var path = file.url.replace(rootUrl+'/', '');
@@ -296,6 +296,33 @@ var getFileCallback_xpwiki = function (file, fm) {
 		$('.toast-item').css('background-image','url("'+file.url+'")');
 	} else {
 		insertCode('',0,'xpwiki');
+	}
+};
+
+var getFileCallback_xpwikifck = function (file, fm) {
+	var pa = null;
+	var x = null;
+	try {
+		pa = window.opener;
+		x = pa.XpWiki;
+	} catch(e) {
+		try {
+			pa = window.parent;
+			x = pa.XpWiki;
+		} catch(e) {}
+	}
+	if (x) {
+		var path = file.url.replace(rootUrl+'/', '');
+		path = encodeURI(decodeURI(path));
+		if (! path.match(/^http/)) {
+			path = 'site://' + path;
+		}
+		x.FCKrefInsert(path);
+	}
+	try {
+		pa.jQuery.modal.close();
+	} catch(e) {
+		window.close();
 	}
 };
 
