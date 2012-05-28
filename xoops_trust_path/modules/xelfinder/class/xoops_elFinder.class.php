@@ -96,7 +96,7 @@ class xoops_elFinder {
 						$_gids = array_map('intval', explode(',', substr($_op, 4)));
 						if ($_gids && $this->mygids) {
 							if (! array_intersect($this->mygids, $_gids)) {
-								continue(2);
+								continue 2;
 							}
 						}
 					}
