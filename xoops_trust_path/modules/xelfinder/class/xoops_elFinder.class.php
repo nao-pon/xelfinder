@@ -57,8 +57,25 @@ class xoops_elFinder {
 			if (! $_conf || $_conf[0] === '#') continue;
 			$_confs = explode(':', $_conf);
 			$_confs = array_map('trim', $_confs);
-			list($mydirname, $plugin, $path, $title, $options) = array_pad($_confs, 6, '');
+			list($mydirname, $plugin, $path, $title, $options) = array_pad($_confs, 5, '');
+			
 			if (! $this->moduleCheckRight($mydirname)) continue;
+			
+			if ($options) {
+				$options = explode('|', $options);
+				foreach($options as $_op) {
+					if (strpos($_op, 'gid=') === 0) {
+						$_gids = array_map('intval', explode(',', substr($_op, 4)));
+						$_ugids = is_object($this->xoopsUser)? $this->xoopsUser->getGroups() : array(XOOPS_GROUP_ANONYMOUS);
+						if ($_gids && $_ugids) {
+							if (! array_intersect($_ugids, $_gids)) {
+								continue(2);
+							}
+						}
+					}
+				}
+			}
+			
 			if ($title === '') $title = $mydirname;
 			$path = '/' . trim($path, '/') . '/';
 			$volume = $pluginPath . $plugin . '/volume.php';

@@ -18,7 +18,7 @@ define( $constpref.'_ADMENU_MYPREFERENCES','Preferences');
 
 // configurations
 define( $constpref.'_VOLUME_SETTING' ,          'Volume Drivers' );
-define( $constpref.'_VOLUME_SETTING_DESC' ,     '[Module directory name]:[Plugin name]:[Saved files dirctory path]:[View name]<br />Written line by line. Will be ignored and put a "#" at the beginning.' );
+define( $constpref.'_VOLUME_SETTING_DESC' ,     '[Module directory name]:[Plugin name]:[Saved files dirctory path]:[View name]:[Options]<br />Written line by line. Will be ignored and put a "#" at the beginning.<br />Options separates with "|".<br />Common option: gid=[Group ID to validate is specified by comma separated values]' );
 define( $constpref.'_SHARE_HOLDER' ,            'Share holder' );
 define( $constpref.'_FTP_NAME' ,                'Name of FTP net volume' );
 define( $constpref.'_FTP_NAME_DESC' ,           'The display name of the FTP connection net volume for administrators.' );
