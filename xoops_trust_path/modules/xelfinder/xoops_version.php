@@ -66,6 +66,14 @@ gnavi:gnavi:uploads/gnavi:GNAVI
 mailbbs:mailbbs:modules/mailbbs/imgs:MailBBS'
 ) ;
 $modversion['config'][] = array(
+		'name'			=> 'disabled_cmds_by_gid' ,
+		'title'			=> $constpref.'_DISABLED_CMDS_BY_GID' ,
+		'description'	=> $constpref.'_DISABLED_CMDS_BY_GID_DESC' ,
+		'formtype'		=> 'textbox' ,
+		'valuetype'		=> 'text' ,
+		'default'		=> ''
+) ;
+$modversion['config'][] = array(
 		'name'			=> 'ftp_name' ,
 		'title'			=> $constpref.'_FTP_NAME' ,
 		'description'	=> $constpref.'_FTP_NAME_DESC' ,

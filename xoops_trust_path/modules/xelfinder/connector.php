@@ -46,7 +46,7 @@ $isAdmin = false;
 $memberUid = 0;
 $memberGroups = array(XOOPS_GROUP_ANONYMOUS);
 if (is_object($xoopsUser)) {
-	if ($xoopsUser->isAdmin()) {
+	if ($xoopsUser->isAdmin($xoopsModule->getVar('mid'))) {
 		$isAdmin = true;
 	}
 	$memberUid = $xoopsUser->getVar('uid');
@@ -121,6 +121,7 @@ $debug = (! empty($config['debug']));
 // load xoops_elFinder
 include_once dirname(__FILE__).'/class/xoops_elFinder.class.php';
 $xoops_elFinder = new xoops_elFinder($mydirname);
+$xoops_elFinder->setConfig($config);
 $xoops_elFinder->setLogfile($debug? XOOPS_TRUST_PATH . '/cache/elfinder.log.txt' : '');
 
 // Get volumes

@@ -20,6 +20,8 @@ define($constpref.'_ADMENU_MYPREFERENCES' , '一般設定' ) ;
 define( $constpref.'_VOLUME_SETTING' ,          'ボリュームドライバ' );
 define( $constpref.'_VOLUME_SETTING_DESC' ,     '[モジュールディレクトリ名]:[プラグイン名]:[ファイル格納ディレクトリ]:[表示名]:[オプション]<br />行単位で記述。先頭に # を置くと無視されます。<br />オプションは | で区切ります。<br />共通オプション: gid=[有効にするグループIDをカンマ区切りで指定]' );
 define( $constpref.'_SHARE_HOLDER' ,            '共有ホルダ' );
+define( $constpref.'_DISABLED_CMDS_BY_GID' ,    'グループ毎無効コマンド' );
+define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','グループ毎に無効にするコマンドを [グループID]=[無効コマンド(カンマ区切り)] として ":" で区切って指定する。<br />コマンド名: mkdir, mkfile, rm, rename, duplicate, paste, upload, archive, extract, resize, netmount, pixlr' );
 define( $constpref.'_FTP_NAME' ,                'FTP ネットボリューム表示名' );
 define( $constpref.'_FTP_NAME_DESC' ,           '管理者用の FTP 接続ネットボリュームの表示名' );
 define( $constpref.'_FTP_HOST' ,                'FTP ホスト名' );

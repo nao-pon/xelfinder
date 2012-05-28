@@ -7,8 +7,14 @@
 class xoops_elFinder {
 
 	protected $db;
-	public $xoopsUser;
-	public $mydirname;
+	
+	protected $xoopsUser;
+	protected $xoopsModule;
+	protected $mydirname;
+	protected $isAdmin;
+	
+	protected $config;
+	protected $mygids;
 	
 	/**
 	* Log file path
@@ -26,11 +32,16 @@ class xoops_elFinder {
 	);
 	
 	public function __construct($mydirname, $opt = array()) {
-		global $xoopsUser;
+		global $xoopsUser, $xoopsModule;
+		
 		$this->xoopsUser = $xoopsUser;
+		$this->xoopsModule = $xoopsModule;
+		$this->isAdmin = (is_object($xoopsUser) && $xoopsUser->isAdmin($xoopsModule->getVar('mid')));
 		$this->mydirname = $mydirname;
 		$this->db = & XoopsDatabaseFactory::getDatabaseConnection();
 		$this->defaultVolumeOptions = array_merge($this->defaultVolumeOptions, $opt);
+		$this->mygids = is_object($this->xoopsUser)? $this->xoopsUser->getGroups() : array(XOOPS_GROUP_ANONYMOUS);
+		
 		if (!isset($_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY]) && is_object($this->xoopsUser)) {
 			if ($uid = $this->xoopsUser->getVar('uid')) {
 				$uid = intval($uid);
@@ -52,6 +63,23 @@ class xoops_elFinder {
 		$pluginPath = dirname(dirname(__FILE__)) . '/plugins/';
 		$configs = explode("\n", $config);
 		$roots = array();
+
+		$disabledCmds = array();
+		if (!$this->isAdmin && !empty($this->config['disabled_cmds_by_gid'])) {
+			$_parts = array_map('trim', explode(':', $this->config['disabled_cmds_by_gid']));
+			foreach($_parts as $_part) {
+				list($_gid, $_cmds) = explode('=', $_part, 2);
+				$_gid = intval($_gid);
+				$_cmds = trim($_cmds);
+				if (! $_gid || ! $_cmds) continue;
+				if (in_array($_gid, $this->mygids)) {
+					$_cmds = array_map('trim', explode(',', $_cmds));
+					$disabledCmds = array_merge($disabledCmds, $_cmds);
+				}
+			}
+			$disabledCmds = array_unique($disabledCmds);
+		}
+		
 		foreach($configs as $_conf) {
 			$_conf = trim($_conf);
 			if (! $_conf || $_conf[0] === '#') continue;
@@ -66,9 +94,8 @@ class xoops_elFinder {
 				foreach($options as $_op) {
 					if (strpos($_op, 'gid=') === 0) {
 						$_gids = array_map('intval', explode(',', substr($_op, 4)));
-						$_ugids = is_object($this->xoopsUser)? $this->xoopsUser->getGroups() : array(XOOPS_GROUP_ANONYMOUS);
-						if ($_gids && $_ugids) {
-							if (! array_intersect($_ugids, $_gids)) {
+						if ($_gids && $this->mygids) {
+							if (! array_intersect($this->mygids, $_gids)) {
 								continue(2);
 							}
 						}
@@ -85,6 +112,12 @@ class xoops_elFinder {
 				require $volume;
 				if ($volumeOptions) {
 					$volumeOptions = array_merge($this->defaultVolumeOptions, $volumeOptions, $extra);
+					if ($disabledCmds) {
+						if (!isset($volumeOptions['disabled']) || !is_array($volumeOptions['disabled'])) {
+							$volumeOptions['disabled'] = array();
+						}
+						$volumeOptions['disabled'] = array_unique(array_merge($volumeOptions['disabled'], $disabledCmds));
+					}
 					$roots[] = $volumeOptions;
 				}
 			}
@@ -107,6 +140,10 @@ class xoops_elFinder {
 		}
 	
 		return $ret;
+	}
+	
+	public function setConfig($config) {
+		$this->config = $config;
 	}
 	
 	public function setLogfile($path = '') {
