@@ -60,7 +60,7 @@ $modversion['config'][] = array(
 	'formtype'		=> 'textarea' ,
 	'valuetype'		=> 'text' ,
 	'default'		=> 'xelfinder:xelfinder_db:uploads/xelfinder:'.constant($constpref.'_SHARE_HOLDER' ).'
-xelfinder:xelfinder:uploads/elfinder:elFinder
+xelfinder:xelfinder:uploads/elfinder:elFinder:gid=1
 myalbum:myalbum:uploads/photos:MyAlbum
 gnavi:gnavi:uploads/gnavi:GNAVI
 mailbbs:mailbbs:modules/mailbbs/imgs:MailBBS'
