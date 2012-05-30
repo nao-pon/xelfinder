@@ -2060,18 +2060,17 @@ elFinder.prototype = {
 				
 				;
 
-			if (files) {
+			if (files && files.length) {
 				$.each(files, function(i, val) {
-					//val = ('<span>').text(val).html();
 					form.append('<input type="hidden" name="upload[]" value="'+val+'"/>');
 				});
+				cnt = 1;
 			} else if (input && $(input).is(':file') && $(input).val()) {
 				form.append(input);
+				cnt = input.files ? input.files.length : 1;
 			} else {
 				return dfrd.reject();
 			}
-			
-			cnt = input.files ? input.files.length : 1;
 			
 			form.append('<input type="hidden" name="'+(self.newAPI ? 'target' : 'current')+'" value="'+self.cwd().hash+'"/>')
 				.append('<input type="hidden" name="html" value="1"/>')
@@ -10941,7 +10940,7 @@ elFinder.prototype.commands.upload = function() {
 	 **/
 	this.getstate = function() {
 		return !this._disabled && this.fm.cwd().write ? 0 : -1;
-	}
+	};
 	
 	
 	this.exec = function(data) {
@@ -10956,7 +10955,7 @@ elFinder.prototype.commands.upload = function() {
 						dfrd.resolve(data);
 					});
 			},
-			dfrd, dialog, input, button, dropbox, base;
+			dfrd, dialog, input, button, dropbox, pastebox;
 		
 		if (this.disabled()) {
 			return $.Deferred().reject();
@@ -10978,16 +10977,42 @@ elFinder.prototype.commands.upload = function() {
 			.append($('<form/>').append(input))
 			.hover(function() {
 				button.toggleClass(hover)
-			})
+			});
 			
 		dialog = $('<div class="elfinder-upload-dialog-wrapper"/>')
 			.append(button);
 		
+		pastebox = $('<div class="ui-corner-all elfinder-upload-dropbox" contenteditable=true></div>')
+			.focus(function() {
+				if (this.innerHTML) {
+					var type = this.innerHTML.match(/<[^>]+>/)? 'html' : 'text';
+					var src = this.innerHTML;
+					this.innerHTML = '';
+					upload({files : [ src ], type : type});
+				}
+			})
+			.bind('dragenter mouseover', function(){
+				this.focus();
+				$(pastebox).addClass(hover);
+			})
+			.bind('dragleave mouseout', function(){
+				this.blur();
+				$(pastebox).removeClass(hover);
+			})
+			.bind('mouseup keyup', function() {
+				setTimeout(function(){
+					$(pastebox).focus();
+				}, 100);
+			});
+		
 		if (fm.dragUpload) {
 			dropbox = $('<div class="ui-corner-all elfinder-upload-dropbox">'+fm.i18n('dropFiles')+'</div>')
 				.prependTo(dialog)
+				.after('<div class="elfinder-upload-dialog-or">'+fm.i18n('or')+'</div>')
+				.after(pastebox)
+				.after('<div>'+fm.i18n('dropFilesBrowser')+'</div>')
 				.after('<div class="elfinder-upload-dialog-or">'+fm.i18n('or')+'</div>')[0];
-
+			
 			dropbox.addEventListener('dragenter', function(e) {
 				e.stopPropagation();
 			  	e.preventDefault();
@@ -11003,6 +11028,7 @@ elFinder.prototype.commands.upload = function() {
 			dropbox.addEventListener('dragover', function(e) {
 				e.stopPropagation();
 			  	e.preventDefault();
+			  	$(dropbox).addClass(hover);
 			}, false);
 
 			dropbox.addEventListener('drop', function(e) {
@@ -11026,29 +11052,8 @@ elFinder.prototype.commands.upload = function() {
 			}, false);
 			
 		} else {
-			dropbox = $('<div class="ui-corner-all elfinder-upload-dropbox" contenteditable=true></div>')
-				.focus(function() {
-					if (this.innerHTML) {
-						var type = this.innerHTML.match(/<[^>]+>/)? 'html' : 'text';
-						upload({files : [ this.innerHTML ], type : type});
-					}
-				})
-				.bind('dragenter mouseover', function(){
-					this.focus();
-					$(dropbox).addClass(hover);
-				})
-				.bind('dragleave mouseout', function(){
-					this.blur();
-					$(dropbox).removeClass(hover);
-				})
-				.bind('mouseup keyup', function() {
-					setTimeout(function(){
-						$(dropbox).focus();
-					}, 100);
-				});
-			
-			base = $('<div>'+fm.i18n('dropFilesBrowser')+'</div>')
-				.append(dropbox)
+			$('<div>'+fm.i18n('dropFilesBrowser')+'</div>')
+				.append(pastebox)
 				.prependTo(dialog)
 				.after('<div class="elfinder-upload-dialog-or">'+fm.i18n('or')+'</div>')[0];
 			
@@ -11060,11 +11065,11 @@ elFinder.prototype.commands.upload = function() {
 			resizable      : false,
 			destroyOnClose : true
 		});
-			
+		
 		return dfrd;
-	}
+	};
 
-}
+};
 
 /*
  * File: /home/osc/elFinder/js/commands/view.js
