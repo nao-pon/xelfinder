@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-05-08)
+ * Version 2.0 rc1 (2012-05-30)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -1961,10 +1961,48 @@ elFinder.prototype = {
 	iframeCnt : 0,
 	
 	uploads : {
+		// check droped contents
+		checkFile : function(data) {
+			if (typeof data.type == 'files') {
+				return data.files;
+			} else {
+				var ret = [];
+				var regex;
+				var str = data.files[0];
+				if (data.type == 'html') {
+					regex = /<img[^>]+src=["']?([^"'> ]+)/ig;
+					var m = [];
+					var url = '';
+					var links;
+					while (m = regex.exec(str)) {
+						url = m[1].replace(/&amp;/g, '&');
+						if (url.match(/^http/) && $.inArray(url, ret) == -1) ret.push(url);
+					}
+					links = str.match(/<\/a>/i);
+					if (links && links.length == 1) {
+						regex = /<a[^>]+href=["']?([^"'> ]+)((?:.|\s)+)<\/a>/i;
+						if (m = regex.exec(str)) {
+							if (! m[2].match(/<img/i)) {
+								url = m[1].replace(/&amp;/g, '&');
+								if (url.match(/^http/) && $.inArray(url, ret) == -1) ret.push(url);
+							}
+						}
+					}
+				} else {
+					regex = /(http[^<>"{}|\\^\[\]`\s]+)/ig;
+					while (m = regex.exec(str)) {
+						url = m[1].replace(/&amp;/g, '&');
+						if ($.inArray(url, ret) == -1) ret.push(url);
+					}
+				}
+				return ret;
+			}
+		},
 		// upload transport using iframe
 		iframe : function(data, fm) { 
 			var self   = fm ? fm : this,
-				input  = data.input,
+				input  = data.input? data.input : false,
+				files  = !input ? self.uploads.checkFile(data) : false,
 				dfrd   = $.Deferred()
 					.fail(function(error) {
 						error && self.error(error);
@@ -2021,8 +2059,13 @@ elFinder.prototype = {
 				cnt, notify, notifyto, abortto
 				
 				;
-			
-			if (input && $(input).is(':file') && $(input).val()) {
+
+			if (files) {
+				$.each(files, function(i, val) {
+					//val = ('<span>').text(val).html();
+					form.append('<input type="hidden" name="upload[]" value="'+val+'"/>');
+				});
+			} else if (input && $(input).is(':file') && $(input).val()) {
 				form.append(input);
 			} else {
 				return dfrd.reject();
@@ -2066,46 +2109,9 @@ elFinder.prototype = {
 						notifyto && clearTimeout(notifyto);
 						notify && self.notify({type : 'upload', cnt : -cnt, progress : 100*cnt});
 					}),
-				checkFile   = function(files) {
-					if (typeof files[0] == 'string') {
-						//console.log(files[0]);
-						var ret = [];
-						var regex = /<img[^>]+src=["']?([^"'> ]+)/ig;
-						var m = [];
-						var url = '';
-						var links;
-						while (m = regex.exec(files[0])) {
-							url = m[1].replace(/&amp;/g, '&');
-							if (url.match(/^http/) && $.inArray(url, ret) == -1) ret.push(url);
-						}
-						links = files[0].match(/<\/a>/i);
-						if (links && links.length == 1) {
-							regex = /<a[^>]+href=["']?([^"'> ]+)((?:.|\s)+)<\/a>/i;
-							if (m = regex.exec(files[0])) {
-								if (! m[2].match(/<img/i)) {
-									url = m[1].replace(/&amp;/g, '&');
-									if (url.match(/^http/) && $.inArray(url, ret) == -1) ret.push(url);
-								}
-							}
-						}
-						links = files[0].match(/<\/a>/i);
-						if (links && links.length == 1) {
-							regex = /<a[^>]+href=["']?([^"'> ]+)((?:.|\s)+)<\/a>/i;
-							if (m = regex.exec(files[0])) {
-								if (! m[2].match(/<img/i)) {
-									url = m[1].replace(/&amp;/g, '&');
-									if (url.match(/^http/) && $.inArray(url, ret) == -1) ret.push(url);
-								}
-							}
-						}
-						return ret;
-					} else {
-						return files;
-					}
-				},
 				xhr         = new XMLHttpRequest(),
 				formData    = new FormData(),
-				files       = checkFile(data.input ? data.input.files : data.files), 
+				files       = data.input ? data.input.files : self.uploads.checkFile(data), 
 				cnt         = files.length,
 				loaded      = 5,
 				notify      = false,
@@ -4058,7 +4064,7 @@ $.fn.dialogelfinder = function(opts) {
 /**
  * English translation
  * @author Troex Nevelin <troex@fury.scancode.ru>
- * @version 2012-03-17
+ * @version 2012-05-30
  */
 if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object') {
 	elFinder.prototype.i18.en = {
@@ -4288,6 +4294,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'dontforget'      : 'and don\'t forget to take your towel',
 			'shortcutsof'     : 'Shortcuts disabled',
 			'dropFiles'       : 'Drop files here',
+			'dropFilesBrowser': 'Drop or paste files from browser', // added 30.05.2012
 			'or'              : 'or',
 			'selectForUpload' : 'Select files to upload',
 			'moveFiles'       : 'Move files',
@@ -5442,13 +5449,19 @@ $.fn.elfindercwd = function(fm) {
 			  	e.preventDefault();
 				wrapper.removeClass(clDropActive);
 				var file = false;
+				var type = '';
 				if (e.dataTransfer && e.dataTransfer.files &&  e.dataTransfer.files.length) {
 					file = e.dataTransfer.files;
+					type = 'files';
 				} else if (e.dataTransfer.getData('text/html')) {
 					file = [ e.dataTransfer.getData('text/html') ];
+					type = 'html';
+				} else if (e.dataTransfer.getData('text')) {
+					file = [ e.dataTransfer.getData('text') ];
+					type = 'text';
 				}
 				if (file) {
-					fm.exec('upload', {files : file});
+					fm.exec('upload', {files : file, type : type});
 				}
 			}, false);
 		}
@@ -10943,7 +10956,7 @@ elFinder.prototype.commands.upload = function() {
 						dfrd.resolve(data);
 					});
 			},
-			dfrd, dialog, input, button, dropbox;
+			dfrd, dialog, input, button, dropbox, base;
 		
 		if (this.disabled()) {
 			return $.Deferred().reject();
@@ -10996,15 +11009,48 @@ elFinder.prototype.commands.upload = function() {
 				e.stopPropagation();
 			  	e.preventDefault();
 				var file = false;
+				var type = '';
 				if (e.dataTransfer && e.dataTransfer.files &&  e.dataTransfer.files.length) {
 					file = e.dataTransfer.files;
+					type = 'files';
 				} else if (e.dataTransfer.getData('text/html')) {
 					file = [ e.dataTransfer.getData('text/html') ];
+					type = 'html';
+				} else if (e.dataTransfer.getData('text')) {
+					file = [ e.dataTransfer.getData('text') ];
+					type = 'text';
 				}
 				if (file) {
-					upload({files : file});
+					upload({files : file, type : type});
 				}
 			}, false);
+			
+		} else {
+			dropbox = $('<div class="ui-corner-all elfinder-upload-dropbox" contenteditable=true></div>')
+				.focus(function() {
+					if (this.innerHTML) {
+						var type = this.innerHTML.match(/<[^>]+>/)? 'html' : 'text';
+						upload({files : [ this.innerHTML ], type : type});
+					}
+				})
+				.bind('dragenter mouseover', function(){
+					this.focus();
+					$(dropbox).addClass(hover);
+				})
+				.bind('dragleave mouseout', function(){
+					this.blur();
+					$(dropbox).removeClass(hover);
+				})
+				.bind('mouseup keyup', function() {
+					setTimeout(function(){
+						$(dropbox).focus();
+					}, 100);
+				});
+			
+			base = $('<div>'+fm.i18n('dropFilesBrowser')+'</div>')
+				.append(dropbox)
+				.prependTo(dialog)
+				.after('<div class="elfinder-upload-dialog-or">'+fm.i18n('or')+'</div>')[0];
 			
 		}
 		
