@@ -19,10 +19,26 @@ class xelfinderPreloadBase extends XCube_ActionFilter {
 	}
 
 	function overRideDefaultImageManager() {
+		
 		$mydirname = $this->mydirname;
-		$mydirpath = $this->mydirpath;
-		$use_bbcode_siteimg = 1;
-		require dirname(__FILE__).'/manager.php';
+		
+		$root =& XCube_Root::getSingleton();
+		$xoopsUser =& $root->mContext->mXoopsUser;
+		
+		// check module readable
+		$module_handler =& xoops_gethandler('module');
+		if ($XoopsModule = $module_handler->getByDirname($mydirname)) {
+			$moduleperm_handler =& xoops_gethandler('groupperm');
+			if ($moduleperm_handler->checkRight('module_read', $XoopsModule->getVar('mid'), (is_object($xoopsUser)? $xoopsUser->getGroups() : XOOPS_GROUP_ANONYMOUS))) {
+				$mydirpath = $this->mydirpath;
+				$use_bbcode_siteimg = 1;
+				require dirname(__FILE__).'/manager.php';
+			}
+		}
+		
+		// call legacy imageManager
+		require_once XOOPS_MODULE_PATH.'/legacy/kernel/Legacy_EventFunctions.class.php';
+		Legacy_EventFunction::imageManager();
 	}
 	
 	function addXCodeConvertTable(&$patterns, &$replacements) {
