@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-05-30)
+ * Version 2.0 rc1 (2012-05-31)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -1963,7 +1963,7 @@ elFinder.prototype = {
 	uploads : {
 		// check droped contents
 		checkFile : function(data) {
-			if (typeof data.type == 'files') {
+			if (data.type == 'files') {
 				return data.files;
 			} else {
 				var ret = [];
