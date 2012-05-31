@@ -23,7 +23,7 @@ class elFinderVolumeXoopsMailbbs extends elFinderVolumeLocalFileSystem {
 		$ret = array();
 		foreach ($logs as $log) {
 			$data = array_pad(explode('<>', $log), 8, '');
-			if ($data[7]) continue; //未承認
+			if (intval($data[7])) continue; // 未承認
 			$ret[] = $data[5];
 		}
 
