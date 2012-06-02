@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-06-01)
+ * Version 2.0 rc1 (2012-06-02)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -766,7 +766,7 @@ window.elFinder = function(node, opts) {
 	 * @return Array
 	 */
 	this.selectedFiles = function() {
-		return $.map(selected, function(hash) { return files[hash] || null });
+		return $.map(selected, function(hash) { return files[hash] ? $.extend({}, files[hash]) : null });
 	};
 	
 	/**
@@ -4017,8 +4017,8 @@ $.fn.dialogelfinder = function(opts) {
 	if (opts == 'open') {
 		var node = $(this),
 			pos  = node.data(position) || {
-				top  : parseInt($(document).scrollTop() + ($(window).height() < node.height() ? 2 : ($(window).height() - node.height())/2)),
-				left : parseInt($(document).scrollLeft() + ($(window).width() < node.width()  ? 2 : ($(window).width()  - node.width())/2))
+				top  : parseInt($(document).scrollTop() + ($('body').height() < node.height() ? 2 : ($('body').height() - node.height())/2)),
+				left : parseInt($(document).scrollLeft() + ($('body').width() < node.width()  ? 2 : ($('body').width()  - node.width())/2))
 			},
 			zindex = 100;
 
@@ -6527,7 +6527,7 @@ $.fn.elfinderstat = function(fm) {
 
 			$.each(files, function(i, file) {
 				c++;
-				s += file.size||0;
+				s += parseInt(file.size)||0;
 			});
 
 			sel.html(c ? titlesel+': '+c+', '+titlesize+': '+fm.formatSize(s) : '&nbsp;');
