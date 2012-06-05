@@ -59,8 +59,8 @@ $modversion['config'][] = array(
 	'description'	=> $constpref.'_VOLUME_SETTING_DESC' ,
 	'formtype'		=> 'textarea' ,
 	'valuetype'		=> 'text' ,
-	'default'		=> 'xelfinder:xelfinder_db:uploads/xelfinder:'.constant($constpref.'_SHARE_HOLDER' ).'
-xelfinder:xelfinder:uploads/elfinder:elFinder:gid=1
+	'default'		=> $mydirname.':xelfinder_db:uploads/xelfinder:'.constant($constpref.'_SHARE_HOLDER' ).'
+'.$mydirname.':xelfinder:uploads/elfinder:elFinder:gid=1
 myalbum:myalbum:uploads/photos:MyAlbum
 gnavi:gnavi:uploads/gnavi:GNAVI
 mailbbs:mailbbs:modules/mailbbs/imgs:MailBBS'
