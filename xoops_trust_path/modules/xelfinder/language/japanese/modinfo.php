@@ -60,7 +60,7 @@ define( $constpref.'_USE_GROUP_DIR' ,           '[xelfinder_db] グループ別ホルダ
 define( $constpref.'_USE_GROUP_DIR_DESC' ,      '' );
 define( $constpref.'_GROUP_DIR_PARENT' ,        '[xelfinder_db] グループ別ホルダの親ホルダ名' );
 define( $constpref.'_GROUP_DIR_PARENT_DESC' ,   '' );
-define( $constpref.'_GROUP_DIR_PARENT_NAME' ,   '[xelfinder_db] グループ毎閲覧');
+define( $constpref.'_GROUP_DIR_PARENT_NAME' ,   'グループ毎閲覧');
 define( $constpref.'_GROUP_DIR_PERM' ,          '[xelfinder_db] グループ別ホルダのパーミッション' );
 define( $constpref.'_GROUP_DIR_PERM_DESC' ,     'ここでの設定は作成時のみ参照されます。作成後は elFinder で直接変更してください。<br />例: 768: オーナー 7 = -rwu, グループ 6 = -rw-, ゲスト 8 = h---' );
 define( $constpref.'_GROUP_DIR_ITEM_PERM' ,     '[xelfinder_db] グループ別ホルダに作成されるアイテムのパーミッション' );

@@ -60,7 +60,7 @@ define( $constpref.'_USE_GROUP_DIR' ,           '[xelfinder_db] Use the holder f
 define( $constpref.'_USE_GROUP_DIR_DESC' ,      '' );
 define( $constpref.'_GROUP_DIR_PARENT' ,        '[xelfinder_db] Parent holder name for "holder for each group"' );
 define( $constpref.'_GROUP_DIR_PARENT_DESC' ,   '' );
-define( $constpref.'_GROUP_DIR_PARENT_NAME' ,   '[xelfinder_db] Read by group');
+define( $constpref.'_GROUP_DIR_PARENT_NAME' ,   'For group');
 define( $constpref.'_GROUP_DIR_PERM' ,          '[xelfinder_db] Permission of "holder for each group"' );
 define( $constpref.'_GROUP_DIR_PERM_DESC' ,     'The setting here is referred to only when it is created. Please change after it is created directly in the elFinder. <br />ex. 768: Owner 7 = -rwu, Group 6 = -rw-, Guest 8 = h---' );
 define( $constpref.'_GROUP_DIR_ITEM_PERM' ,     '[xelfinder_db] Permission of the new items in "holder for each group"' );
