@@ -281,6 +281,10 @@ var getFileCallback_xpwiki = function (file, fm) {
 	imgThumb = encodeURI(decodeURI(thumb));
 	itemPath = encodeURI(decodeURI(path));
 	itemObject = file;
+	
+	if (itemPath.match(/\?/) && ! itemPath.match(/\.[^.?]+$/)) {
+		itemPath += '&' + encodeURI(file.name);
+	}
 
 	if (isImg) {
 		var buttons = '<span onclick="insertCode(\'left\',1,\'xpwiki\');"><img src="'+imgUrl+'alignleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',1,\'xpwiki\')"><img src="'+imgUrl+'aligncenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',1,\'xpwiki\')"><img src="'+imgUrl+'alignright.gif" alt="" /></span>'
