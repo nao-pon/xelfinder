@@ -450,6 +450,7 @@ window.elFinder = function(node, opts) {
 	  }
 	})();
 
+	this.viewType = this.storage('view') || this.options.defaultView || 'icons',
 
 	/**
 	 * Delay in ms before open notification dialog
@@ -547,8 +548,9 @@ window.elFinder = function(node, opts) {
 				if (result.length) {
 					ui.helper.hide();
 					self.clipboard(result, !(e.ctrlKey||e.shiftKey||e.metaKey||ui.helper.data('locked')));
-					self.exec('paste', hash).always(function() { self.clipboard([]); });
+					self.exec('paste', hash);
 					self.trigger('drop', {files : targets});
+
 				}
 			}
 		};
@@ -1240,7 +1242,7 @@ window.elFinder = function(node, opts) {
 	 */
 	this.clipboard = function(hashes, cut) {
 		var map = function() { return $.map(clipboard, function(f) { return f.hash }); }
-		
+
 		if (hashes !== void(0)) {
 			clipboard.length && this.trigger('unlockfiles', {files : map()});
 			remember = [];
@@ -1618,7 +1620,7 @@ window.elFinder = function(node, opts) {
 			hide : function() { prevEnabled && self.enable(); }
 		}),
 		// current folder container
-		cwd : $('<div/>').appendTo(node).elfindercwd(this),
+		cwd : $('<div/>').appendTo(node).elfindercwd(this, this.options.uiOptions.cwd || {}),
 		// notification dialog window
 		notify : this.dialog('', {
 			cssClass  : 'elfinder-dialog-notify',

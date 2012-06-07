@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-06-03)
+ * Version 2.0 rc1 (2012-06-07)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -464,6 +464,7 @@ window.elFinder = function(node, opts) {
 	  }
 	})();
 
+	this.viewType = this.storage('view') || this.options.defaultView || 'icons',
 
 	/**
 	 * Delay in ms before open notification dialog
@@ -561,8 +562,9 @@ window.elFinder = function(node, opts) {
 				if (result.length) {
 					ui.helper.hide();
 					self.clipboard(result, !(e.ctrlKey||e.shiftKey||e.metaKey||ui.helper.data('locked')));
-					self.exec('paste', hash).always(function() { self.clipboard([]); });
+					self.exec('paste', hash);
 					self.trigger('drop', {files : targets});
+
 				}
 			}
 		};
@@ -1254,7 +1256,7 @@ window.elFinder = function(node, opts) {
 	 */
 	this.clipboard = function(hashes, cut) {
 		var map = function() { return $.map(clipboard, function(f) { return f.hash }); }
-		
+
 		if (hashes !== void(0)) {
 			clipboard.length && this.trigger('unlockfiles', {files : map()});
 			remember = [];
@@ -1632,7 +1634,7 @@ window.elFinder = function(node, opts) {
 			hide : function() { prevEnabled && self.enable(); }
 		}),
 		// current folder container
-		cwd : $('<div/>').appendTo(node).elfindercwd(this),
+		cwd : $('<div/>').appendTo(node).elfindercwd(this, this.options.uiOptions.cwd || {}),
 		// notification dialog window
 		notify : this.dialog('', {
 			cssClass  : 'elfinder-dialog-notify',
@@ -3064,7 +3066,7 @@ elFinder.prototype._options = {
 	commandsOptions : {
 		// "getfile" command options.
 		getfile : {
-			onlyURL  : true,
+			onlyURL  : false,
 			// allow to return multiple files info
 			multiple : false,
 			// allow to return filers info
@@ -3168,6 +3170,14 @@ elFinder.prototype._options = {
 	 * @default null (command not active)
 	 */
 	getFileCallback : null,
+	
+	/**
+	 * Default directory view. icons/list
+	 *
+	 * @type String
+	 * @default "icons"
+	 */
+	defaultView : 'icons',
 	
 	/**
 	 * UI plugins to load.
@@ -4449,7 +4459,7 @@ $.fn.elfinderbutton = function(cmd) {
 			menu = $('<div class="ui-widget ui-widget-content elfinder-button-menu ui-corner-all"/>')
 				.hide()
 				.appendTo(button)
-				.zIndex(10+button.zIndex())
+				.zIndex(12+button.zIndex())
 				.delegate('.'+item, 'hover', function() { $(this).toggleClass(hover) })
 				.delegate('.'+item, 'click', function(e) {
 					e.preventDefault();
@@ -4643,8 +4653,9 @@ $.fn.elfindercwd = function(fm) {
 	
 	this.not('.elfinder-cwd').each(function() {
 		// fm.time('cwdLoad');
+		
 		var 
-			list = fm.storage('view') == 'list',
+			list = fm.viewType == 'list',
 
 			undef = 'undefined',
 			/**
@@ -5649,12 +5660,12 @@ $.fn.elfinderdialog = function(opts) {
 	var dialog;
 	
 	if (typeof(opts) == 'string' && (dialog = this.closest('.ui-dialog')).length) {
-		if (opts == 'open' && dialog.is(':hidden')) {
-			dialog.fadeIn(120, function() {
+		if (opts == 'open') {
+			dialog.css('display') == 'none' && dialog.fadeIn(120, function() {
 				dialog.trigger('open');
 			});
-		} else if (opts == 'close' && dialog.is(':visible')) {
-			dialog.hide().trigger('close');
+		} else if (opts == 'close') {
+			dialog.css('display') != 'none' && dialog.hide().trigger('close');
 		} else if (opts == 'destroy') {
 			dialog.hide().remove();
 		} else if (opts == 'toTop') {
@@ -6437,7 +6448,7 @@ $.fn.elfindersortbutton = function(cmd) {
 			menu = $('<div class="ui-widget ui-widget-content elfinder-button-menu ui-corner-all"/>')
 				.hide()
 				.appendTo(button)
-				.zIndex(10+button.zIndex())
+				.zIndex(12+button.zIndex())
 				.delegate('.'+item, 'hover', function() { $(this).toggleClass(hover) })
 				.delegate('.'+item, 'click', function(e) {
 					e.preventDefault();
@@ -8796,6 +8807,7 @@ elFinder.prototype.commands.paste = function() {
 								notify : {type : cut ? 'move' : 'copy', cnt : cnt}
 							})
 							.always(function() {
+								dfrd.resolve();
 								fm.unlockfiles({files : files});
 							});
 					}
@@ -9058,7 +9070,13 @@ elFinder.prototype.commands.quicklook = function() {
 		
 		support = function(codec) {
 			var media = document.createElement(codec.substr(0, codec.indexOf('/'))),
+				value = false;
+			
+			try {
 				value = media.canPlayType && media.canPlayType(codec);
+			} catch (e) {
+				
+			}
 			
 			return value && value !== '' && value != 'no';
 		},
@@ -11082,7 +11100,7 @@ elFinder.prototype.commands.upload = function() {
  * @author Dmitry (dio) Levashov
  **/
 elFinder.prototype.commands.view = function() {
-	this.value          = this.fm.storage('view');
+	this.value          = this.fm.viewType;
 	this.alwaysEnabled  = true;
 	this.updateOnSelect = false;
 
