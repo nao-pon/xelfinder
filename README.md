@@ -1,4 +1,4 @@
-# xelFinder (えっくすいーえる・ふぁいんだー)
+# xelFinder (えっくすえる・ふぁいんだー)
 
 JavaScript + PHP で動作する Webベースファイルマネージャーの [elFinder 2.0](http://elfinder.org/) を XOOPS 用にモジュール化したもの。
 
