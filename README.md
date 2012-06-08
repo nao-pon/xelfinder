@@ -1,8 +1,8 @@
-# xelFinder (えっくすえる・ふぁいんだー)
+# X-elFinder (えっくす・えるふぁいんだー)
 
 JavaScript + PHP で動作する Webベースファイルマネージャーの [elFinder 2.0](http://elfinder.org/) を XOOPS 用にモジュール化したもの。
 
-XOOPS にインストールすることで、イメージマネージャーと換装((当サイトではイメージマネージャーとして xelFinder を利用しています))して利用することができます。
+XOOPS にインストールすることで、イメージマネージャーと換装((当サイトではイメージマネージャーとして X-elFinder を利用しています))して利用することができます。
 
 ただし、XOOPS Cube Legacy 以外は、XOOPS_ROOT_PATH/imagemanager.php を若干編集する必要があります。
 
@@ -12,9 +12,9 @@ XOOPS にインストールすることで、イメージマネージャーと�
 
 ダウンロードは上記のページの「[ZIP](https://github.com/nao-pon/xelfinder/zipball/master)」から行えます。
 
-xelFinder に関する話題、質問、要望 はフォーラムーへ。
+X-elFinder に関する話題、質問、要望 はフォーラムーへ。
 
-* [xelFinder - フォーラム - XOOPS マニア](http://xoops.hypweb.net/modules/forum/index.php?forum_id=25)
+* [X-elFinder - フォーラム - XOOPS マニア](http://xoops.hypweb.net/modules/forum/index.php?forum_id=25)
 
 ## インストール時の注意事項
 
@@ -50,7 +50,7 @@ BBcode での参照時など用に任意の縮小サイズの画像を表示で�
 
 * [HypCommonFunc について](http://xoops.hypweb.net/modules/xpwiki/156.html)
 
-## xelFinder 固有の主な機能
+## X-elFinder 固有の主な機能
 
 elFinder の機能に加えて次のような機能を持っています。
 
