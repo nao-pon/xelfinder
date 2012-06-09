@@ -35,6 +35,12 @@ openWithSelfMain() では、別ウィンドウが開きます。これを IFRAME
 テーマの theme.html にて `<{$xoops_js}>` を読み込んだ後で、openWithSelfMain_iframe.js を読みこませることで
 それが可能になります。
 
+HypConf(HypCommon の設定) モジュールの「その他の設定」-「&lt;head&gt;内の最後に挿入するタグ」に
+
+    <script type="text/javascript" src="<{$xoops_url}>/modules/xelfinder/include/js/openWithSelfMain_iframe.js"></script>
+
+を追加するか次のように theme.html を編集してください。
+
 例 (theme.html):
 
     <script type="text/javascript">
@@ -42,7 +48,7 @@ openWithSelfMain() では、別ウィンドウが開きます。これを IFRAME
     <{$xoops_js}>
     //-->
     </script>
-    <script type="text/javascript" src="<{$xoops_url}>/modules/xelfinder/include/js/openWithSelfMain_iframe.js" />
+    <script type="text/javascript" src="<{$xoops_url}>/modules/xelfinder/include/js/openWithSelfMain_iframe.js"></script>
 
 ### 依存ライブラリについて
 
