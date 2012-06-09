@@ -14,11 +14,11 @@ var XELFINDER_URL;
 	}
 	if (typeof jQuery == 'undefined') {
 		document.write (
-			'<script src="'+XOOPS_URL+'/common/elfinder/jquery/jquery-1.7.1.min.js" type="text/javascript" charset="utf-8"></script>'
+			'<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" charset="utf-8"></script>'
 				+
-			'<script src="'+XOOPS_URL+'/common/elfinder/jquery/jquery-ui-1.8.16.custom.min.js" type="text/javascript" charset="utf-8"></script>'
+			'<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>'
 				+
-			'<link rel="stylesheet" href="'+XOOPS_URL+'/common/elfinder/jquery/ui-themes/smoothness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen" charset="utf-8">'
+			'<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/smoothness/jquery-ui.css" type="text/css" media="screen" charset="utf-8">'
 		);
 	}
 	document.write (
