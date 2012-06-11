@@ -6,8 +6,10 @@
 
 if (is_dir(XOOPS_ROOT_PATH . $path)) {
 
+	require_once dirname(__FILE__) . '/driver.class.php';
+
 	$volumeOptions = array(
-		'driver'     => 'LocalFileSystem',
+		'driver'     => 'XoopsXelfinder',
 		'mydirname'  => $mydirname,
 		'path'       => XOOPS_ROOT_PATH . $path,
 		'URL'        => _MD_XELFINDER_SITEURL . $path,

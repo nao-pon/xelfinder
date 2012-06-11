@@ -15,6 +15,7 @@ CREATE TABLE `file` (
   `height` int(11) NOT NULL,
   `gids` varchar(255) NOT NULL,
   `mime_filter` varchar(255) NOT NULL,
+  `local_path` varchar(255) NOT NULL,
   PRIMARY KEY (`file_id`),
   UNIQUE KEY `parent_name` (`parent_id`,`name`),
   KEY `parent_id` (`parent_id`)

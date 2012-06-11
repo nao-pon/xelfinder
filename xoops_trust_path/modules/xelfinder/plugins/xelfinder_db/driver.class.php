@@ -673,8 +673,13 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		}
 		$this->setAuthByPerm($stat);
 		$stat['url'] = $this->options['URL'].$stat['file_id'].'/'.rawurlencode($stat['name']); // Use pathinfo "index.php/[id]/[name]
+		if (!empty($stat['local_path'])) {
+			$stat['_localalias'] = 1;
+			$stat['alias'] = $stat['local_path'];
+			$stat['write'] = 0;
+		}
 		
-		unset($stat['file_id'], $stat['parent_id'], $stat['gid'], $stat['home_of']);
+		unset($stat['file_id'], $stat['parent_id'], $stat['gid'], $stat['home_of'], $stat['local_path']);
 		if (empty($stat['isowner'])) unset($stat['perm'], $stat['uid'], $stat['gids']);
 		if (empty($stat['isowner']) || $stat['mime'] !== 'directory') unset($stat['umask']);
 		if ($stat['mime'] !== 'directory') unset($stat['filter']);
@@ -730,7 +735,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		}
 
 		$sql = 'SELECT f.file_id, f.parent_id, f.name, f.size, f.mtime AS ts, f.mime,
-				f.perm, f.umask, f.uid, f.gid, f.home_of, f.width, f.height, f.gids, f.mime_filter as filter,
+				f.perm, f.umask, f.uid, f.gid, f.home_of, f.width, f.height, f.gids, f.mime_filter as filter, f.local_path,
 				IF(ch.file_id, 1, 0) AS dirs
 				FROM '.$this->tbf.' AS f
 				LEFT JOIN '.$this->tbf.' AS ch ON ch.parent_id=f.file_id AND ch.mime="directory"
@@ -762,7 +767,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$query = join(' OR ', $q);
 			
 			$sql = 'SELECT f.file_id, f.parent_id, f.name, f.size, f.mtime AS ts, f.mime,
-			f.perm, f.umask, f.uid, f.gid, f.home_of, f.width, f.height, f.gids, f.mime_filter as filter
+			f.perm, f.umask, f.uid, f.gid, f.home_of, f.width, f.height, f.gids, f.mime_filter as filter, f.local_path
 			FROM '.$this->tbf.' AS f
 			WHERE '.$query;
 			
@@ -979,7 +984,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 **/
 	protected function _stat($path, $rootCheck = true) {
 		$sql = 'SELECT f.file_id, f.parent_id, f.name, f.size, f.mtime AS ts, f.mime,
-				f.perm, f.umask, f.uid, f.gid, f.home_of, f.width, f.height, f.gids, f.mime_filter as filter,
+				f.perm, f.umask, f.uid, f.gid, f.home_of, f.width, f.height, f.gids, f.mime_filter as filter, f.local_path,
 				IF(ch.file_id, 1, 0) AS dirs
 				FROM '.$this->tbf.' AS f
 				LEFT JOIN '.$this->tbf.' AS p ON p.file_id=f.parent_id
@@ -1033,7 +1038,23 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	**/
 	protected function readlink($path, $make = false) {
 		if (! $path) return false;
-		$link = $this->options['filePath'] . $path;
+		$stat = $this->stat($path);
+		if (empty($stat['_localalias'])) {
+			$link = $this->options['filePath'] . $path;
+		} else {
+			$link = $stat['alias'];
+			if (substr($link, 1, 1) === '/') {
+				$_head = substr($link, 0, 1);
+				switch($_head) {
+					case 'R':
+						$link = XOOPS_ROOT_PATH . substr($link, 1);
+						break;
+					case 'T':
+						$link = XOOPS_TRUST_PATH . substr($link, 1);
+						break;
+				}
+			}
+		}
 		if (is_file($link)) {
 			return $link;
 		} else if ($make) {
@@ -1197,12 +1218,23 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _unlink($path) {
-		$file = $this->readlink($path);
-		@ unlink($file);
-		foreach (glob($file.'_*.tmb') as $tmb) {
-			@ unlink($tmb);
+		$stat = $this->stat($path);
+		if ($this->query(sprintf('DELETE FROM %s WHERE `file_id`=%d AND `mime`!="directory" LIMIT 1', $this->tbf, $path)) && $this->db->getAffectedRows()) {
+			$is_localalias = ! empty($stat['_localalias']);
+			if (! $is_localalias) {
+				$file = $this->readlink($path);
+				@ unlink($file);
+			}
+			if ($is_localalias) {
+				$file = $this->options['filePath'] . md5($stat['alias']);
+			}
+			foreach (glob($file.'_*.tmb') as $tmb) {
+				@ unlink($tmb);
+			}
+			return true;
+		} else {
+			return false;
 		}
-		return ($this->query(sprintf('DELETE FROM %s WHERE `file_id`=%d AND `mime`!="directory" LIMIT 1', $this->tbf, $path)) && $this->db->getAffectedRows());
 	}
 
 	/**
@@ -1226,7 +1258,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @return bool|string
 	 * @author Dmitry (dio) Levashov
 	 **/
-	protected function _save($fp, $dir, $name, $mime, $w, $h) {
+	protected function _save($fp, $dir, $name, $mime, $w, $h, $stat = null) {
 		
 		if ($name === '') return false;
 		
@@ -1236,22 +1268,28 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 
 		if ($id > 0) $this->rmTmb($id);
 		rewind($fp);
-		$stat = fstat($fp);
-		$size = $stat['size'];
+		$fstat = fstat($fp);
+		$size = $fstat['size'];
 		$time = time();
 		$gid = 0;
 		$uid = (int)$this->x_uid;
 		$umask = $this->getUmask($dir, $gid);
 		$perm = $this->getDefaultPerm($mime, $umask);
 		$gigs = join(',', $this->getGroupsByUid($uid));
+		$cut = ($_SERVER['REQUEST_METHOD'] == 'POST')? !empty($_POST['cut']) : !empty($_GET['cut']);
+		$local_path = (! $cut && is_array($stat) && !empty($stat['_localpath']))? $stat['_localpath'] : '';
+		if ($local_path) {
+			$local_path = mysql_real_escape_string($local_path);
+		}
 		
 		$sql = $id > 0
-			? 'REPLACE INTO %s (`file_id`, `parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `umask`, `uid`, `gid`, `mime`, `width`, `height`, `gids`) VALUES ('.$id.', %d, "%s", %d, %d, %d, "%s", "%s", %d, %d, "%s", %d, %d, "%s")'
-			: 'INSERT INTO %s (`parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `umask`, `uid`, `gid`, `mime`, `width`, `height`, `gids`) VALUES (%d, "%s", %d, %d, %d, "%s", "%s", %d, %d, "%s", %d, %d, "%s")';
-		$sql = sprintf($sql, $this->tbf, (int)$dir, mysql_escape_string($name), $size, $time, $time, $perm, $umask, $uid, $gid, $mime, $w, $h, $gids);
+			? 'REPLACE INTO %s (`file_id`, `parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `umask`, `uid`, `gid`, `mime`, `width`, `height`, `gids`, `local_path`) VALUES ('.$id.', %d, "%s", %d, %d, %d, "%s", "%s", %d, %d, "%s", %d, %d, "%s", "%s")'
+			: 'INSERT INTO %s (`parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `umask`, `uid`, `gid`, `mime`, `width`, `height`, `gids`, `local_path`) VALUES (%d, "%s", %d, %d, %d, "%s", "%s", %d, %d, "%s", %d, %d, "%s", "%s")';
+		$sql = sprintf($sql, $this->tbf, (int)$dir, mysql_escape_string($name), $size, $time, $time, $perm, $umask, $uid, $gid, $mime, $w, $h, $gids, $local_path);
 
 		if ($this->query($sql)) {
 			if ($id < 1) $id = $this->db->getInsertId();
+			if ($local_path) return $id;
 			if ($local = $this->readlink($id, true)) {
 				if ($target = @fopen($local, 'wb')) {
 					while (!feof($fp)) {

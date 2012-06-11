@@ -268,6 +268,9 @@ var getFileCallback_xpwiki = function (file, fm) {
 		return;
 	}
 	var path = file.url.replace(rootUrl+'/', '');
+	if (file._localalias && file.alias.charAt(0) == 'R') {
+		path = file.alias.replace('R/', '');
+	}
 	var basename = path.replace( /^.*\//, '' );
 	var modules_basename = moduleUrl.replace(rootUrl, '').replace(/\//g, '');
 	var reg = new RegExp('^.*?(?:'+modules_basename+'|uploads)\/([^\/]+)\/.*$');

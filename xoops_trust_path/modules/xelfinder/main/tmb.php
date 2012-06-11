@@ -26,14 +26,32 @@ while( ob_get_level() ) {
 	}
 }
 
-$query = 'SELECT `width`, `height`, `mime`, `size`, `mtime`, `perm`, `uid` FROM `' . $xoopsDB->prefix($mydirname) . '_file`' . ' WHERE file_id = ' . $file_id . ' LIMIT 1';
+$query = 'SELECT `width`, `height`, `mime`, `size`, `mtime`, `perm`, `uid`, `local_path` FROM `' . $xoopsDB->prefix($mydirname) . '_file`' . ' WHERE file_id = ' . $file_id . ' LIMIT 1';
 if ($file_id && ($res = $xoopsDB->query($query)) && $xoopsDB->getRowsNum($res)) {
-	list($width, $height, $mime, $size, $mtime, $perm, $uid) = $xoopsDB->fetchRow($res);
+	list($width, $height, $mime, $size, $mtime, $perm, $uid, $file) = $xoopsDB->fetchRow($res);
 	if ($xelFinderMisc->readAuth($perm, $uid)) {
 		
 		@include_once XOOPS_TRUST_PATH . '/class/hyp_common/hyp_common_func.php';
 		
-		$out = $file = XOOPS_TRUST_PATH . '/uploads/xelfinder/'. rawurlencode(substr(XOOPS_URL, strpos(XOOPS_URL, '://') + 3)) . '_' . $mydirname . '_' . $file_id;
+		$basepath = XOOPS_TRUST_PATH . '/uploads/xelfinder/'. rawurlencode(substr(XOOPS_URL, strpos(XOOPS_URL, '://') + 3)) . '_' . $mydirname . '_';
+		if (! $file) {
+			$tmb = $file = $basepath . $file_id;
+		} else {
+			$tmb = $basepath . md5($file);
+			if (substr($file, 1, 1) === '/') {
+				$_head = substr($file, 0, 1);
+				switch($_head) {
+					case 'R':
+						$file = XOOPS_ROOT_PATH . substr($file, 1);
+						break;
+					case 'T':
+						$file = XOOPS_TRUST_PATH . substr($file, 1);
+						break;
+				}
+			}
+		}
+		
+		$out = $file;
 		
 		if (! is_file($file)) {
 			$xelFinderMisc->exitOut(404);
@@ -41,7 +59,7 @@ if ($file_id && ($res = $xoopsDB->query($query)) && $xoopsDB->getRowsNum($res)) 
 		
 		$check = max($width, $height);
 		if ($s < $check && function_exists('XC_CLASS_EXISTS') && XC_CLASS_EXISTS('HypCommonFunc')) {
-			$s_file = $file . '_' . intval($s / $check * 100) . '.tmb';
+			$s_file = $tmb . '_' . intval($s / $check * 100) . '.tmb';
 			$out = HypCommonFunc::make_thumb($file, $s_file, $s, $s);
 			if ($out !== $file) {
 				$size = filesize($out);

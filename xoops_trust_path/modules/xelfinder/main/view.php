@@ -22,12 +22,26 @@ while( ob_get_level() ) {
 	}
 }
 
-$query = 'SELECT `mime`, `size`, `mtime`, `perm`, `uid` FROM `' . $xoopsDB->prefix($mydirname) . '_file`' . ' WHERE file_id = ' . $file_id . ' LIMIT 1';
+$query = 'SELECT `mime`, `size`, `mtime`, `perm`, `uid`, `local_path` FROM `' . $xoopsDB->prefix($mydirname) . '_file`' . ' WHERE file_id = ' . $file_id . ' LIMIT 1';
 if ($file_id && ($res = $xoopsDB->query($query)) && $xoopsDB->getRowsNum($res)) {
 	
-	list($mime, $size, $mtime, $perm, $uid) = $xoopsDB->fetchRow($res);
+	list($mime, $size, $mtime, $perm, $uid, $file) = $xoopsDB->fetchRow($res);
 	if ($xelFinderMisc->readAuth($perm, $uid, $file_id)) {
-		$file = XOOPS_TRUST_PATH . '/uploads/xelfinder/'. rawurlencode(substr(XOOPS_URL, strpos(XOOPS_URL, '://') + 3)) . '_' . $mydirname . '_' . $file_id;
+		if (! $file) {
+			$file = XOOPS_TRUST_PATH . '/uploads/xelfinder/'. rawurlencode(substr(XOOPS_URL, strpos(XOOPS_URL, '://') + 3)) . '_' . $mydirname . '_' . $file_id;
+		} else {
+			if (substr($file, 1, 1) === '/') {
+				$_head = substr($file, 0, 1);
+				switch($_head) {
+					case 'R':
+						$file = XOOPS_ROOT_PATH . substr($file, 1);
+						break;
+					case 'T':
+						$file = XOOPS_TRUST_PATH . substr($file, 1);
+						break;
+				}
+			}
+		}
 		
 		if (! is_file($file)) {
 			$xelFinderMisc->exitOut(404);

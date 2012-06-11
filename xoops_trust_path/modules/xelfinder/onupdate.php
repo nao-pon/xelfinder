@@ -60,6 +60,12 @@ function xelfinder_onupdate_base( $module , $mydirname )
 				) ENGINE=MyISAM' );
 	}
 	
+	//from v0.22
+	$query = "SELECT `local_path` FROM ".$db->prefix($mydirname."_file") ;
+	if(! $db->query($query)) {
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` ADD `local_path` VARCHAR( 255 ) NOT NULL');
+	}
+	
 	// TEMPLATES (all templates have been already removed by modulesadmin)
 	$tplfile_handler =& xoops_gethandler( 'tplfile' ) ;
 	$tpl_path = dirname(__FILE__).'/templates' ;

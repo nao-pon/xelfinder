@@ -45,7 +45,7 @@ elFinder.prototype.commands.perm = function() {
 	this.getstate = function(sel) {
 		var fm = this.fm;
 		sel = sel || fm.selected();
-		return !this._disabled && sel.length == 1 && fm.file(sel[0]).isowner && !fm.file(sel[0]).alias ? 0 : -1;
+		return !this._disabled && sel.length == 1 && fm.file(sel[0]).isowner && (fm.file(sel[0])._localalias || !fm.file(sel[0]).alias) ? 0 : -1;
 	};
 
 	this.exec = function(hashes) {

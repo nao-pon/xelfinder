@@ -140,6 +140,20 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 	/*********************************************************************/
 
 	/**
+	 * Put file stat in cache and return it
+	 *
+	 * @param  string  $path   file path
+	 * @param  array   $stat   file stat
+	 * @return array
+	 * @author Dmitry (dio) Levashov
+	 **/
+	protected function updateCache($path, $stat) {
+		$stat = parent::updateCache($path, $stat);
+		if ($stat && $stat['mime'] !== 'directory') $stat['_localpath'] = str_replace(XOOPS_ROOT_PATH, 'R', realpath($this->options['filePath'])  . DIRECTORY_SEPARATOR . str_replace($this->options['URL'], '', $stat['url']) );
+		return $this->cache[$path] = $stat;
+	}
+
+	/**
 	 * Cache dir contents
 	 *
 	 * @param  string  $path  dir path
