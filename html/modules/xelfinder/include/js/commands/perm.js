@@ -29,7 +29,7 @@ elFinder.prototype.commands.perm = function() {
 					+'<div class="">'+msg.perm+': <input id="{id}-{type}" type="text" size="4" maxlength="3" value="{value}"></div>',
 		fieldset   : '<fieldset id="{id}-fieldset-{level}"><legend>{f_title}</legend>'
 					+'<input type="checkbox" value="4" id="{id}-read-{level}-{type}"{checked-r}> <label for="{id}-read-{level}-{type}">'+msg.read+'</label><br>'
-					+'<input type="checkbox" value="6" id="{id}-write-{level}-{type}"{checked-w}> <label for="{id}-write-{level}-{type}">'+msg.write+'</label><br>'
+					+'<input type="checkbox" value="6" id="{id}-write-{level}-{type}"{checked-w}{disabled-w}> <label for="{id}-write-{level}-{type}">'+msg.write+'</label><br>'
 					+'<input type="checkbox" value="5" id="{id}-unlock-{level}-{type}"{checked-u}> <label for="{id}-unlock-{level}-{type}">'+msg.unlock+'</label><br>'
 					+'<input type="checkbox" value="8" id="{id}-hidden-{level}-{type}"{checked-h}{disabled-h}> <label for="{id}-hidden-{level}-{type}">'+msg.hidden+'</label></fieldset>',
 		tab        : '<div id="{id}-tab"><ul><li><a href="#{id}-tab-perm">'+msg.perms+'</a></li><li><a href="#{id}-tab-umask">'+msg.newitem+'</a></li></ul>'
@@ -155,7 +155,13 @@ elFinder.prototype.commands.perm = function() {
 				}
 				value += _perm.toString(16);
 				fieldset = tpl.fieldset.replace('{f_title}', fm.i18n(level[i])).replace(/\{level\}/g, level[i]);
-				dataTable = dataTable.replace('{'+i+'}', fieldset).replace('{checked-r}', ((_perm & 4) == 4)? checked : '').replace('{checked-w}', ((_perm & 2) == 2)? checked : '').replace('{checked-u}', ((_perm & 1) == 1)? checked : '').replace('{checked-h}', ((_perm & 8) == 8)? checked : '').replace('{disabled-h}', ((i == 0)? ' disabled' : ''));
+				dataTable = dataTable.replace('{'+i+'}', fieldset)
+				                     .replace('{checked-r}', ((_perm & 4) == 4)? checked : '')
+				                     .replace('{checked-w}', ((_perm & 2) == 2 && ! file._localalias)? checked : '')
+				                     .replace('{checked-u}', ((_perm & 1) == 1)? checked : '')
+				                     .replace('{checked-h}', ((_perm & 8) == 8)? checked : '')
+				                     .replace('{disabled-w}', (file._localalias? ' disabled' : ''))
+				                     .replace('{disabled-h}', ((i == 0)? ' disabled' : ''));
 			}
 			dataTable = dataTable.replace('{value}', value).replace(/{type}/g, type).replace('{valueCaption}', msg[type]);
 			return dataTable;
