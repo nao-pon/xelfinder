@@ -44,8 +44,8 @@ echo '<script>
 */
 
 echo '<div class="xelfinder module_'.$mydirname.'">';
-echo '<h2>'.$xoopsModule->getVar('name').'</h2>';
-echo '<h3>'.constant($constpref . '_OPEN_MANAGER').'</h3>';
+echo '<h2><span>'.$xoopsModule->getVar('name').'</span></h2>';
+echo '<h3><span>'.constant($constpref . '_OPEN_MANAGER').'</span></h3>';
 echo '<div class="xelfinder_main_menu"><a class="button button-blue" href="#" onclick="'.htmlspecialchars($xelfinderOpenJs).'return false;"><span>'.constant($constpref . '_OPEN_WINDOW').'</span></a></div>';
 echo '<div class="xelfinder_main_menu"><a class="button button-blue" href="'.XOOPS_MODULE_URL.'/'.$mydirname.'/manager.php"><span>'.constant($constpref . '_OPEN_FULL').'</span></a></div>';
 
