@@ -10,9 +10,9 @@ define( $constpref.'_LOADED_MAIN' , 1 ) ;
 
 define( $constpref.'_OPEN_MANAGER'       , 'ファイルマネージャを開く' ) ;
 define( $constpref.'_OPEN_WINDOW'        , 'ポップアップ' ) ;
-define( $constpref.'_OPEN_FULL'          , 'フルスクリーン' ) ;
+define( $constpref.'_OPEN_FULL'          , 'フルウィンドウ' ) ;
 define( $constpref.'_OPEN_WINDOW_ADMIN'  , 'ポップアップ(管理モード)' ) ;
-define( $constpref.'_OPEN_FULL_ADMIN'    , 'フルスクリーン(管理モード)' ) ;
+define( $constpref.'_OPEN_FULL_ADMIN'    , 'フルウィンドウ(管理モード)' ) ;
 define( $constpref.'_ADMIN_PANEL'        , '管理画面を開く' ) ;
 
 }
