@@ -47,11 +47,11 @@ echo '<div class="xelfinder module_'.$mydirname.'">';
 echo '<h2><span>'.$xoopsModule->getVar('name').'</span></h2>';
 echo '<h3><span>'.constant($constpref . '_OPEN_MANAGER').'</span></h3>';
 echo '<div class="xelfinder_main_menu"><a class="button button-blue" href="#" onclick="'.htmlspecialchars($xelfinderOpenJs).'return false;"><span>'.constant($constpref . '_OPEN_WINDOW').'</span></a></div>';
-echo '<div class="xelfinder_main_menu"><a class="button button-blue" href="'.XOOPS_MODULE_URL.'/'.$mydirname.'/manager.php"><span>'.constant($constpref . '_OPEN_FULL').'</span></a></div>';
+echo '<div class="xelfinder_main_menu"><a class="button button-blue" href="'.XOOPS_MODULE_URL.'/'.$mydirname.'/manager.php" target="_blank"><span>'.constant($constpref . '_OPEN_FULL').'</span></a></div>';
 
 if ($isAdmin) {
 	echo '<div class="xelfinder_main_menu"><a class="button button-green" href="#" onclick="'.htmlspecialchars($xelfinderAdminOpenJs).'return false;"><span>'.constant($constpref . '_OPEN_WINDOW_ADMIN').'</span></a></div>';
-	echo '<div class="xelfinder_main_menu"><a class="button button-green" href="'.XOOPS_MODULE_URL.'/'.$mydirname.'/manager.php?admin=1"><span>'.constant($constpref . '_OPEN_FULL_ADMIN').'</span></a></div>';
+	echo '<div class="xelfinder_main_menu"><a class="button button-green" href="'.XOOPS_MODULE_URL.'/'.$mydirname.'/manager.php?admin=1" target="_blank"><span>'.constant($constpref . '_OPEN_FULL_ADMIN').'</span></a></div>';
 	echo '<hr />';
 	echo '<div class="xelfinder_main_menu"><a class="button button-orange" href="'.XOOPS_MODULE_URL.'/'.$mydirname.'/admin/index.php"><span>'.constant($constpref . '_ADMIN_PANEL').'</span></a></div>';
 }
