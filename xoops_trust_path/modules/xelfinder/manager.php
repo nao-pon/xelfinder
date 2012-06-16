@@ -61,7 +61,7 @@ if ($_js_cache_path) {
 		}
 		file_put_contents($_js_cacahe, $_src);
 	}
-	$managerJs = '<script src="'.$myurl.$_managerJs.'"></script>' . "\n";
+	$managerJs = '<script src="'.$myurl.$_managerJs.'" charset="UTF-8"></script>' . "\n";
 }
 
 $default_tmbsize = isset($config['thumbnail_size'])? (int)$config['thumbnail_size'] : '160';
@@ -168,7 +168,7 @@ while(ob_get_level()) {
 		<script src="<?php echo $elfurl ?>/js/commands/pixlr.js"></script>
 	
 		<!-- elfinder languages -->
-		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.en.js"></script>
+		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.en.js" charset="UTF-8"></script>
 	
 		<!-- elfinder dialog -->
 		<script src="<?php echo $elfurl ?>/js/jquery.dialogelfinder.js"></script>
@@ -176,7 +176,7 @@ while(ob_get_level()) {
 		<script src="<?php echo $elfurl ?>/js/elfinder.min.js"></script>
 		<?php }?>
 		
-		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.<?php echo $userLang?>.js"></script>
+		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.<?php echo $userLang?>.js" charset="UTF-8"></script>
 
 		<link rel="stylesheet" href="<?php echo XOOPS_URL ?>/common/js/toastmessage/css/jquery.toastmessage.css" type="text/css">
 		<script src="<?php echo XOOPS_URL ?>/common/js/toastmessage/jquery.toastmessage.js"></script>
@@ -201,7 +201,7 @@ while(ob_get_level()) {
 		</script>
 		<script src="<?php echo $myurl ?>/include/js/commands/perm.js"></script>
 		<script src="<?php echo $myurl ?>/include/js/manager.js"></script>
-		<script type="text/javascript">
+		<script type="text/javascript" charset="UTF-8">
 			var callbackFunc = <?php echo $callback ?>;
 		</script>
 		<?php echo $managerJs ?>
