@@ -200,7 +200,7 @@ while(ob_get_level()) {
 			var adminMode = <?php echo $admin?>;
 		</script>
 		<script src="<?php echo $myurl ?>/include/js/commands/perm.js"></script>
-		<script src="<?php echo $myurl ?>/include/js/manager.js"></script>
+		<script src="<?php echo $myurl ?>/include/js/manager.js" charset="UTF-8"></script>
 		<script type="text/javascript" charset="UTF-8">
 			var callbackFunc = <?php echo $callback ?>;
 		</script>

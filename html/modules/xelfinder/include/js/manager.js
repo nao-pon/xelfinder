@@ -13,6 +13,9 @@ $().ready(function() {
 	elFinder.prototype.i18.en.messages.hidden  = 'Hidden';
 	elFinder.prototype.i18.en.messages.targetgroups  = 'Target groups';
 	elFinder.prototype.i18.en.messages.mimeserach    = 'MIME type Serach';
+	elFinder.prototype.i18.en.messages.nowrap        = 'No wrap';
+	elFinder.prototype.i18.en.messages.wraparound    = 'Wrap around';
+	elFinder.prototype.i18.en.messages.inline        = 'Inline';
 
 	if (typeof elFinder.prototype.i18.jp != "undefined") {
 		elFinder.prototype.i18.jp.messages.ntfperm = 'アイテム属性を変更';
@@ -26,6 +29,9 @@ $().ready(function() {
 		elFinder.prototype.i18.jp.messages.hidden  = '非表示';
 		elFinder.prototype.i18.jp.messages.targetgroups  = '対象グループ';
 		elFinder.prototype.i18.jp.messages.mimeserach    = 'MIMEタイプで検索';
+		elFinder.prototype.i18.jp.messages.nowrap        = '回り込みなし';
+		elFinder.prototype.i18.jp.messages.wraparound    = '回り込みあり';
+		elFinder.prototype.i18.jp.messages.inline        = 'インライン';
 
 		elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
 	}
@@ -211,10 +217,13 @@ function insertCode(align, thumb, format) {
 			if (size) {
 				size = ',mw:'+size+',mh:'+size;
 			}
+			if (align) {
+				align = ',' + align;
+			}
 			if (thumb || o.tagName != 'TEXTAREA') {
-				code = '&ref('+itemPath+','+align+size+');';
+				code = '&ref('+itemPath+align+size+');';
 			} else {
-				code = '\n#ref('+itemPath+','+align+size+')\n';
+				code = '\n#ref('+itemPath+align+size+')\n';
 			}
 		} else {
 			code = '[['+itemObject.name+':'+itemPath+']]';
@@ -290,9 +299,12 @@ var getFileCallback_xpwiki = function (file, fm) {
 	}
 
 	if (isImg) {
-		var buttons = '<span onclick="insertCode(\'left\',1,\'xpwiki\');"><img src="'+imgUrl+'alignleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',1,\'xpwiki\')"><img src="'+imgUrl+'aligncenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',1,\'xpwiki\')"><img src="'+imgUrl+'alignright.gif" alt="" /></span>'
+		var nowrap = ' title="' + fm.i18n('nowrap') + '"';
+		var wraparound = ' title="' + fm.i18n('wraparound') + '"';
+		var inline = ' title="' + fm.i18n('inline') + '"';
+		var buttons = '<span onclick="insertCode(\'left\',1,\'xpwiki\');"'+wraparound+'><img src="'+imgUrl+'alignleft.gif" alt="" /></span> <span onclick="insertCode(\'\',1,\'xpwiki\')"'+inline+'><img src="'+imgUrl+'aligncenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',1,\'xpwiki\')"'+wraparound+'><img src="'+imgUrl+'alignright.gif" alt="" /></span>'
 					+ '<br>'
-					+ '<span onclick="insertCode(\'left\',0,\'xpwiki\');"><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',0,\'xpwiki\')"><img src="'+imgUrl+'alignbigcenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',0,\'xpwiki\')"><img src="'+imgUrl+'alignbigright.gif" alt="" /></span>'
+					+ '<span onclick="insertCode(\'left\',0,\'xpwiki\');"'+nowrap+'><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',0,\'xpwiki\')"'+nowrap+'><img src="'+imgUrl+'alignbigcenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',0,\'xpwiki\')"'+nowrap+'><img src="'+imgUrl+'alignbigright.gif" alt="" /></span>'
 					+ '<br>'
 					+ '<span class="file_info">Size: ' + file.width + 'x' + file.height+'</span>'
 					+ '<br>'
