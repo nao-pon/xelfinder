@@ -1045,6 +1045,9 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$link = $stat['alias'];
 			if (substr($link, 1, 1) === '/') {
 				$_head = substr($link, 0, 1);
+				if (strpos($link, '%') !== false) {
+					$link = dirname($link) . DIRECTORY_SEPARATOR . rawurldecode(basename($link));
+				}
 				switch($_head) {
 					case 'R':
 						$link = XOOPS_ROOT_PATH . substr($link, 1);
