@@ -23,8 +23,8 @@ class elFinderVolumeXoopsMailbbs extends elFinderVolumeLocalFileSystem {
 		$ret = array();
 		foreach ($logs as $log) {
 			$data = array_pad(explode('<>', $log), 8, '');
-			if (intval($data[7])) continue; // 未承認
-			$ret[] = $data[5];
+			if (intval($data[7]) || ! $data[5]) continue; // 未承認 or ファイルなし
+			$ret[$data[5]] = mb_convert_encoding($data[2], 'UTF-8', _CHARSET);
 		}
 
 		$this->enabledFiles = $ret;
@@ -87,14 +87,45 @@ class elFinderVolumeXoopsMailbbs extends elFinderVolumeLocalFileSystem {
 	protected function _scandir($path) {
 		$files = array();
 		if ($path === $this->root) {
-			foreach ($this->enabledFiles as $name) {
-				$files[] = $path.'/'.$name;
+			foreach ($this->enabledFiles as $file => $name) {
+				$files[] = $path.'/'.$file;
 			}
 		}
 		return $files;
 	}
 
 	/***************** file stat ********************/
+	/**
+	* Return stat for given path.
+	* Stat contains following fields:
+	* - (int)    size    file size in b. required
+	* - (int)    ts      file modification time in unix time. required
+	* - (string) mime    mimetype. required for folders, others - optionally
+	* - (bool)   read    read permissions. required
+	* - (bool)   write   write permissions. required
+	* - (bool)   locked  is object locked. optionally
+	* - (bool)   hidden  is object hidden. optionally
+	* - (string) alias   for symlinks - link target path relative to root path. optionally
+	* - (string) target  for symlinks - link target path. optionally
+	*
+	* If file does not exists - returns empty array or false.
+	*
+	* @param  string  $path    file path
+	* @return array|false
+	* @author Dmitry (dio) Levashov
+	**/
+	protected function _stat($path) {
+		$stat = parent::_stat($path);
+		if ($stat) {
+			$file = basename($path);
+			$file_enc = rawurlencode($file);
+			$stat['name'] = $this->enabledFiles[$file];
+			$stat['url'] = $this->options['URL'] . $file_enc;
+			if ($stat['mime'] !== 'directory') $stat['_localpath'] = dirname(str_replace(XOOPS_ROOT_PATH, 'R', $path )) . DIRECTORY_SEPARATOR . $file_enc;
+		}
+		return $stat;
+	}
+	
 	/**
 	 * Return true if path is dir and has at least one childs directory
 	 *
@@ -104,20 +135,6 @@ class elFinderVolumeXoopsMailbbs extends elFinderVolumeLocalFileSystem {
 	 **/
 	protected function _subdirs($path) {
 		return false;
-	}
-	
-	/**
-	 * Put file stat in cache and return it
-	 *
-	 * @param  string  $path   file path
-	 * @param  array   $stat   file stat
-	 * @return array
-	 * @author Dmitry (dio) Levashov
-	 **/
-	protected function updateCache($path, $stat) {
-		$stat = parent::updateCache($path, $stat);
-		if ($stat && $stat['mime'] !== 'directory') $stat['_localpath'] = str_replace(XOOPS_ROOT_PATH, 'R', $path );
-		return $this->cache[$path] = $stat;
 	}
 
 } // END class
