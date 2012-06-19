@@ -290,8 +290,16 @@ var getFileCallback_xpwiki = function (file, fm) {
 		eval('if (typeof get_thumb_'+module+' == "function" ){' +
 			'thumb = get_thumb_'+module+'(basename, file);}' );
 	}
-	imgThumb = encodeURI(decodeURI(thumb));
-	itemPath = encodeURI(decodeURI(path));
+	try {
+		imgThumb = encodeURI(decodeURI(thumb));
+	} catch(e) {
+		imgThumb = thumb;
+	}
+	try {
+		itemPath = encodeURI(decodeURI(path));
+	} catch(e) {
+		itemPath = path;
+	}
 	itemObject = file;
 	
 	if (itemPath.match(/\?/) && ! itemPath.match(/\.[^.?]+$/)) {
