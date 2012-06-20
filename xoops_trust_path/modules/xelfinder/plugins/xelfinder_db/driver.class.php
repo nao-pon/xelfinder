@@ -385,7 +385,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$size = filesize($local);
 			list($width, $height) = getimagesize($local);
 			
-			$this->rmTmb($path);
+			$this->rmTmb($file);
 			$this->clearcache();
 			$this->createTmb($path, $file);
 
@@ -1269,7 +1269,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 
 		$id = $this->_joinPath($dir, $name);
 
-		if ($id > 0) $this->rmTmb($id);
+		if ($id > 0) $this->rmTmb($stat);
 		rewind($fp);
 		$fstat = fstat($fp);
 		$size = $fstat['size'];
