@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-06-20)
+ * Version 2.0 rc1 (2012-06-21)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -458,13 +458,35 @@ window.elFinder = function(node, opts) {
 	 **/
 	this.storage = (function() {
 		try {
-	    return 'localStorage' in window && window['localStorage'] !== null ? self.localStorage : self.cookie;
-	  } catch (e) {
-	    return self.cookie;
-	  }
+			return 'localStorage' in window && window['localStorage'] !== null ? self.localStorage : self.cookie;
+		} catch (e) {
+			return self.cookie;
+		}
 	})();
 
 	this.viewType = this.storage('view') || this.options.defaultView || 'icons',
+
+	this.sortType = this.storage('sortType') || this.options.sortType || 'name';
+	
+	this.sortOrder = this.storage('sortOrder') || this.options.sortOrder || 'asc';
+
+	this.sortStickFolders = this.storage('sortStickFolders');
+
+	if (this.sortStickFolders === null) {
+		this.sortStickFolders = !!this.options.sortStickFolders;
+	} else {
+		this.sortStickFolders = !!this.sortStickFolders
+	}
+
+	this.sortVariants = $.extend(true, {}, this._sorts, this.options.sorts)
+	
+	$.each(this.sortVariants, function(name, method) {
+		if (typeof method != 'function') {
+			delete self.sortVariants[name];
+		} 
+	});
+
+	this.compare = $.proxy(this.compare, this);
 
 	/**
 	 * Delay in ms before open notification dialog
@@ -1389,8 +1411,6 @@ window.elFinder = function(node, opts) {
 	}
 	
 	/*************  init stuffs  ****************/
-	// set sort variant
-	this.setSort(this.storage('sort') || this.options.sort, this.storage('sortDirect') || this.options.sortDirect);
 	
 	// check jquery ui
 	if (!($.fn.selectable && $.fn.draggable && $.fn.droppable)) {
@@ -1564,7 +1584,7 @@ window.elFinder = function(node, opts) {
 	 **/
 	this.history = new this.history(this);
 	
-	// in getFileCallback set - change default actions on duble click/enter/ctrl+enter
+	// in getFileCallback set - change default actions on double click/enter/ctrl+enter
 	if (typeof(this.options.getFileCallback) == 'function' && this.commands.getfile) {
 		this.bind('dblclick', function(e) {
 			e.preventDefault();
@@ -1722,7 +1742,7 @@ window.elFinder = function(node, opts) {
 		}
 
 	});
-	
+
 	// self.timeEnd('load'); 
 
 }
@@ -1906,30 +1926,7 @@ elFinder.prototype = {
 	},
 
 	
-	/**
-	 * Sort types for current directory content
-	 * 
-	 * @type  Object
-	 */
-	sorts : {
-		nameDirsFirst : 1,
-		kindDirsFirst : 2,
-		sizeDirsFirst : 3,
-		dateDirsFirst : 4,
-		name : 5,
-		kind : 6,
-		size : 7,
-		date : 8
-	},
-	
-	setSort : function(type, dir) {
-		type = this.sorts[type] ? type : 1;
-		this.sort = this.sorts[type] || 1;
-		this.sortDirect = dir == 'asc' || dir == 'desc' ? dir : 'asc';
-		this.storage('sort', type);
-		this.storage('sortDirect', this.sortDirect);
-		this.trigger('sortchange');
-	},
+
 	
 	/**
 	 * Commands costructors
@@ -2240,11 +2237,24 @@ elFinder.prototype = {
 	 */
 	localStorage : function(key, val) {
 		var s = window.localStorage;
-		
-		key = 'elfinder-'+key+this.id;
-		val !== void(0) && s.setItem(key, val);
 
-		return s.getItem(key)||'';
+		key = 'elfinder-'+key+this.id;
+		
+		if (val === null) {
+			console.log('remove', key)
+			return s.removeItem(key);
+		}
+		
+		if (val !== void(0)) {
+			try {
+				s.setItem(key, val);
+			} catch (e) {
+				s.clear();
+				s.setItem(key, val);
+			}
+		}
+
+		return s.getItem(key);
 	},
 	
 	/**
@@ -2354,6 +2364,36 @@ elFinder.prototype = {
 		return data;
 	},
 	
+	/**
+	 * Update sort options
+	 *
+	 * @param {String} sort type
+	 * @param {String} sort order
+	 * @param {Boolean} show folder first
+	 */
+	setSort : function(type, order, stickFolders) {
+		this.storage('sortType', (this.sortType = this.sortVariants[type] ? type : 'name'));
+		this.storage('sortOrder', (this.sortOrder = /asc|desc/.test(order) ? order : 'asc'));
+		this.storage('sortStickFolders', (this.sortStickFolders = !!stickFolders) ? 1 : '');
+		this.trigger('sortchange');
+	},
+	
+	_sorts : {
+		name : function(file1, file2) { return file1.name.toLowerCase().localeCompare(file2.name.toLowerCase()); },
+		size : function(file1, file2) { 
+			var size1 = parseInt(file1.size) || 0,
+				size2 = parseInt(file2.size) || 0;
+				
+			return size1 == size2 ? 0 : size1 > size2 ? 1 : -1;
+			return (parseInt(file1.size) || 0) > (parseInt(file2.size) || 0) ? 1 : -1; },
+		kind : function(file1, file2) { return file1.mime.localeCompare(file2.mime); },
+		date : function(file1, file2) { 
+			var date1 = file1.ts || file1.date,
+				date2 = file2.ts || file2.date;
+
+			return date1 == date2 ? 0 : date1 > date2 ? 1 : -1
+		}
+	},
 	
 	/**
 	 * Compare files based on elFinder.sort
@@ -2363,58 +2403,41 @@ elFinder.prototype = {
 	 * @return Number
 	 */
 	compare : function(file1, file2) {
-		var sort = this.sort, 
-			asc  = this.sortDirect == 'asc',
-			f1   = asc ? file1 : file2,
-			f2   = asc ? file2 : file1,
-			m1   = this.mime2kind(f1.mime).toLowerCase(),
-			m2   = this.mime2kind(f2.mime).toLowerCase(),
-			d1   = file1.mime == 'directory',
-			d2   = file2.mime == 'directory',
-			n1   = f1.name.toLowerCase(),
-			n2   = f2.name.toLowerCase(),
-			s1   = d1 ? 0 : parseInt(f1.size) || 0,
-			s2   = d2 ? 0 : parseInt(f2.size) || 0,
-			t1   = f1.ts || f1.date || '',
-			t2   = f2.ts || f2.date || '';
-
-		// this.log(this.sortDirect)
-
-		// dir first	
-		if (sort <= 4) {
+		var self     = this,
+			type     = self.sortType,
+			asc      = self.sortOrder == 'asc',
+			stick    = self.sortStickFolders,
+			variants = self.sortVariants,
+			sort     = variants[type],
+			d1       = file1.mime == 'directory',
+			d2       = file2.mime == 'directory',
+			res;
+			
+		
+			
+		if (stick) {
 			if (d1 && !d2) {
 				return -1;
-			}
-			if (!d1 && d2) {
+			} else if (!d1 && d2) {
 				return 1;
 			}
 		}
-		// by mime
-		if ((sort == 2 || sort == 6) && m1 != m2) {
-			return m1.localeCompare(m2);// ? 1 : -1;
-			// return m1 > m2 ? 1 : -1;
-		}
-		// by size
-		if ((sort == 3 || sort == 7) && s1 != s2) {
-			return s1 > s2 ? 1 : -1;
-		}
-
-		// by date
-		if ((sort == 4 || sort == 8) && t1 != t2) {
-			return t1 > t2 ? 1 : -1;
-		}
-		return f1.name.localeCompare(f2.name);
 		
+		res = asc ? sort(file1, file2) : sort(file2, file1);
+		
+		return type != 'name' && res == 0
+			? res = asc ? variants.name(file1, file2) : variants.name(file2, file1)
+			: res;
 	},
 	
 	/**
-	 * Sort files based on elFinder.sort
+	 * Sort files based on config
 	 *
 	 * @param  Array  files
 	 * @return Array
 	 */
 	sortFiles : function(files) {
-		return files.sort($.proxy(this.compare, this));
+		return files.sort(this.compare);
 	},
 	
 	/**
@@ -3239,32 +3262,39 @@ elFinder.prototype._options = {
 	onlyMimes : [],
 
 	/**
-	 * How to sort files in current directory
+	 * Custom files sort rules.
+	 * All default rules set in elFinder._sorts
 	 *
-	 * @type String
-	 * @default "nameDirsFirst"
+	 * @type {Object}
 	 * @example
-	 *  - sort : 'nameDirsFirst' - sort by name, directory first
-	 *  - sort : 'kindDirsFirst' - sort by kind, name, directory first
-	 *  - sort : 'sizeDirsFirst' - sort by size, name, directory first
-	 *  - sort : 'dateDirsFirst' - sort by date, name, directory first
-	 *  - sort : 'name' - sort by name
-	 *  - sort : 'kind' - sort by kind, name
-	 *  - sort : 'size' - sort by size, name
-	 *  - sort : 'date' - sort by date, name
+	 * sorts : {
+	 *   name : function(file1, file2) { return file1.name.toLowerCase().localeCompare(file2.name.toLowerCase()); }
+	 * }
 	 */
-	sort : 'nameDirsFirst',
+	sorts : { },
 	
 	/**
-	 * Sort files direction.
+	 * Default sort type.
 	 *
-	 * @type String
-	 * @default  "asc"
-	 * @example
-	 *   - sort : 'asc'  // ascent sorting
-	 *   - sort : 'desc' // descent sorting
+	 * @type {String}
 	 */
-	sortDirect : 'asc',
+	sortType : 'name',
+	
+	/**
+	 * Default sort order.
+	 *
+	 * @type {String}
+	 * @default "asc"
+	 */
+	sortOrder : 'asc',
+	
+	/**
+	 * Display folders first?
+	 *
+	 * @type {Boolean}
+	 * @default true
+	 */
+	sortStickFolders : true,
 	
 	/**
 	 * If true - elFinder will formating dates itself, 
@@ -6409,80 +6439,88 @@ $.fn.elfindersearchbutton = function(cmd) {
  */
 
 /**
- * @class  elFinder toolbar button widget.
- * If command has variants - create menu
+ * @class  elFinder toolbar button menu with sort variants.
  *
  * @author Dmitry (dio) Levashov
  **/
 $.fn.elfindersortbutton = function(cmd) {
+	
 	return this.each(function() {
-		var c        = 'class',
-			fm       = cmd.fm,
+		var fm       = cmd.fm,
+			name     = cmd.name,
+			c        = 'class',
 			disabled = fm.res(c, 'disabled'),
-			active   = fm.res(c, 'active'),
 			hover    = fm.res(c, 'hover'),
 			item     = 'elfinder-button-menu-item',
-			selected = 'elfinder-button-menu-item-selected',
-			sort     = 'elfinder-menu-item-sort-',
-			menu,
-			button   = $(this).addClass('ui-state-default elfinder-button elfiner-button-'+cmd.name)
+			selected = item+'-selected',
+			asc      = selected+'-asc',
+			desc     = selected+'-desc',
+			button   = $(this).addClass('ui-state-default elfinder-button elfinder-menubutton elfiner-button-'+name)
 				.attr('title', cmd.title)
-				.append('<span class="elfinder-button-icon elfinder-button-icon-'+cmd.name+'"/>')
+				.append('<span class="elfinder-button-icon elfinder-button-icon-'+name+'"/>')
 				.hover(function(e) { !button.is('.'+disabled) && button.toggleClass(hover); })
-				.click(function(e) { 
-					if (!button.is('.'+disabled) && menu && cmd.variants.length > 1) {
-						// close other menus
-						menu.is(':hidden') && cmd.fm.getUI().click();
+				.click(function(e) {
+					if (!button.is('.'+disabled)) {
 						e.stopPropagation();
+						menu.is(':hidden') && cmd.fm.getUI().click();
 						menu.slideToggle(100);
 					}
 				}),
-			hideMenu = function() {
-				menu.hide();
-			};
-
-		// if command has variants create menu
-		if ($.isArray(cmd.variants)) {
-			button.addClass('elfinder-menubutton');
-			
 			menu = $('<div class="ui-widget ui-widget-content elfinder-button-menu ui-corner-all"/>')
 				.hide()
 				.appendTo(button)
 				.zIndex(12+button.zIndex())
 				.delegate('.'+item, 'hover', function() { $(this).toggleClass(hover) })
+				.delegate('.'+item+':not(:last)', 'click', function(e) {
+					var type = $(this).attr('rel');
+					
+					cmd.exec([], {
+						type  : type, 
+						order : type == fm.sortType ? fm.sortOrder == 'asc' ? 'desc' : 'asc' : fm.sortOrder, 
+						stick : fm.sortStickFolders
+					});
+				})
+				.delegate('.'+item+':last', 'click', function(e) {
+					cmd.exec([], {type : fm.sortType, order : fm.sortOrder, stick : !fm.sortStickFolders});
+				})
 				.delegate('.'+item, 'click', function(e) {
 					e.preventDefault();
 					e.stopPropagation();
-					button.removeClass(hover);
-					cmd.exec([], $(this).data('value'));
-				});
+					hide();
+				}),
+			update = function() {
+				menu.children(':not(:last)').removeClass(selected+' '+asc+' '+desc)
+					.filter('[rel="'+fm.sortType+'"]')
+					.addClass(selected+' '+(fm.sortOrder == 'asc' ? asc : desc));
 
-			cmd.fm.bind('disable select', hideMenu).getUI().click(hideMenu);
-
-			$.each(cmd.variants, function(i, variant) {
-				menu.append($('<div class="'+item+' '+(variant[0] == cmd.value ? selected : '')+' '+sort+fm.sortDirect+'"><span class="elfinder-menu-item-sort-dir"/>'+variant[1]+'</div>').data('value', variant[0]));
-			});
-		}	
+				menu.children(':last').toggleClass(selected, fm.sortStickFolders);
+			},
+			hide = function() { menu.hide(); };
 			
-		cmd.change(function() {
+			
+		$.each(fm.sortVariants, function(name, value) {
+			menu.append($('<div class="'+item+'" rel="'+name+'"><span class="ui-icon ui-icon-arrowthick-1-n"/><span class="ui-icon ui-icon-arrowthick-1-s"/>'+fm.i18n('sort'+name)+'</div>').data('type', name));
+		});
+		
+		menu.append('<div class="'+item+' '+item+'-separated"><span class="ui-icon ui-icon-check"/>'+fm.i18n('sortFoldersFirst')+'</div>');
+		
+		
+		fm.bind('disable select', hide).getUI().click(hide);
+			
+		fm.bind('sortchange', update)
+			
+		cmd
+			.change(function() {
+				button.toggleClass(disabled, cmd.disabled());
+				update();
+			})
+			.change();
 
-			if (cmd.disabled()) {
-				button.removeClass(active+' '+hover).addClass(disabled);
-			} else {
-				button.removeClass(disabled);
-				button[cmd.active() ? 'addClass' : 'removeClass'](active);
-				menu.children('.'+item).each(function() {
-					var item = $(this).removeClass(sort+'asc '+sort+'desc')
-
-					item.data('value') == cmd.value
-						? item.addClass(selected+' '+sort+fm.sortDirect)
-						: item.removeClass(selected);
-				});
-			}
-		})
-		.change();
 	});
+	
 }
+
+
 
 
 /*
@@ -10866,9 +10904,6 @@ elFinder.prototype.commands.search = function() {
  * @author Dmitry (dio) Levashov
  **/
 elFinder.prototype.commands.sort = function() {
-	var self = this,
-		sorts = ['nameDirsFirst', 'kindDirsFirst', 'sizeDirsFirst', 'dateDirsFirst', 'name', 'kind', 'size', 'date'], i;
-	
 	/**
 	 * Command options
 	 *
@@ -10876,25 +10911,19 @@ elFinder.prototype.commands.sort = function() {
 	 */
 	this.options = {ui : 'sortbutton'};
 	
-	this.value = sorts[0];
-	this.variants = [];
-	
-	for (i = 0; i < sorts.length; i++) {
-		this.variants.push([sorts[i], this.fm.i18n('sort' + sorts[i])])
-	}
-	
-	this.fm.bind('load sortchange', function() {
-		self.value = sorts[self.fm.sort-1];
-		self.change();
-	});
-	
 	this.getstate = function() {
 		return 0;
 	}
 	
-	this.exec = function(hashes, type) {
-		var dir = $.inArray(type, sorts)+1 == this.fm.sort ? (this.fm.sortDirect == 'asc' ? 'desc' : 'asc') : this.fm.sortDirect;
-		this.fm.setSort(type, dir);
+	this.exec = function(hashes, sort) {
+		var fm = this.fm,
+			sort = $.extend({
+				type  : fm.sortType,
+				order : fm.sortOrder,
+				stick : fm.sortStickFolders
+			}, sort);
+
+		this.fm.setSort(sort.type, sort.order, sort.stick);
 		return $.Deferred().resolve();
 	}
 
