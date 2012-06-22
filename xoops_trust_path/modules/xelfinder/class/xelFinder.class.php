@@ -22,21 +22,39 @@ class xelFinder extends elFinder {
 	**/
 	protected function perm($args) {
 
-		$target = $args['target'];
+		$targets = $args['target'];
+		if (!is_array($targets)) {
+			$targets = array($targets);
+		}
 
-		if (($volume = $this->volume($target)) != false) {
+		if (($volume = $this->volume($targets[0])) != false) {
 			if (method_exists($volume, 'savePerm')) {
 				if ($volume->commandDisabled('perm')) {
 					return array('error' => $this->error(self::ERROR_PERM_DENIED));
 				}
 
 				if ($args['perm'] === 'getgroups') {
-					$groups = $volume->getGroups($target);
+					$groups = $volume->getGroups($targets[0]);
 					return $groups? $groups : array('error' => $this->error($volume->error()));
 				} else {
-					if (!isset($args['filter'])) $args['filter'] = '';
-					$file = $volume->savePerm($target, $args['perm'], $args['umask'], $args['gids'], $args['filter']);
-					return $file? array('changed' => array($file)) : array('error' => $this->error($volume->error()));
+					$files = array();
+					$errors = array();
+					foreach($targets as $target) {
+						if (!isset($args['filter'])) $args['filter'] = '';
+						$file = $volume->savePerm($target, $args['perm'], $args['umask'], $args['gids'], $args['filter']);
+						if ($file) {
+							$files[] = $file;
+						} else {
+							$errors = array_merge($errors, $volume->error());
+						}
+					}
+					$ret = array();
+					if ($files) {
+						$ret['changed'] = $files;
+					} else {
+						$ret['error'] = $this->error($errors);
+					}
+					return $ret;
 				}
 			}
 		}

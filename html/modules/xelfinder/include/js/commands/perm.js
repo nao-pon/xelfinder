@@ -1,6 +1,6 @@
 elFinder.prototype.commands.perm = function() {
 	this.updateOnSelect = false;
-
+	var self = this;
 	var fm  = this.fm,
 	spclass = 'elfinder-info-spinner',
 	level = {
@@ -25,6 +25,7 @@ elFinder.prototype.commands.perm = function() {
 					+'{filter}{dataTable}{targetGroups}',
 		filter     : '<div>'+fm.i18n('mimeserach')+': <input id="{id}-filter" type="textbox" name="filter" size="30" value="{value}"></div>',
 		itemTitle  : '<strong>{name}</strong><span id="elfinder-info-kind">{kind}</span> ('+fm.i18n('owner')+':<span id="{id}-owner-name"><span class="'+spclass+'"/></span>)',
+		groupTitle : '<strong>{items}: {num}</strong>',
 		dataTable  : '<table id="{id}-table-{type}"><tr><td>{0}</td><td>{1}</td><td>{2}</td></tr></table>'
 					+'<div class="">'+msg.perm+': <input id="{id}-{type}" type="text" size="4" maxlength="3" value="{value}"></div>',
 		fieldset   : '<fieldset id="{id}-fieldset-{level}"><legend>{f_title}</legend>'
@@ -45,7 +46,17 @@ elFinder.prototype.commands.perm = function() {
 	this.getstate = function(sel) {
 		var fm = this.fm;
 		sel = sel || fm.selected();
-		return !this._disabled && sel.length == 1 && fm.file(sel[0]).isowner && (fm.file(sel[0])._localalias || !fm.file(sel[0]).alias) ? 0 : -1;
+		return !this._disabled && self.checkstate(this.files(sel)) ? 0 : -1;
+	};
+	
+	this.checkstate = function(sel) {
+		var cnt = sel.length;
+		if (!cnt) return false;
+		var loccheck = (cnt && sel[0]._localalias);
+		var chk = $.map(sel, function(f) {
+			return (f.isowner && (cnt == 1 || f.mime != 'directory') && (f._localalias || !f.alias) && !((f._localalias) ^ loccheck)) ? f : null;
+		}).length;
+		return (cnt == chk)? true : false;
 	};
 
 	this.exec = function(hashes) {
@@ -55,6 +66,8 @@ elFinder.prototype.commands.perm = function() {
 		}),
 		tpl     = this.tpl,
 		files   = this.files(hashes),
+		hashes  = this.hashes(hashes),
+		cnt     = files.length,
 		file    = files[0],
 		id = fm.namespace + '-perm-' + file.hash,
 		view    = tpl.main,
@@ -85,13 +98,13 @@ elFinder.prototype.commands.perm = function() {
 			fm.request({
 				data : {
 					cmd    : 'perm',
-					target : file.hash,
+					target : hashes,
 					perm   : perm,
 					umask  : umask,
 					gids   : gids,
 					filter : filter
 				},
-				notify : {type : 'perm', cnt : 1}
+				notify : {type : 'perm', cnt : cnt}
 			})
 			.fail(function(error) {
 				dfrd.reject(error);
@@ -144,15 +157,46 @@ elFinder.prototype.commands.perm = function() {
 			}
 			setperm(type);
 		},
+		makeperm = function(files, type) {
+			var perm = '777', ret = '', chk, _chk, _perm;
+			var len = files.length;
+			for (var i2 = 0; i2 < len; i2++) {
+				if (type == 'umask') {
+					chk = files[i2].umask;
+				} else {
+					chk = files[i2].perm;
+				}
+				ret = '';
+				for (var i = 0; i < 3; i++){
+					_chk = parseInt(chk.slice(i, i+1), 16);
+					if (type == 'umask') {
+						_chk = 0xf - _chk;
+					}
+					_perm = parseInt(perm.slice(i, i+1), 16);
+					if ((_chk & 4) != 4 && (_perm & 4) == 4) {
+						_perm -= 4;
+					}
+					if ((_chk & 2) != 2 && (_perm & 2) == 2) {
+						_perm -= 2;
+					}
+					if ((_chk & 1) != 1 && (_perm & 1) == 1) {
+						_perm -= 1;
+					}
+					if ((_chk & 8) == 8 && (_perm & 8) != 8) {
+						_perm += 8;
+					}
+					ret += _perm.toString(16);
+				}
+				perm = ret;
+			}
+			return perm;
+		},
 		makeDataTable = function(perm, type) {
 			var _perm;
 			var value = '';
 			var dataTable = tpl.dataTable;
 			for (var i = 0; i < 3; i++){
 				_perm = parseInt(perm.slice(i, i+1), 16);
-				if (type == 'umask') {
-					_perm = 0xf - _perm;
-				}
 				value += _perm.toString(16);
 				fieldset = tpl.fieldset.replace('{f_title}', fm.i18n(level[i])).replace(/\{level\}/g, level[i]);
 				dataTable = dataTable.replace('{'+i+'}', fieldset)
@@ -187,21 +231,23 @@ elFinder.prototype.commands.perm = function() {
 			return $.Deferred().resolve();
 		}
 
-		view  = view.replace('{class}', fm.mime2class(file.mime));
-		title = tpl.itemTitle.replace('{name}', file.name).replace('{kind}', fm.mime2kind(file));
-
-		if (file.tmb) {
-			tmb = fm.option('tmbUrl')+file.tmb;
+		view  = view.replace('{class}', cnt > 1 ? 'elfinder-cwd-icon-group' : fm.mime2class(file.mime));
+		if (cnt > 1) {
+			title = tpl.groupTitle.replace('{items}', fm.i18n('items')).replace('{num}', cnt);
+		} else {
+			title = tpl.itemTitle.replace('{name}', file.name).replace('{kind}', fm.mime2kind(file));
+			if (file.tmb) {
+				tmb = fm.option('tmbUrl')+file.tmb;
+			}
 		}
 
 		if (file.mime == 'directory') {
-			dataTable = tpl.tab.replace('{permTable}', makeDataTable(file.perm, 'perm')).replace('{umaskTable}', makeDataTable(file.umask, 'umask'));
+			dataTable = tpl.tab.replace('{permTable}', makeDataTable(makeperm(files), 'perm')).replace('{umaskTable}', makeDataTable(makeperm(files, 'umask'), 'umask'));
 			filter = tpl.filter.replace('{value}', file.filter);
 		} else {
-			dataTable = makeDataTable(file.perm, 'perm');
+			dataTable = makeDataTable(makeperm(files), 'perm');
 			filter = '';
 		}
-		//dataTable = dataTable.replace(/{id}/g, id);
 		targetGroups = tpl.groups;
 
 		view = view.replace('{title}', title).replace('{filter}', filter).replace('{dataTable}', dataTable).replace('{targetGroups}', targetGroups).replace(/{id}/g, id);
@@ -256,7 +302,7 @@ elFinder.prototype.commands.perm = function() {
 		}
 		
 		fm.request({
-			data : {cmd : 'perm', target : file.hash, perm : 'getgroups'},
+			data : {cmd : 'perm', target : hashes, perm : 'getgroups'},
 			preventDefault : true
 		})
 		.fail(function() {
