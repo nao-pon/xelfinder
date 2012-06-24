@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-06-21)
+ * Version 2.0 rc1 (2012-06-24)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -478,16 +478,16 @@ window.elFinder = function(node, opts) {
 		this.sortStickFolders = !!this.sortStickFolders
 	}
 
-	this.sortVariants = $.extend(true, {}, this._sorts, this.options.sorts)
+	this.sortRules = $.extend(true, {}, this._sortRules, this.options.sortsRules);
 	
-	$.each(this.sortVariants, function(name, method) {
+	$.each(this.sortRules, function(name, method) {
 		if (typeof method != 'function') {
-			delete self.sortVariants[name];
+			delete self.sortRules[name];
 		} 
 	});
-
+	
 	this.compare = $.proxy(this.compare, this);
-
+	
 	/**
 	 * Delay in ms before open notification dialog
 	 *
@@ -2372,13 +2372,13 @@ elFinder.prototype = {
 	 * @param {Boolean} show folder first
 	 */
 	setSort : function(type, order, stickFolders) {
-		this.storage('sortType', (this.sortType = this.sortVariants[type] ? type : 'name'));
+		this.storage('sortType', (this.sortType = this.sortRules[type] ? type : 'name'));
 		this.storage('sortOrder', (this.sortOrder = /asc|desc/.test(order) ? order : 'asc'));
 		this.storage('sortStickFolders', (this.sortStickFolders = !!stickFolders) ? 1 : '');
 		this.trigger('sortchange');
 	},
 	
-	_sorts : {
+	_sortRules : {
 		name : function(file1, file2) { return file1.name.toLowerCase().localeCompare(file2.name.toLowerCase()); },
 		size : function(file1, file2) { 
 			var size1 = parseInt(file1.size) || 0,
@@ -2403,17 +2403,15 @@ elFinder.prototype = {
 	 * @return Number
 	 */
 	compare : function(file1, file2) {
-		var self     = this,
-			type     = self.sortType,
-			asc      = self.sortOrder == 'asc',
-			stick    = self.sortStickFolders,
-			variants = self.sortVariants,
-			sort     = variants[type],
-			d1       = file1.mime == 'directory',
-			d2       = file2.mime == 'directory',
+		var self  = this,
+			type  = self.sortType,
+			asc   = self.sortOrder == 'asc',
+			stick = self.sortStickFolders,
+			rules = self.sortRules,
+			sort  = rules[type],
+			d1    = file1.mime == 'directory',
+			d2    = file2.mime == 'directory',
 			res;
-			
-		
 			
 		if (stick) {
 			if (d1 && !d2) {
@@ -2426,7 +2424,7 @@ elFinder.prototype = {
 		res = asc ? sort(file1, file2) : sort(file2, file1);
 		
 		return type != 'name' && res == 0
-			? res = asc ? variants.name(file1, file2) : variants.name(file2, file1)
+			? res = asc ? rules.name(file1, file2) : rules.name(file2, file1)
 			: res;
 	},
 	
@@ -3263,16 +3261,16 @@ elFinder.prototype._options = {
 
 	/**
 	 * Custom files sort rules.
-	 * All default rules set in elFinder._sorts
+	 * All default rules (name/size/kind/date) set in elFinder._sortRules
 	 *
 	 * @type {Object}
 	 * @example
-	 * sorts : {
+	 * sortRules : {
 	 *   name : function(file1, file2) { return file1.name.toLowerCase().localeCompare(file2.name.toLowerCase()); }
 	 * }
 	 */
-	sorts : { },
-	
+	sortRules : {},
+
 	/**
 	 * Default sort type.
 	 *
@@ -4268,14 +4266,11 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'Dec'         : 'Dec',
 
 			/******************************** sort variants ********************************/
-			'sortnameDirsFirst' : 'by name (folders first)', 
-			'sortkindDirsFirst' : 'by kind (folders first)', 
-			'sortsizeDirsFirst' : 'by size (folders first)', 
-			'sortdateDirsFirst' : 'by date (folders first)', 
 			'sortname'          : 'by name', 
 			'sortkind'          : 'by kind', 
 			'sortsize'          : 'by size',
 			'sortdate'          : 'by date',
+			'sortFoldersFirst'  : 'Folders first',
 
 			/********************************** messages **********************************/
 			'confirmReq'      : 'Confirmation required',
@@ -6471,18 +6466,6 @@ $.fn.elfindersortbutton = function(cmd) {
 				.appendTo(button)
 				.zIndex(12+button.zIndex())
 				.delegate('.'+item, 'hover', function() { $(this).toggleClass(hover) })
-				.delegate('.'+item+':not(:last)', 'click', function(e) {
-					var type = $(this).attr('rel');
-					
-					cmd.exec([], {
-						type  : type, 
-						order : type == fm.sortType ? fm.sortOrder == 'asc' ? 'desc' : 'asc' : fm.sortOrder, 
-						stick : fm.sortStickFolders
-					});
-				})
-				.delegate('.'+item+':last', 'click', function(e) {
-					cmd.exec([], {type : fm.sortType, order : fm.sortOrder, stick : !fm.sortStickFolders});
-				})
 				.delegate('.'+item, 'click', function(e) {
 					e.preventDefault();
 					e.stopPropagation();
@@ -6498,23 +6481,40 @@ $.fn.elfindersortbutton = function(cmd) {
 			hide = function() { menu.hide(); };
 			
 			
-		$.each(fm.sortVariants, function(name, value) {
+		$.each(fm.sortRules, function(name, value) {
 			menu.append($('<div class="'+item+'" rel="'+name+'"><span class="ui-icon ui-icon-arrowthick-1-n"/><span class="ui-icon ui-icon-arrowthick-1-s"/>'+fm.i18n('sort'+name)+'</div>').data('type', name));
 		});
 		
-		menu.append('<div class="'+item+' '+item+'-separated"><span class="ui-icon ui-icon-check"/>'+fm.i18n('sortFoldersFirst')+'</div>');
+		menu.children().click(function(e) {
+			var type = $(this).attr('rel');
+			
+			cmd.exec([], {
+				type  : type, 
+				order : type == fm.sortType ? fm.sortOrder == 'asc' ? 'desc' : 'asc' : fm.sortOrder, 
+				stick : fm.sortStickFolders
+			});
+		})
 		
+		$('<div class="'+item+' '+item+'-separated"><span class="ui-icon ui-icon-check"/>'+fm.i18n('sortFoldersFirst')+'</div>')
+			.appendTo(menu)
+			.click(function() {
+				cmd.exec([], {type : fm.sortType, order : fm.sortOrder, stick : !fm.sortStickFolders});
+			});		
 		
 		fm.bind('disable select', hide).getUI().click(hide);
 			
 		fm.bind('sortchange', update)
+		
+		if (menu.children().length > 1) {
+			cmd.change(function() {
+					button.toggleClass(disabled, cmd.disabled());
+					update();
+				})
+				.change();
 			
-		cmd
-			.change(function() {
-				button.toggleClass(disabled, cmd.disabled());
-				update();
-			})
-			.change();
+		} else {
+			button.addClass(disabled);
+		}
 
 	});
 	

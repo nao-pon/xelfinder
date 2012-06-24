@@ -123,7 +123,7 @@
 .elfinder-button-menu {
 	position:absolute;
 	left:0;
-	top:26px;
+	top:25px;
 	padding:3px 0;
 }
 
@@ -194,7 +194,7 @@
 	-moz-border-radius: 12px;
 	-webkit-border-radius: 12px;
 	border-radius: 12px;
-	outline:0 solid;
+	outline:0px solid;
 }
 
 .elfinder-rtl .elfinder-button-search input { direction:rtl; }

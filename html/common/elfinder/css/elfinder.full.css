@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-06-21)
+ * Version 2.0 rc1 (2012-06-24)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -717,7 +717,7 @@
 	font-size:.76em;
 }
 
-.std42-dialog .ui-dialog-buttonpane button { margin:0 0 0 .4em;	padding:0; outline:0 solid; }
+.std42-dialog .ui-dialog-buttonpane button { margin:0 0 0 .4em;	padding:0; outline:0px solid; }
 .std42-dialog .ui-dialog-buttonpane button span { padding:2px 9px; }
 
 .elfinder-dialog .ui-resizable-e, 
@@ -958,7 +958,7 @@
 	white-space:nowrap;
 	padding:3px 12px;
 	margin: 0;
-	outline:0 solid;
+	outline:0px solid;
 	border:1px solid transparent;
 	cursor:default;
 	
@@ -1504,7 +1504,7 @@ embed.elfinder-quicklook-preview-audio {
 .elfinder-button-menu {
 	position:absolute;
 	left:0;
-	top:26px;
+	top:25px;
 	padding:3px 0;
 }
 
@@ -1575,7 +1575,7 @@ embed.elfinder-quicklook-preview-audio {
 	-moz-border-radius: 12px;
 	-webkit-border-radius: 12px;
 	border-radius: 12px;
-	outline:0 solid;
+	outline:0px solid;
 }
 
 .elfinder-rtl .elfinder-button-search input { direction:rtl; }
