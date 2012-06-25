@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-06-24)
+ * Version 2.0 rc1 (2012-06-25)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -4171,7 +4171,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'errNoArchive'         : 'File is not archive or has unsupported archive type.',
 			'errCmdNoSupport'      : 'Backend does not support this command.',
 			'errReplByChild'       : 'The folder “$1” can’t be replaced by an item it contains.',
-			'errArcSymlinks'       : 'For security reason denied to unpack archives contains symlinks.',
+			'errArcSymlinks'       : 'For security reason denied to unpack archives contains symlinks or files with not allowed names.', // edited 24.06.2012
 			'errArcMaxSize'        : 'Archive files exceeds maximum allowed size.',
 			'errResize'            : 'Unable to resize "$1".',
 			'errUsupportType'      : 'Unsupported file type.',
