@@ -237,6 +237,10 @@ var getFileCallback_bbcode = function (file, fm) {
 		fm.exec(fm.OS == 'mac' ? 'rename' : 'open');
 		return;
 	}
+	if (!file.read) {
+		fm.exec('open');
+		return;
+	}
 	var path = file.url.replace(rootUrl+'/', '');
 	var basename = path.replace( /^.*\//, '' );
 	var modules_basename = moduleUrl.replace(rootUrl, '').replace(/\//g, '');
@@ -272,8 +276,12 @@ var getFileCallback_bbcode = function (file, fm) {
 };
 
 var getFileCallback_xpwiki = function (file, fm) {
-	if (!target) {
+	if (!target || !file.read) {
 		fm.exec(fm.OS == 'mac' ? 'rename' : 'open');
+		return;
+	}
+	if (!file.read) {
+		fm.exec('open');
 		return;
 	}
 	var path = file.url.replace(rootUrl+'/', '');
