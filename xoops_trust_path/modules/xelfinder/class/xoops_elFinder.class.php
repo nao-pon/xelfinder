@@ -89,6 +89,7 @@ class xoops_elFinder {
 			
 			if (! $this->moduleCheckRight($mydirname)) continue;
 			
+			$extOptions = array();
 			if ($options) {
 				$options = explode('|', $options);
 				foreach($options as $_op) {
@@ -98,6 +99,12 @@ class xoops_elFinder {
 							if (! array_intersect($this->mygids, $_gids)) {
 								continue 2;
 							}
+						}
+					} else {
+						list($key, $value) = explode('=', $_op);
+						$key = trim($key);
+						if (substr($key, 0, 3) === 'ext') {
+							$extOptions[trim($key)] = trim($value);
 						}
 					}
 				}
@@ -111,7 +118,7 @@ class xoops_elFinder {
 				$volumeOptions = array();
 				require $volume;
 				if ($volumeOptions) {
-					$volumeOptions = array_merge($this->defaultVolumeOptions, $volumeOptions, $extra);
+					$volumeOptions = array_merge($this->defaultVolumeOptions, $volumeOptions, $extra, $extOptions);
 					if ($disabledCmds) {
 						if (!isset($volumeOptions['disabled']) || !is_array($volumeOptions['disabled'])) {
 							$volumeOptions['disabled'] = array();
