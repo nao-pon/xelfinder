@@ -85,9 +85,12 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 		$this->catTree['root'] = array( 'subcats' => array() );
 		$pcid = 'root';//-1
 		foreach($cat as $_cat) {
+			if ( 100 <= $_cat['blogtype'] ) {
+				continue;
+			}
 			$this->catTree[$_cat['cid']] = array(
-											'name' => $_cat['cname'],
-											'pcid' => (($_cat['subcat'] && $pcid)? $pcid : 'root') );
+								'name' => $_cat['cname'],
+								'pcid' => (($_cat['subcat'] && $pcid)? $pcid : 'root') );
 			if ($_cat['subcat']) {
 				if ($pcid !== 'root') {
 					if (! isset($this->catTree[$pcid]['subcats'])) {
