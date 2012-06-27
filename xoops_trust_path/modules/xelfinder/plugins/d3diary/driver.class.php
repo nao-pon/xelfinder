@@ -100,10 +100,11 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 				$this->catTree['root']['subcats'][] = $pcid;
 			}
 		}
+		$another_pcid = isset($this->catTree[0])? 0 : 'root';
 		$this->catTree[-1] = array(
 				'name' => 'Another',
-				'pcid' => 0);
-		$this->catTree[0]['subcats'][] = -1;
+				'pcid' => $another_pcid);
+		$this->catTree[$another_pcid]['subcats'][] = -1;
 		return true;
 	}
 
