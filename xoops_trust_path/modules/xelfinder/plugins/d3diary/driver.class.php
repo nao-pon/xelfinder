@@ -85,9 +85,12 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 		$this->catTree['root'] = array( 'subcats' => array() );
 		$pcid = 'root';//-1
 		foreach($cat as $_cat) {
+			if ( 100 <= $_cat['blogtype'] ) {
+				continue;
+			}
 			$this->catTree[$_cat['cid']] = array(
-											'name' => $_cat['cname'],
-											'pcid' => (($_cat['subcat'] && $pcid)? $pcid : 'root') );
+								'name' => $_cat['cname'],
+								'pcid' => (($_cat['subcat'] && $pcid)? $pcid : 'root') );
 			if ($_cat['subcat']) {
 				if ($pcid !== 'root') {
 					if (! isset($this->catTree[$pcid]['subcats'])) {
@@ -191,12 +194,18 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 		if ($cid !== 'root') {
 			// photos
 			$uid = $this->d3dConf->uid;
-			if ($cid == -1) {
+			if ($cid >= 10000) {		// all images of common categories
+				$arr_uids = array();
+				$cids = array($cid);
+			} elseif ($cid == -1) {		// all images of other personnel
+				$arr_uids = array();
 				$cids = array();
-			} else {
+			} else {			// self personal categories' images
+				$arr_uids = array($uid);
 				$cids = array($cid);
 			}
-			list($photos) = $this->d3dConf->func->get_photolist(array(), $uid, 0, 0, array('cids' => $cids));
+			
+			list($photos) = $this->d3dConf->func->get_photolist($arr_uids, $uid, 0, 0, array('cids' => $cids));
 			if ($photos) {
 				foreach($photos as $photo) {
 					$row = $row_def;
