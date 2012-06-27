@@ -192,12 +192,18 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 		if ($cid !== 'root') {
 			// photos
 			$uid = $this->d3dConf->uid;
-			if ($cid == -1) {
+			if ($cid >= 10000) {
+				$arr_uids = array();
+				$cids = array($cid);
+			} elseif ($cid == -1) {
+				$arr_uids = array($uid);
 				$cids = array();
 			} else {
+				$arr_uids = array($uid);
 				$cids = array($cid);
 			}
-			list($photos) = $this->d3dConf->func->get_photolist(array(), $uid, 0, 0, array('cids' => $cids));
+			
+			list($photos) = $this->d3dConf->func->get_photolist($arr_uids, $uid, 0, 0, array('cids' => $cids));
 			if ($photos) {
 				foreach($photos as $photo) {
 					$row = $row_def;
@@ -417,7 +423,13 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 		} elseif ($cid !== 'root') {
 			// photos
 			$uid = $this->d3dConf->uid;
-			list($photos) = $this->d3dConf->func->get_photolist(array(), $uid, 0, 0, array('pid' => $pid));
+			if ($cid >= 10000) {
+				$arr_uids = array();
+			} else {
+				$arr_uids = array($uid);
+			}
+			
+			list($photos) = $this->d3dConf->func->get_photolist($arr_uids, $uid, 0, 0, array('pid' => $pid));
 			
 			if ($photos) {
 				$photo = $photos[0];
