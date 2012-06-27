@@ -100,6 +100,10 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 				$this->catTree['root']['subcats'][] = $pcid;
 			}
 		}
+		$this->catTree[-1] = array(
+				'name' => 'Another',
+				'pcid' => 0);
+		$this->catTree[0]['subcats'][] = -1;
 		return true;
 	}
 
@@ -183,7 +187,13 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 
 		if ($cid !== 'root') {
 			// photos
-			list($photos) = $this->d3dConf->func->get_photolist(array($this->d3dConf->uid), $this->d3dConf->uid, 0, 0, array('cids' => array($cid)));
+			$uid = $this->d3dConf->uid;
+			if ($cid == -1) {
+				$cids = array();
+			} else {
+				$cids = array($cid);
+			}
+			list($photos) = $this->d3dConf->func->get_photolist(array(), $uid, 0, 0, array('cids' => $cids));
 			if ($photos) {
 				foreach($photos as $photo) {
 					$row = $row_def;
@@ -193,10 +203,13 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 					$id = '_'.$cid.'_'.$photo['pname'];
 					$row['url'] = $this->options['URL'].$photo['pname'];
 					$realpath = realpath($this->options['filePath'].$photo['pname']);
-					if (is_file($realpath)) {
+					if (is_file($realpath) && ($cids || ($photo['uid'] != $uid && $photo['cid']))) {
 						$row['size'] = filesize($realpath);
 						$row['mime'] = $this->mimetypeInternalDetect($photo['pname']);
 						$row['simg'] = $photo['thumbnail'];
+						if ($photo['openarea'] && $photo['uid'] != $uid) {
+							$row['read'] = false;
+						}
 						if (($stat = $this->updateCache($id, $row)) && empty($stat['hidden'])) {
 							$this->dirsCache[$path][] = $id;
 						}
@@ -399,7 +412,8 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 			}
 		} elseif ($cid !== 'root') {
 			// photos
-			list($photos) = $this->d3dConf->func->get_photolist(array($this->d3dConf->uid), $this->d3dConf->uid, 0, 0, array('pid' => $pid));
+			$uid = $this->d3dConf->uid;
+			list($photos) = $this->d3dConf->func->get_photolist(array(), $uid, 0, 0, array('pid' => $pid));
 			
 			if ($photos) {
 				$photo = $photos[0];
@@ -414,6 +428,9 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 					$stat['size'] = filesize($realpath);
 					$stat['mime'] = $this->mimetypeInternalDetect($photo['pname']);
 					$stat['simg'] = $photo['thumbnail'];
+					if ($photo['openarea'] && $photo['uid'] != $uid) {
+						$stat['read'] = false;
+					}
 					return $stat;
 				}
 			}
