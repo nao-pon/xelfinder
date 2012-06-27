@@ -192,13 +192,13 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 		if ($cid !== 'root') {
 			// photos
 			$uid = $this->d3dConf->uid;
-			if ($cid >= 10000) {
+			if ($cid >= 10000) {		// all images of common categories
 				$arr_uids = array();
 				$cids = array($cid);
-			} elseif ($cid == -1) {
-				$arr_uids = array($uid);
+			} elseif ($cid == -1) {		// all images of other personnel
+				$arr_uids = array();
 				$cids = array();
-			} else {
+			} else {			// self personal categories' images
 				$arr_uids = array($uid);
 				$cids = array($cid);
 			}
@@ -423,13 +423,7 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 		} elseif ($cid !== 'root') {
 			// photos
 			$uid = $this->d3dConf->uid;
-			if ($cid >= 10000) {
-				$arr_uids = array();
-			} else {
-				$arr_uids = array($uid);
-			}
-			
-			list($photos) = $this->d3dConf->func->get_photolist($arr_uids, $uid, 0, 0, array('pid' => $pid));
+			list($photos) = $this->d3dConf->func->get_photolist(array(), $uid, 0, 0, array('pid' => $pid));
 			
 			if ($photos) {
 				$photo = $photos[0];
