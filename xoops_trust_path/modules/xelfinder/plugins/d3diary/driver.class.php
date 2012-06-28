@@ -83,9 +83,9 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 		$this->catTree = array();
 		
 		$this->catTree['root'] = array( 'subcats' => array() );
-		$pcid = 'root';//-1
+		$pcid = 'root';
 		foreach($cat as $_cat) {
-			if ( 100 <= $_cat['blogtype'] ) {
+			if ( 100 <= $_cat['blogtype']  || ! $_cat['num'] ) {
 				continue;
 			}
 			$this->catTree[$_cat['cid']] = array(
@@ -104,11 +104,16 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 			}
 		}
 		if (! isset($this->options['extAnother']) || strtolower($this->options['extAnother']) !== 'off') {
-			$another_pcid = isset($this->catTree[0])? 0 : 'root';
+			if (! isset($this->catTree[0])) {
+				$this->catTree[0] = array(
+						'name' => _MD_NOCNAME,
+						'pcid' => 'root' );
+				$this->catTree['root']['subcats'][] = 0;
+			}
 			$this->catTree[-1] = array(
 					'name' => 'Another',
-					'pcid' => $another_pcid);
-			$this->catTree[$another_pcid]['subcats'][] = -1;
+					'pcid' => 0);
+			$this->catTree[0]['subcats'][] = -1;
 		}
 		return true;
 	}
