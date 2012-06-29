@@ -240,4 +240,40 @@ class xoops_elFinder {
 		}
 	}
 	
+	/**
+	 * Get uname by uid
+	 * @param int $uid
+	 * @return string
+	 */
+	public static function getUnameByUid($uid){
+		static $unames = array();
+		static $db = null;
+	
+		$uid = (int)$uid;
+		if (isset($unames[$uid])) {
+			return $unames[$uid];
+		}
+		
+		if (is_null($db)) {
+			$db = XoopsDatabaseFactory::getDatabaseConnection();
+		}
+		
+		if ($uid === 0) {
+			$config_handler = xoops_gethandler('config');
+			$xoopsConfig = $config_handler->getConfigsByCat(XOOPS_CONF);
+			$uname = $xoopsConfig['anonymous'];
+		} else {
+			$query = 'SELECT `uname` FROM `'.$db->prefix('users').'` WHERE uid=' . $uid . ' LIMIT 1';
+			if ($result = $db->query($query)) {
+				list($uname) = $db->fetchRow($result);
+			}
+			if ((string)$uname === '') {
+				return self::getUnameByUid(0);
+			}
+		}
+		if (strtoupper(_CHARSET) !== 'UTF-8') {
+			$uname = mb_convert_encoding($uname, 'UTF-8', _CHARSET);
+		}
+		return $unames[$uid] = $uname;
+	}
 }
