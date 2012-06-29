@@ -2009,7 +2009,7 @@ abstract class elFinderVolumeDriver {
 	 * @return bool
 	 * @author Dmitry (dio) Levashov
 	 **/
-	private function allowCreate($dir, $name) {
+	protected function allowCreate($dir, $name) {
 		$path = $this->_joinPath($dir, $name);
 		$perm = null;
 		
@@ -2077,7 +2077,7 @@ abstract class elFinderVolumeDriver {
 				$stat['name'] = $this->rootName;
 			}
 		} else {
-			if (empty($stat['name'])) {
+			if (!isset($stat['name']) || !strlen($stat['name'])) {
 				$stat['name'] = $this->_basename($path);
 			}
 			if (empty($stat['phash'])) {
@@ -2096,9 +2096,9 @@ abstract class elFinderVolumeDriver {
 		}
 		
 		// @todo move dateformat to client
-		$stat['date'] = isset($stat['ts'])
-			? $this->formatDate($stat['ts'])
-			: 'unknown';
+		// $stat['date'] = isset($stat['ts'])
+		// 	? $this->formatDate($stat['ts'])
+		// 	: 'unknown';
 			
 		if (!isset($stat['size'])) {
 			$stat['size'] = 'unknown';
@@ -3214,17 +3214,17 @@ abstract class elFinderVolumeDriver {
 	 * @return string
 	 * @author Dmitry (dio) Levashov
 	 **/
-	protected function formatDate($ts) {
-		if ($ts > $this->today) {
-			return 'Today '.date($this->options['timeFormat'], $ts);
-		}
-		
-		if ($ts > $this->yesterday) {
-			return 'Yesterday '.date($this->options['timeFormat'], $ts);
-		} 
-		
-		return date($this->options['dateFormat'], $ts);
-	}
+	// protected function formatDate($ts) {
+	// 	if ($ts > $this->today) {
+	// 		return 'Today '.date($this->options['timeFormat'], $ts);
+	// 	}
+	// 	
+	// 	if ($ts > $this->yesterday) {
+	// 		return 'Yesterday '.date($this->options['timeFormat'], $ts);
+	// 	} 
+	// 	
+	// 	return date($this->options['dateFormat'], $ts);
+	// }
 
 	/**
 	* Find position of first occurrence of string in a string with multibyte support
