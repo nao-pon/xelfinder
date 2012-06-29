@@ -42,7 +42,45 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 		$this->options['tmbURL'] = _MD_XELFINDER_MODULE_URL . '/'._MD_ELFINDER_MYDIRNAME.'/cache/tmb/';
 
 	}
-
+	
+	private function makeStat($stat, $photo, $cid, $uid, $realpath) {
+		$stat['name'] = $photo['title'] . $photo['ptype'];
+		$stat['ts'] = $photo['tstamp'];
+		$stat['phash'] = $this->encode('_'.$cid.'_');
+		$stat['url'] = $this->options['URL'].$photo['pname'];
+		$stat['size'] = filesize($realpath);
+		$stat['mime'] = $this->mimetypeInternalDetect($photo['pname']);
+		$stat['simg'] = $photo['thumbnail'];
+		$stat['tooltip'] = 'Owner: '.$photo['uname'];
+		if ($photo['info']) {
+			$stat['tooltip'] .= "\r".trim(preg_replace('/\s+/', ' ', htmlspecialchars_decode(strip_tags($photo['info']), ENT_QUOTES)));
+		}
+		if ($photo['openarea'] && $photo['uid'] != $uid) {
+			$stat['read'] = false;
+		}
+		return $stat;
+	}
+	
+	private function getDirTs($cid, $cname, $childens) {
+		$mytstamp = array();
+		$uid = $this->d3dConf->uid;
+		$req_uid = ($cid > 10000)? 0 : $uid;
+		$childens[] = $cname;
+		$params = $cid? array('categories' => $childens) : array();
+		$this->d3dConf->func->get_blist_tstamp($req_uid, $uid, 1, false, $mytstamp, $params);
+		if ($mytstamp) {
+			return array_shift($mytstamp);
+		}
+		return 0;
+	}
+	
+	protected function strToUTF8($str) {
+		if (strtoupper(_CHARSET) !== 'UTF-8') {
+			$str = mb_convert_encoding($str, 'UTF-8', _CHARSET);
+		}
+		return $str;
+	}
+	
 	/*********************************************************************/
 	/*                        INIT AND CONFIGURE                         */
 	/*********************************************************************/
@@ -85,35 +123,41 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 		$this->catTree['root'] = array( 'subcats' => array() );
 		$pcid = 'root';
 		foreach($cat as $_cat) {
-			if ( 100 <= $_cat['blogtype']  || ! $_cat['num'] ) {
+			if ( 100 <= $_cat['blogtype'] || ($_cat['subcat'] && ! $_cat['num']) ) {
 				continue;
 			}
 			$this->catTree[$_cat['cid']] = array(
-								'name' => $_cat['cname'],
-								'pcid' => (($_cat['subcat'] && $pcid)? $pcid : 'root') );
+								'subcats' => array(),
+								'num'     => $_cat['num'],
+								'name'    => $_cat['cname'],
+								'pcid'    => (($_cat['subcat'] && $pcid)? $pcid : 'root') );
 			if ($_cat['subcat']) {
 				if ($pcid !== 'root') {
-					if (! isset($this->catTree[$pcid]['subcats'])) {
-						$this->catTree[$pcid]['subcats'] = array();
-					}
-					$this->catTree[$pcid]['subcats'][] = $_cat['cid'];
+					$this->catTree[$pcid]['subcats'][$_cat['cid']] = $_cat['cname'];
 				}
 			} else {
+				if ($pcid !== 'root' && ! $this->catTree[$pcid]['subcats'] && ! $this->catTree[$pcid]['num']) {
+					// no entry
+					unset($this->catTree[$this->catTree[$pcid]['pcid']]['subcats'][$pcid], $this->catTree[$pcid]);
+				}
 				$pcid = $_cat['cid'];
-				$this->catTree['root']['subcats'][] = $pcid;
+				$this->catTree['root']['subcats'][$pcid] = $_cat['cname'];
 			}
 		}
 		if (! isset($this->options['extAnother']) || strtolower($this->options['extAnother']) !== 'off') {
 			if (! isset($this->catTree[0])) {
 				$this->catTree[0] = array(
-						'name' => _MD_NOCNAME,
-						'pcid' => 'root' );
-				$this->catTree['root']['subcats'][] = 0;
+						'subcats' => array(),
+						'name'    => _MD_NOCNAME,
+						'pcid'    => 'root' );
+				$this->catTree['root']['subcats'][0] = $this->strToUTF8(_MD_NOCNAME);
 			}
+			$this->catTree[0]['name'] = $this->strToUTF8($this->catTree[0]['name']);
 			$this->catTree[-1] = array(
-					'name' => 'Another',
-					'pcid' => 0);
-			$this->catTree[0]['subcats'][] = -1;
+					'subcats' => array(),
+					'name'    => 'Another',
+					'pcid'    => 0 );
+			$this->catTree[0]['subcats'][-1] = 'Another';
 		}
 		return true;
 	}
@@ -175,13 +219,14 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 
 		$_mtime = array();
 		$_size = array();
-
+		$uid = $this->d3dConf->uid;
+		
 		if (! empty($this->catTree[$cid]['subcats'])) {
 			// category (dirctory)
-			foreach ($this->catTree[$cid]['subcats'] as $ccid) {
+			foreach ($this->catTree[$cid]['subcats'] as $ccid => $cname) {
 				$row = $row_def;
 				$row['name'] = $this->catTree[$ccid]['name'];
-				//$row['ts'] = 0;
+				$row['ts'] = $this->getDirTs($ccid, $cname, $this->catTree[$ccid]['subcats']);
 				$row['mime'] = 'directory';
 				$row['dirs'] = (! empty($this->catTree[$ccid]['subcats']))? 1 : 0;
 				if ($this->catTree[$ccid]['pcid'] === 'root') {
@@ -198,7 +243,6 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 
 		if ($cid !== 'root') {
 			// photos
-			$uid = $this->d3dConf->uid;
 			if ($cid >= 10000) {		// all images of common categories
 				$arr_uids = array();
 				$cids = array($cid);
@@ -210,23 +254,13 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 				$cids = array($cid);
 			}
 			
-			list($photos) = $this->d3dConf->func->get_photolist($arr_uids, $uid, 0, 0, array('cids' => $cids));
+			list($photos) = $this->d3dConf->func->get_photolist($arr_uids, $uid, 0, 0, array('cids' => $cids, 'enc' => 'UTF-8'));
 			if ($photos) {
 				foreach($photos as $photo) {
-					$row = $row_def;
-					$row['name'] = $photo['title'] . $photo['ptype'];
-					$row['ts'] = $photo['tstamp'];
-					$row['phash'] = $this->encode('_'.$cid.'_');
-					$id = '_'.$cid.'_'.$photo['pname'];
-					$row['url'] = $this->options['URL'].$photo['pname'];
 					$realpath = realpath($this->options['filePath'].$photo['pname']);
-					if (is_file($realpath) && ($cids || ($photo['uid'] != $uid && $photo['cid']))) {
-						$row['size'] = filesize($realpath);
-						$row['mime'] = $this->mimetypeInternalDetect($photo['pname']);
-						$row['simg'] = $photo['thumbnail'];
-						if ($photo['openarea'] && $photo['uid'] != $uid) {
-							$row['read'] = false;
-						}
+					if (is_file($realpath) && ($cids || ($photo['uid'] != $uid && $photo['cid'] && $photo['cid'] < 10000))) {
+						$row = $this->makeStat($row_def, $photo, $cid, $uid, $realpath);
+						$id = '_'.$cid.'_'.$photo['pname'];
 						if (($stat = $this->updateCache($id, $row)) && empty($stat['hidden'])) {
 							$this->dirsCache[$path][] = $id;
 						}
@@ -405,7 +439,8 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 			'locked' => true,
 			'hidden' => false
 		);
-
+		
+		$uid = $this->d3dConf->uid;
 		if ($cid === 'root') {
 			$stat['name'] = (! empty($this->options['alias'])? $this->options['alias'] : 'untitle');
 			$stat['mime'] = 'directory';
@@ -417,7 +452,7 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 			if (isset($this->catTree[$cid])) {
 				$stat = $stat_def;
 				$stat['name'] = $this->catTree[$cid]['name'];
-				//$stat['ts'] = 0;
+				$stat['ts'] = $this->getDirTs($cid, $stat['name'], $this->catTree[$cid]['subcats']);;
 				$stat['mime'] = 'directory';
 				$stat['dirs'] = (! empty($this->catTree[$cid]['subcats']))? 1 : 0;
 				if ($this->catTree[$cid]['pcid'] === 'root') {
@@ -429,26 +464,12 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 			}
 		} elseif ($cid !== 'root') {
 			// photos
-			$uid = $this->d3dConf->uid;
-			list($photos) = $this->d3dConf->func->get_photolist(array(), $uid, 0, 0, array('pid' => $pid));
+			list($photos) = $this->d3dConf->func->get_photolist(array(), $uid, 0, 0, array('pid' => $pid, 'enc' => 'UTF-8'));
 			
 			if ($photos) {
-				$photo = $photos[0];
-				$stat = $stat_def;
-				$stat['name'] = $photo['title'] . $photo['ptype'];
-				$stat['ts'] = $photo['tstamp'];
-				$stat['phash'] = $this->encode('_'.$cid.'_');
-				$id = '_'.$cid.'_'.$photo['pname']; 
-				$stat['url'] = $this->options['URL'].$photo['pname'];
-				$realpath = realpath($this->options['filePath'].$photo['pname']);
+				$realpath = realpath($this->options['filePath'].$photos[0]['pname']);
 				if (is_file($realpath)) {
-					$stat['size'] = filesize($realpath);
-					$stat['mime'] = $this->mimetypeInternalDetect($photo['pname']);
-					$stat['simg'] = $photo['thumbnail'];
-					if ($photo['openarea'] && $photo['uid'] != $uid) {
-						$stat['read'] = false;
-					}
-					return $stat;
+					return $this->makeStat($stat_def, $photos[0], $cid, $uid, $realpath);
 				}
 			}
 		}
