@@ -678,6 +678,9 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$stat['alias'] = $stat['local_path'];
 			$stat['write'] = 0;
 		}
+		if (isset($stat['uid'])) {
+			$stat['tooltip'] = 'Owner: ' . xoops_elFinder::getUnameByUid($stat['uid']);
+		}
 		
 		unset($stat['file_id'], $stat['parent_id'], $stat['gid'], $stat['home_of'], $stat['local_path']);
 		if (empty($stat['isowner'])) unset($stat['perm'], $stat['uid'], $stat['gids']);

@@ -78,7 +78,7 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 
 		if ($cid) {
 			// photos
-			$sql = 'SELECT lid,
+			$sql = 'SELECT submitter as uid, lid,
 					concat( lid, ".", ext ) AS id, res_x AS width, res_y AS height, concat( IF(caption != "", caption, title), ".", ext ) AS name,
 					concat( lid, "_1.", ext1 ) AS id1, res_x1 AS width1, res_y1 AS height1, concat( IF(caption1 != "", caption1, concat(title, "_1")), ".", ext1 ) AS name1,
 					concat( lid, "_2.", ext2 ) AS id2, res_x2 AS width2, res_y2 AS height2, concat( IF(caption2 != "", caption2, concat(title, "_2")), ".", ext2 ) AS name2,
@@ -125,6 +125,7 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 							$row['size'] = filesize($realpath);
 							$row['mime'] = $this->mimetypeInternalDetect($ids[$_cnt]);
 							$row['simg'] = trim($this->options['smallImg'], '/');
+							$row['tooltip'] = 'Owner: ' . xoops_elFinder::getUnameByUid($row['uid']);
 							if (($stat = $this->updateCache($id, $row)) && empty($stat['hidden'])) {
 								$this->dirsCache[$path][] = $id;
 							}
@@ -236,7 +237,7 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 			}
 		} elseif ($cid) {
 			// photos
-			$sql = 'SELECT lid, concat( lid, "'.($cnt? ('_' . $cnt) : '').'.", ext'.$cnt.' ) AS id, res_x'.$cnt.' AS width, res_y'.$cnt.' AS height, `date` AS ts, concat( title, "'.($cnt? ('_' . $cnt) : '').'.", ext'.$cnt.' ) AS name
+			$sql = 'SELECT submitter as uid, lid, concat( lid, "'.($cnt? ('_' . $cnt) : '').'.", ext'.$cnt.' ) AS id, res_x'.$cnt.' AS width, res_y'.$cnt.' AS height, `date` AS ts, concat( title, "'.($cnt? ('_' . $cnt) : '').'.", ext'.$cnt.' ) AS name
 					FROM '.$this->tbf.'
 					WHERE lid="'.$lid.'" AND status>0 LIMIT 1';
 			$res = $this->query($sql);
@@ -249,6 +250,7 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 				$stat['size'] = filesize($realpath);
 				$stat['mime'] = $this->mimetypeInternalDetect($stat['id']);
 				$stat['simg'] = trim($this->options['smallImg'], '/');
+				$stat['tooltip'] = 'Owner: ' . xoops_elFinder::getUnameByUid($stat['uid']);
 				unset($stat['lid'], $stat['id']);
 				return $stat;
 			}

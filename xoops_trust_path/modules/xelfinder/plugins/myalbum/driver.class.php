@@ -212,7 +212,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 
 		if ($cid) {
 			// photos
-			$sql = 'SELECT lid, concat( lid, ".", ext ) AS id, res_x AS width, res_y AS height, `date` AS ts, concat( title, ".", ext ) AS name
+			$sql = 'SELECT submitter as uid, lid, concat( lid, ".", ext ) AS id, res_x AS width, res_y AS height, `date` AS ts, concat( title, ".", ext ) AS name
 					FROM '.$this->tbf.'
 					WHERE cid="'.$cid.'" AND status>0';
 	
@@ -233,7 +233,8 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 						$row['size'] = filesize($realpath);
 						$row['mime'] = $this->mimetypeInternalDetect($row['id']);
 						$row['simg'] = trim($this->options['smallImg'], '/');
-						unset($row['pid'], $row['lid'], $row['id']);
+						$row['tooltip'] = 'Owner: ' . xoops_elFinder::getUnameByUid($row['uid']);
+						unset($row['uid'], $row['pid'], $row['lid'], $row['id']);
 						if (($stat = $this->updateCache($id, $row)) && empty($stat['hidden'])) {
 							$this->dirsCache[$path][] = $id;
 						}
@@ -447,7 +448,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 			}
 		} elseif ($cid) {
 			// photos
-			$sql = 'SELECT lid, cid, concat( lid, ".", ext ) AS id, res_x AS width, res_y AS height, `date` AS ts, concat( title, ".", ext ) AS name
+			$sql = 'SELECT submitter as uid, lid, cid, concat( lid, ".", ext ) AS id, res_x AS width, res_y AS height, `date` AS ts, concat( title, ".", ext ) AS name
 					FROM '.$this->tbf.'
 					WHERE lid="'.$lid.'" AND status>0 LIMIT 1';
 			$res = $this->query($sql);
@@ -460,7 +461,8 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 				$stat['size'] = filesize($realpath);
 				$stat['mime'] = $this->mimetypeInternalDetect($stat['id']);
 				$stat['simg'] = trim($this->options['smallImg'], '/');
-				unset($stat['lid'], $stat['cid'], $stat['id']);
+				$stat['tooltip'] = 'Owner: ' . xoops_elFinder::getUnameByUid($stat['uid']);
+				unset($stat['uid'], $stat['lid'], $stat['cid'], $stat['id']);
 				return $stat;
 			}
 		}
