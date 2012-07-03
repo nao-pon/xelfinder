@@ -1281,7 +1281,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$uid = (int)$this->x_uid;
 		$umask = $this->getUmask($dir, $gid);
 		$perm = $this->getDefaultPerm($mime, $umask);
-		$gigs = join(',', $this->getGroupsByUid($uid));
+		$gids = join(',', $this->getGroupsByUid($uid));
 		$cut = ($_SERVER['REQUEST_METHOD'] == 'POST')? !empty($_POST['cut']) : !empty($_GET['cut']);
 		$local_path = (! $cut && is_array($stat) && !empty($stat['_localpath']))? $stat['_localpath'] : '';
 		if ($local_path) {
