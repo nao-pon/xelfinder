@@ -291,7 +291,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$perm = $this->makePerm;
 			$this->makePerm = '';
 		} else {
-			$perm = $this->getDefaultPerm($mime, $umask);
+			$perm = $this->getDefaultPerm($umask);
 		}
 
 		$sql = 'INSERT INTO %s (`parent_id`, `name`, `ctime`, `mtime`, `perm`, `umask` , `uid`, `gid`, `home_of`, `mime`) VALUES '
@@ -412,12 +412,8 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		return $umask? $umask : $this->options['default_umask'];
 	}
 
-	protected function getDefaultPerm($mime, $umask) {
-		if ($mime === 'directory') {
-			$base = 0xfff;
-		} else {
-			$base = 0xfff;
-		}
+	protected function getDefaultPerm($umask) {
+		$base = 0xfff;
 		return strval(dechex($base - intval($umask, 16)));
 	}
 
@@ -1161,7 +1157,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$id = $this->_joinPath($targetDir, $name);
 		$gid = 0;
 		$umask = $this->getUmask($targetDir, $gid);
-		$perm = $this->getDefaultPerm($mime, $umask);
+		$perm = $this->getDefaultPerm($umask);
 		$time = time();
 		$sql = $id > 0
 			? sprintf('REPLACE INTO %s (`file_id`, `parent_id`, `name`, `size`, `ctime`, `mtime`, `mime`, `width`, `height`, `gids`, `uid`, `gid`, `perm`, `umask`, `mime_filter`)
@@ -1204,7 +1200,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$perm = 'perm';
 			$sql = 'UPDATE %s SET `parent_id`=%d, `name`="%s", `perm`=`%s`, `umask`="%s", `gid`=%d WHERE `file_id`=%d LIMIT 1';
 		} else {
-			$perm = $this->getDefaultPerm($mime, $umask);
+			$perm = $this->getDefaultPerm($umask);
 			$sql = 'UPDATE %s SET `parent_id`=%d, `name`="%s", `perm`="%s", `umask`="%s", `gid`=%d WHERE `file_id`=%d LIMIT 1';
 		}
 		$sql = sprintf($sql, $this->tbf, $targetDir, mysql_escape_string($name), $perm, $umask, $gid, $source);
@@ -1280,7 +1276,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$gid = 0;
 		$uid = (int)$this->x_uid;
 		$umask = $this->getUmask($dir, $gid);
-		$perm = $this->getDefaultPerm($mime, $umask);
+		$perm = $this->getDefaultPerm($umask);
 		$gids = join(',', $this->getGroupsByUid($uid));
 		$cut = ($_SERVER['REQUEST_METHOD'] == 'POST')? !empty($_POST['cut']) : !empty($_GET['cut']);
 		$local_path = (! $cut && is_array($stat) && !empty($stat['_localpath']))? $stat['_localpath'] : '';
