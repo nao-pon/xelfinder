@@ -206,7 +206,7 @@ class xoops_elFinder {
 		if (!empty($result['removed'])) {
 			foreach ($result['removed'] as $file) {
 				// removed file contain additional field "realpath"
-				$log .= "\tREMOVED: ".$file['realpath']."\n";
+				$log .= "\tREMOVED: ".$elfinder->realpath($file['hash'])."\n";
 			}
 		}
 	
