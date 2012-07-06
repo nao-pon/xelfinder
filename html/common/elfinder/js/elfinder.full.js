@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-07-03)
+ * Version 2.0 rc1 (2012-07-06)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -6926,7 +6926,7 @@ $.fn.elfindertree = function(fm, opts) {
 						.done(function(data) {
 							var dirs = filter(data.tree);
 							updateTree(dirs);
-							updateArrows(dirs, loaded)
+							updateArrows(dirs, loaded);
 							cwd == fm.cwd().hash && sync();
 						});
 					}
