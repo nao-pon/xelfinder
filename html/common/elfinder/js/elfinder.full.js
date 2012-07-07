@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-07-06)
+ * Version 2.0 rc1 (2012-07-07)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -6897,12 +6897,13 @@ $.fn.elfindertree = function(fm, opts) {
 			 * Mark current directory as active
 			 * If current directory is not in tree - load it and its parents
 			 *
+			 * @param {Boolean} do not recursive call
 			 * @return void
 			 */
-			sync = function() {
+			sync = function(stopRec) {
 				var cwd     = fm.cwd().hash,
 					current = tree.find('#'+fm.navHash2Id(cwd)), 
-					rootNode;
+					rootNode, dir;
 				
 				if (openRoot) {
 					rootNode = tree.find('#'+fm.navHash2Id(fm.root()));
@@ -6918,7 +6919,13 @@ $.fn.elfindertree = function(fm, opts) {
 				if (opts.syncTree) {
 					if (current.length) {
 						current.parentsUntil('.'+root).filter('.'+subtree).show().prev('.'+navdir).addClass(expanded);
-					} else if (fm.newAPI) {
+					} else if (fm.newAPI && !stopRec) {
+						// check if cwd is not in files
+						if ((dir = fm.file(cwd)).phash && tree.find('#'+fm.navHash2Id(dir.phash)).length) {
+							updateTree([dir]);
+							return sync(true);
+						}
+
 						fm.request({
 							data : {cmd : 'parents', target : cwd},
 							preventFail : true
@@ -6927,7 +6934,7 @@ $.fn.elfindertree = function(fm, opts) {
 							var dirs = filter(data.tree);
 							updateTree(dirs);
 							updateArrows(dirs, loaded);
-							cwd == fm.cwd().hash && sync();
+							cwd == fm.cwd().hash && sync(true);
 						});
 					}
 				}
