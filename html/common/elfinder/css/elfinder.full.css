@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-07-07)
+ * Version 2.0 rc1 (2012-07-08)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -1062,6 +1062,7 @@
 .elfinder-places.elfinder-droppable-active {
 	border:1px solid #8cafed;
 }
+
 
 .elfinder-place-drag .elfinder-navbar-dir { font-size:.9em;}
 

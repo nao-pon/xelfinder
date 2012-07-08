@@ -280,6 +280,10 @@ elFinder.prototype._options = {
 		navbar : {
 			minWidth : 150,
 			maxWidth : 500
+		},
+		cwd : {
+			// display parent folder with ".." name :)
+			oldSchool : false
 		}
 	},
 
