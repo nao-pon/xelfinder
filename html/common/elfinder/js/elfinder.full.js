@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-07-08)
+ * Version 2.0 rc1 (2012-07-10)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -4060,8 +4060,8 @@ $.fn.dialogelfinder = function(opts) {
 	if (opts == 'open') {
 		var node = $(this),
 			pos  = node.data(position) || {
-				top  : parseInt($(document).scrollTop() + ($('body').height() < node.height() ? 2 : ($('body').height() - node.height())/2)),
-				left : parseInt($(document).scrollLeft() + ($('body').width() < node.width()  ? 2 : ($('body').width()  - node.width())/2))
+				top  : parseInt($(document).scrollTop() + ($(window).height() < node.height() ? 2 : ($(window).height() - node.height())/2)),
+				left : parseInt($(document).scrollLeft() + ($(window).width() < node.width()  ? 2 : ($(window).width()  - node.width())/2))
 			},
 			zindex = 100;
 
@@ -6893,8 +6893,10 @@ $.fn.elfindertree = function(fm, opts) {
 					info;
 
 				while (node.length) {
+					info = fm.file(fm.navId2Hash(node.children('[id]').attr('id')));
+					
 					if ((info = fm.file(fm.navId2Hash(node.children('[id]').attr('id')))) 
-					&& dir.name.localeCompare(info.name) < 0) {
+					&& dir.name.toLowerCase().localeCompare(info.name.toLowerCase()) < 0) {
 						return node;
 					}
 					node = node.next();
@@ -6926,7 +6928,7 @@ $.fn.elfindertree = function(fm, opts) {
 						if (dir.phash && (sibling = findSibling(parent, dir)).length) {
 							sibling.before(html);
 						} else {
-							parent.append(html);
+							parent[dir.phash ? 'append' : 'prepend'](html);
 						}
 					} else {
 						orphans.push(dir);
