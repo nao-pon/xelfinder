@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-07-26)
+ * Version 2.0 rc1 (2012-07-28)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -336,7 +336,7 @@
 	height:14px;
 	text-align:center;
 	padding-top:2px;
-	font-size:12px;
+	
 	font-weight:bold;
 	color:#fff;
 	background-color:red;
@@ -391,7 +391,7 @@
 	cursor:default;
 }
 /* text in item */
-.elfinder-contextmenu .elfinder-contextmenu-item span { font-size:.76em; display:block; }
+.elfinder-contextmenu .elfinder-contextmenu-item span { display:block; }
 
 
 
@@ -451,7 +451,6 @@
 /* container */
 .elfinder-cwd { 
 	position:relative;
-	font-size:.7em;
 	cursor:default;
 	padding:0;
 	margin:0;
@@ -627,7 +626,7 @@
 
 .elfinder-cwd table { width:100%; border-collapse:collapse; border:0 solid; margin:0 0 10px 0; }
 .elfinder .elfinder-cwd table thead tr { border-left:0 solid; border-top:0 solid; border-right:0 solid; }
-.elfinder .elfinder-cwd table thead td { font-size:.9em;}
+
 .elfinder .elfinder-cwd table td { 
 	padding:3px 12px;
 	white-space:pre;
@@ -692,7 +691,6 @@
 	-moz-border-radius-bottomright: 0; 
 	-webkit-border-bottom-right-radius: 0; 
 	border-bottom-right-radius: 0;
-	font-size:.82em;
 	font-weight:normal;
 	padding:.2em 1em;
 }
@@ -706,7 +704,6 @@
 /* content */
 .std42-dialog .ui-dialog-content {
 	padding:.3em .5em;
-	font-size:.72em;
 }
 
 /* buttons */
@@ -714,7 +711,6 @@
 	border:0 solid;
 	margin:0;
 	padding:.5em .7em;
-	font-size:.76em;
 }
 
 .std42-dialog .ui-dialog-buttonpane button { margin:0 0 0 .4em;	padding:0; outline:0px solid; }
@@ -832,7 +828,6 @@
 	min-width:200px;
 	border:0 solid;
 	margin:1em .2em 1em .2em;
-	font-size:.9em;
 }
 
 .elfinder-info-tb td { white-space:nowrap; padding:2px; }
@@ -855,7 +850,6 @@
 /*********************** UPLOAD DIALOG **************************/
 
 .elfinder-upload-dropbox {
-	font-size:1.2em;
 	text-align:center;
 	padding:2em 0;
 	border:3px dashed #aaa;
@@ -867,7 +861,6 @@
 }
 
 .elfinder-upload-dialog-or {
-	font-size:1.2em;
 	margin:.3em 0;
 	text-align:center;
 }
@@ -896,7 +889,6 @@
 	border-top:0 solid;
 	border-right:0 solid;
 	font-weight:normal;
-	font-size:.9em;
 	padding:2px 12px;
 	cursor:move;
 	position:relative;
@@ -916,6 +908,30 @@
 
 
 
+/* File: /home/osc/elFinder/css/fonts.css */
+.elfinder-contextmenu .elfinder-contextmenu-item span { font-size:.76em; }
+
+.elfinder-cwd-view-icons .elfinder-cwd-filename { font-size:.7em; }
+.elfinder-cwd-view-list td { font-size:.7em; }
+
+.std42-dialog .ui-dialog-titlebar { font-size:.82em; }
+.std42-dialog .ui-dialog-content { font-size:.72em; }
+.std42-dialog .ui-dialog-buttonpane { font-size:.76em; }
+.elfinder-info-tb { font-size:.9em; }
+.elfinder-upload-dropbox { font-size:1.2em; }
+.elfinder-upload-dialog-or { font-size:1.2em; }
+.dialogelfinder .dialogelfinder-drag { font-size:.9em; }
+.elfinder .elfinder-navbar { font-size:.72em; }
+.elfinder-place-drag .elfinder-navbar-dir { font-size:.9em;}
+.elfinder-quicklook-title { font-size:.7em; }
+.elfinder-quicklook-info-data { font-size:.72em; }
+.elfinder-quicklook-preview-text-wrapper { font-size:.9em; }
+.elfinder-button-menu-item { font-size:.72em; }
+.elfinder-button-search input { font-size:.8em; }
+.elfinder-statusbar div { font-size:.7em; }
+.elfinder-drag-num { font-size:12px; }
+
+
 /* File: /home/osc/elFinder/css/navbar.css */
 /*********************************************/
 /*              NAVIGATION PANEL             */
@@ -925,7 +941,6 @@
 .elfinder .elfinder-navbar {
 	width:230px;
 	padding:3px 5px;
-	font-size:.72em;
 	background-image:none;
 	border-top:0 solid;
 	border-bottom:0 solid;
@@ -1064,7 +1079,7 @@
 }
 
 
-.elfinder-place-drag .elfinder-navbar-dir { font-size:.9em;}
+
 
 
 
@@ -1129,7 +1144,6 @@
 
 /* window title */
 .elfinder-quicklook-title { 
-	font-size:.7em;
 	color:#fff; 
 	white-space:nowrap; 
 	overflow:hidden;
@@ -1180,7 +1194,6 @@
 
 /* other data in info */
 .elfinder-quicklook-info-data {
-	font-size:.72em;
 	padding-bottom:.2em;
 	color:#fff;
 }
@@ -1281,7 +1294,6 @@
 	height:100%;
 	background:#fff;
 	color:#222;
-	font-size:.9em;
 	overflow:auto;
 }
 
@@ -1359,7 +1371,7 @@ embed.elfinder-quicklook-preview-audio {
 
 .elfinder-statusbar a { text-decoration:none; }
 
-.elfinder-statusbar div { font-size:.7em; }
+
 
 /* path in statusbar */
 .elfinder-path {
@@ -1512,7 +1524,6 @@ embed.elfinder-quicklook-preview-audio {
 /* menu item */
 .elfinder-button-menu-item {
 	white-space:nowrap;
-	font-size:.72em;
 	cursor:default;
 	padding:5px 19px;
 	position:relative;
@@ -1569,7 +1580,6 @@ embed.elfinder-quicklook-preview-audio {
 	width:160px;
 	height:22px;
 	padding:0 20px;
-	font-size:.8em;
 	line-height: 22px;
 	border:0 solid;
 	border:1px solid #aaa;
