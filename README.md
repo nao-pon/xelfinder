@@ -2,7 +2,7 @@
 
 JavaScript + PHP で動作する Webベースファイルマネージャーの [elFinder 2.0](http://elfinder.org/) を XOOPS 用にモジュール化したもの。
 
-XOOPS にインストールすることで、イメージマネージャーと換装((当サイトではイメージマネージャーとして X-elFinder を利用しています))して利用することができます。
+XOOPS にインストールすることで、イメージマネージャーと換装して利用することができます。
 
 ただし、XOOPS Cube Legacy 以外は、XOOPS_ROOT_PATH/imagemanager.php を若干編集する必要があります。
 
