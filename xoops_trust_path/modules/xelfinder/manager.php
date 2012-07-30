@@ -100,6 +100,7 @@ while(ob_get_level()) {
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/cwd.css"         type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/quicklook.css"   type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/commands.css"    type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/fonts.css"       type="text/css" >
 		<?php } else {?>
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/elfinder.min.css" type="text/css" >
 		<?php }?>
