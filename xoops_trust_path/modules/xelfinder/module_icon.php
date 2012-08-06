@@ -26,15 +26,20 @@ if( is_file( $mydirpath.'/module_icon.png' ) ) {
 	//	$file_base .= '_icms' ;
 	//} else if( defined( 'XOOPS_CUBE_LEGACY' ) ) {
 	if( defined( 'XOOPS_CUBE_LEGACY' ) ) {
-		$draw_dirname = true ;
-		$file_base .= '_xcl' ;
-		$px_y = 8;
-		$strwidth = 7 * strlen( $mydirname );
-		if ($strwidth > 79) {
-			$px = max(0, 126 - $strwidth);
+		if ($mydirname === 'xelfinder') {
+			$draw_dirname = false ;
+			$file_base .= '_x';
 		} else {
-			$px = 47;
-			$px = ( 79 - $strwidth ) / 2 + 47 ;
+			$draw_dirname = true ;
+			$file_base .= '_xcl' ;
+			$px_y = 8;
+			$strwidth = 7 * strlen( $mydirname );
+			if ($strwidth > 79) {
+				$px = max(0, 126 - $strwidth);
+			} else {
+				$px = 47;
+				$px = ( 79 - $strwidth ) / 2 + 47 ;
+			}
 		}
 	} else {
 		$draw_dirname = true ;
