@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-07-28)
+ * Version 2.0 rc1 (2012-08-13)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -7000,6 +7000,8 @@ $.fn.elfindertree = function(fm, opts) {
 						// check if cwd is not in files
 						if ((dir = fm.file(cwd)).phash && tree.find('#'+fm.navHash2Id(dir.phash)).length) {
 							updateTree([dir]);
+						} else {
+							return;
 						}
 
 						fm.request({
@@ -10245,7 +10247,7 @@ elFinder.prototype.commands.resize = function() {
 										return;
 									}
 								
-									if (c < 48 || c > 57) {
+									if (!((c >= 48 && c <= 57) || (c >= 96 && c <= 105))) {
 										e.preventDefault();
 									}
 								})
