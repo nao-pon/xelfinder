@@ -94,6 +94,9 @@ define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '' );
 define( $constpref.'_EDIT_DISABLE_LINKED' ,     '[xelfinder_db] Write-protect of linked file' );
 define( $constpref.'_EDIT_DISABLE_LINKED_DESC' ,'Write-protect automatically of referenced linked files  for order to prevent inadvertent overwriting or broken links.' );
 
+define( $constpref.'_NO_USE_PATHINFO' ,         '[xelfinder_db] Not use "PATH_INFO"' );
+define( $constpref.'_NO_USE_PATHINFO_DESC' ,    'The server which cannot use environment variable "PATH_INFO" needs to choose "Yes".' );
+
 define( $constpref.'_SSL_CONNECTOR_URL' ,       'Secure connection URL' );
 define( $constpref.'_SSL_CONNECTOR_URL_DESC' ,  'When only communication with a back-end uses secure environment, please specify URL of "connector.php" which begins from "https://".<br />It\'s supports only "Firefox", "Chrome" & "Safari".' );
 

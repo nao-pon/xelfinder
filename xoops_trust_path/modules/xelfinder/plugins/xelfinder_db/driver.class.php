@@ -668,7 +668,11 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			unset($stat['dirs']);
 		}
 		$this->setAuthByPerm($stat);
-		$stat['url'] = $this->options['URL'].$stat['file_id'].'/'.rawurlencode($stat['name']); // Use pathinfo "index.php/[id]/[name]
+		if (strpos($this->options['URL'], '?') === false) {
+			$stat['url'] = $this->options['URL'].$stat['file_id'].'/'.rawurlencode($stat['name']); // Use pathinfo "index.php/[id]/[name]
+		} else {
+			$stat['url'] = $this->options['URL'].$stat['file_id'].'&'.rawurlencode($stat['name']);
+		}
 		if (!empty($stat['local_path'])) {
 			$stat['_localalias'] = 1;
 			$stat['alias'] = $stat['local_path'];
