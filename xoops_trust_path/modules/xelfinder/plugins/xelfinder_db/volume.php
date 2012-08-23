@@ -28,7 +28,4 @@ if (is_dir(XOOPS_TRUST_PATH . $path)) {
 		'acceptedName'    => '/^[^\/\\?*:|"<>]*[^.\/\\?*:|"<>]$/',
 		'defaults' => array('read' => true, 'write' => true, 'hidden' => false, 'locked' => false)
 	);
-	if (! empty($this->config['no_use_pathinfo'])) {
-		$volumeOptions['URL'] = _MD_XELFINDER_MODULE_URL . '/' . $mydirname . '/index.php?page=view&file=';
-	}
 }

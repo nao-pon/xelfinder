@@ -88,14 +88,11 @@ define( $constpref.'_UPLOAD_ALLOW_GUEST_DESC' , '' );
 define( $constpref.'_AUTO_RESIZE_GUEST' ,       '[xelfinder_db] ゲスト用自動リサイズ (px)' );
 define( $constpref.'_AUTO_RESIZE_GUEST_DESC',   '' );
 
-define( $constpref.'_DISABLE_PATHINFO' ,        '[xelfinder_db] ファイル参照URLの PathInfo を無効にする' );
-define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '' );
+define( $constpref.'_DISABLE_PATHINFO' ,        '[xelfinder_db] ファイル参照URLの PathInfo を使用しない' );
+define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '環境変数 "PATH_INFO" が利用できないサーバーは「はい」を選択してください。' );
 
 define( $constpref.'_EDIT_DISABLE_LINKED' ,     '[xelfinder_db] リンク済みファイルの書き込み禁止' );
 define( $constpref.'_EDIT_DISABLE_LINKED_DESC' ,'リンク切れや不用意な上書きを防止するためにリンク・参照されたファイルを自動的に書き込み禁止に設定します。' );
-
-define( $constpref.'_NO_USE_PATHINFO' ,         '[xelfinder_db] PATH_INFO を使用しない' );
-define( $constpref.'_NO_USE_PATHINFO_DESC' ,    '環境変数 "PATH_INFO" が利用できないサーバーは「はい」を選択してください。' );
 
 define( $constpref.'_SSL_CONNECTOR_URL' ,       'セキュア接続 URL' );
 define( $constpref.'_SSL_CONNECTOR_URL_DESC' ,  'バックエンドとの通信のみセキュアな環境を利用する場合に https:// から始まる connector.php の URL を指定してください。<br />ブラウザの User Agent に "Firefox" "Chrome" "Safari" が含まれる場合のみ有効になります。' );

@@ -330,14 +330,6 @@ $modversion['config'][] = array(
 	'default'		=> 1
 ) ;
 $modversion['config'][] = array(
-	'name'			=> 'no_use_pathinfo' ,
-	'title'			=> $constpref.'_NO_USE_PATHINFO',
-	'description'	=> $constpref.'_NO_USE_PATHINFO_DESC',
-	'formtype'		=> 'yesno' ,
-	'valuetype'		=> 'int' ,
-	'default'		=> 0
-) ;
-$modversion['config'][] = array(
 	'name'			=> 'ssl_connector_url' ,
 	'title'			=> $constpref.'_SSL_CONNECTOR_URL',
 	'description'	=> $constpref.'_SSL_CONNECTOR_URL_DESC',
