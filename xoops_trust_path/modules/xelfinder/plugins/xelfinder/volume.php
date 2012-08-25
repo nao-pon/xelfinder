@@ -22,13 +22,13 @@ if (is_dir(XOOPS_ROOT_PATH . $path)) {
 		// 'startPath'  => '../files/test',
 		// 'deep' => 3,
 		// 'separator' => ':',
-		'uploadAllow'     => array('image'),
+		'uploadAllow'     => ($isAdmin? array('all') : array('image')),
 		// mimetypes not allowed to upload
-		'uploadDeny'      => array('all'),
+		'uploadDeny'      => ($isAdmin? array('') : array('all')),
 		// order to proccess uploadAllow and uploadDeny options
 		'uploadOrder'     => array('deny', 'allow'),
 		// regexp or function name to validate new file name
-		'acceptedName'    => '/^(?:\w+|\w[\w\s\.\%\-\(\)\[\]]*\.(?:txt|gif|jpeg|jpg|png))$/ui',
+		'acceptedName'    => ($isAdmin? '/^[^\/\\?*:|"<>]*[^.\/\\?*:|"<>]$/' : '/^(?:\w+|\w[\w\s\.\%\-\(\)\[\]]*\.(?:txt|gif|jpeg|jpg|png))$/ui'),
 		'defaults' => array('read' => true, 'write' => true)
 	);
 
