@@ -29,7 +29,7 @@ define( $constpref.'_FTP_HOST_DESC' ,           '' );
 define( $constpref.'_FTP_PORT' ,                'FTP port' );
 define( $constpref.'_FTP_PORT_DESC' ,           'default: 21' );
 define( $constpref.'_FTP_PATH' ,                'Directory as root' );
-define( $constpref.'_FTP_PATH_DESC' ,           '' );
+define( $constpref.'_FTP_PATH_DESC' ,           'FTP configuration is also used for "ftp" plug-volume driver. Please be blank if you set only for "ftp" plug-in.' );
 define( $constpref.'_FTP_USER' ,                'FTP user name' );
 define( $constpref.'_FTP_USER_DESC' ,           '' );
 define( $constpref.'_FTP_PASS' ,                'FTP password' );

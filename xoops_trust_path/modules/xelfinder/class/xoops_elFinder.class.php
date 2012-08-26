@@ -115,8 +115,13 @@ class xoops_elFinder {
 			$volume = $pluginPath . $plugin . '/volume.php';
 			if (is_file($volume)) {
 				$extra = isset($extras[$mydirname.':'.$plugin])? $extras[$mydirname.':'.$plugin] : array();
+				
+				//reset value
 				$isAdmin = $this->isAdmin;
+				$mConfig = $this->config;
+				$mDirname = $this->mydirname;
 				$volumeOptions = array();
+				
 				require $volume;
 				if ($volumeOptions) {
 					$volumeOptions = array_merge($this->defaultVolumeOptions, $volumeOptions, $extra, $extOptions);

@@ -29,7 +29,7 @@ define( $constpref.'_FTP_HOST_DESC' ,           '' );
 define( $constpref.'_FTP_PORT' ,                'FTP ポート番号' );
 define( $constpref.'_FTP_PORT_DESC' ,           'FTP は通常 21 番ポートです' );
 define( $constpref.'_FTP_PATH' ,                'ルートディレクトリ' );
-define( $constpref.'_FTP_PATH_DESC' ,           '' );
+define( $constpref.'_FTP_PATH_DESC' ,           'FTP設定はボリュームドライバの "ftp" プラグインにも使用されます。<br />"ftp" プラグイン用のみに設定する場合はルートディレクトリを空欄にしてください。' );
 define( $constpref.'_FTP_USER' ,                'FTP ユーザー名' );
 define( $constpref.'_FTP_USER_DESC' ,           '' );
 define( $constpref.'_FTP_PASS' ,                'FTP パスワード' );
