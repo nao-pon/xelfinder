@@ -63,7 +63,9 @@ $modversion['config'][] = array(
 '.$mydirname.':xelfinder:uploads/elfinder:elFinder:gid=1
 myalbum:myalbum:uploads/photos:MyAlbum
 gnavi:gnavi:uploads/gnavi:GNAVI
-mailbbs:mailbbs:modules/mailbbs/imgs:MailBBS'
+mailbbs:mailbbs:modules/mailbbs/imgs:MailBBS
+#xelfinder:xelfinder:preload:Preload:gid=1
+#xelfinder:ftp:preload:Preload:gid=1'
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'disabled_cmds_by_gid' ,
