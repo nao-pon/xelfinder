@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-08-27)
+ * Version 2.0 rc1 (2012-08-29)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -993,7 +993,7 @@ window.elFinder = function(node, opts) {
 		// quiet abort not completed "open" requests
 		if (cmd == 'open') {
 			while ((_xhr = queue.pop())) {
-				if (!_xhr.isRejected() && !_xhr.isResolved()) {
+				if (_xhr.state() == 'pending') {
 					_xhr.quiet = true;
 					_xhr.abort();
 				}
@@ -6677,7 +6677,7 @@ $.fn.elfindertoolbar = function(fm, opts) {
 				}
 				
 				panel.children().length && self.prepend(panel);
-				panel.children(':not(:last),:not(:first):not(:last)').after('<span class="ui-widget-content elfinder-toolbar-button-separator"/>');
+				panel.children(':gt(0)').before('<span class="ui-widget-content elfinder-toolbar-button-separator"/>');
 
 			}
 		}
@@ -7465,7 +7465,7 @@ elFinder.prototype.commands.copy = function() {
 			}
 		});
 		
-		return dfrd.isRejected() ? dfrd : dfrd.resolve(fm.clipboard(this.hashes(hashes)));
+		return dfrd.state() == 'rejected' ? dfrd : dfrd.resolve(fm.clipboard(this.hashes(hashes)));
 	}
 
 }
@@ -7510,7 +7510,7 @@ elFinder.prototype.commands.cut = function() {
 			}
 		});
 		
-		return dfrd.isRejected() ? dfrd : dfrd.resolve(fm.clipboard(this.hashes(hashes), true));
+		return dfrd.state() == 'rejected' ? dfrd : dfrd.resolve(fm.clipboard(this.hashes(hashes), true));
 	}
 
 }
@@ -7627,7 +7627,7 @@ elFinder.prototype.commands.duplicate = function() {
 			}
 		});
 		
-		if (dfrd.isRejected()) {
+		if (dfrd.state() == 'rejected') {
 			return dfrd;
 		}
 		
@@ -7934,7 +7934,7 @@ elFinder.prototype.commands.extract = function() {
 				syncOnFail : true
 			})
 			.fail(function(error) {
-				if (!dfrd.isRejected()) {
+				if (dfrd.state() == 'pending') {
 					dfrd.reject(error);
 				}
 			})
@@ -8568,7 +8568,7 @@ elFinder.prototype.commands.netmount = function() {
 						destroyOnClose : true,
 						close          : function() { 
 							delete self.dialog; 
-							!dfrd.isResolved() && !dfrd.isRejected() && dfrd.reject();
+							dfrd.state() == 'pending' && dfrd.reject();
 						},
 						buttons        : {}
 					},
@@ -8702,6 +8702,7 @@ elFinder.prototype.commands.netunmount = function() {
 	};
 
 };
+
 
 /*
  * File: /home/osc/elFinder/js/commands/open.js
@@ -9017,7 +9018,7 @@ elFinder.prototype.commands.paste = function() {
 			}
 		});
 
-		if (dfrd.isRejected()) {
+		if (dfrd.state() == 'rejected') {
 			return dfrd;
 		}
 
@@ -9627,9 +9628,7 @@ elFinder.prototype.commands.quicklook.plugins = [
 
 				// stop loading on change file if not loaded yet
 				preview.one('change', function() {
-					if (!jqxhr.isResolved() && !jqxhr.isRejected()) {
-						jqxhr.reject();
-					}
+					jqxhr.state() == 'pending' && jqxhr.reject();
 				});
 				
 				jqxhr = fm.request({
@@ -9668,9 +9667,7 @@ elFinder.prototype.commands.quicklook.plugins = [
 				
 				// stop loading on change file if not loadin yet
 				preview.one('change', function() {
-					if (!jqxhr.isResolved() && !jqxhr.isRejected()) {
-						jqxhr.reject();
-					}
+					jqxhr.state() == 'pending' && jqxhr.reject();
 				});
 				
 				jqxhr = fm.request({
@@ -10898,7 +10895,7 @@ elFinder.prototype.commands.rm = function() {
 			}
 		});
 
-		if (!dfrd.isRejected()) {
+		if (dfrd.state() == 'pending') {
 			files = this.hashes(hashes);
 			
 			fm.confirm({
