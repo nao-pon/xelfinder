@@ -71,8 +71,8 @@ $viewport = (preg_match('/Mobile/i', $_SERVER['HTTP_USER_AGENT']))? '<meta name=
 
 $userLang = xelfinder_detect_lang();
 
-$jQueryVersion   = '1.7.2';
-$jQueryUIVersion = '1.8.21';
+$jQueryVersion   = '1.8.0';
+$jQueryUIVersion = '1.8.23';
 
 while(ob_get_level()) {
 	if (! ob_end_clean()) break;
@@ -83,7 +83,7 @@ while(ob_get_level()) {
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>Image Manager - elFinder 2.0</title>
+		<title>Image Manager - X-elFinder (elFinder 2.0 for XOOPS)</title>
 		<?php echo $viewport ?>
 
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/<?php echo $jQueryVersion?>/jquery.min.js"></script>
