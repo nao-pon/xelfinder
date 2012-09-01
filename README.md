@@ -16,6 +16,15 @@ X-elFinder に関する話題、質問、要望 はフォーラムーへ。
 
 * [X-elFinder - フォーラム - XOOPS マニア](http://xoops.hypweb.net/modules/forum/index.php?forum_id=25)
 
+## 動作環境
+
+* XOOPS 系プラットフォーム
+ * 動作確認済みプラットフォーム
+  * XOOPS Cube Legacy 2.2.0, 2.2.1
+  * XOOPS 2.1.16-JP
+  * XOOPS 2.5.5
+* PHP 5.2 以上
+
 ## インストール時の注意事項
 
 次のディレクトリに書き込み(ファイル作成)権限 (777 とか 707 など) が必要です。
