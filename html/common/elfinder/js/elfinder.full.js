@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-08-29)
+ * Version 2.0 rc1 (2012-09-01)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -247,6 +247,14 @@ window.elFinder = function(node, opts) {
 			while (l--) {
 				f = data[l];
 				if (f.name && f.hash && f.mime) {
+					if (!f.phash) {
+						var name = 'volume_'+f.name,
+							i18 = self.i18n(name);
+
+						if (name != i18) {
+							f.i18 = i18;
+						}
+					}
 					files[f.hash] = f;
 				} 
 			}
@@ -690,12 +698,12 @@ window.elFinder = function(node, opts) {
 		return parents;
 	}
 	
-	this.path2array = function(hash) {
+	this.path2array = function(hash, i18) {
 		var file, 
 			path = [];
 			
 		while (hash && (file = files[hash]) && file.hash) {
-			path.unshift(file.name);
+			path.unshift(i18 && file.i18 ? file.i18 : file.name);
 			hash = file.phash;
 		}
 			
@@ -708,10 +716,10 @@ window.elFinder = function(node, opts) {
 	 * @param  Object  file
 	 * @return String
 	 */
-	this.path = function(hash) {
+	this.path = function(hash, i18) { 
 		return files[hash] && files[hash].path
 			? files[hash].path
-			: this.path2array(hash).join(cwdOptions.separator);
+			: this.path2array(hash, i18).join(cwdOptions.separator);
 	}
 	
 	/**
@@ -4881,7 +4889,7 @@ $.fn.elfindercwd = function(fm, options) {
 					sel      = cwd.find('[id].'+clSelected),
 					selector = prev ? 'first:' : 'last',
 					s, n, sib, top, left;
-					
+
 				function sibling(n, direction) {
 					return n[direction+'All']('[id]:not(.'+clDisabled+'):not(.elfinder-cwd-parent):first');
 				}
@@ -4927,7 +4935,7 @@ $.fn.elfindercwd = function(fm, options) {
 							}
 						}
 					}
-					!append && unselectAll();
+					// !append && unselectAll();
 				} else {
 					// there are no selected file - select first/last one
 					n = cwd.find('[id]:not(.'+clDisabled+'):not(.elfinder-cwd-parent):'+(prev ? 'last' : 'first'))
@@ -6878,7 +6886,7 @@ $.fn.elfindertree = function(fm, opts) {
 			 * @return String
 			 */
 			itemhtml = function(dir) {
-				dir.name = fm.escape(dir.name);
+				dir.name = fm.escape(dir.i18 || dir.name);
 				
 				return tpl.replace(/(?:\{([a-z]+)\})/ig, function(m, key) {
 					return dir[key] || (replace[key] ? replace[key](dir) : '');
@@ -8364,8 +8372,9 @@ elFinder.prototype.commands.info = function() {
 			
 		if (cnt == 1) {
 			file  = files[0];
+			
 			view  = view.replace('{class}', fm.mime2class(file.mime));
-			title = tpl.itemTitle.replace('{name}', file.name).replace('{kind}', fm.mime2kind(file));
+			title = tpl.itemTitle.replace('{name}', fm.escape(file.i18 || file.name)).replace('{kind}', fm.mime2kind(file));
 
 			if (file.tmb) {
 				tmb = fm.option('tmbUrl')+file.tmb;
@@ -8382,7 +8391,7 @@ elFinder.prototype.commands.info = function() {
 			
 			content.push(row.replace(l, msg.size).replace(v, size));
 			file.alias && content.push(row.replace(l, msg.aliasfor).replace(v, file.alias));
-			content.push(row.replace(l, msg.path).replace(v, fm.escape(fm.path(file.hash))));
+			content.push(row.replace(l, msg.path).replace(v, fm.escape(fm.path(file.hash, true))));
 			file.read && content.push(row.replace(l, msg.link).replace(v,  '<a href="'+fm.url(file.hash)+'" target="_blank">'+file.name+'</a>'));
 			
 			if (file.dim) { // old api
@@ -9349,7 +9358,7 @@ elFinder.prototype.commands.quicklook = function() {
 						.attr('src', (tmb = fm.tmb(file.hash)));
 				}
 				self.info.delay(100).fadeIn(10);
-			} else {
+			} else { 
 				e.stopImmediatePropagation();
 			}
 		});
@@ -9358,7 +9367,7 @@ elFinder.prototype.commands.quicklook = function() {
 	
 
 	this.window = $('<div class="ui-helper-reset ui-widget elfinder-quicklook" style="position:absolute"/>')
-		.click(function(e) { e.stopPropagation(); })
+		.click(function(e) { e.stopPropagation();  })
 		.append(
 			$('<div class="elfinder-quicklook-titlebar"/>')
 				.append(title)
@@ -9376,7 +9385,7 @@ elFinder.prototype.commands.quicklook = function() {
 				node;
 
 			if (self.closed() && file && (node = cwd.find('#'+file.hash)).length) {
-				
+				navbar.attr('style', '');
 				state = animated;
 				node.trigger('scrolltoview');
 				win.css(closedCss(node))
@@ -9396,7 +9405,8 @@ elFinder.prototype.commands.quicklook = function() {
 					state = closed;
 					win.hide();
 					preview.children().remove();
-					self.update(0, self.value)
+					self.update(0, self.value);
+					
 				};
 				
 			if (self.opened()) {
