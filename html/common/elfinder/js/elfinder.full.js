@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-09-01)
+ * Version 2.0 rc1 (2012-09-05)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -7003,15 +7003,13 @@ $.fn.elfindertree = function(fm, opts) {
 
 				if (opts.syncTree) {
 					if (current.length) {
-						current.parentsUntil('.'+root).filter('.'+subtree).show().prev('.'+navdir).addClass(expanded);
-					} else if (fm.newAPI && !stopRec) {
-						// check if cwd is not in files
+						return current.parentsUntil('.'+root).filter('.'+subtree).show().prev('.'+navdir).addClass(expanded);
+					}
+					if (fm.newAPI) {
 						if ((dir = fm.file(cwd)).phash && tree.find('#'+fm.navHash2Id(dir.phash)).length) {
 							updateTree([dir]);
-						} else {
-							return;
+							return sync();
 						}
-
 						fm.request({
 							data : {cmd : 'parents', target : cwd},
 							preventFail : true
@@ -7023,6 +7021,7 @@ $.fn.elfindertree = function(fm, opts) {
 							cwd == fm.cwd().hash && sync(true);
 						});
 					}
+					
 				}
 			},
 			
