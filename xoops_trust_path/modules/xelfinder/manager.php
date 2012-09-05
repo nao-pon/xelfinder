@@ -71,7 +71,9 @@ $viewport = (preg_match('/Mobile/i', $_SERVER['HTTP_USER_AGENT']))? '<meta name=
 
 $userLang = xelfinder_detect_lang();
 
-$jQueryVersion   = '1.8.0';
+$jQueryCDN = '//ajax.googleapis.com/ajax/libs/jquery/%s/jquery.min.js';
+$jQueryUICDN = '//ajax.googleapis.com/ajax/libs/jqueryui/%s';
+$jQueryVersion   = '1.8.1';
 $jQueryUIVersion = '1.8.23';
 
 while(ob_get_level()) {
@@ -86,9 +88,9 @@ while(ob_get_level()) {
 		<title>Image Manager - X-elFinder (elFinder 2.0 for XOOPS)</title>
 		<?php echo $viewport ?>
 
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/<?php echo $jQueryVersion?>/jquery.min.js"></script>
-		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/<?php echo $jQueryUIVersion?>/jquery-ui.min.js"></script>
-		<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/<?php echo $jQueryUIVersion?>/themes/smoothness/jquery-ui.css" type="text/css">
+		<script src="<?php echo sprintf($jQueryCDN, $jQueryVersion)?>"></script>
+		<script src="<?php echo sprintf($jQueryUICDN, $jQueryUIVersion)?>/jquery-ui.min.js"></script>
+		<link rel="stylesheet" href="<?php echo sprintf($jQueryUICDN, $jQueryUIVersion)?>/themes/smoothness/jquery-ui.css" type="text/css">
 	
 		<?php if ($debug) {?>
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/common.css"      type="text/css" >
