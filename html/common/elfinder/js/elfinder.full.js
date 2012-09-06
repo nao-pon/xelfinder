@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-09-05)
+ * Version 2.0 rc1 (2012-09-06)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -1107,7 +1107,7 @@ window.elFinder = function(node, opts) {
 				preventDefault : true
 			},
 			opts2 = {
-				data           : {cmd : 'parents', target : cwd},
+				data           : {cmd : 'tree', target : (cwd == this.root())? cwd : this.file(cwd).phash},
 				preventDefault : true
 			};
 		
