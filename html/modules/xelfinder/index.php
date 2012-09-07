@@ -1,5 +1,10 @@
 <?php
 
+// fix IIS PATH_INFO
+if (isset($_SERVER['SERVER_SOFTWARE']) && strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS') !== false) {
+	$_SERVER['PATH_INFO'] = preg_replace('/^'.preg_quote($_SERVER['SCRIPT_NAME']).'/', '', $_SERVER['PATH_INFO']);
+}
+
 if ( ( isset($_GET['page']) && ($_GET['page'] === 'view' || $_GET['page'] === 'tmb' ) )
         ||
      ( isset($_SERVER['PATH_INFO']) && preg_match('#^/(?:view|tmb)/#', $_SERVER['PATH_INFO'] ) )
