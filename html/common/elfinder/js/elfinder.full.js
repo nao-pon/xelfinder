@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-09-06)
+ * Version 2.0 rc1 (2012-09-07)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -1111,7 +1111,6 @@ window.elFinder = function(node, opts) {
 				preventDefault : true
 			};
 		
-		
 		$.when(
 			this.request(opts1),
 			this.request(opts2)
@@ -1126,6 +1125,7 @@ window.elFinder = function(node, opts) {
 		.done(function(odata, pdata) {
 			var diff = self.diff(odata.files.concat(pdata && pdata.tree ? pdata.tree : []));
 
+			diff.added.push(odata.cwd)
 			diff.removed.length && self.remove(diff);
 			diff.added.length   && self.add(diff);
 			diff.changed.length && self.change(diff);
@@ -6426,10 +6426,16 @@ $.fn.elfindersearchbutton = function(cmd) {
 		var result = false,
 			button = $(this).hide().addClass('ui-widget-content elfinder-button '+cmd.fm.res('class', 'searchbtn')+''),
 			search = function() {
-				cmd.exec($.trim(input.val())).done(function() {
-					result = true;
-					input.focus();
-				});
+				var val = $.trim(input.val());
+				if (val) {
+					cmd.exec(val).done(function() {
+						result = true;
+						input.focus();
+					});
+					
+				} else {
+					cmd.fm.trigger('searchend')
+				}
 			},
 			abort = function() {
 				input.val('');
@@ -6447,7 +6453,7 @@ $.fn.elfindersearchbutton = function(cmd) {
 				.keydown(function(e) {
 					e.stopPropagation();
 					
-					e.keyCode == 13 &&  search();
+					e.keyCode == 13 && search();
 					
 					if (e.keyCode== 27) {
 						e.preventDefault();
@@ -7006,7 +7012,8 @@ $.fn.elfindertree = function(fm, opts) {
 						return current.parentsUntil('.'+root).filter('.'+subtree).show().prev('.'+navdir).addClass(expanded);
 					}
 					if (fm.newAPI) {
-						if ((dir = fm.file(cwd)).phash && tree.find('#'+fm.navHash2Id(dir.phash)).length) {
+						dir = fm.file(cwd);
+						if (dir && dir.phash && tree.find('#'+fm.navHash2Id(dir.phash)).length) {
 							updateTree([dir]);
 							return sync();
 						}
@@ -7019,7 +7026,8 @@ $.fn.elfindertree = function(fm, opts) {
 							updateTree(dirs);
 							updateArrows(dirs, loaded);
 							cwd == fm.cwd().hash && sync(true);
-						});
+						})
+						;
 					}
 					
 				}
