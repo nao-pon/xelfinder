@@ -62,7 +62,7 @@ class xelfinderPreloadBase extends XCube_ActionFilter {
 		if ($actionFrame->mActionName === 'ImagecategoryList') {
 			$image_handler =& xoops_getmodulehandler('image');
 			if ($image_handler) {
-				$total_criteria =new CriteriaCompo(new Criteria('imgcat_id', 0));
+				$total_criteria = new CriteriaCompo();
 				if (! $image_handler->getCount($total_criteria)) {
 					$root =& XCube_Root::getSingleton();
 					$root->mController->executeForward(XOOPS_MODULE_URL . '/' . $this->mydirname . '/');
