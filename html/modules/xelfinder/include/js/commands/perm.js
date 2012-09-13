@@ -1,3 +1,4 @@
+(function($){
 elFinder.prototype.commands.perm = function() {
 	this.updateOnSelect = false;
 	var self = this;
@@ -220,7 +221,7 @@ elFinder.prototype.commands.perm = function() {
 		opts    = {
 			title : this.title,
 			width : 'auto',
-			buttons : buttons,
+			buttons : buttons(),
 			close : function() { $(this).elfinderdialog('destroy'); }
 		},
 		dialog = fm.getUI().find('#'+id),
@@ -326,3 +327,4 @@ elFinder.prototype.commands.perm = function() {
 		return dfrd;
 	};
 };
+}(jQuery));
