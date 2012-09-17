@@ -1214,7 +1214,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$sql = sprintf($sql, $this->tbf, $targetDir, mysql_escape_string($name), $perm, $umask, $gid, $source);
 		if  ($this->query($sql) && $this->db->getAffectedRows() > 0) {
 			unset($this->cache[$source]);
-			return true;
+			return $source;
 		} else {
 			return false;
 		}
