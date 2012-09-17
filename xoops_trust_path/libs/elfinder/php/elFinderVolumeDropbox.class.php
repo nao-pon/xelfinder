@@ -748,7 +748,7 @@ class elFinderVolumeDropbox extends elFinderVolumeDriver {
 		if ($result && $fp = @fopen($path, 'rb')) {
 			
 			clearstatcache();
-			$res = $this->_save($fp, $path4stat, '', '', '', '');
+			$res = $this->_save($fp, $path4stat, array());
 			@fclose($fp);
 
 			file_exists($path) && @unlink($path);
@@ -1296,10 +1296,11 @@ class elFinderVolumeDropbox extends elFinderVolumeDriver {
 	 * @param  resource  $fp   file pointer
 	 * @param  string    $dir  target dir path
 	 * @param  string    $name file name
+	 * @param  array     $stat file stat (required by some virtual fs)
 	 * @return bool|string
 	 * @author Dmitry (dio) Levashov
 	 **/
-	protected function _save($fp, $path, $name, $mime, $w, $h) {
+	protected function _save($fp, $path, $name, $stat) {
 		if ($name) $path .= '/'.$name;
 		$path = $this->_normpath($path);
 		try {
@@ -1346,7 +1347,7 @@ class elFinderVolumeDropbox extends elFinderVolumeDriver {
 			if (@file_put_contents($local, $content, LOCK_EX) !== false
 			&& ($fp = @fopen($local, 'rb'))) {
 				clearstatcache();
-				$res = $this->_save($fp, $path, '', '', '', '');
+				$res = $this->_save($fp, $path, array());
 				@fclose($fp);
 			}
 			file_exists($local) && @unlink($local);

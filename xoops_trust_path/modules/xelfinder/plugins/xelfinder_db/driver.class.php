@@ -624,7 +624,11 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 						}
 					}
 					if ($fp = fopen($localpath, 'rb')) {
-						if ($id = $this->_save($fp, $dir, $name, $mime, $width, $height)) {
+						$stat = array(
+							'mime' => $mime,
+							'width' => $width,
+							'height' => $height );
+						if ($id = $this->_save($fp, $dir, $name, $stat)) {
 							$path = $id;
 						}
 						fclose($fp);
@@ -1261,10 +1265,11 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @param  resource  $fp   file pointer
 	 * @param  string    $dir  target dir path
 	 * @param  string    $name file name
+	 * @param  array     $stat file stat (required by some virtual fs)
 	 * @return bool|string
 	 * @author Dmitry (dio) Levashov
 	 **/
-	protected function _save($fp, $dir, $name, $mime, $w, $h, $stat = null) {
+	protected function _save($fp, $dir, $name, $stat) {
 		
 		if ($name === '') return false;
 		
@@ -1287,6 +1292,10 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		if ($local_path) {
 			$local_path = mysql_real_escape_string($local_path);
 		}
+		
+		$mime = $stat['mime'];
+		$w = $stat['w'];
+		$h = $stat['h'];
 		
 		$sql = $id > 0
 			? 'REPLACE INTO %s (`file_id`, `parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `umask`, `uid`, `gid`, `mime`, `width`, `height`, `gids`, `local_path`) VALUES ('.$id.', %d, "%s", %d, %d, %d, "%s", "%s", %d, %d, "%s", %d, %d, "%s", "%s")'
