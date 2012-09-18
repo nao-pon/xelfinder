@@ -1294,8 +1294,8 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		}
 		
 		$mime = $stat['mime'];
-		$w = $stat['w'];
-		$h = $stat['h'];
+		$w = $stat['width'];
+		$h = $stat['height'];
 		
 		$sql = $id > 0
 			? 'REPLACE INTO %s (`file_id`, `parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `umask`, `uid`, `gid`, `mime`, `width`, `height`, `gids`, `local_path`) VALUES ('.$id.', %d, "%s", %d, %d, %d, "%s", "%s", %d, %d, "%s", %d, %d, "%s", "%s")'
