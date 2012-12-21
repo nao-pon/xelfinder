@@ -73,8 +73,8 @@ $userLang = xelfinder_detect_lang();
 
 $jQueryCDN = '//ajax.googleapis.com/ajax/libs/jquery/%s/jquery.min.js';
 $jQueryUICDN = '//ajax.googleapis.com/ajax/libs/jqueryui/%s';
-$jQueryVersion   = '1.8.1';
-$jQueryUIVersion = '1.8.23';
+$jQueryVersion   = '1.8.3';
+$jQueryUIVersion = '1.9.2';
 
 while(ob_get_level()) {
 	if (! ob_end_clean()) break;
