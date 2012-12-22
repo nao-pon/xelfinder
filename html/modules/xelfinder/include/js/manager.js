@@ -410,7 +410,7 @@ var getFileCallback_ckeditor = function (file, fm) {
 		thumb = thumb.replace(localHostReg, '');
 		var fullsize = ' title="' + fm.i18n('fullsize') + '"';
 		var thumbnail = ' title="' + fm.i18n('thumbnail') + '"';
-		var buttons = '<span'+thumbnail+' onclick="var tmb=(tmbFunc_ckeditor(\''+thumb.replace("'", "%27")+'\')||\''+path.replace("'", "%27")+'\');window.opener.CKEDITOR.tools.callFunction(\''+funcNum+'\',tmb);window.close();"><img src="'+imgUrl+'alignleft.gif" alt="" /></span>'
+		var buttons = '<span'+thumbnail+' onclick="var tmb=(tmbFunc_ckeditor(\''+thumb.replace("'", "%27")+'\')||\''+path.replace("'", "%27")+'\');window.opener.CKEDITOR.tools.callFunction(\''+funcNum+'\',tmb);var dialog=window.opener.CKEDITOR.dialog.getCurrent();dialog.setValueOf(\'Link\',\'txtUrl\',\''+path.replace("'", "%27")+'\');window.close();"><img src="'+imgUrl+'alignleft.gif" alt="" /></span>'
 		+ ' &nbsp; '
 		+ '<span'+fullsize+' onclick="window.opener.CKEDITOR.tools.callFunction(\''+funcNum+'\', \''+path.replace("'", "%27")+'\');window.close();"><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span>'
 		+ '<br><span class="file_info">Size: ' + file.width + 'x' + file.height+'</span>';
