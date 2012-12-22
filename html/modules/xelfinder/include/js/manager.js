@@ -16,6 +16,8 @@ $().ready(function() {
 	elFinder.prototype.i18.en.messages.nowrap        = 'No wrap';
 	elFinder.prototype.i18.en.messages.wraparound    = 'Wrap around';
 	elFinder.prototype.i18.en.messages.inline        = 'Inline';
+	elFinder.prototype.i18.en.messages.fullsize      = 'Full Size';
+	elFinder.prototype.i18.en.messages.thumbnail     = 'Thumbnail';
 
 	if (typeof elFinder.prototype.i18.jp != "undefined") {
 		elFinder.prototype.i18.jp.messages.ntfperm = 'アイテム属性を変更';
@@ -32,6 +34,8 @@ $().ready(function() {
 		elFinder.prototype.i18.jp.messages.nowrap        = '回り込みなし';
 		elFinder.prototype.i18.jp.messages.wraparound    = '回り込みあり';
 		elFinder.prototype.i18.jp.messages.inline        = 'インライン';
+		elFinder.prototype.i18.jp.messages.fullsize      = 'フルサイズ';
+		elFinder.prototype.i18.jp.messages.thumbnail     = 'サムネイル';
 
 		elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
 	}
@@ -370,10 +374,58 @@ var getFileCallback_fckeditor = function (file, fm) {
 
 // for CKEditor
 // Url: '[XOOPS_URL]/modules/xelfinder/manager.php?cb=ckeditor'
+function tmbFunc_ckeditor(tmb){
+	if ($('#resize_px')) {
+		var size = $('#resize_px').val();
+		if (size && ! size.match(/[\d]{1,4}/)) {
+			size = '';
+		}
+		if (tmb.match(/_tmbsize_/)) {
+			if (size) {
+				tmb = tmb.replace('_tmbsize_', size);
+			} else {
+				tmb = false;
+			}
+		}
+	}
+	return tmb;
+}
 var getFileCallback_ckeditor = function (file, fm) {
+	var path = encodeURI(decodeURI(file.url));
+	var basename = path.replace( /^.*\//, '' );
+	var modules_basename = moduleUrl.replace(rootUrl, '').replace(/\//g, '');
+	var reg = new RegExp('^.*?(?:'+modules_basename+'|uploads)\/([^\/]+)\/.*$');
+	var module = path.replace(reg, '$1');
+	var thumb = '';
+	var isImg = (file.mime.match(/^image/))? true : false;
+	if (isImg && module.match(/^[a-zA-Z0-9_-]+$/)) {
+		eval('if (typeof get_thumb_'+module+' == "function" ){' +
+			'thumb = get_thumb_'+module+'(basename, file);}' );
+	}
 	var funcNum = window.location.search.replace(/^.*CKEditorFuncNum=(\d+).*$/, "$1");
-	window.opener.CKEDITOR.tools.callFunction(funcNum, file.url);
-	window.close();
+	var localHostReg = new RegExp('^' + window.location.protocol + '//' + window.location.host);
+	path = path.replace(localHostReg, '');
+	if (thumb) {
+		thumb = encodeURI(rootUrl+'/'+decodeURI(thumb));
+		thumb = thumb.replace(localHostReg, '');
+		var fullsize = ' title="' + fm.i18n('fullsize') + '"';
+		var thumbnail = ' title="' + fm.i18n('thumbnail') + '"';
+		var buttons = '<span'+thumbnail+' onclick="var tmb=(tmbFunc_ckeditor(\''+thumb.replace("'", "%27")+'\')||\''+path.replace("'", "%27")+'\');window.opener.CKEDITOR.tools.callFunction(\''+funcNum+'\',tmb);window.close();"><img src="'+imgUrl+'alignleft.gif" alt="" /></span>'
+		+ ' &nbsp; '
+		+ '<span'+fullsize+' onclick="window.opener.CKEDITOR.tools.callFunction(\''+funcNum+'\', \''+path.replace("'", "%27")+'\');window.close();"><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span>'
+		+ '<br><span class="file_info">Size: ' + file.width + 'x' + file.height+'</span>';
+		if (file.url.match(/\bview\b/)) {
+			buttons += '<br>'
+					+ '<span class="file_info">Resize:<input id="resize_px" style="width: 3em" class="button_input" value="'+defaultTmbSize+'">px</span>';
+		}
+		$('.toast-item-close').click();
+		$().toastmessage( 'showSuccessToast', buttons);
+		$('.toast-item').css('background-image','url("'+path+'")');
+		
+	} else {
+		window.opener.CKEDITOR.tools.callFunction(funcNum, path);
+		window.close();
+	}
 };
 
 // for tinyMCE
