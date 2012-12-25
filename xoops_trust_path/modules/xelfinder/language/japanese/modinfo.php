@@ -11,6 +11,8 @@ define( $constpref.'_LOADED' , 1 ) ;
 define( $constpref.'_DESC' , 'Webベースのファイルマネージャ elFinder をイメージマネージャとして利用するモジュール');
 
 // admin menu
+define($constpref.'_ADMENU_GOTO_MODULE' ,   'モジュール画面' ) ;
+define($constpref.'_ADMENU_GOTO_MANAGER' ,  'ファイルマネージャ' ) ;
 define($constpref.'_ADMENU_MYLANGADMIN' ,   '言語定数管理' ) ;
 define($constpref.'_ADMENU_MYTPLSADMIN' ,   'テンプレート管理' ) ;
 define($constpref.'_ADMENU_MYBLOCKSADMIN' , 'ブロック管理/アクセス権限' ) ;

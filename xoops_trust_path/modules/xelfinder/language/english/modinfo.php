@@ -11,6 +11,8 @@ define( $constpref.'_LOADED' , 1 ) ;
 define( $constpref.'_DESC' , 'The module which uses the file manager elFinder of a Web base as an image manager.');
 
 // admin menu
+define( $constpref.'_ADMENU_GOTO_MODULE' , 'Goto Module' ) ;
+define( $constpref.'_ADMENU_GOTO_MANAGER' ,'FileManager' ) ;
 define( $constpref.'_ADMENU_MYLANGADMIN',  'Languages');
 define( $constpref.'_ADMENU_MYTPLSADMIN',  'Templates');
 define( $constpref.'_ADMENU_MYBLOCKSADMIN','Blocks/Permissions');

@@ -3,7 +3,14 @@
 $constpref = '_MI_' . strtoupper( $mydirname ) ;
 
 $adminmenu = array(
-
+	array(
+		'title' => constant( $constpref.'_ADMENU_GOTO_MODULE' ) ,
+		'link' => 'index.php' ,
+	) ,
+	array(
+		'title' => constant( $constpref.'_ADMENU_GOTO_MANAGER' ) ,
+		'link' => 'manager.php?admin=1' ,
+	) ,
 ) ;
 
 $adminmenu4altsys = array(
