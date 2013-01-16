@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.0 rc1 (2012-12-30)
+ * Version 2.0 rc1 (2013-01-16)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -325,6 +325,25 @@ window.elFinder = function(node, opts) {
 	 * @type String
 	 **/
 	this.OS = navigator.userAgent.indexOf('Mac') !== -1 ? 'mac' : navigator.userAgent.indexOf('Win') !== -1  ? 'win' : 'other';
+	
+	/**
+	 * User browser UA.
+	 * jQuery.browser: version deprecated: 1.3, removed: 1.9
+	 *
+	 * @type Object
+	 **/
+	this.UA = (function(){
+		return {
+			ltIE6:typeof window.addEventListener == "undefined" && typeof document.documentElement.style.maxHeight == "undefined",
+			ltIE7:typeof window.addEventListener == "undefined" && typeof document.querySelectorAll == "undefined",
+			ltIE8:typeof window.addEventListener == "undefined" && typeof document.getElementsByClassName == "undefined",
+			IE:document.uniqueID,
+			Firefox:window.sidebar,
+			Opera:window.opera,
+			Webkit:!document.uniqueID && !window.opera && !window.sidebar && window.localStorage && typeof window.orientation == "undefined",
+			Mobile:typeof window.orientation != "undefined"
+		}
+	})();
 	
 	/**
 	 * Configuration options
@@ -778,7 +797,7 @@ window.elFinder = function(node, opts) {
 		var file = files[hash],
 			url = file && file.tmb && file.tmb != 1 ? cwdOptions['tmbUrl'] + file.tmb : '';
 		
-		if (url && ($.browser.opera || $.browser.msie)) {
+		if (url && (this.UA.Opera || this.UA.IE)) {
 			url += '?_=' + new Date().getTime();
 		}
 		return url;
@@ -2025,7 +2044,7 @@ elFinder.prototype = {
 					}),
 				name = 'iframe-'+self.namespace+(++self.iframeCnt),
 				form = $('<form action="'+self.uploadURL+'" method="post" enctype="multipart/form-data" encoding="multipart/form-data" target="'+name+'" style="display:none"><input type="hidden" name="cmd" value="upload" /></form>'),
-				msie = $.browser.msie,
+				msie = this.UA.IE,
 				// clear timeouts, close notification dialog, remove form/iframe
 				onload = function() {
 					abortto  && clearTimeout(abortto);
@@ -2211,7 +2230,7 @@ elFinder.prototype = {
 			
 			xhr.send(formData);
 
-			if (!$.browser.safari || !data.files) {
+			if (!this.UA.Webkit || !data.files) {
 				notifyto = startNotify();
 			}
 			
@@ -5710,7 +5729,7 @@ $.fn.elfindercwd = function(fm, options) {
 			.shortcut({
 				pattern     : 'left right up down shift+left shift+right shift+up shift+down',
 				description : 'selectfiles',
-				type        : 'keydown' , //$.browser.mozilla || $.browser.opera ? 'keypress' : 'keydown',
+				type        : 'keydown' , //fm.UA.Firefox || fm.UA.Opera ? 'keypress' : 'keydown',
 				callback    : function(e) { select(e.keyCode, e.shiftKey); }
 			})
 			.shortcut({
@@ -6474,7 +6493,7 @@ $.fn.elfindersearchbutton = function(cmd) {
 			button.parent().detach();
 			cmd.fm.getUI('toolbar').prepend(button.show());
 			// position icons for ie7
-			if ($.browser.msie) {
+			if (cmd.fm.UA.ltIE7) {
 				var icon = button.children(cmd.fm.direction == 'ltr' ? '.ui-icon-close' : '.ui-icon-search');
 				icon.css({
 					right : '',
@@ -7556,7 +7575,7 @@ elFinder.prototype.commands.download = function() {
 		var sel = this.fm.selected(),
 			cnt = sel.length;
 		
-		return  !this._disabled && cnt && (!$.browser.msie || cnt == 1) && cnt == filter(sel).length ? 0 : -1;
+		return  !this._disabled && cnt && (!fm.UA.IE || cnt == 1) && cnt == filter(sel).length ? 0 : -1;
 	}
 	
 	this.exec = function(hashes) {
@@ -7593,7 +7612,7 @@ elFinder.prototype.commands.download = function() {
 					$(iframes).each(function() {
 						$('#' + $(this).attr('id')).remove();
 					});
-				}, $.browser.mozilla? (20000 + (10000 * i)) : 1000); // give mozilla 20 sec + 10 sec for each file to be saved
+				}, fm.UA.Firefox? (20000 + (10000 * i)) : 1000); // give mozilla 20 sec + 10 sec for each file to be saved
 			});
 		fm.trigger('download', {files : files});
 		return dfrd.resolve(hashes);
@@ -9163,7 +9182,7 @@ elFinder.prototype.commands.quicklook = function() {
 		 *
 		 * @type Number
 		 **/
-		// keydown    = $.browser.mozilla || $.browser.opera ? 'keypress' : 'keydown',
+		// keydown    = fm.UA.Firefox || fm.UA.Opera ? 'keypress' : 'keydown',
 		/**
 		 * navbar icon class
 		 *
@@ -9710,7 +9729,7 @@ elFinder.prototype.commands.quicklook.plugins = [
 			preview = ql.preview,
 			active  = false;
 			
-		if (($.browser.safari && navigator.platform.indexOf('Mac') != -1) || $.browser.msie) {
+		if ((fm.UA.Webkit && fm.OS == 'mac') || fm.UA.IE) {
 			active = true;
 		} else {
 			$.each(navigator.plugins, function(i, plugins) {
@@ -10353,7 +10372,7 @@ elFinder.prototype.commands.resize = function() {
 							if (typeof animate == 'undefined') {
 								animate = true;
 							}
-							if (! animate || $.browser.opera || ($.browser.msie && parseInt($.browser.version) < 9)) {
+							if (! animate || fm.UA.Opera || fm.UA.ltIE8) {
 								imgr.rotate(value);
 							} else {
 								imgr.animate({rotate: value + 'deg'});
@@ -10439,6 +10458,7 @@ elFinder.prototype.commands.resize = function() {
 					resizable = function(destroy) {
 						if ($.fn.resizable) {
 							if (destroy) {
+								rhandle.resizable()
 								rhandle.resizable('destroy');
 								rhandle.hide();
 							}
@@ -10456,7 +10476,9 @@ elFinder.prototype.commands.resize = function() {
 					croppable = function(destroy) {
 						if ($.fn.draggable && $.fn.resizable) {
 							if (destroy) {
+								rhandlec.resizable();
 								rhandlec.resizable('destroy');
+								rhandlec.draggable();
 								rhandlec.draggable('destroy');
 								basec.hide();
 							}
@@ -10654,7 +10676,7 @@ elFinder.prototype.commands.resize = function() {
 				}).attr('id', id);
 				
 				// for IE < 9 dialog mising at open second+ time.
-				if ($.browser.msie && parseInt($.browser.version) < 9) {
+				if (fm.UA.ltIE8) {
 					$('.elfinder-dialog').css('filter', '');
 				}
 				
@@ -10741,7 +10763,7 @@ elFinder.prototype.commands.resize = function() {
 	
 	$.fn.rotate = function(val) {
 		if (typeof val == 'undefined') {
-			if ($.browser.opera) {
+			if (!!window.opera) {
 				var r = this.css('transform').match(/rotate\((.*?)\)/);
 				return  ( r && r[1])?
 					Math.round(parseFloat(r[1]) * 180 / Math.PI) : 0;
@@ -10763,7 +10785,7 @@ elFinder.prototype.commands.resize = function() {
 		$(fx.elem).rotate(fx.now);
 	};
 
-	if ($.browser.msie && parseInt($.browser.version) < 9) {
+	if (typeof window.addEventListener == "undefined" && typeof document.getElementsByClassName == "undefined") { // IE & IE<9
 		var GetAbsoluteXY = function(element) {
 			var pnode = element;
 			var x = pnode.offsetLeft;

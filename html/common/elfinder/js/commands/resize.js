@@ -278,7 +278,7 @@ elFinder.prototype.commands.resize = function() {
 							if (typeof animate == 'undefined') {
 								animate = true;
 							}
-							if (! animate || $.browser.opera || ($.browser.msie && parseInt($.browser.version) < 9)) {
+							if (! animate || fm.UA.Opera || fm.UA.ltIE8) {
 								imgr.rotate(value);
 							} else {
 								imgr.animate({rotate: value + 'deg'});
@@ -364,6 +364,7 @@ elFinder.prototype.commands.resize = function() {
 					resizable = function(destroy) {
 						if ($.fn.resizable) {
 							if (destroy) {
+								rhandle.resizable()
 								rhandle.resizable('destroy');
 								rhandle.hide();
 							}
@@ -381,7 +382,9 @@ elFinder.prototype.commands.resize = function() {
 					croppable = function(destroy) {
 						if ($.fn.draggable && $.fn.resizable) {
 							if (destroy) {
+								rhandlec.resizable();
 								rhandlec.resizable('destroy');
+								rhandlec.draggable();
 								rhandlec.draggable('destroy');
 								basec.hide();
 							}
@@ -579,7 +582,7 @@ elFinder.prototype.commands.resize = function() {
 				}).attr('id', id);
 				
 				// for IE < 9 dialog mising at open second+ time.
-				if ($.browser.msie && parseInt($.browser.version) < 9) {
+				if (fm.UA.ltIE8) {
 					$('.elfinder-dialog').css('filter', '');
 				}
 				
@@ -666,7 +669,7 @@ elFinder.prototype.commands.resize = function() {
 	
 	$.fn.rotate = function(val) {
 		if (typeof val == 'undefined') {
-			if ($.browser.opera) {
+			if (!!window.opera) {
 				var r = this.css('transform').match(/rotate\((.*?)\)/);
 				return  ( r && r[1])?
 					Math.round(parseFloat(r[1]) * 180 / Math.PI) : 0;
@@ -688,7 +691,7 @@ elFinder.prototype.commands.resize = function() {
 		$(fx.elem).rotate(fx.now);
 	};
 
-	if ($.browser.msie && parseInt($.browser.version) < 9) {
+	if (typeof window.addEventListener == "undefined" && typeof document.getElementsByClassName == "undefined") { // IE & IE<9
 		var GetAbsoluteXY = function(element) {
 			var pnode = element;
 			var x = pnode.offsetLeft;
