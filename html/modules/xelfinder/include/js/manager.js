@@ -136,7 +136,7 @@ $.fn.extend({
 		}
 		if (o) {
 			o.focus();
-			if (jQuery.browser.msie) {
+			if (!!document.uniqueID) { // IE
 				var r;
 				if (typeof o.caretPos == 'object') {
 					r = o.caretPos;
