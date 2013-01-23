@@ -477,7 +477,7 @@ window.elFinder = function(node, opts) {
 		}
 	})();
 
-	this.viewType = this.storage('view') || this.options.defaultView || 'icons',
+	this.viewType = this.storage('view') || this.options.defaultView || 'icons';
 
 	this.sortType = this.storage('sortType') || this.options.sortType || 'name';
 	
