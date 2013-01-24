@@ -119,16 +119,16 @@ elFinder.prototype.commands.perm = function() {
 			var _perm;
 			for (var i = 0; i < 3; i++){
 				_perm = 0;
-				if ($("#"+id+"-read-"+level[i]+'-'+type).attr('checked') == 'checked') {
+				if ($("#"+id+"-read-"+level[i]+'-'+type).is(':checked')) {
 					_perm = (_perm | 4);
 				}
-				if ($("#"+id+"-write-"+level[i]+'-'+type).attr('checked') == 'checked') {
+				if ($("#"+id+"-write-"+level[i]+'-'+type).is(':checked')) {
 					_perm = (_perm | 2);
 				}
-				if ($("#"+id+"-unlock-"+level[i]+'-'+type).attr('checked') == 'checked') {
+				if ($("#"+id+"-unlock-"+level[i]+'-'+type).is(':checked')) {
 					_perm = (_perm | 1);
 				}
-				if ($("#"+id+"-hidden-"+level[i]+'-'+type).attr('checked') == 'checked') {
+				if ($("#"+id+"-hidden-"+level[i]+'-'+type).is(':checked')) {
 					_perm = (_perm | 8);
 				}
 				perm += _perm.toString(16);
