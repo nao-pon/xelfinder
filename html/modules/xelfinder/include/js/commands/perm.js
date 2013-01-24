@@ -139,21 +139,21 @@ elFinder.prototype.commands.perm = function() {
 			var _perm;
 			for (var i = 0; i < 3; i++){
 				_perm = parseInt(perm.slice(i, i+1), 16);
-				$("#"+id+"-read-"+level[i]+'-'+type).removeAttr('checked');
-				$("#"+id+"-write-"+level[i]+'-'+type).removeAttr('checked');
-				$("#"+id+"-unlock-"+level[i]+'-'+type).removeAttr('checked');
-				$("#"+id+"-hidden-"+level[i]+'-'+type).removeAttr('checked');
+				$("#"+id+"-read-"+level[i]+'-'+type).prop("checked", false);
+				$("#"+id+"-write-"+level[i]+'-'+type).prop("checked", false);
+				$("#"+id+"-unlock-"+level[i]+'-'+type).prop("checked", false);
+				$("#"+id+"-hidden-"+level[i]+'-'+type).prop("checked", false);
 				if ((_perm & 4) == 4) {
-					$("#"+id+"-read-"+level[i]+'-'+type).attr('checked', 'checked');
+					$("#"+id+"-read-"+level[i]+'-'+type).prop("checked", true);
 				}
 				if ((_perm & 2) == 2) {
-					$("#"+id+"-write-"+level[i]+'-'+type).attr('checked', 'checked');
+					$("#"+id+"-write-"+level[i]+'-'+type).prop("checked", true);
 				}
 				if ((_perm & 1) == 1) {
-					$("#"+id+"-unlock-"+level[i]+'-'+type).attr('checked', 'checked');
+					$("#"+id+"-unlock-"+level[i]+'-'+type).prop("checked", true);
 				}
 				if (i && (_perm & 8) == 8) {
-					$("#"+id+"-hidden-"+level[i]+'-'+type).attr('checked', 'checked');
+					$("#"+id+"-hidden-"+level[i]+'-'+type).prop("checked", true);
 				}
 			}
 			setperm(type);
