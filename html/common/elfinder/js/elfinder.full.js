@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: 75f5da2) (2013-01-23)
+ * Version 2.x_n (Nightly: c84f136) (2013-01-24)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -2933,7 +2933,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: 75f5da2)';
+elFinder.prototype.version = '2.x_n (Nightly: c84f136)';
 
 
 
@@ -4562,10 +4562,7 @@ $.fn.elfindercontextmenu = function(fm) {
 	return this.each(function() {
 		var menu = $(this).addClass('ui-helper-reset ui-widget ui-state-default ui-corner-all elfinder-contextmenu elfinder-contextmenu-'+fm.direction)
 				.hide()
-				.appendTo('body')
-				.delegate('.elfinder-contextmenu-item', 'hover', function() {
-					$(this).toggleClass('ui-state-hover')
-				}),
+				.appendTo('body'),
 			subpos  = fm.direction == 'ltr' ? 'left' : 'right',
 			types = $.extend({}, fm.options.contextmenu),
 			tpl     = '<div class="elfinder-contextmenu-item"><span class="elfinder-button-icon {icon} elfinder-contextmenu-icon"/><span>{label}</span></div>',
@@ -4575,6 +4572,8 @@ $.fn.elfindercontextmenu = function(fm) {
 						e.stopPropagation();
 						e.stopPropagation();
 						callback();
+					}).hover(function(){
+						$(this).toggleClass('ui-state-hover');
 					})
 			},
 			
@@ -4642,6 +4641,8 @@ $.fn.elfindercontextmenu = function(fm) {
 											e.stopPropagation();
 											close();
 											cmd.exec(targets, variant[0]);
+										}).hover(function(){
+											$(this).toggleClass('ui-state-hover');
 										})
 								);
 							});
@@ -4696,6 +4697,7 @@ $.fn.elfindercontextmenu = function(fm) {
 	});
 	
 }
+
 
 /*
  * File: /home/osc/elFinder/js/ui/cwd.js
