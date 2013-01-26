@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: c84f136) (2013-01-24)
+ * Version 2.x_n (Nightly: c230e37) (2013-01-26)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -2933,7 +2933,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: c84f136)';
+elFinder.prototype.version = '2.x_n (Nightly: c230e37)';
 
 
 
@@ -5807,7 +5807,7 @@ $.fn.elfinderdialog = function(opts) {
 				.append(self)
 				.appendTo(parent)
 				.draggable({ handle : '.ui-dialog-titlebar',
-					     containment : $('body') })
+					     containment : 'document' })
 				.css({
 					width  : opts.width,
 					height : opts.height
@@ -11163,8 +11163,8 @@ elFinder.prototype.commands.upload = function() {
 		pastebox = $('<div class="ui-corner-all elfinder-upload-dropbox" contenteditable=true></div>')
 			.focus(function() {
 				if (this.innerHTML) {
-					var type = this.innerHTML.match(/<[^>]+>/)? 'html' : 'text';
-					var src = this.innerHTML;
+					var src = this.innerHTML.replace(/<br[^>]*>/gi, ' ');
+					var type = src.match(/<[^>]+>/)? 'html' : 'text';
 					this.innerHTML = '';
 					upload({files : [ src ], type : type});
 				}
