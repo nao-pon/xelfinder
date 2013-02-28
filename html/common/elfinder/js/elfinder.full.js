@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: 9b39aa0) (2013-01-27)
+ * Version 2.x_n (Nightly: fb28d29) (2013-02-28)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -333,14 +333,20 @@ window.elFinder = function(node, opts) {
 	 * @type Object
 	 **/
 	this.UA = (function(){
+		var webkit = !document.uniqueID && !window.opera && !window.sidebar && window.localStorage && typeof window.orientation == "undefined";
 		return {
+			// Browser IE <= IE 6
 			ltIE6:typeof window.addEventListener == "undefined" && typeof document.documentElement.style.maxHeight == "undefined",
+			// Browser IE <= IE 7
 			ltIE7:typeof window.addEventListener == "undefined" && typeof document.querySelectorAll == "undefined",
+			// Browser IE <= IE 8
 			ltIE8:typeof window.addEventListener == "undefined" && typeof document.getElementsByClassName == "undefined",
 			IE:document.uniqueID,
 			Firefox:window.sidebar,
 			Opera:window.opera,
-			Webkit:!document.uniqueID && !window.opera && !window.sidebar && window.localStorage && typeof window.orientation == "undefined",
+			Webkit:webkit,
+			Chrome:webkit && window.chrome,
+			Safari:webkit && !window.chrome,
 			Mobile:typeof window.orientation != "undefined"
 		}
 	})();
@@ -2230,7 +2236,7 @@ elFinder.prototype = {
 			
 			xhr.send(formData);
 
-			if (!this.UA.Webkit || !data.files) {
+			if (!this.UA.Safari || !data.files) {
 				notifyto = startNotify();
 			}
 			
@@ -2933,7 +2939,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: 9b39aa0)';
+elFinder.prototype.version = '2.x_n (Nightly: fb28d29)';
 
 
 
@@ -8816,11 +8822,12 @@ elFinder.prototype.commands.open = function() {
 					+ '&target=' + file.hash;
 			}
 			
-			w = '';
-			// set window size for image
+			// set window size for image if set
 			if (file.dim) {
 				s = file.dim.split('x');
 				w = 'width='+(parseInt(s[0])+20) + ',height='+(parseInt(s[1])+20);
+			} else {
+				w = 'width='+parseInt(2*$(window).width()/3)+',height='+parseInt(2*$(window).height()/3);
 			}
 
 			if (!window.open(url, '_blank', w + ',top=50,left=50,scrollbars=yes,resizable=yes')) {
@@ -9730,7 +9737,7 @@ elFinder.prototype.commands.quicklook.plugins = [
 			preview = ql.preview,
 			active  = false;
 			
-		if ((fm.UA.Webkit && fm.OS == 'mac') || fm.UA.IE) {
+		if ((fm.UA.Safari && fm.OS == 'mac') || fm.UA.IE) {
 			active = true;
 		} else {
 			$.each(navigator.plugins, function(i, plugins) {
@@ -10459,8 +10466,7 @@ elFinder.prototype.commands.resize = function() {
 					resizable = function(destroy) {
 						if ($.fn.resizable) {
 							if (destroy) {
-								rhandle.resizable()
-								rhandle.resizable('destroy');
+								rhandle.filter(':ui-resizable').resizable('destroy');
 								rhandle.hide();
 							}
 							else {
@@ -10477,10 +10483,8 @@ elFinder.prototype.commands.resize = function() {
 					croppable = function(destroy) {
 						if ($.fn.draggable && $.fn.resizable) {
 							if (destroy) {
-								rhandlec.resizable();
-								rhandlec.resizable('destroy');
-								rhandlec.draggable();
-								rhandlec.draggable('destroy');
+								rhandlec.filter(':ui-resizable').resizable('destroy');
+								rhandlec.filter(':ui-draggable').draggable('destroy');
 								basec.hide();
 							}
 							else {
