@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: fb28d29) (2013-02-28)
+ * Version 2.x_n (Nightly: 4db1971) (2013-02-28)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -475,6 +475,7 @@
 	height:80px;
 	padding-bottom:2px;
 	cursor:default;
+	border:none;
 /*	overflow:hidden;*/
 /*	position:relative;*/
 }
