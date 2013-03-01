@@ -73,12 +73,17 @@ $userLang = xelfinder_detect_lang();
 
 $jQueryCDN = '//ajax.googleapis.com/ajax/libs/jquery/%s/jquery.min.js';
 $jQueryUICDN = '//ajax.googleapis.com/ajax/libs/jqueryui/%s';
-$jQueryVersion   = '1.9.0';
-$jQueryUIVersion = '1.9.2';
+$jQueryVersion   = '1.9.1';
+$jQueryUIVersion = '1.10.1';
 
-while(ob_get_level()) {
-	if (! ob_end_clean()) break;
+if (! $jQueryUiTheme = @$config['jquery_ui_theme']) {
+	$jQueryUiTheme = 'base';
 }
+if (! preg_match('#^(?:https?:)?//#i', $jQueryUiTheme)) {
+	$jQueryUiTheme = sprintf($jQueryUICDN, $jQueryUIVersion) . '/themes/'.$jQueryUiTheme.'/jquery-ui.css';
+}
+
+while(ob_get_level() && @ob_end_clean()) {}
 
 ?>
 <!DOCTYPE html>
@@ -88,11 +93,9 @@ while(ob_get_level()) {
 		<title>Image Manager - X-elFinder (elFinder 2.0 for XOOPS)</title>
 		<?php echo $viewport ?>
 
-		<script src="<?php echo sprintf($jQueryCDN, $jQueryVersion)?>"></script>
-		<script src="<?php echo sprintf($jQueryUICDN, $jQueryUIVersion)?>/jquery-ui.min.js"></script>
-		<link rel="stylesheet" href="<?php echo sprintf($jQueryUICDN, $jQueryUIVersion)?>/themes/smoothness/jquery-ui.css" type="text/css">
-	
-		<?php if ($debug) {?>
+		<link rel="stylesheet" href="<?php echo $jQueryUiTheme?>" type="text/css">
+
+<?php if ($debug) {?>
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/common.css"      type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/dialog.css"      type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/toolbar.css"     type="text/css" >
@@ -103,13 +106,16 @@ while(ob_get_level()) {
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/quicklook.css"   type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/commands.css"    type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/fonts.css"       type="text/css" >
-		<?php } else {?>
+<?php } else {?>
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/elfinder.min.css" type="text/css" >
-		<?php }?>
-	
+<?php }?>
+
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/theme.css"       type="text/css" >
-	
-		<?php if ($debug) {?>
+
+		<script src="<?php echo sprintf($jQueryCDN, $jQueryVersion)?>"></script>
+		<script src="<?php echo sprintf($jQueryUICDN, $jQueryUIVersion)?>/jquery-ui.min.js"></script>
+
+<?php if ($debug) {?>
 		<!-- elfinder core -->
 		<script src="<?php echo $elfurl ?>/js/elFinder.js"></script>
 		<script src="<?php echo $elfurl ?>/js/elFinder.version.js"></script>
@@ -175,9 +181,9 @@ while(ob_get_level()) {
 	
 		<!-- elfinder dialog -->
 		<script src="<?php echo $elfurl ?>/js/jquery.dialogelfinder.js"></script>
-		<?php } else {?>
+<?php } else {?>
 		<script src="<?php echo $elfurl ?>/js/elfinder.min.js"></script>
-		<?php }?>
+<?php }?>
 		
 		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.<?php echo $userLang?>.js" charset="UTF-8"></script>
 

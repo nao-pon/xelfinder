@@ -147,6 +147,30 @@ $modversion['config'][] = array(
 	'valuetype'		=> 'text' ,
 	'default'		=> ''
 ) ;
+// $modversion['config'][] = array(
+// 	'name'			=> 'jquery' ,
+// 	'title'			=> $constpref.'_JQUERY' ,
+// 	'description'	=> $constpref.'_JQUERY_DESC' ,
+// 	'formtype'		=> 'textbox' ,
+// 	'valuetype'		=> 'text' ,
+// 	'default'		=> ''
+// ) ;
+// $modversion['config'][] = array(
+// 	'name'			=> 'jquery_ui' ,
+// 	'title'			=> $constpref.'_JQUERY_UI' ,
+// 	'description'	=> $constpref.'_JQUERY_UI_DESC' ,
+// 	'formtype'		=> 'textbox' ,
+// 	'valuetype'		=> 'text' ,
+// 	'default'		=> ''
+// ) ;
+$modversion['config'][] = array(
+	'name'			=> 'jquery_ui_theme' ,
+	'title'			=> $constpref.'_JQUERY_UI_THEME' ,
+	'description'	=> $constpref.'_JQUERY_UI_THEME_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'text' ,
+	'default'		=> 'base'
+) ;
 $modversion['config'][] = array(
 	'name'			=> 'thumbnail_size' ,
 	'title'			=> $constpref.'_THUMBNAIL_SIZE' ,
