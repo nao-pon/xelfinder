@@ -257,7 +257,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$this->sqlCnt++;
 		$res = $this->db->queryF($sql);
 		if (!$res) {
-			$this->dbError = $this->db->error;
+			$this->dbError = $this->db->error();
 		}
 		return $res;
 	}
