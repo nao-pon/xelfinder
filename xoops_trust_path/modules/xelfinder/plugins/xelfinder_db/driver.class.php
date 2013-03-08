@@ -296,7 +296,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 
 		$sql = 'INSERT INTO %s (`parent_id`, `name`, `ctime`, `mtime`, `perm`, `umask` , `uid`, `gid`, `home_of`, `mime`) VALUES '
 		                    . '( %d,         "%s",    %d,      %d,     "%s",   "%s",     "%d",  "%d",   %s,     "%s")';
-		$sql = sprintf($sql, $this->tbf, intval($path), mysql_escape_string($name), $time, $time, $perm, $umask, $this->x_uid, $gid, $home_of, $mime);
+		$sql = sprintf($sql, $this->tbf, intval($path), mysql_real_escape_string($name), $time, $time, $perm, $umask, $this->x_uid, $gid, $home_of, $mime);
 		//$this->_debug($sql);
 		if ($this->query($sql) && $this->db->getAffectedRows() > 0) {
 			if ($mime !== 'directory') {
@@ -892,7 +892,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _joinPath($dir, $name) {
-		$sql = 'SELECT `file_id` FROM '.$this->tbf.' WHERE parent_id="'.$dir.'" AND name="'.mysql_escape_string($name).'"';
+		$sql = 'SELECT `file_id` FROM '.$this->tbf.' WHERE parent_id="'.$dir.'" AND name="'.mysql_real_escape_string($name).'"';
 		if (($res = $this->query($sql)) && $this->db->getRowsNum($res) > 0) {
 			$r = $this->db->fetchArray($res);
 			//$this->updateCache($r['file_id'], $this->_stat($r['file_id']));
@@ -1173,7 +1173,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			                $this->tbf, (int)$id, (int)$this->_dirname($id),                                                                $gid,  $perm,  $umask, $this->tbf, (int)$source)
 			: sprintf('INSERT INTO %s (            `parent_id`, `name`, `size`, `ctime`, `mtime`, `mime`, `width`, `height`, `gids`, `uid`, `gid`, `perm`, `umask`, `mime_filter`)
 			                    (SELECT             %d,         "%s",   `size`,  %d,      %d,     `mime`, `width`, `height`, `gids`, `uid`,  %d,   "%s",   "%s"    ,`mime_filter`  FROM %s WHERE file_id=%d)',
-					     $this->tbf, (int)$targetDir, mysql_escape_string($name),$time,   $time,                                            $gid,  $perm,  $umask, $this->tbf, (int)$source);
+					     $this->tbf, (int)$targetDir, mysql_real_escape_string($name),$time,   $time,                                            $gid,  $perm,  $umask, $this->tbf, (int)$source);
 		if ($this->query($sql)) {
 			if ($id < 1) $id = $this->db->getInsertId();
 			if ($local = $this->readlink($id, true)) {
@@ -1211,7 +1211,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$perm = $this->getDefaultPerm($umask);
 			$sql = 'UPDATE %s SET `parent_id`=%d, `name`="%s", `perm`="%s", `umask`="%s", `gid`=%d WHERE `file_id`=%d LIMIT 1';
 		}
-		$sql = sprintf($sql, $this->tbf, $targetDir, mysql_escape_string($name), $perm, $umask, $gid, $source);
+		$sql = sprintf($sql, $this->tbf, $targetDir, mysql_real_escape_string($name), $perm, $umask, $gid, $source);
 		if  ($this->query($sql) && $this->db->getAffectedRows() > 0) {
 			unset($this->cache[$source]);
 			return $source;
@@ -1300,7 +1300,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$sql = $id > 0
 			? 'REPLACE INTO %s (`file_id`, `parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `umask`, `uid`, `gid`, `mime`, `width`, `height`, `gids`, `local_path`) VALUES ('.$id.', %d, "%s", %d, %d, %d, "%s", "%s", %d, %d, "%s", %d, %d, "%s", "%s")'
 			: 'INSERT INTO %s (`parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `umask`, `uid`, `gid`, `mime`, `width`, `height`, `gids`, `local_path`) VALUES (%d, "%s", %d, %d, %d, "%s", "%s", %d, %d, "%s", %d, %d, "%s", "%s")';
-		$sql = sprintf($sql, $this->tbf, (int)$dir, mysql_escape_string($name), $size, $time, $time, $perm, $umask, $uid, $gid, $mime, $w, $h, $gids, $local_path);
+		$sql = sprintf($sql, $this->tbf, (int)$dir, mysql_real_escape_string($name), $size, $time, $time, $perm, $umask, $uid, $gid, $mime, $w, $h, $gids, $local_path);
 
 		if ($this->query($sql)) {
 			if ($id < 1) $id = $this->db->getInsertId();
