@@ -11,8 +11,12 @@ $mytrustdirpath = dirname( __FILE__ ) ;
 // For XCL 2.2 Cool URI
 if (isset($_GET['requested_data_name'])) $_GET['page'] = $_GET['requested_data_name'];
 if (isset($_GET['requested_action_name']) && $_GET['requested_data_id']) {
-	$_GET['s'] = $_GET['requested_data_id'];
-	$_GET['file'] = $_GET['requested_action_name'];
+	if ($_GET['page'] === 'tmb') {
+		$_GET['s'] = $_GET['requested_data_id'];
+		$_GET['file'] = $_GET['requested_action_name'];
+	} else {
+		$_GET['file'] = $_GET['requested_data_id'];
+	}
 } else {
 	if (isset($_GET['requested_data_id'])) $_GET['file'] = $_GET['requested_data_id'];
 }
