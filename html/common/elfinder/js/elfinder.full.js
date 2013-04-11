@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: 7f49dcc) (2013-03-07)
+ * Version 2.x_n (Nightly: 38cf7c3) (2013-04-11)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -1144,7 +1144,8 @@ window.elFinder = function(node, opts) {
 			dfrd.reject(error);
 			error && self.request({
 				data   : {cmd : 'open', target : self.lastDir(''), tree : 1, init : 1},
-				notify : {type : 'open', cnt : 1, hideCnt : true}
+				notify : {type : 'open', cnt : 1, hideCnt : true},
+				preventDefault : true
 			});
 		})
 		.done(function(odata, pdata) {
@@ -2939,7 +2940,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: 7f49dcc)';
+elFinder.prototype.version = '2.x_n (Nightly: 38cf7c3)';
 
 
 
@@ -4218,7 +4219,15 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'errNetMountNoDriver'  : 'Unsupported protocol.',     // added 17.04.2012
 			'errNetMountFailed'    : 'Mount failed.',         // added 17.04.2012
 			'errNetMountHostReq'   : 'Host required.', // added 18.04.2012
+			'errSessionExpires'    : 'Your session has expired due to inactivity.',
+			'errCreatingTempDir'   : 'Unable to create temporary directory: "$1"',
+			'errFtpDownloadFile'   : 'Unable to download file from FTP: "$1"',
+			'errFtpUploadFile'     : 'Unable to upload file to FTP: "$1"',
+			'errFtpMkdir'          : 'Unable to create remote directory on FTP: "$1"',
+			'errArchiveExec'       : 'Error while archiving files: "$1"',
+			'errExtractExec'       : 'Error while extracting files: "$1"',
 			'errNetUnMount'        : 'Unable to unmount', // added 30.04.2012
+
 			/******************************* commands names ********************************/
 			'cmdarchive'   : 'Create archive',
 			'cmdback'      : 'Back',
@@ -4282,9 +4291,9 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'ntfsearch'   : 'Searching files',
 			'ntfresize'   : 'Resizing images',
 			'ntfsmth'     : 'Doing something >_<',
-      		'ntfloadimg'  : 'Loading image',
-      		'ntfnetmount' : 'Mounting network volume', // added 18.04.2012
-      		'ntfnetunmount': 'Unmounting network volume', // added 30.04.2012
+			'ntfloadimg'  : 'Loading image',
+			'ntfnetmount' : 'Mounting network volume', // added 18.04.2012
+			'ntfnetunmount': 'Unmounting network volume', // added 30.04.2012
 			
 			/************************************ dates **********************************/
 			'dateUnknown' : 'unknown',
@@ -7414,7 +7423,7 @@ elFinder.prototype.commands.archive = function() {
 			cnt   = files.length,
 			mime  = type || mimes[0],
 			cwd   = fm.cwd(),
-			error = ['errArchive', 'errPerm'],
+			error = ['errArchive', 'errPerm', 'errCreatingTempDir', 'errFtpDownloadFile', 'errFtpUploadFile', 'errFtpMkdir', 'errArchiveExec', 'errExtractExec', 'errRm'],
 			dfrd  = $.Deferred().fail(function(error) {
 				error && fm.error(error);
 			}), 
@@ -7949,46 +7958,122 @@ elFinder.prototype.commands.extract = function() {
 		var files    = this.files(hashes),
 			dfrd     = $.Deferred(),
 			cnt      = files.length, 
-			complete = cnt, 
-			i, file, error;
+			i, error,
+			decision;
+
+		var overwriteAll = false;
+		var omitAll = false;
+
+		var names = $.map(fm.files(hashes), function(file) { return file.name; });
+		var map = {};
+		$.map(fm.files(hashes), function(file) { map[file.name] = file; });
+		
+		var decide = function(decision) {
+			switch (decision) {
+				case 'overwrite_all' :
+					overwriteAll = true;
+					break;
+				case 'omit_all':
+					omitAll = true;
+					break;
+			}
+		};
+
+		var unpack = function(file) {
+			if (!(file.read && fm.file(file.phash).write)) {
+				error = ['errExtract', file.name, 'errPerm'];
+				fm.error(error);
+				dfrd.reject(error);
+			} else if ($.inArray(file.mime, mimes) === -1) {
+				error = ['errExtract', file.name, 'errNoArchive'];
+				fm.error(error);
+				dfrd.reject(error);
+			} else {
+				fm.request({
+					data:{cmd:'extract', target:file.hash},
+					notify:{type:'extract', cnt:1},
+					syncOnFail:true
+				})
+				.fail(function (error) {
+					if (!dfrd.isRejected()) {
+						dfrd.reject(error);
+					}
+				})
+				.done(function () {
+				});
+			}
+		};
+		
+		var confirm = function(files, index) {
+			var file = files[index];
+			var name = file.name.replace(/\.((tar\.(gz|bz|bz2|z|lzo))|cpio\.gz|ps\.gz|xcf\.(gz|bz2)|[a-z0-9]{1,4})$/ig, '');
+			var existed = ($.inArray(name, names) >= 0);
+			if(existed && map[name].mime != 'directory') {
+				fm.confirm(
+					{
+						title : fm.i18n('ntfextract'),
+						text  : fm.i18n(['errExists', name, 'confirmRepl']),
+						accept:{
+							label : 'btnYes',
+							callback:function (all) {
+								decision = all ? 'overwrite_all' : 'overwrite';
+								decide(decision);
+								if(!overwriteAll && !omitAll) {
+									if('overwrite' == decision) {
+										unpack(file);
+									}
+									if((index+1) < cnt) {
+										confirm(files, index+1);
+									} else {
+										dfrd.resolve();
+									}
+								} else if(overwriteAll) {
+									for (i = 0; i < cnt; i++) {
+										unpack(files[i]);
+									}
+									dfrd.resolve();
+								}
+							}
+						},
+						reject : {
+							label : 'btnNo',
+							callback:function (all) {
+								decision = all ? 'omit_all' : 'omit';
+								decide(decision);
+								if(!overwriteAll && !omitAll && (index+1) < cnt) {
+									confirm(files, index+1);
+								} else if (omitAll) {
+									dfrd.resolve();
+								}
+							}
+						},
+						cancel : {
+							label : 'btnCancel',
+							callback:function () {
+								dfrd.resolve();
+							}
+						},
+						all : (cnt > 1)
+					}
+				);
+			} else {
+				unpack(file);
+				if((index+1) < cnt) {
+					confirm(files, index+1);
+				} else {
+					dfrd.resolve();
+				}
+			}
+		};
 		
 		if (!(this.enabled() && cnt && mimes.length)) {
 			return dfrd.reject();
 		}
 		
-		for (i = 0; i < cnt; i++) {
-			file = files[i];
-			if (!(file.read && fm.file(file.phash).write)) {
-				error = ['errExtract', file.name, 'errPerm']
-				fm.error(error);
-				return dfrd.reject(error);
-			}
-			
-			if ($.inArray(file.mime, mimes) === -1) {
-				error = ['errExtract', file.name, 'errNoArchive'];
-				fm.error(error);
-				return dfrd.reject(error);
-			}
-			
-			fm.request({
-				data       : {cmd : 'extract', target : file.hash},
-				notify     : {type : 'extract', cnt : 1},
-				syncOnFail : true
-			})
-			.fail(function(error) {
-				if (dfrd.state() == 'pending') {
-					dfrd.reject(error);
-				}
-			})
-			.done(function() {
-				complete--;
-				if (complete == 0) {
-					dfrd.resolve();
-				}
-			});
-			
+		if(cnt > 0) {
+			confirm(files, 0);
 		}
-		
+
 		return dfrd;
 	}
 
@@ -8145,6 +8230,7 @@ elFinder.prototype.commands.help = function() {
 	var fm   = this.fm,
 		self = this,
 		linktpl = '<div class="elfinder-help-link"> <a href="{url}">{link}</a></div>',
+		linktpltgt = '<div class="elfinder-help-link"> <a href="{url}" target="_blank">{link}</a></div>',
 		atpl    = '<div class="elfinder-help-team"><div>{author}</div>{work}</div>',
 		url     = /\{url\}/,
 		link    = /\{link\}/,
@@ -8170,10 +8256,10 @@ elFinder.prototype.commands.help = function() {
 
 			html.push(sep);
 			
-			html.push(linktpl[r](url, 'http://elfinder.org/')[r](link, fm.i18n('homepage')));
-			html.push(linktpl[r](url, 'https://github.com/Studio-42/elFinder/wiki')[r](link, fm.i18n('docs')));
-			html.push(linktpl[r](url, 'https://github.com/Studio-42/elFinder')[r](link, fm.i18n('github')));
-			html.push(linktpl[r](url, 'http://twitter.com/elrte_elfinder')[r](link, fm.i18n('twitter')));
+			html.push(linktpltgt[r](url, 'http://elfinder.org/')[r](link, fm.i18n('homepage')));
+			html.push(linktpltgt[r](url, 'https://github.com/Studio-42/elFinder/wiki')[r](link, fm.i18n('docs')));
+			html.push(linktpltgt[r](url, 'https://github.com/Studio-42/elFinder')[r](link, fm.i18n('github')));
+			html.push(linktpltgt[r](url, 'http://twitter.com/elrte_elfinder')[r](link, fm.i18n('twitter')));
 			
 			html.push(sep);
 			
@@ -8187,7 +8273,7 @@ elFinder.prototype.commands.help = function() {
 			fm.i18[fm.lang].translator && html.push(atpl[r](author, fm.i18[fm.lang].translator)[r](work, fm.i18n('translator')+' ('+fm.i18[fm.lang].language+')'));
 			
 			html.push(sep);
-			html.push('<div class="'+lic+'">'+fm.i18n('icons')+': <a href="http://pixelmixer.ru/" target="_blank">Pixelmixer</a>, <a href="http://p.yusukekamiyamane.com" target="_blank">Fugue</a></div>');
+			html.push('<div class="'+lic+'">'+fm.i18n('icons')+': Pixelmixer, <a href="http://p.yusukekamiyamane.com" target="_blank">Fugue</a></div>');
 			
 			html.push(sep);
 			html.push('<div class="'+lic+'">Licence: BSD Licence</div>');
