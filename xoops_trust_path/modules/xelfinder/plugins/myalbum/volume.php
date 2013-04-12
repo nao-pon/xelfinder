@@ -14,7 +14,7 @@ if (is_dir(XOOPS_ROOT_PATH . $path)) {
 		'filePath'  => XOOPS_ROOT_PATH . $path,
 		'URL'       => _MD_XELFINDER_SITEURL . $path,
 		'alias'     => $title,
-		'smallImg'  => '/uploads/thumb'
+		'smallImg'  => '/uploads/thumbs'
 	);
 
 }
