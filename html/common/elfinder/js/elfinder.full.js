@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: 38cf7c3) (2013-04-11)
+ * Version 2.x_n (Nightly: 977de05) (2013-04-16)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -2940,7 +2940,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: 38cf7c3)';
+elFinder.prototype.version = '2.x_n (Nightly: 977de05)';
 
 
 
@@ -6022,10 +6022,12 @@ $.fn.elfindernavbar = function(fm, opts) {
 					maxWidth : opts.maxWidth || 500
 				})
 				.bind('resize scroll', function() {
+					var offset = (fm.UA.Opera && nav.scrollLeft())? 20 : 2;
 					handle.css({
 						top  : parseInt(nav.scrollTop())+'px',
-						left : parseInt(ltr ? nav.width() + nav.scrollLeft() - handle.width() - 2 : nav.scrollLeft() + 2)
-					})
+						left : ltr ? 'auto' : parseInt(nav.scrollLeft() + offset),
+						right: ltr ? parseInt(nav.scrollLeft() - offset) * -1 : 'auto'
+					});
 				})
 				.find('.ui-resizable-handle').zIndex(nav.zIndex() + 10);
 
@@ -6044,7 +6046,7 @@ $.fn.elfindernavbar = function(fm, opts) {
 	});
 	
 	return this;
-}
+};
 
 
 /*
