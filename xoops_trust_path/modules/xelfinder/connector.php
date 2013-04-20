@@ -11,6 +11,9 @@ ini_set('max_file_uploads', 50);   // allow uploading up to 50 files at once
 
 // needed for case insensitive search to work, due to broken UTF-8 support in PHP
 ini_set('mbstring.internal_encoding', 'UTF-8');
+ini_set('mbstring.encoding_translation', 'Off');
+ini_set('mbstring.http_input', 'pass');
+ini_set('mbstring.http_output', 'pass');
 
 //error_reporting(E_ALL | E_STRICT); // Set E_ALL for debuging
 
