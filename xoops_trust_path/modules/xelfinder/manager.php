@@ -66,6 +66,9 @@ if ($_js_cache_path) {
 
 $default_tmbsize = isset($config['thumbnail_size'])? (int)$config['thumbnail_size'] : '160';
 $debug = (! empty($config['debug']));
+// cToken uses for CSRF protection
+$cToken = md5(session_id() . XOOPS_ROOT_PATH . (defined(XOOPS_SALT)? XOOPS_SALT : XOOPS_DB_PASS));
+$_SESSION['XELFINDER_CTOKEN'] = $cToken;
 
 $viewport = (preg_match('/Mobile/i', $_SERVER['HTTP_USER_AGENT']))? '<meta name="viewport" content="width=device-width" />' : '';
 
@@ -207,6 +210,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var defaultTmbSize = <?php echo $default_tmbsize?>;
 			var lang = '<?php echo $userLang?>';
 			var adminMode = <?php echo $admin?>;
+			var cToken = '<?php echo $cToken?>';
 		</script>
 		<script src="<?php echo $myurl ?>/include/js/commands/perm.js"></script>
 		<script src="<?php echo $myurl ?>/include/js/manager.js" charset="UTF-8"></script>

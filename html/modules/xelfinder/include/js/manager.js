@@ -40,7 +40,7 @@ $().ready(function() {
 		elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
 	}
 	
-	var customData = { admin : adminMode };
+	var customData = { admin : adminMode, ctoken : cToken };
 	if (! connectorUrl) {
 		connectorUrl = myUrl + 'connector.php';
 	} else {
