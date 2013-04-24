@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: 6c68c70) (2013-04-22)
+ * Version 2.x_n (Nightly: 1611aa5) (2013-04-25)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -1474,7 +1474,7 @@ window.elFinder = function(node, opts) {
 	});
 	
 	this.dragUpload = false;
-	this.xhrUpload  = typeof XMLHttpRequestUpload != 'undefined' && typeof File != 'undefined' && typeof FormData != 'undefined';
+	this.xhrUpload  = (typeof XMLHttpRequestUpload != 'undefined' || typeof XMLHttpRequestEventTarget != 'undefined') && typeof File != 'undefined' && typeof FormData != 'undefined';
 	
 	// configure transport object
 	this.transport = {}
@@ -2940,7 +2940,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: 6c68c70)';
+elFinder.prototype.version = '2.x_n (Nightly: 1611aa5)';
 
 
 
