@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: 911ba6f) (2013-05-04)
+ * Version 2.x_n (Nightly: 96c499a) (2013-05-04)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -1996,7 +1996,7 @@ elFinder.prototype = {
 	
 	uploads : {
 		// check droped contents
-		checkFile : function(data) {
+		checkFile : function(data, fm) {
 			if (data.type == 'data') {
 				var dfrd = $.Deferred(),
 				files = [],
@@ -2028,8 +2028,12 @@ elFinder.prototype = {
 							var len = entries.length - 1;
 							var read = function(i) {
 								readFile(entries[i]).done(function(file){
-									paths.push(entries[i].fullPath);
-									files.push(file);
+									if (! (fm.OS == 'win' && file.name.match(/^(?:desktop\.ini|thumbs\.db)$/i))
+											&&
+										! (fm.OS == 'mac' && file.name.match(/^\.ds_store$/i))) {
+										paths.push(entries[i].fullPath);
+										files.push(file);
+									}
 								}).fail(function(e){
 									if (e == 'dirctory') {
 										// dirctory
@@ -2136,7 +2140,7 @@ elFinder.prototype = {
 		iframe : function(data, fm) { 
 			var self   = fm ? fm : this,
 				input  = data.input? data.input : false,
-				files  = !input ? self.uploads.checkFile(data) : false,
+				files  = !input ? self.uploads.checkFile(data, self) : false,
 				dfrd   = $.Deferred()
 					.fail(function(error) {
 						error && self.error(error);
@@ -2244,7 +2248,7 @@ elFinder.prototype = {
 					}),
 				xhr         = new XMLHttpRequest(),
 				formData    = new FormData(),
-				files       = data.input ? data.input.files : self.uploads.checkFile(data), 
+				files       = data.input ? data.input.files : self.uploads.checkFile(data, self), 
 				cnt         = files.length,
 				loaded      = 5,
 				notify      = false,
@@ -3058,7 +3062,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: 911ba6f)';
+elFinder.prototype.version = '2.x_n (Nightly: 96c499a)';
 
 
 
