@@ -47,6 +47,9 @@ elFinder.prototype.commands.perm = function() {
 	this.getstate = function(sel) {
 		var fm = this.fm;
 		sel = sel || fm.selected();
+		if (sel.length == 0) {
+			sel = [ fm.cwd().hash ];
+		}
 		return !this._disabled && self.checkstate(this.files(sel)) ? 0 : -1;
 	};
 	
@@ -61,6 +64,9 @@ elFinder.prototype.commands.perm = function() {
 	};
 
 	this.exec = function(hashes) {
+		if (typeof hashes == 'undefined') {
+			hashes = [ this.fm.cwd().hash ];
+		}
 		var fm  = this.fm,
 		dfrd    = $.Deferred().always(function() {
 			fm.enable();
