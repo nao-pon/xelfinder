@@ -64,15 +64,16 @@ elFinder.prototype.commands.perm = function() {
 	};
 
 	this.exec = function(hashes) {
-		if (typeof hashes == 'undefined') {
+		var files   = this.files(hashes);
+		if (! files.length) {
 			hashes = [ this.fm.cwd().hash ];
+			files   = this.files(hashes);
 		}
 		var fm  = this.fm,
 		dfrd    = $.Deferred().always(function() {
 			fm.enable();
 		}),
 		tpl     = this.tpl,
-		files   = this.files(hashes),
 		hashes  = this.hashes(hashes),
 		cnt     = files.length,
 		file    = files[0],
