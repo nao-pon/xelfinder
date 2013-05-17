@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: 1c07847) (2013-05-17)
+ * Version 2.x_n (Nightly: b4ec02c) (2013-05-17)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -3062,7 +3062,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: 1c07847)';
+elFinder.prototype.version = '2.x_n (Nightly: b4ec02c)';
 
 
 
@@ -7750,9 +7750,10 @@ elFinder.prototype.commands.download = function() {
 			return dfrd.reject();
 		}
 		
-		$.each(fm.options.customData || {}, function(k, v) {
-			cdata += '&'+k+'='+v;
-		});
+		cdata = $.param(fm.options.customData || {});
+		if (cdata) {
+			cdata = '&' + cdata;
+		}
 		
 		base += base.indexOf('?') === -1 ? '?' : '&';
 		
@@ -9336,18 +9337,27 @@ elFinder.prototype.commands.pixlr = function() {
 		files = this.files(hashes),
 		cnt   = files.length,
 		fire = function(mode) {
-			var file, url, target, exit;
+			var file, url, target, exit,
+			cdata = $.param(fm.options.customData);
+			
+			// set custom data
+			if (cdata) {
+				cdata = '&' + cdata;
+			}
+			
 			file = files[0];
 			
 			target = fm.uploadURL;
 			target = target + (target.indexOf('?') === -1 ? '?' : '&')
 				+ 'cmd=pixlr'
 				+ '&target=' + file.phash
-				+ '&node=' + encodeURIComponent(fm.id);
-
+				+ '&node=' + encodeURIComponent(fm.id)
+				+ cdata;
+			
 			exit = fm.uploadURL;
 			exit = exit + (exit.indexOf('?') === -1 ? '?' : '&')
-				+ 'cmd=pixlr';
+				+ 'cmd=pixlr'
+				+ cdata;
 			
 			url = 'http://pixlr.com/'+mode+'/?image=' + encodeURIComponent(fm.url(file.hash))
 				+ '&target=' + encodeURIComponent(target)
