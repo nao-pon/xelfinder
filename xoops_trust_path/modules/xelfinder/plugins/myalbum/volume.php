@@ -14,6 +14,7 @@ if (is_dir(XOOPS_ROOT_PATH . $path)) {
 		'filePath'  => XOOPS_ROOT_PATH . $path,
 		'URL'       => _MD_XELFINDER_SITEURL . $path,
 		'alias'     => $title,
+		'icon'      => is_file(XOOPS_MODULE_PATH . '/'.$mydirname.'/images/elfinder_volume_icon.png')? _MD_XELFINDER_MODULE_URL . '/'.$mydirname.'/images/elfinder_volume_icon.png' : '',
 		'smallImg'  => '/uploads/thumbs'
 	);
 
