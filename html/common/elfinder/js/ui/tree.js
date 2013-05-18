@@ -181,8 +181,9 @@ $.fn.elfindertree = function(fm, opts) {
 			replace = {
 				id          : function(dir) { return fm.navHash2Id(dir.hash) },
 				cssclass    : function(dir) { return (dir.phash ? '' : root)+' '+navdir+' '+fm.perms2class(dir)+' '+(dir.dirs && !dir.link ? collapsed : ''); },
-				permissions : function(dir) { return (!dir.read || !dir.write ? ptpl : '')+(dir.phash && dir.locked? ltpl : ''); },
-				symlink     : function(dir) { return dir.alias ? stpl : ''; }
+				permissions : function(dir) { return !dir.read || !dir.write ? ptpl : ''; },
+				symlink     : function(dir) { return dir.alias ? stpl : ''; },
+				style       : function(dir) { return dir.icon ? 'style="background-image:url(\''+dir.icon+'\')"' : ''; }
 			},
 			
 			/**
@@ -255,6 +256,7 @@ $.fn.elfindertree = function(fm, opts) {
 					i = dirs.length, 
 					dir, html, parent, sibling;
 
+				var firstVol = true; // check for netmount volume
 				while (i--) {
 					dir = dirs[i];
 
@@ -267,7 +269,8 @@ $.fn.elfindertree = function(fm, opts) {
 						if (dir.phash && (sibling = findSibling(parent, dir)).length) {
 							sibling.before(html);
 						} else {
-							parent[dir.phash ? 'append' : 'prepend'](html);
+							parent[firstVol || dir.phash ? 'append' : 'prepend'](html);
+							firstVol = false;
 						}
 					} else {
 						orphans.push(dir);

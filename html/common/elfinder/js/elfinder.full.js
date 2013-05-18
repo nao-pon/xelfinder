@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: b4ec02c) (2013-05-17)
+ * Version 2.x_n (Nightly: fd98904) (2013-05-18)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -1494,7 +1494,7 @@ window.elFinder = function(node, opts) {
 		this.transport.upload = $.proxy(this.uploads.iframe, this);
 	} else if (typeof(this.transport.upload) == 'function') {
 		this.dragUpload = !!this.options.dragUploadAllow;
-	} else if (this.xhrUpload) {
+	} else if (this.xhrUpload && !!this.options.dragUploadAllow) {
 		this.transport.upload = $.proxy(this.uploads.xhr, this);
 		this.dragUpload = true;
 	} else {
@@ -3062,7 +3062,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: b4ec02c)';
+elFinder.prototype.version = '2.x_n (Nightly: fd98904)';
 
 
 
@@ -4046,7 +4046,7 @@ elFinder.prototype.resources = {
 		symlink    : '<span class="elfinder-symlink"/>',
 		navicon    : '<span class="elfinder-nav-icon"/>',
 		navspinner : '<span class="elfinder-navbar-spinner"/>',
-		navdir     : '<div class="elfinder-navbar-wrapper"><span id="{id}" class="ui-corner-all elfinder-navbar-dir {cssclass}"><span class="elfinder-navbar-arrow"/><span class="elfinder-navbar-icon"/>{symlink}{permissions}{name}</span><div class="elfinder-navbar-subtree"/></div>'
+		navdir     : '<div class="elfinder-navbar-wrapper"><span id="{id}" class="ui-corner-all elfinder-navbar-dir {cssclass}"><span class="elfinder-navbar-arrow"/><span class="elfinder-navbar-icon" {style}/>{symlink}{permissions}{name}</span><div class="elfinder-navbar-subtree"/></div>'
 		
 	},
 	
@@ -7054,8 +7054,9 @@ $.fn.elfindertree = function(fm, opts) {
 			replace = {
 				id          : function(dir) { return fm.navHash2Id(dir.hash) },
 				cssclass    : function(dir) { return (dir.phash ? '' : root)+' '+navdir+' '+fm.perms2class(dir)+' '+(dir.dirs && !dir.link ? collapsed : ''); },
-				permissions : function(dir) { return (!dir.read || !dir.write ? ptpl : '')+(dir.phash && dir.locked? ltpl : ''); },
-				symlink     : function(dir) { return dir.alias ? stpl : ''; }
+				permissions : function(dir) { return !dir.read || !dir.write ? ptpl : ''; },
+				symlink     : function(dir) { return dir.alias ? stpl : ''; },
+				style       : function(dir) { return dir.icon ? 'style="background-image:url(\''+dir.icon+'\')"' : ''; }
 			},
 			
 			/**
@@ -7128,6 +7129,7 @@ $.fn.elfindertree = function(fm, opts) {
 					i = dirs.length, 
 					dir, html, parent, sibling;
 
+				var firstVol = true; // check for netmount volume
 				while (i--) {
 					dir = dirs[i];
 
@@ -7140,7 +7142,8 @@ $.fn.elfindertree = function(fm, opts) {
 						if (dir.phash && (sibling = findSibling(parent, dir)).length) {
 							sibling.before(html);
 						} else {
-							parent[dir.phash ? 'append' : 'prepend'](html);
+							parent[firstVol || dir.phash ? 'append' : 'prepend'](html);
+							firstVol = false;
 						}
 					} else {
 						orphans.push(dir);
@@ -8133,7 +8136,7 @@ elFinder.prototype.commands.extract = function() {
 					syncOnFail:true
 				})
 				.fail(function (error) {
-					if (!dfrd.isRejected()) {
+					if (dfrd.state() != 'rejected') {
 						dfrd.reject(error);
 					}
 				})
@@ -8957,7 +8960,19 @@ elFinder.prototype.commands.netunmount = function() {
 							dfrd.reject(error);
 						})
 						.done(function(data) {
-							dfrd.promise();
+							var chDrive = (fm.root() == drive.hash);
+							data.removed = [ drive.hash ];
+							fm.remove(data);
+							if (chDrive) {
+								var files = fm.files();
+								for (var i in files) {
+									if (fm.file(i).mime == 'directory') {
+										fm.exec('open', i);
+										break;
+									}
+								}
+							}
+							dfrd.resolve();
 						});
 					}
 				},
