@@ -47,6 +47,8 @@ if (empty($_REQUEST['xoopsUrl'])) {
 	header('Access-Control-Allow-Origin: ' . _MD_XELFINDER_SITEURL);
 }
 
+define('ELFINDER_IMG_PARENT_URL', XOOPS_URL . '/common/elfinder/');
+
 require dirname(__FILE__) . '/class/xelFinder.class.php';
 require dirname(__FILE__) . '/class/xelFinderVolumeFTP.class.php';
 
