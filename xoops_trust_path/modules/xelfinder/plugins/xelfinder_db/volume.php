@@ -26,6 +26,7 @@ if (is_dir(XOOPS_TRUST_PATH . $path)) {
 		'uploadOrder'     => array('deny', 'allow'),
 		// regexp or function name to validate new file name
 		'acceptedName'    => '/^[^\/\\?*:|"<>]*[^.\/\\?*:|"<>]$/',
-		'defaults' => array('read' => true, 'write' => true, 'hidden' => false, 'locked' => false)
+		'defaults' => array('read' => true, 'write' => true, 'hidden' => false, 'locked' => false),
+		'icon'          => (defined('ELFINDER_IMG_PARENT_URL')? (rtrim(ELFINDER_IMG_PARENT_URL, '/').'/') : '').'img/volume_icon_sql.png'
 	);
 }
