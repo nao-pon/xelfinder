@@ -1,4 +1,7 @@
 <?php
+// for keep alive
+if (! empty($_GET['keepalive'])) exit('0');
+
 // Check cToken for protect from CSRF
 if (! isset($_SESSION['XELFINDER_CTOKEN'])
 		 || ! isset($_REQUEST['ctoken'])
