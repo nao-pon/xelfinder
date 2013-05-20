@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: dcd2b96) (2013-05-19)
+ * Version 2.x_n (Nightly: 2f7b0bf) (2013-05-20)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -3062,7 +3062,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: dcd2b96)';
+elFinder.prototype.version = '2.x_n (Nightly: 2f7b0bf)';
 
 
 
@@ -4417,6 +4417,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'ntfloadimg'  : 'Loading image',
 			'ntfnetmount' : 'Mounting network volume', // added 18.04.2012
 			'ntfnetunmount': 'Unmounting network volume', // added 30.04.2012
+			'ntfdim'      : 'Acquiring image dimension', // added 20.05.2013
 			
 			/************************************ dates **********************************/
 			'dateUnknown' : 'unknown',
@@ -8331,16 +8332,17 @@ elFinder.prototype.commands.getfile = function() {
 				} else if (file.mime.indexOf('image') !== -1) {
 					req.push(fm.request({
 						data : {cmd : 'dim', target : file.hash},
+						notify : {type : 'dim', cnt : 1, hideCnt : true},
 						preventDefault : true
 					})
-					.done($.proxy(function(data) {
+					.done(function(data) {
 						if (data.dim) {
-							dim = data.dim.split('x');
-							this.width = dim[0];
-							this.height = dim[1];
+							var dim = data.dim.split('x');
+							var rfile = fm.file(file.hash);
+							rfile.width = dim[0];
+							rfile.height = dim[1];
 						}
-						this.dim = data.dim
-					}, files[i])));
+					}));
 				}
 			}
 		}
@@ -8674,6 +8676,12 @@ elFinder.prototype.commands.info = function() {
 					})
 					.done(function(data) {
 						replSpinner(data.dim || msg.unknown);
+						if (data.dim) {
+							var dim = data.dim.split('x');
+							var rfile = fm.file(file.hash);
+							rfile.width = dim[0];
+							rfile.height = dim[1];
+						}
 					});
 				}
 			}
