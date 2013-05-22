@@ -26,6 +26,9 @@ if (strpos($incPath, $addPath) === FALSE) {
 	set_include_path( $incPath . PATH_SEPARATOR . $addPath );
 }
 
+// load compat functions
+require_once dirname(__FILE__) . '/include/compat.php';
+
 define('_MD_ELFINDER_LIB_PATH', XOOPS_TRUST_PATH . '/libs/elfinder');
 
 require _MD_ELFINDER_LIB_PATH . '/php/elFinderConnector.class.php';
