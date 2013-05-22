@@ -2,13 +2,6 @@
 // for keep alive
 if (! empty($_GET['keepalive'])) exit('0');
 
-// Check cToken for protect from CSRF
-if (! isset($_SESSION['XELFINDER_CTOKEN'])
-		 || ! isset($_REQUEST['ctoken'])
-		 || $_SESSION['XELFINDER_CTOKEN'] !== $_REQUEST['ctoken']) {
-	exit(json_encode(array('error' => 'errAccess')));
-}
-
 @ set_time_limit(120); // just in case it too long, not recommended for production
 ini_set('max_file_uploads', 50);   // allow uploading up to 50 files at once
 
@@ -28,6 +21,13 @@ if (strpos($incPath, $addPath) === FALSE) {
 
 // load compat functions
 require_once dirname(__FILE__) . '/include/compat.php';
+
+// Check cToken for protect from CSRF
+if (! isset($_SESSION['XELFINDER_CTOKEN'])
+		|| ! isset($_REQUEST['ctoken'])
+		|| $_SESSION['XELFINDER_CTOKEN'] !== $_REQUEST['ctoken']) {
+	exit(json_encode(array('error' => 'errAccess')));
+}
 
 define('_MD_ELFINDER_LIB_PATH', XOOPS_TRUST_PATH . '/libs/elfinder');
 
