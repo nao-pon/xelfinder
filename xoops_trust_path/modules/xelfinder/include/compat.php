@@ -1,6 +1,17 @@
 <?php
 // compatibility for PHP < 5.2
 
+if(!function_exists('error_get_last')) {
+	function error_get_last() {
+		return array(
+				'type' => 0,
+				'message' => $GLOBALS[php_errormsg],
+				'file' => 'unknonw',
+				'line' => 0,
+		);
+	}
+}
+
 // json support
 if (! extension_loaded('json')) {
 	require_once 'Services/JSON.php';
