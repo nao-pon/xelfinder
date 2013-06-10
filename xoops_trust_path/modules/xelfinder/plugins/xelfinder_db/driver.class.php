@@ -258,6 +258,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$res = $this->db->queryF($sql);
 		if (!$res) {
 			$this->dbError = $this->db->error();
+			$this->setError($this->dbError.'.');
 		}
 		return $res;
 	}
@@ -692,6 +693,31 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		if ($stat['mime'] !== 'directory') unset($stat['filter']);
 		
 		return $stat;
+	}
+	
+	/**
+	 * Save error message
+	 *
+	 * @param  array  error
+	 * @return false
+	 * @author Dmitry(dio) Levashov
+	 **/
+	protected function setError($error) {
+	
+		if (! is_array($this->error)) {
+			$this->error = array();
+		}
+	
+		foreach (func_get_args() as $err) {
+			if (is_array($err)) {
+				$this->error = array_merge($this->error, $err);
+			} else {
+				$this->error[] = $err;
+			}
+		}
+	
+		// $this->error = is_array($error) ? $error : func_get_args();
+		return false;
 	}
 	
 	/*********************************************************************/
