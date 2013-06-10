@@ -66,6 +66,37 @@ function xelfinder_onupdate_base( $module , $mydirname )
 		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` ADD `local_path` VARCHAR( 255 ) NOT NULL');
 	}
 	
+	//from v0.66 add default value for strict mode
+	$query = "SHOW COLUMNS FROM `".$db->prefix($mydirname."_file")."` LIKE 'parent_id'" ;
+	$res = $db->query($query);
+	$dat = $db->fetchArray($res);
+	if ($dat['Default'] === NULL) {
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `parent_id` `parent_id` INT( 10 ) UNSIGNED NOT NULL DEFAULT \'0\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `name` `name` varchar(255) NOT NULL DEFAULT \'\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `size` `size` int(10) unsigned NOT NULL DEFAULT \'0\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `ctime` `ctime` int(10) unsigned NOT NULL DEFAULT \'0\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `mtime` `mtime` int(10) unsigned NOT NULL DEFAULT \'0\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `perm` `perm` varchar(3) NOT NULL DEFAULT \'\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `uid` `uid` int(10) unsigned NOT NULL DEFAULT \'0\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `gid` `gid` int(10) unsigned NOT NULL DEFAULT \'0\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `home_of` `home_of` int(10) DEFAULT NULL DEFAULT \'0\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `width` `width` int(11) NOT NULL DEFAULT \'0\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `height` `height` int(11) NOT NULL DEFAULT \'0\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `gids` `gids` varchar(255) NOT NULL DEFAULT \'\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `mime_filter` `mime_filter` varchar(255) NOT NULL DEFAULT \'\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `local_path` `local_path` varchar(255) NOT NULL DEFAULT \'\'');
+		// link
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_link").'` CHANGE `file_id` `file_id` int(11) NOT NULL DEFAULT \'0\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_link").'` CHANGE `mid` `mid` int(10) unsigned NOT NULL DEFAULT \'0\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_link").'` CHANGE `param` `param` varchar(25) NOT NULL DEFAULT \'\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_link").'` CHANGE `val` `val` varchar(25) NOT NULL DEFAULT \'\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_link").'` CHANGE `title` `title` varchar(255) NOT NULL DEFAULT \'\'');
+		// userdat
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_userdat").'` CHANGE `uid` `uid` int(10) unsigned NOT NULL DEFAULT \'0\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_userdat").'` CHANGE `key` `key` varchar(255) NOT NULL DEFAULT \'\'');
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_userdat").'` CHANGE `mtime` `mtime` int(10) unsigned NOT NULL DEFAULT \'0\'');
+	}
+	
 	// TEMPLATES (all templates have been already removed by modulesadmin)
 	$tplfile_handler =& xoops_gethandler( 'tplfile' ) ;
 	$tpl_path = dirname(__FILE__).'/templates' ;
