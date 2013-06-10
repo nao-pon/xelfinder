@@ -5,9 +5,8 @@
 
 if (is_dir(XOOPS_TRUST_PATH . $path)) {
 
-	require_once dirname(__FILE__) . '/driver.class.php';
-
 	$volumeOptions = array(
+		'driverSrc' => dirname(__FILE__) . '/driver.class.php',
 		'driver'    => 'XoopsXelfinder_db',
 		'mydirname' => $mydirname,
 		'path'      => '1',

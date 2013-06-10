@@ -5,8 +5,6 @@
 
 if (is_dir(XOOPS_ROOT_PATH . $path)) {
 
-	require_once dirname(__FILE__) . '/driver.class.php';
-	
 	$module_handler = xoops_gethandler('module');
 	$gnaviModule = $module_handler->getByDirname($mydirname);
 	$config_handler = xoops_gethandler('config');
@@ -15,6 +13,7 @@ if (is_dir(XOOPS_ROOT_PATH . $path)) {
 	$path = '/' . trim($myConfig['gnavi_photospath'], '/') . '/';
 
 	$volumeOptions = array(
+		'driverSrc' => dirname(__FILE__) . '/driver.class.php',
 		'driver'    => 'XoopsGnavi',
 		'mydirname' => $mydirname,
 		'path'      => '_',

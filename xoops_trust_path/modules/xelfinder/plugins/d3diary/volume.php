@@ -5,9 +5,8 @@
 
 if (is_dir(XOOPS_ROOT_PATH . $path)) {
 
-	require_once dirname(__FILE__) . '/driver.class.php';
-
 	$volumeOptions = array(
+		'driverSrc' => dirname(__FILE__) . '/driver.class.php',
 		'driver'    => 'XoopsD3diary',
 		'mydirname' => $mydirname,
 		'path'      => '_',

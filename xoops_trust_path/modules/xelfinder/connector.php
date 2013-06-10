@@ -58,19 +58,9 @@ define('ELFINDER_IMG_PARENT_URL', XOOPS_URL . '/common/elfinder/');
 require dirname(__FILE__) . '/class/xelFinder.class.php';
 require dirname(__FILE__) . '/class/xelFinderVolumeFTP.class.php';
 
-$isAdmin = false;
-$memberUid = 0;
-$memberGroups = array(XOOPS_GROUP_ANONYMOUS);
-if (is_object($xoopsUser)) {
-	if ($xoopsUser->isAdmin($xoopsModule->getVar('mid'))) {
-		$isAdmin = true;
-	}
-	$memberUid = $xoopsUser->getVar('uid');
-	$memberGroups = $xoopsUser->getGroups();
-}
-
 $extras = array();
 $config = $xoopsModuleConfig;
+$config_MD5 = md5(serialize($config));
 if (strtoupper(_CHARSET) !== 'UTF-8') {
 	mb_convert_variables('UTF-8', _CHARSET, $config);
 }
@@ -82,56 +72,6 @@ if (!empty($config['dropbox_token']) && !empty($config['dropbox_seckey'])) {
 	define('ELFINDER_DROPBOX_CONSUMERSECRET', $config['dropbox_seckey']);
 }
 
-// set umask
-foreach(array('default', 'users_dir', 'guest_dir', 'group_dir') as $_key) {
-	$config[$_key.'_umask'] = strval(dechex(0xfff - intval(strval($config[$_key.'_item_perm']), 16)));
-}
-
-$inSpecialGroup = (array_intersect($memberGroups, ( isset($config['special_groups'])? $config['special_groups'] : array() )));
-
-// set uploadAllow
-if ($isAdmin) {
-	$config['uploadAllow'] = @$config['upload_allow_admin'];
-	$config['autoResize'] = @$config['auto_resize_admin'];
-} elseif ($inSpecialGroup) {
-	$config['uploadAllow'] = @$config['upload_allow_spgroups'];
-	$config['auto_resize'] = @$config['auto_resize_spgroups'];
-} elseif ($memberUid) {
-	$config['uploadAllow'] = @$config['upload_allow_user'];
-	$config['autoResize'] = @$config['auto_resize_user'];
-} else {
-	$config['uploadAllow'] = @$config['upload_allow_guest'];
-	$config['autoResize'] = @$config['auto_resize_guest'];
-}
-
-$config['uploadAllow'] = trim($config['uploadAllow']);
-if (! $config['uploadAllow'] || $config['uploadAllow'] === 'none') {
-	$config['uploadAllow'] = array();
-} else {
-	$config['uploadAllow'] = explode(' ', $config['uploadAllow']);
-	$config['uploadAllow'] = array_map('trim', $config['uploadAllow']);
-}
-$config['autoResize'] = (int)$config['autoResize'];
-
-if (! empty($xoopsConfig['cool_uri'])) {
-	$config['URL'] = _MD_XELFINDER_SITEURL . '/' . $mydirname . '/view/';
-} else if (empty($config['disable_pathinfo'])) {
-	$config['URL'] = _MD_XELFINDER_MODULE_URL . '/' . $mydirname . '/index.php/view/';
-} else {
-	$config['URL'] = _MD_XELFINDER_MODULE_URL . '/' . $mydirname . '/index.php?page=view&file=';
-}
-
-if (! isset($extras[$mydirname.':xelfinder_db'])) {
-	$extras[$mydirname.':xelfinder_db'] = array();
-}
-foreach (
-	array('default_umask', 'use_users_dir', 'users_dir_perm', 'users_dir_umask', 'use_guest_dir', 'guest_dir_perm', 'guest_dir_umask',
-	      'use_group_dir', 'group_dir_parent', 'group_dir_perm', 'group_dir_umask', 'uploadAllow', 'autoResize', 'URL', 'unzip_lang_value')
-	as $_extra
-) {
-	$extras[$mydirname.':xelfinder_db'][$_extra] = empty($config[$_extra])? '' : $config[$_extra];
-}
-
 $debug = (! empty($config['debug']));
 
 // load xoops_elFinder
@@ -141,35 +81,108 @@ $xoops_elFinder->setConfig($config);
 $xoops_elFinder->setLogfile($debug? XOOPS_TRUST_PATH . '/cache/elfinder.log.txt' : '');
 
 // Get volumes
-$rootVolumes = $xoops_elFinder->getRootVolumes($config['volume_setting'], $extras);
-
-// Add net(FTP) volume
-if ($isAdmin && !empty($config['ftp_host']) && !empty($config['ftp_port']) && !empty($config['ftp_user']) && !empty($config['ftp_pass'])) {
-	$ftp = array(
-		'driver'  => 'FTPx',
-		'alias'   => $config['ftp_name'],
-		'host'    => $config['ftp_host'],
-		'port'    => $config['ftp_port'],
-		'path'    => $config['ftp_path'],
-		'user'    => $config['ftp_user'],
-		'pass'    => $config['ftp_pass'],
-		'enable_search' => !empty($config['ftp_search']),
-		'is_local'=> true,
-		'tmpPath' => XOOPS_MODULE_PATH . '/'.$mydirname.'/cache',
-		'utf8fix' => true,
-		'defaults' => array('read' => true, 'write' => true, 'hidden' => false, 'locked' => false),
-		'attributes' => array(
-			array(
-				'pattern' => '~/\.~',
-				'read' => false,
-				'write' => false,
-				'hidden' => true,
-				'locked' => false
-			),
-		)
-	);
-	$rootVolumes[] = $ftp;
+if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HASH_'.$mydirname] === $config_MD5) {
+	$rootVolumes = unserialize(base64_decode($_SESSION['XELFINDER_RV_'.$mydirname]));
+} else {
+	$isAdmin = false;
+	$memberUid = 0;
+	$memberGroups = array(XOOPS_GROUP_ANONYMOUS);
+	if (is_object($xoopsUser)) {
+		if ($xoopsUser->isAdmin($xoopsModule->getVar('mid'))) {
+			$isAdmin = true;
+		}
+		$memberUid = $xoopsUser->getVar('uid');
+		$memberGroups = $xoopsUser->getGroups();
+	}
+	
+	// set umask
+	foreach(array('default', 'users_dir', 'guest_dir', 'group_dir') as $_key) {
+		$config[$_key.'_umask'] = strval(dechex(0xfff - intval(strval($config[$_key.'_item_perm']), 16)));
+	}
+	
+	$inSpecialGroup = (array_intersect($memberGroups, ( isset($config['special_groups'])? $config['special_groups'] : array() )));
+	
+	// set uploadAllow
+	if ($isAdmin) {
+		$config['uploadAllow'] = @$config['upload_allow_admin'];
+		$config['autoResize'] = @$config['auto_resize_admin'];
+	} elseif ($inSpecialGroup) {
+		$config['uploadAllow'] = @$config['upload_allow_spgroups'];
+		$config['auto_resize'] = @$config['auto_resize_spgroups'];
+	} elseif ($memberUid) {
+		$config['uploadAllow'] = @$config['upload_allow_user'];
+		$config['autoResize'] = @$config['auto_resize_user'];
+	} else {
+		$config['uploadAllow'] = @$config['upload_allow_guest'];
+		$config['autoResize'] = @$config['auto_resize_guest'];
+	}
+	
+	$config['uploadAllow'] = trim($config['uploadAllow']);
+	if (! $config['uploadAllow'] || $config['uploadAllow'] === 'none') {
+		$config['uploadAllow'] = array();
+	} else {
+		$config['uploadAllow'] = explode(' ', $config['uploadAllow']);
+		$config['uploadAllow'] = array_map('trim', $config['uploadAllow']);
+	}
+	$config['autoResize'] = (int)$config['autoResize'];
+	
+	if (! empty($xoopsConfig['cool_uri'])) {
+		$config['URL'] = _MD_XELFINDER_SITEURL . '/' . $mydirname . '/view/';
+	} else if (empty($config['disable_pathinfo'])) {
+		$config['URL'] = _MD_XELFINDER_MODULE_URL . '/' . $mydirname . '/index.php/view/';
+	} else {
+		$config['URL'] = _MD_XELFINDER_MODULE_URL . '/' . $mydirname . '/index.php?page=view&file=';
+	}
+	
+	if (! isset($extras[$mydirname.':xelfinder_db'])) {
+		$extras[$mydirname.':xelfinder_db'] = array();
+	}
+	foreach (
+			array('default_umask', 'use_users_dir', 'users_dir_perm', 'users_dir_umask', 'use_guest_dir', 'guest_dir_perm', 'guest_dir_umask',
+					'use_group_dir', 'group_dir_parent', 'group_dir_perm', 'group_dir_umask', 'uploadAllow', 'autoResize', 'URL', 'unzip_lang_value')
+			as $_extra
+	) {
+		$extras[$mydirname.':xelfinder_db'][$_extra] = empty($config[$_extra])? '' : $config[$_extra];
+	}
+	
+	$rootVolumes = $xoops_elFinder->getRootVolumes($config['volume_setting'], $extras);
+	
+	// Add net(FTP) volume
+	if ($isAdmin && !empty($config['ftp_host']) && !empty($config['ftp_port']) && !empty($config['ftp_user']) && !empty($config['ftp_pass'])) {
+		$ftp = array(
+			'driver'  => 'FTPx',
+			'alias'   => $config['ftp_name'],
+			'host'    => $config['ftp_host'],
+			'port'    => $config['ftp_port'],
+			'path'    => $config['ftp_path'],
+			'user'    => $config['ftp_user'],
+			'pass'    => $config['ftp_pass'],
+			'enable_search' => !empty($config['ftp_search']),
+			'is_local'=> true,
+			'tmpPath' => XOOPS_MODULE_PATH . '/'.$mydirname.'/cache',
+			'utf8fix' => true,
+			'defaults' => array('read' => true, 'write' => true, 'hidden' => false, 'locked' => false),
+			'attributes' => array(
+				array(
+					'pattern' => '~/\.~',
+					'read' => false,
+					'write' => false,
+					'hidden' => true,
+					'locked' => false
+				),
+			)
+		);
+		$rootVolumes[] = $ftp;
+	}
+	$_SESSION['XELFINDER_RV_'.$mydirname] = base64_encode(serialize($rootVolumes));
+	$_SESSION['XELFINDER_CFG_HASH_'.$mydirname] = $config_MD5;
 }
+foreach($rootVolumes as $rootVolume) {
+	if (isset($rootVolume['driverSrc'])) {
+		require_once $rootVolume['driverSrc'];
+	}
+}
+//var_dump($rootVolumes);exit;
 
 // End for XOOPS
 //////////////////////////////////////////////////////
