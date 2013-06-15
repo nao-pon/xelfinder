@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: 946fce4) (2013-05-26)
+ * Version 2.x_n (Nightly: b73be80) (2013-06-15)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -3062,7 +3062,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: 946fce4)';
+elFinder.prototype.version = '2.x_n (Nightly: b73be80)';
 
 
 
@@ -4413,7 +4413,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'ntfextract'  : 'Extracting files from archive',
 			'ntfsearch'   : 'Searching files',
 			'ntfresize'   : 'Resizing images',
-			'ntfsmth'     : 'Doing something >_<',
+			'ntfsmth'     : 'Doing something',
 			'ntfloadimg'  : 'Loading image',
 			'ntfnetmount' : 'Mounting network volume', // added 18.04.2012
 			'ntfnetunmount': 'Unmounting network volume', // added 30.04.2012
@@ -8875,7 +8875,6 @@ elFinder.prototype.commands.netmount = function() {
 				content.append(hidden);
 				
 				content.find('.elfinder-netmount-tr').hide();
-				inputs.protocol.change();
 
 				opts.buttons[fm.i18n('btnMount')] = function() {
 					var protocol = inputs.protocol.val();
@@ -8907,7 +8906,7 @@ elFinder.prototype.commands.netmount = function() {
 					self.dialog.elfinderdialog('close');
 				};
 				
-				return fm.dialog(content, opts);
+				return fm.dialog(content, opts).ready(function(){inputs.protocol.change();});
 			}
 			;
 
