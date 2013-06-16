@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: b73be80) (2013-06-15)
+ * Version 2.x_n (Nightly: 55b8671) (2013-06-16)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -3062,7 +3062,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: b73be80)';
+elFinder.prototype.version = '2.x_n (Nightly: 55b8671)';
 
 
 
@@ -4263,7 +4263,7 @@ $.fn.dialogelfinder = function(opts) {
 /**
  * English translation
  * @author Troex Nevelin <troex@fury.scancode.ru>
- * @version 2012-05-30
+ * @version 2013-05-20
  */
 if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object') {
 	elFinder.prototype.i18.en = {
@@ -9359,7 +9359,7 @@ elFinder.prototype.commands.pixlr = function() {
 		files = this.files(hashes),
 		cnt   = files.length,
 		fire = function(mode) {
-			var file, url, target, exit,
+			var file, url, uploadURL, img, target, exit, loc,
 			cdata = $.param(fm.options.customData);
 			
 			// set custom data
@@ -9369,19 +9369,29 @@ elFinder.prototype.commands.pixlr = function() {
 			
 			file = files[0];
 			
-			target = fm.uploadURL;
-			target = target + (target.indexOf('?') === -1 ? '?' : '&')
+			loc = location.href.replace(/^(https?:\/\/[^\/]+).+/i, '$1');
+			img = fm.url(file.hash);
+			if (! img.match(/^http/)) {
+				img = loc + img;
+			}
+			
+			loc = location.href.replace(/\/[^\/]*$/, '/');
+			uploadURL = fm.uploadURL;
+			if (! uploadURL.match(/^http/)) {
+				uploadURL = loc + uploadURL;
+			}
+			
+			target = uploadURL + (uploadURL.indexOf('?') === -1 ? '?' : '&')
 				+ 'cmd=pixlr'
 				+ '&target=' + file.phash
 				+ '&node=' + encodeURIComponent(fm.id)
 				+ cdata;
 			
-			exit = fm.uploadURL;
-			exit = exit + (exit.indexOf('?') === -1 ? '?' : '&')
+			exit = uploadURL + (uploadURL.indexOf('?') === -1 ? '?' : '&')
 				+ 'cmd=pixlr'
 				+ cdata;
 			
-			url = 'http://pixlr.com/'+mode+'/?image=' + encodeURIComponent(fm.url(file.hash))
+			url = 'http://pixlr.com/'+mode+'/?image=' + encodeURIComponent(img)
 				+ '&target=' + encodeURIComponent(target)
 				+ '&title=' + encodeURIComponent('pixlr_'+file.name)
 				+ '&exit=' + encodeURIComponent(exit);
