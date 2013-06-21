@@ -76,11 +76,15 @@ $userLang = xelfinder_detect_lang();
 
 $jQueryCDN = '//ajax.googleapis.com/ajax/libs/jquery/%s/jquery.min.js';
 $jQueryUICDN = '//ajax.googleapis.com/ajax/libs/jqueryui/%s';
-$jQueryVersion   = '1.9.1';
-$jQueryUIVersion = '1.10.1';
+$jQueryVersion   = '1.10.1';
+$jQueryUIVersion = '1.10.3';
 
 if (! $jQueryUiTheme = @$config['jquery_ui_theme']) {
-	$jQueryUiTheme = 'base';
+	$jQueryUiTheme = 'smoothness';
+} else {
+	if ($jQueryUiTheme === 'base' && version_compare($jQueryUIVersion, '1.10.1', '>')) {
+		$jQueryUiTheme = 'smoothness';
+	}
 }
 if (! preg_match('#^(?:https?:)?//#i', $jQueryUiTheme)) {
 	$jQueryUiTheme = sprintf($jQueryUICDN, $jQueryUIVersion) . '/themes/'.$jQueryUiTheme.'/jquery-ui.css';

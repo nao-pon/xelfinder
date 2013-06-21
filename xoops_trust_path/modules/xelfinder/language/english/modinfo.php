@@ -43,7 +43,7 @@ define( $constpref.'_DROPBOX_TOKEN_DESC' ,      'Developers - Dropbox [ https://
 define( $constpref.'_DROPBOX_SECKEY' ,          'Dropbox.com App secret' );
 define( $constpref.'_DROPBOX_SECKEY_DESC' ,     '' );
 define( $constpref.'_JQUERY_UI_THEME' ,         'jQuery UI Theme' );
-define( $constpref.'_JQUERY_UI_THEME_DESC' ,    'Theme name or URL to jQuery Theme CSS (Default: base)' );
+define( $constpref.'_JQUERY_UI_THEME_DESC' ,    'Theme name or URL to jQuery Theme CSS (Default: smoothness)' );
 define( $constpref.'_THUMBNAIL_SIZE' ,          '[xelfinder_db] Thumbnail size of image insertion' );
 define( $constpref.'_THUMBNAIL_SIZE_DESC' ,     'The default value (px) of the thumbnail size at picture insertion by BBcode.' );
 define( $constpref.'_DEFAULT_ITEM_PERM' ,       '[xelfinder_db] Permission of new items' );

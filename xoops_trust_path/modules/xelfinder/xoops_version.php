@@ -169,7 +169,7 @@ $modversion['config'][] = array(
 	'description'	=> $constpref.'_JQUERY_UI_THEME_DESC' ,
 	'formtype'		=> 'textbox' ,
 	'valuetype'		=> 'text' ,
-	'default'		=> 'base'
+	'default'		=> 'smoothness'
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'thumbnail_size' ,

@@ -43,7 +43,7 @@ define( $constpref.'_DROPBOX_TOKEN_DESC' ,      'Developers - Dropbox [ https://
 define( $constpref.'_DROPBOX_SECKEY' ,          'Dropbox.com アプリケーション Secret key' );
 define( $constpref.'_DROPBOX_SECKEY_DESC' ,     '' );
 define( $constpref.'_JQUERY_UI_THEME' ,         'jQuery UI のテーマ' );
-define( $constpref.'_JQUERY_UI_THEME_DESC' ,    'jQuery UI のテーマをテーマ名、又は CSS の URL で指定します。 (デフォルト: base)' );
+define( $constpref.'_JQUERY_UI_THEME_DESC' ,    'jQuery UI のテーマをテーマ名、又は CSS の URL で指定します。 (デフォルト: smoothness)' );
 define( $constpref.'_THUMBNAIL_SIZE' ,          '[xelfinder_db] 画像挿入時のサムネイルサイズ' );
 define( $constpref.'_THUMBNAIL_SIZE_DESC' ,     'BBコードでの画像挿入時のサムネイルサイズの規定値(px)' );
 define( $constpref.'_DEFAULT_ITEM_PERM' ,       '[xelfinder_db] 作成されるアイテムのパーミッション' );
