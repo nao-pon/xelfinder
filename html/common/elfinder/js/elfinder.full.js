@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: 24e6032) (2013-06-19)
+ * Version 2.x_n (Nightly: 12059f6) (2013-06-22)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -3062,7 +3062,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: 24e6032)';
+elFinder.prototype.version = '2.x_n (Nightly: 12059f6)';
 
 
 
@@ -10790,7 +10790,7 @@ elFinder.prototype.commands.resize = function() {
 										handles     : 'all'
 									})
 									.draggable({
-										handle      : rhandlec,
+										handle      : coverc,
 										containment : imgc,
 										drag        : crop.update
 									});
