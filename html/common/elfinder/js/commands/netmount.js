@@ -91,7 +91,7 @@ elFinder.prototype.commands.netmount = function() {
 						return self.fm.trigger('error', {error : 'errNetMountHostReq'});
 					}
 
-					self.fm.request({data : data, notify : {type : 'netmount', cnt : 1}})
+					self.fm.request({data : data, notify : {type : 'netmount', cnt : 1, hideCnt : true}})
 						.done(function() { dfrd.resolve(); })
 						.fail(function(error) { dfrd.reject(error); });
 
@@ -155,8 +155,8 @@ elFinder.prototype.commands.netunmount = function() {
 					label    : 'btnUnmount',
 					callback : function() {  
 						fm.request({
-							data   : {cmd  : 'netmount', protocol : 'netunmount', host: drive.netkey, user : 'dum', pass : 'dum'}, 
-							notify : {type : 'netunmount', cnt : 1},
+							data   : {cmd  : 'netmount', protocol : 'netunmount', host: drive.netkey, user : drive.hash, pass : 'dum'}, 
+							notify : {type : 'netunmount', cnt : 1, hideCnt : true},
 							preventFail : true
 						})
 						.fail(function(error) {

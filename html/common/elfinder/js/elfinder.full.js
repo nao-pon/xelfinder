@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: 12059f6) (2013-06-22)
+ * Version 2.x_n (Nightly: dbaa6fd) (2013-06-26)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -2011,7 +2011,9 @@ elFinder.prototype = {
 					};
 					var readFile = function(fileEntry, callback) {
 						var dfrd = $.Deferred();
-						if (fileEntry.isFile) {
+						if (typeof fileEntry == 'undefined') {
+							dfrd.reject('empty');
+						} else if (fileEntry.isFile) {
 							fileEntry.file(function (file) {
 								dfrd.resolve(file);
 							}, function(e){
@@ -2038,6 +2040,8 @@ elFinder.prototype = {
 									if (e == 'dirctory') {
 										// dirctory
 										dirctorys.push(entries[i]);
+									} else if (e == 'empty') {
+										// dirctory is empty
 									} else {
 										// why fail?
 									}
@@ -3062,7 +3066,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: 12059f6)';
+elFinder.prototype.version = '2.x_n (Nightly: dbaa6fd)';
 
 
 
@@ -8895,7 +8899,7 @@ elFinder.prototype.commands.netmount = function() {
 						return self.fm.trigger('error', {error : 'errNetMountHostReq'});
 					}
 
-					self.fm.request({data : data, notify : {type : 'netmount', cnt : 1}})
+					self.fm.request({data : data, notify : {type : 'netmount', cnt : 1, hideCnt : true}})
 						.done(function() { dfrd.resolve(); })
 						.fail(function(error) { dfrd.reject(error); });
 
@@ -8959,8 +8963,8 @@ elFinder.prototype.commands.netunmount = function() {
 					label    : 'btnUnmount',
 					callback : function() {  
 						fm.request({
-							data   : {cmd  : 'netmount', protocol : 'netunmount', host: drive.netkey, user : 'dum', pass : 'dum'}, 
-							notify : {type : 'netunmount', cnt : 1},
+							data   : {cmd  : 'netmount', protocol : 'netunmount', host: drive.netkey, user : drive.hash, pass : 'dum'}, 
+							notify : {type : 'netunmount', cnt : 1, hideCnt : true},
 							preventFail : true
 						})
 						.fail(function(error) {

@@ -74,6 +74,8 @@ class elFinderVolumeDropbox extends elFinderVolumeDriver {
 	
 	private $DB_TableName = '';
 	
+	private $tmbPrefix = '';
+	
 	/**
 	 * Constructor
 	 * Extend options with required fields
@@ -231,6 +233,21 @@ class elFinderVolumeDropbox extends elFinderVolumeDriver {
 	}
 	
 	/**
+	 * process of on netunmount
+	 * Drop table `dropbox` & rm thumbs
+	 * 
+	 * @param array $options
+	 * @return boolean
+	 */
+	public function netunmount($options) {
+		$this->DB->exec('drop table '.$this->DB_TableName);
+		foreach(glob(rtrim($this->options['tmbPath'], '\\/').DIRECTORY_SEPARATOR.$this->tmbPrefix.'*.png') as $tmb) {
+			unlink($tmb);
+		}
+		return true;
+	}
+	
+	/**
 	 * Get script url
 	 * 
 	 * @return string full URL
@@ -315,6 +332,7 @@ class elFinderVolumeDropbox extends elFinderVolumeDriver {
 			}
 		}
 		$this->dropboxUid = $this->options['dropboxUid'];
+		$this->tmbPrefix = 'dropbox'.base_convert($this->dropboxUid, 10, 32);
 
 		if (!empty($this->options['tmpPath'])) {
 			if ((is_dir($this->options['tmpPath']) || @mkdir($this->options['tmpPath'])) && is_writable($this->options['tmpPath'])) {
@@ -874,7 +892,7 @@ class elFinderVolumeDropbox extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function tmbname($stat) {
-		return 'dropbox_'.$stat['rev'].'.png';
+		return $this->tmbPrefix.$stat['rev'].'.png';
 	}
 	
 	/**

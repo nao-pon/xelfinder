@@ -1997,7 +1997,9 @@ elFinder.prototype = {
 					};
 					var readFile = function(fileEntry, callback) {
 						var dfrd = $.Deferred();
-						if (fileEntry.isFile) {
+						if (typeof fileEntry == 'undefined') {
+							dfrd.reject('empty');
+						} else if (fileEntry.isFile) {
 							fileEntry.file(function (file) {
 								dfrd.resolve(file);
 							}, function(e){
@@ -2024,6 +2026,8 @@ elFinder.prototype = {
 									if (e == 'dirctory') {
 										// dirctory
 										dirctorys.push(entries[i]);
+									} else if (e == 'empty') {
+										// dirctory is empty
 									} else {
 										// why fail?
 									}
