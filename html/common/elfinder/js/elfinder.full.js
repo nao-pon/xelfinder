@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: e68ddfc) (2013-07-01)
+ * Version 2.x_n (Nightly: f9835bc) (2013-07-01)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -130,6 +130,7 @@ window.elFinder = function(node, opts) {
 			archives      : [],
 			extract       : [],
 			copyOverwrite : true,
+			uploadMaxSize : 0,
 			tmb           : false // old API
 		},
 		
@@ -2351,11 +2352,11 @@ elFinder.prototype = {
 			}, false);
 			
 			var send = function(files, paths){
-				var size = 0, fcnt = 1, sfiles = [], c = 0, total = cnt;
+				var size = 0, fcnt = 1, sfiles = [], c = 0, total = cnt, maxFileSize;
 				if (! data.checked) {
-					
+					maxFileSize = fm.option('uploadMaxSize')? fm.option('uploadMaxSize') : fm.uplMaxSize;
 					for (var i=0; i < files.length; i++) {
-						if (fm.uplMaxSize && files[i].size >= fm.uplMaxSize) {
+						if (maxFileSize && files[i].size >= maxFileSize) {
 							self.error(self.i18n('errUploadFile', files[i].name) + ' ' + self.i18n('errUploadFileSize'));
 							continue;
 						}
@@ -2382,6 +2383,7 @@ elFinder.prototype = {
 					}
 					
 					if (sfiles.length == 0) {
+						data.checked = true;
 						return false;
 					}
 					
@@ -3168,7 +3170,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: e68ddfc)';
+elFinder.prototype.version = '2.x_n (Nightly: f9835bc)';
 
 
 
