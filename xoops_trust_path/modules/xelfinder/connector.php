@@ -3,7 +3,6 @@
 if (! empty($_GET['keepalive'])) exit('0');
 
 @ set_time_limit(120); // just in case it too long, not recommended for production
-ini_set('max_file_uploads', 50);   // allow uploading up to 50 files at once
 
 // needed for case insensitive search to work, due to broken UTF-8 support in PHP
 ini_set('mbstring.internal_encoding', 'UTF-8');
