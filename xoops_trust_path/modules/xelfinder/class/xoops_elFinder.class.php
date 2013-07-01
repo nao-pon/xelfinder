@@ -90,6 +90,7 @@ class xoops_elFinder {
 			if (! $this->moduleCheckRight($mydirname)) continue;
 			
 			$extOptions = array();
+			$extOptKeys = array('uploadmaxsize' => 'uploadMaxSize');
 			if ($options) {
 				$options = explode('|', $options);
 				foreach($options as $_op) {
@@ -103,8 +104,12 @@ class xoops_elFinder {
 					} else {
 						list($key, $value) = explode('=', $_op);
 						$key = trim($key);
+						$lKey = strtolower($key);
+						if (isset($extOptKeys[$lKey])) {
+							$extOptions[$extOptKeys[$lKey]] = trim($value);
+						}
 						if (substr($key, 0, 3) === 'ext') {
-							$extOptions[trim($key)] = trim($value);
+							$extOptions[$key] = trim($value);
 						}
 					}
 				}
