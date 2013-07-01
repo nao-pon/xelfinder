@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: dbaa6fd) (2013-06-26)
+ * Version 2.x_n (Nightly: e68ddfc) (2013-07-01)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -856,6 +856,30 @@ window.elFinder = function(node, opts) {
 	}
 	
 	/**
+	 * Return bytes from ini formated size
+	 * 
+	 * @param  String  ini formated size
+	 * @return Integer
+	 */
+	this.returnBytes = function(val) {
+		if (val == '-1') val = 0;
+		if (val) {
+			// for ex. 1mb, 1KB
+			val = val.replace(/b$/i, '');
+			var last = val.charAt(val.length - 1).toLowerCase();
+			val = val.replace(/[gmk]$/i, '');
+			if (last == 'g') {
+				val = val * 1024 * 1024 * 1024;
+			} else if (last == 'm') {
+				val = val * 1024 * 1024;
+			} else if (last == 'k') {
+				val = val * 1024;
+			}
+		}
+		return val;
+	};
+	
+	/**
 	 * Proccess ajax request.
 	 * Fired events :
 	 * @todo
@@ -984,6 +1008,11 @@ window.elFinder = function(node, opts) {
 
 				if (response.netDrivers) {
 					self.netDrivers = response.netDrivers;
+				}
+
+				if (cmd == 'open' && !!data.init) {
+					self.uplMaxSize = self.returnBytes(response.uplMaxSize);
+					self.uplMaxFile = response.uplMaxFile;
 				}
 
 				dfrd.resolve(response);
@@ -1997,7 +2026,9 @@ elFinder.prototype = {
 	uploads : {
 		// check droped contents
 		checkFile : function(data, fm) {
-			if (data.type == 'data') {
+			if (!!data.checked || data.type == 'files') {
+				return data.files;
+			} else if (data.type == 'data') {
 				var dfrd = $.Deferred(),
 				files = [],
 				paths = [],
@@ -2105,8 +2136,6 @@ elFinder.prototype = {
 				}, 10);
 				
 				return dfrd.promise();
-			} else if (data.type == 'files') {
-				return data.files;
 			} else {
 				var ret = [];
 				var regex;
@@ -2248,12 +2277,13 @@ elFinder.prototype = {
 					})
 					.always(function() {
 						notifyto && clearTimeout(notifyto);
-						notify && self.notify({type : 'upload', cnt : -cnt, progress : 100*cnt});
+						! data.checked && notify && self.notify({type : 'upload', cnt : -cnt, progress : 100*cnt});
 					}),
 				xhr         = new XMLHttpRequest(),
 				formData    = new FormData(),
+				isDataType  = (data.type == 'data'),
 				files       = data.input ? data.input.files : self.uploads.checkFile(data, self), 
-				cnt         = files.length,
+				cnt         = data.checked? (isDataType? files[0].length : files.length) : files.length,
 				loaded      = 5,
 				notify      = false,
 				startNotify = function() {
@@ -2262,9 +2292,9 @@ elFinder.prototype = {
 						self.notify({type : 'upload', cnt : cnt, progress : loaded*cnt});
 					}, self.options.notifyDelay);
 				},
-				notifyto;
+				notifyto, notifyto2;
 			
-			if (data.type != 'data' &&!cnt) {
+			if (!isDataType && !cnt) {
 				return dfrd.reject();
 			}
 			
@@ -2309,18 +2339,77 @@ elFinder.prototype = {
 					// drop file from finder
 					// on first attempt request starts (progress callback called ones) but never ends.
 					// any next drop - successfull.
-					if (curr > 0 && !notifyto) {
+					if (!data.checked && curr > 0 && !notifyto) {
 						notifyto = startNotify();
 					}
 					
 					if (curr - prev > 4) {
 						loaded = curr;
-						notify && self.notify({type : 'upload', cnt : 0, progress : (loaded - prev)*cnt});
+						(data.checked || notify) && self.notify({type : 'upload', cnt : 0, progress : (loaded - prev)*cnt});
 					}
 				}
 			}, false);
 			
 			var send = function(files, paths){
+				var size = 0, fcnt = 1, sfiles = [], c = 0, total = cnt;
+				if (! data.checked) {
+					
+					for (var i=0; i < files.length; i++) {
+						if (fm.uplMaxSize && files[i].size >= fm.uplMaxSize) {
+							self.error(self.i18n('errUploadFile', files[i].name) + ' ' + self.i18n('errUploadFileSize'));
+							continue;
+						}
+						if ((fm.uplMaxSize && size + files[i].size >= fm.uplMaxSize) || fcnt > fm.uplMaxFile) {
+							size = 0;
+							fcnt = 1;
+							c++;
+						}
+						if (typeof sfiles[c] == 'undefined') {
+							sfiles[c] = [];
+							if (isDataType) {
+								sfiles[c][0] = [];
+								sfiles[c][1] = [];
+							}
+						}
+						if (isDataType) {
+							sfiles[c][0].push(files[i]);
+							sfiles[c][1].push(paths[i]);
+						} else {
+							sfiles[c].push(files[i]);
+						}
+						size += files[i].size;
+						fcnt++;
+					}
+					
+					if (sfiles.length == 0) {
+						return false;
+					}
+					
+					if (sfiles.length > 1) {
+						notifyto = startNotify();
+						for (var i=0; i < sfiles.length; i++) {
+							fm.exec('upload', {type: data.type, files: sfiles[i], checked: true}).always(function() {
+								if (notify) {
+									var _cnt = (isDataType? this[0] : this).length;
+									total -= _cnt;
+									if (total < 1) {
+										notifyto && clearTimeout(notifyto);
+										self.notify({type : 'upload', cnt : -cnt, progress : 100 * cnt});
+									}
+								}
+							}.bind(sfiles[i]));
+						}
+						return false;
+					}
+					
+					if (isDataType) {
+						files = sfiles[0][0];
+						paths = sfiles[0][1];
+					} else {
+						files = sfiles[0];
+					}
+				}
+				
 				xhr.open('POST', self.uploadURL, true);
 				formData.append('cmd', 'upload');
 				formData.append(self.newAPI ? 'target' : 'current', self.cwd().hash);
@@ -2335,7 +2424,7 @@ elFinder.prototype = {
 					formData.append('upload[]', file);
 				});
 				
-				if (paths) {
+				if (isDataType) {
 					$.each(paths, function(i, path) {
 						formData.append('upload_path[]', path);
 					});
@@ -2350,20 +2439,33 @@ elFinder.prototype = {
 				}
 				
 				xhr.send(formData);
+				
+				return true;
 			};
 			
-			if (data.type != 'data') {
-				send(files);
-			} else {
-				files.done(function(result){
-					cnt = result[0].length;
-					send(result[0], result[1]);
-				}).fail(function(){
+			if (! isDataType) {
+				if (! send(files)) {
 					dfrd.reject();
-				});
+				}
+			} else {
+				if (!! data.checked) {
+					send(files[0], files[1]);
+				} else {
+					notifyto2 = setTimeout(function() {
+						self.notify({type : 'readdir', cnt : 1, hideCnt: true});
+					}, self.options.notifyDelay);
+					files.done(function(result){
+						notifyto2 && clearTimeout(notifyto2);
+						self.notify({type : 'readdir', cnt : -1});
+						cnt = result[0].length;
+						send(result[0], result[1]);
+					}).fail(function(){
+						dfrd.reject();
+					});
+				}
 			}
 
-			if (!this.UA.Safari || !data.files) {
+			if (!isDataType && !data.checked && (!this.UA.Safari || !data.files)) {
 				notifyto = startNotify();
 			}
 			
@@ -2621,7 +2723,7 @@ elFinder.prototype = {
 			notify   = ndialog.children('.elfinder-notify-'+type),
 			ntpl     = '<div class="elfinder-notify elfinder-notify-{type}"><span class="elfinder-dialog-icon elfinder-dialog-icon-{type}"/><span class="elfinder-notify-msg">{msg}</span> <span class="elfinder-notify-cnt"/><div class="elfinder-notify-progressbar"><div class="elfinder-notify-progress"/></div></div>',
 			delta    = opts.cnt,
-			progress = opts.progress >= 0 && opts.progress <= 100 ? opts.progress : 0,
+			progress = opts.progress >= 0 ? opts.progress : 0,
 			cnt, total, prc;
 
 		if (!type) {
@@ -2645,7 +2747,7 @@ elFinder.prototype = {
 			ndialog.is(':hidden') && ndialog.elfinderdialog('open');
 			notify.data('cnt', cnt);
 			
-			if (progress < 100
+			if (progress
 			&& (total = notify.data('total')) >= 0
 			&& (prc = notify.data('progress')) >= 0) {
 
@@ -3066,7 +3168,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: dbaa6fd)';
+elFinder.prototype.version = '2.x_n (Nightly: e68ddfc)';
 
 
 
@@ -4267,7 +4369,7 @@ $.fn.dialogelfinder = function(opts) {
 /**
  * English translation
  * @author Troex Nevelin <troex@fury.scancode.ru>
- * @version 2013-05-20
+ * @version 2013-07-01
  */
 if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object') {
 	elFinder.prototype.i18.en = {
@@ -4422,6 +4524,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'ntfnetmount' : 'Mounting network volume', // added 18.04.2012
 			'ntfnetunmount': 'Unmounting network volume', // added 30.04.2012
 			'ntfdim'      : 'Acquiring image dimension', // added 20.05.2013
+			'ntfreaddir'  : 'Reading folder infomation', // added 01.07.2013
 			
 			/************************************ dates **********************************/
 			'dateUnknown' : 'unknown',
