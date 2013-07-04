@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: 57395be) (2013-07-04)
+ * Version 2.x_n (Nightly: 5a4c54b) (2013-07-04)
  * http://elfinder.org
  * 
  * Copyright 2009-2012, Studio 42
@@ -3170,7 +3170,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: 57395be)';
+elFinder.prototype.version = '2.x_n (Nightly: 5a4c54b)';
 
 
 
@@ -8453,11 +8453,11 @@ elFinder.prototype.commands.getfile = function() {
 					.done(function(data) {
 						if (data.dim) {
 							var dim = data.dim.split('x');
-							var rfile = fm.file(file.hash);
-							rfile.width = file.width = dim[0];
-							rfile.height = file.height = dim[1];
+							var rfile = fm.file(this.hash);
+							rfile.width = this.width = dim[0];
+							rfile.height = this.height = dim[1];
 						}
-					}));
+					}.bind(file)));
 				}
 			}
 		}
