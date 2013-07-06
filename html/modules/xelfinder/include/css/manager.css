@@ -10,13 +10,16 @@
 .elfinder-navbar .ui-state-hover  { color:#000; background-color:#edf1f4; border-color:#bdcbd8; }
 
 .toast-container {
-	width: 180px;
+	width: 200px;
 }
 .toast-item {
 	background-size: contain;
 	background-origin: border-box;
 	background-position: center center;
 	background-repeat: no-repeat;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	min-height: 120px;
 }
 .file_info {
 	font-family: Verdana,Arial,sans-serif;
@@ -29,4 +32,7 @@
 		2px 2px 2px #FFF,
 		3px 3px 3px #FFF;
 	color: #FFF;
+}
+.toast-item-wrapper span[onclick] {
+	cursor: pointer;
 }

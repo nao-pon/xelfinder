@@ -18,6 +18,7 @@ $().ready(function() {
 	elFinder.prototype.i18.en.messages.inline        = 'Inline';
 	elFinder.prototype.i18.en.messages.fullsize      = 'Full Size';
 	elFinder.prototype.i18.en.messages.thumbnail     = 'Thumbnail';
+	elFinder.prototype.i18.en.messages.continues     = 'Continue more';
 
 	if (typeof elFinder.prototype.i18.jp != "undefined") {
 		elFinder.prototype.i18.jp.messages.ntfperm = 'アイテム属性を変更';
@@ -36,6 +37,7 @@ $().ready(function() {
 		elFinder.prototype.i18.jp.messages.inline        = 'インライン';
 		elFinder.prototype.i18.jp.messages.fullsize      = 'フルサイズ';
 		elFinder.prototype.i18.jp.messages.thumbnail     = 'サムネイル';
+		elFinder.prototype.i18.en.messages.continues     = 'さらに続ける';
 
 		elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
 	}
@@ -121,7 +123,7 @@ $().ready(function() {
 
 });
 
-$.fn.extend({
+$.extend({
 	insertAtCaret: function(v) {
 		var pa = null;
 		var o = null;
@@ -152,16 +154,20 @@ $.fn.extend({
 				o.value = s.substr(0, p) + v + s.substr(p);
 				o.setSelectionRange(np, np);
 			}
-			try {
-				pa.jQuery.modal.close();
-			} catch(e) {
-				window.close();
+			if (! $("#continue_finder:checked").val()) {
+				try {
+					pa.jQuery.modal.close();
+				} catch(e) {
+					window.close();
+				}
+			} else {
+				$.insertAtCaret.continue_finder = true;
 			}
 		}
 	}
 });
 
-function insertCode(align, thumb, format) {
+function insertCode(align, thumb) {
 	$('.toast-item-close').click();
 	$('.toast-item').css('background-image','');
 	var code = '';
@@ -169,12 +175,15 @@ function insertCode(align, thumb, format) {
 	var isImg = (itemObject.mime.match(/^image/));
 	var urlTag = 'siteurl';
 	var imgTag = useSiteImg? 'siteimg' : 'img';
+	var format = insertCode.format;
 	if (isImg && $('#resize_px')) {
 		size = $('#resize_px').val();
-		if (size && ! size.match(/[\d]{1,4}/)) {
+		if (size && (! size.match(/[\d]{1,4}/) || (!!insertCode.iSize && insertCode.iSize <= size))) {
 			size = '';
 		}
 	}
+	insertCode.iSize = null;
+	insertCode.format = null;
 	if (! format) {
 		if (itemPath.match(/^http/)) {
 			urlTag = 'url';
@@ -233,7 +242,7 @@ function insertCode(align, thumb, format) {
 			code = '[['+itemObject.name+':'+itemPath+']]';
 		}
 	}
-	$().insertAtCaret(code);
+	$.insertAtCaret(code);
 }
 
 var getFileCallback_bbcode = function (file, fm) {
@@ -265,12 +274,17 @@ var getFileCallback_bbcode = function (file, fm) {
 					+ '<br>'
 					+ '<span onclick="insertCode(\'left\',0);"><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',0)"><img src="'+imgUrl+'alignbigcenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',0)"><img src="'+imgUrl+'alignbigright.gif" alt="" /></span>'
 					+ '<br>'
-					+ '<span class="file_info">Size: ' + file.width + 'x' + file.height+'</span>';
+					+ '<span class="file_info">'+fm.i18n('size')+': ' + file.width + 'x' + file.height+'</span>';
 		if (file.url.match(/\bview\b/)) {
+			insertCode.iSize = Math.max(file.width, file.height);
+			var tsize = Math.min(insertCode.iSize, defaultTmbSize);
 			buttons += '<br>'
-					+ '<span class="file_info">Resize:<input id="resize_px" style="width: 3em" class="button_input" value="'+defaultTmbSize+'">px</span>';
+					+ '<span class="file_info">'+fm.i18n('resize')+':<input id="resize_px" style="width: 2.5em" class="button_input" value="'+tsize+'">px</span>';
 		}
-		
+		var continue_checked = (! $.insertAtCaret.continue_finder)? '' : ' checked="checked"';
+		buttons += '<br>'
+				+ '<span class="file_info"><input id="continue_finder" class="button_input" type="checkbox" value="1"'+continue_checked+'><label for="continue_finder">'+fm.i18n('continues')+'</label></span>';
+
 		$().toastmessage( 'removeToast', $('.toast-item'));
 		$().toastmessage( 'showSuccessToast', buttons);
 		$('.toast-item').css('background-image','url("'+file.url+'")');
@@ -317,24 +331,29 @@ var getFileCallback_xpwiki = function (file, fm) {
 	if (itemPath.match(/\?/) && ! itemPath.match(/\.[^.?]+$/)) {
 		itemPath += '&' + encodeURI(file.name);
 	}
-
+	
+	insertCode.format = 'xpwiki';
 	if (isImg) {
 		var nowrap = ' title="' + fm.i18n('nowrap') + '"';
 		var wraparound = ' title="' + fm.i18n('wraparound') + '"';
 		var inline = ' title="' + fm.i18n('inline') + '"';
-		var buttons = '<span onclick="insertCode(\'left\',1,\'xpwiki\');"'+wraparound+'><img src="'+imgUrl+'alignleft.gif" alt="" /></span> <span onclick="insertCode(\'\',1,\'xpwiki\')"'+inline+'><img src="'+imgUrl+'aligncenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',1,\'xpwiki\')"'+wraparound+'><img src="'+imgUrl+'alignright.gif" alt="" /></span>'
+		insertCode.iSize = Math.max(file.width, file.height);
+		var tsize = Math.min(insertCode.iSize, defaultTmbSize);
+		var buttons = '<span onclick="insertCode(\'left\',1);"'+wraparound+'><img src="'+imgUrl+'alignleft.gif" alt="" /></span> <span onclick="insertCode(\'\',1)"'+inline+'><img src="'+imgUrl+'aligncenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',1)"'+wraparound+'><img src="'+imgUrl+'alignright.gif" alt="" /></span>'
 					+ '<br>'
-					+ '<span onclick="insertCode(\'left\',0,\'xpwiki\');"'+nowrap+'><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',0,\'xpwiki\')"'+nowrap+'><img src="'+imgUrl+'alignbigcenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',0,\'xpwiki\')"'+nowrap+'><img src="'+imgUrl+'alignbigright.gif" alt="" /></span>'
+					+ '<span onclick="insertCode(\'left\',0);"'+nowrap+'><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',0)"'+nowrap+'><img src="'+imgUrl+'alignbigcenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',0)"'+nowrap+'><img src="'+imgUrl+'alignbigright.gif" alt="" /></span>'
 					+ '<br>'
-					+ '<span class="file_info">Size: ' + file.width + 'x' + file.height+'</span>'
+					+ '<span class="file_info">'+fm.i18n('size')+': ' + file.width + 'x' + file.height+'</span>'
 					+ '<br>'
-					+ '<span class="file_info">Resize:<input id="resize_px" style="width: 3em" class="button_input" value="'+defaultTmbSize+'">px</span>';
-	
+					+ '<span class="file_info">'+fm.i18n('resize')+':<input id="resize_px" style="width: 2.5em" class="button_input" value="'+tsize+'">px</span>';
+		var continue_checked = (! $.insertAtCaret.continue_finder)? '' : ' checked="checked"';
+		buttons += '<br>'
+				+ '<span class="file_info"><input id="continue_finder" class="button_input" type="checkbox" value="1"'+continue_checked+'><label for="continue_finder">'+fm.i18n('continues')+'</label></span>';
 		$('.toast-item-close').click();
 		$().toastmessage( 'showSuccessToast', buttons);
 		$('.toast-item').css('background-image','url("'+file.url+'")');
 	} else {
-		insertCode('',0,'xpwiki');
+		insertCode('',0);
 	}
 };
 
@@ -413,10 +432,12 @@ var getFileCallback_ckeditor = function (file, fm) {
 		var buttons = '<span'+thumbnail+' onclick="var tmb=(tmbFunc_ckeditor(\''+thumb.replace("'", "%27")+'\')||\''+path.replace("'", "%27")+'\');window.opener.CKEDITOR.tools.callFunction(\''+funcNum+'\',tmb);var dialog=window.opener.CKEDITOR.dialog.getCurrent();dialog.setValueOf(\'Link\',\'txtUrl\',\''+path.replace("'", "%27")+'\');window.close();"><img src="'+imgUrl+'alignleft.gif" alt="" /></span>'
 		+ ' &nbsp; '
 		+ '<span'+fullsize+' onclick="window.opener.CKEDITOR.tools.callFunction(\''+funcNum+'\', \''+path.replace("'", "%27")+'\');window.close();"><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span>'
-		+ '<br><span class="file_info">Size: ' + file.width + 'x' + file.height+'</span>';
+		+ '<br><span class="file_info">'+fm.i18n('size')+': ' + file.width + 'x' + file.height+'</span>';
 		if (file.url.match(/\bview\b/)) {
+			insertCode.iSize = Math.max(file.width, file.height);
+			var tsize = Math.min(insertCode.iSize, defaultTmbSize);
 			buttons += '<br>'
-					+ '<span class="file_info">Resize:<input id="resize_px" style="width: 3em" class="button_input" value="'+defaultTmbSize+'">px</span>';
+					+ '<span class="file_info">'+fm.i18n('resize')+':<input id="resize_px" style="width: 2.5em" class="button_input" value="'+tsize+'">px</span>';
 		}
 		$('.toast-item-close').click();
 		$().toastmessage( 'showSuccessToast', buttons);
