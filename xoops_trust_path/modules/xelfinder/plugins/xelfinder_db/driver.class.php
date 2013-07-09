@@ -386,13 +386,13 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$size = filesize($local);
 			list($width, $height) = getimagesize($local);
 			
-			$this->rmTmb($file);
-			$this->clearcache();
-			$this->createTmb($path, $file);
-
 			$sql = 'UPDATE %s SET mtime=%d, width=%d, height=%d, size=%d WHERE file_id=%d LIMIT 1';
 			$sql = sprintf($sql, $this->tbf, time(), $width, $height, $size, $path);
 			$this->query($sql);
+			
+			$this->rmTmb($file);
+			$this->clearcache();
+			$this->createTmb($path, $file);
 
 			return $this->stat($path);
 		}
@@ -1028,6 +1028,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$res = $this->query($sql);
 
 		if ($res && $stat = $this->db->fetchArray($res)) {
+			//if ($path == 1685) {var_dump($stat);exit;}
 			return $this->makeStat($stat);
 		} else if ($rootCheck && $path == $this->root) {
 			$this->_mkdir(0, 'VolumeRoot');
