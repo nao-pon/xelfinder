@@ -189,8 +189,14 @@ foreach($rootVolumes as $rootVolume) {
 $opts = array(
 	'locale' => 'ja_JP.UTF-8',
 	'bind'   => array(
-			'*' => array($xoops_elFinder, 'log'),
-		),
+		'*'              => array($xoops_elFinder, 'log'),
+		'upload.presave' => 'Plugin.Watermark.onUpLoadPreSave',
+	),
+ 	'plugin' => array(
+ 		'Watermark' => array(
+ 			'enable' => false
+ 		),
+ 	),
 	'debug' => $debug,
 	'netVolumesSessionKey' => _MD_XELFINDER_NETVOLUME_SESSION_KEY,
 	'roots' => $rootVolumes,
@@ -209,3 +215,12 @@ while( ob_get_level() ) {
 
 $connector = new elFinderConnector(new xelFinder($opts), true);
 $connector->run();
+
+
+function debug($str) {
+	ob_start();
+	var_dump($str);
+	$str = ob_get_clean();
+	file_put_contents(dirname(__FILE__) . '/debug.txt', $str . "\n", FILE_APPEND);
+}
+

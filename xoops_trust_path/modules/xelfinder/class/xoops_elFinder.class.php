@@ -83,7 +83,7 @@ class xoops_elFinder {
 		foreach($configs as $_conf) {
 			$_conf = trim($_conf);
 			if (! $_conf || $_conf[0] === '#') continue;
-			$_confs = explode(':', $_conf);
+			$_confs = explode(':', $_conf, 5);
 			$_confs = array_map('trim', $_confs);
 			list($mydirname, $plugin, $path, $title, $options) = array_pad($_confs, 5, '');
 			
@@ -92,7 +92,10 @@ class xoops_elFinder {
 			$extOptions = array();
 			$extOptKeys = array('uploadmaxsize' => 'uploadMaxSize');
 			if ($options) {
-				$options = explode('|', $options);
+				$options = str_getcsv($options, '|');
+				if (is_array($options[0])) {
+					$options = $options[0];
+				}
 				foreach($options as $_op) {
 					if (strpos($_op, 'gid=') === 0) {
 						$_gids = array_map('intval', explode(',', substr($_op, 4)));
@@ -100,6 +103,52 @@ class xoops_elFinder {
 							if (! array_intersect($this->mygids, $_gids)) {
 								continue 2;
 							}
+						}
+					} else if (strpos($_op, 'plugin.') === 0) {
+						list($_p, $_tmp) = explode('=', substr($_op, 7), 2);
+						if (! isset($extOptions['plugin'])) {
+							$extOptions['plugin'] = array();
+						}
+						$_opts = array();
+						$_p = trim($_p);
+						$_parts = str_getcsv($_tmp);
+						if ($_parts) {
+							if (is_array($_parts[0])) {
+								$_parts = $_parts[0];
+							}
+							foreach($_parts as $_part) {
+								list($_k, $_v) = explode(':', trim($_part), 2);
+								$_v = trim($_v);
+								switch(strtolower($_v)) {
+									case 'true':
+										$_v = true;
+										break;
+									case 'false':
+										$_v = false;
+										break;
+									default:
+										$_fc = $_v[0];
+										$_lc = substr($_v, -1);
+										if ($_fc === '`' && $_lc === '`') {
+											try {
+												eval('$_v = '. trim($_v, '`') . ' ;');
+											} catch (Exception $e) { continue 2; }
+										} else if ($_fc === '(' && $_lc === ')') {
+											try {
+												eval('$_v = array'. $_v . ' ;');
+												if (! is_array($_v)) {
+													continue 2;
+												}
+											} catch (Exception $e) { continue 2; }
+										} else {
+											is_numeric($_v) && ($_v = strpos($_v, '.')? (float)$_v : (int)$_v);
+										}
+								}
+								$_opts[trim($_k)] = $_v;
+							}
+						}
+						if ($_opts) {
+							$extOptions['plugin'][$_p] = $_opts;
 						}
 					} else {
 						list($key, $value) = explode('=', $_op);
