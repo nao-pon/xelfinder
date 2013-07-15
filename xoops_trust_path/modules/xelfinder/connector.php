@@ -190,13 +190,19 @@ $opts = array(
 	'locale' => 'ja_JP.UTF-8',
 	'bind'   => array(
 		'*'              => array($xoops_elFinder, 'log'),
-		'upload.presave' => 'Plugin.Watermark.onUpLoadPreSave',
+		'upload.presave' => array(
+				'Plugin.AutoResize.onUpLoadPreSave',
+				'Plugin.Watermark.onUpLoadPreSave'
+		),
 	),
- 	'plugin' => array(
- 		'Watermark' => array(
- 			'enable' => false
- 		),
- 	),
+	'plugin' => array(
+		'AutoResize' => array(
+			'enable' => false
+		),
+		'Watermark' => array(
+			'enable' => false
+		),
+	),
 	'debug' => $debug,
 	'netVolumesSessionKey' => _MD_XELFINDER_NETVOLUME_SESSION_KEY,
 	'roots' => $rootVolumes,
