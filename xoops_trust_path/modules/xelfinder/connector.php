@@ -190,9 +190,11 @@ $opts = array(
 	'locale' => 'ja_JP.UTF-8',
 	'bind'   => array(
 		'*'              => array($xoops_elFinder, 'log'),
+		'mkdir.pre mkfile.pre rename.pre' => 'Plugin.Normalizer.cmdPreprocess',
 		'upload.presave' => array(
-				'Plugin.AutoResize.onUpLoadPreSave',
-				'Plugin.Watermark.onUpLoadPreSave'
+			'Plugin.Normalizer.onUpLoadPreSave',
+			'Plugin.AutoResize.onUpLoadPreSave',
+			'Plugin.Watermark.onUpLoadPreSave'
 		),
 	),
 	'plugin' => array(
