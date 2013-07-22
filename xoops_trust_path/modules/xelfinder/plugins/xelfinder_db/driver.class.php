@@ -1265,8 +1265,11 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			if ($is_localalias) {
 				$file = $this->options['filePath'] . md5($stat['alias']);
 			}
-			foreach (glob($file.'_*.tmb') as $tmb) {
-				@ unlink($tmb);
+			$tmbs = glob($file.'_*.tmb');
+			if ($tmbs) {
+				foreach ($tmbs as $tmb) {
+					@ unlink($tmb);
+				}
 			}
 			return true;
 		} else {
