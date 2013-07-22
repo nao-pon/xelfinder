@@ -452,9 +452,9 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$inGroup = (array_intersect(explode(',', $dat['gids']), $this->x_groups));
 		}
 		$perm = strval($dat['perm']);
-		$own = intval($perm[0], 16);
-		$grp = intval($perm[1], 16);
-		$gus = intval($perm[2], 16);
+		$own = isset($perm[0])? intval($perm[0], 16) : 0;
+		$grp = isset($perm[1])? intval($perm[1], 16) : 0;
+		$gus = isset($perm[2])? intval($perm[2], 16) : 0;
 
 		if ($isOwner) $dat['isowner'] = 1;
 		$dat['hidden'] = !(($isOwner && (8 & $own) !== 8) || ($inGroup && (8 & $grp) !== 8) || (8 & $gus) !== 8);
