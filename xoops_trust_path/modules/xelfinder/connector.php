@@ -138,10 +138,17 @@ if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HAS
 	}
 	foreach (
 			array('default_umask', 'use_users_dir', 'users_dir_perm', 'users_dir_umask', 'use_guest_dir', 'guest_dir_perm', 'guest_dir_umask',
-					'use_group_dir', 'group_dir_parent', 'group_dir_perm', 'group_dir_umask', 'uploadAllow', 'autoResize', 'URL', 'unzip_lang_value')
+					'use_group_dir', 'group_dir_parent', 'group_dir_perm', 'group_dir_umask', 'uploadAllow', 'URL', 'unzip_lang_value')
 			as $_extra
 	) {
 		$extras[$mydirname.':xelfinder_db'][$_extra] = empty($config[$_extra])? '' : $config[$_extra];
+	}
+	if (! empty($config['autoResize'])) {
+		$extras[$mydirname.':xelfinder_db']['plugin']['AutoResize'] = array(
+			'enable' => true,
+			'maxHeight' => $config['autoResize'],
+			'maxWidth' => $config['autoResize']
+		);
 	}
 	
 	$rootVolumes = $xoops_elFinder->getRootVolumes($config['volume_setting'], $extras);
