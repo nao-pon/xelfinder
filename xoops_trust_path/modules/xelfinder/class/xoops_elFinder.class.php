@@ -178,7 +178,7 @@ class xoops_elFinder {
 				
 				require $volume;
 				if ($volumeOptions) {
-					$volumeOptions = array_merge($this->defaultVolumeOptions, $volumeOptions, $extra, $extOptions);
+					$volumeOptions = array_replace_recursive($this->defaultVolumeOptions, $volumeOptions, $extra, $extOptions);
 					if ($disabledCmds) {
 						if (!isset($volumeOptions['disabled']) || !is_array($volumeOptions['disabled'])) {
 							$volumeOptions['disabled'] = array();
