@@ -1,4 +1,4 @@
-$().ready(function() {
+$(document).ready(function() {
 
 	$().toastmessage( { sticky : true } );
 
