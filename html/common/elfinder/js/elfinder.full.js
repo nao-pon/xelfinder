@@ -1,9 +1,9 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: 83d5049) (2013-07-22)
+ * Version 2.x_n (Nightly: 8256fde) (2013-08-20)
  * http://elfinder.org
  * 
- * Copyright 2009-2012, Studio 42
+ * Copyright 2009-2013, Studio 42
  * Licensed under a 3 clauses BSD license
  */
 (function($) {
@@ -2152,7 +2152,7 @@ elFinder.prototype = {
 					var links;
 					while (m = regex.exec(str)) {
 						url = m[1].replace(/&amp;/g, '&');
-						if (url.match(/^http/) && $.inArray(url, ret) == -1) ret.push(url);
+						if (url.match(/^http|data:/) && $.inArray(url, ret) == -1) ret.push(url);
 					}
 					links = str.match(/<\/a>/i);
 					if (links && links.length == 1) {
@@ -3174,7 +3174,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: 83d5049)';
+elFinder.prototype.version = '2.x_n (Nightly: 8256fde)';
 
 
 
