@@ -88,6 +88,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$this->options['tmbPath'] = $this->options['tempPath'].'/tmb/';
 		$this->options['tmbURL'] = $this->options['tempPath'].'/tmb/';
 		$this->options['default_umask'] = '8bb';
+		$this->options['autoResize'] = false;
 	}
 
 	public function savePerm($target, $perm, $umask, $gids, $mime_filter) {
