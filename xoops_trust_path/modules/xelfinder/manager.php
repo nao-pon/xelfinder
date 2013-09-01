@@ -194,9 +194,6 @@ while(ob_get_level() && @ob_end_clean()) {}
 		
 		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.<?php echo $userLang?>.js" charset="UTF-8"></script>
 
-		<link rel="stylesheet" href="<?php echo XOOPS_URL ?>/common/js/toastmessage/css/jquery.toastmessage.css" type="text/css">
-		<script src="<?php echo XOOPS_URL ?>/common/js/toastmessage/jquery.toastmessage.js"></script>
-
 		<!-- elFinder initialization (REQUIRED) -->
 		<link rel="stylesheet" href="<?php echo $myurl ?>/include/css/manager.css" type="text/css">
 		<script type="text/javascript">

@@ -9,18 +9,6 @@
 
 .elfinder-navbar .ui-state-hover  { color:#000; background-color:#edf1f4; border-color:#bdcbd8; }
 
-.toast-container {
-	width: 200px;
-}
-.toast-item {
-	background-size: contain;
-	background-origin: border-box;
-	background-position: center center;
-	background-repeat: no-repeat;
-	padding-top: 5px;
-	padding-bottom: 5px;
-	min-height: 120px;
-}
 .file_info {
 	font-family: Verdana,Arial,sans-serif;
 	font-size: 0.9em;
@@ -33,6 +21,21 @@
 		3px 3px 3px #FFF;
 	color: #FFF;
 }
-.toast-item-wrapper span[onclick] {
+.image-inserter-item {
+    background-color: #FFFFFF;
+    background-origin: border-box;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    font-size: 14px;
+    margin: 0;
+    min-height: 120px;
+    opacity: 0.9;
+    padding-bottom: 5px;
+    padding-top: 15px;
+    text-align: center;
+    width: 200px;
+}
+.image-inserter-item span[onclick] {
 	cursor: pointer;
 }

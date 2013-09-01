@@ -1,7 +1,5 @@
 $(document).ready(function() {
 
-	$().toastmessage( { sticky : true } );
-
 	elFinder.prototype.i18.en.messages.ntfperm = 'Changing permission';
 	elFinder.prototype.i18.en.messages.cmdperm = 'Chage permission';
 	elFinder.prototype.i18.en.messages.newitem = 'New item';
@@ -19,6 +17,7 @@ $(document).ready(function() {
 	elFinder.prototype.i18.en.messages.fullsize      = 'Full Size';
 	elFinder.prototype.i18.en.messages.thumbnail     = 'Thumbnail';
 	elFinder.prototype.i18.en.messages.continues     = 'Continue more';
+	elFinder.prototype.i18.en.messages.imageinsert   = 'Image insert options';
 
 	if (typeof elFinder.prototype.i18.jp != "undefined") {
 		elFinder.prototype.i18.jp.messages.ntfperm = 'アイテム属性を変更';
@@ -37,7 +36,8 @@ $(document).ready(function() {
 		elFinder.prototype.i18.jp.messages.inline        = 'インライン';
 		elFinder.prototype.i18.jp.messages.fullsize      = 'フルサイズ';
 		elFinder.prototype.i18.jp.messages.thumbnail     = 'サムネイル';
-		elFinder.prototype.i18.en.messages.continues     = 'さらに続ける';
+		elFinder.prototype.i18.jp.messages.continues     = 'さらに続ける';
+		elFinder.prototype.i18.jp.messages.imageinsert   = '画像挿入オプション';
 
 		elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
 	}
@@ -154,22 +154,29 @@ $.extend({
 				o.value = s.substr(0, p) + v + s.substr(p);
 				o.setSelectionRange(np, np);
 			}
-			if (! $("#continue_finder:checked").val()) {
+			if (! $.insertAtCaret.continue_finder) {
 				try {
 					pa.jQuery.modal.close();
 				} catch(e) {
 					window.close();
 				}
-			} else {
-				$.insertAtCaret.continue_finder = true;
 			}
 		}
+	},
+	openImgInsertDialog: function(buttons, img, fm) {
+		var opts  = {
+			title : fm.i18n('imageinsert'),
+			width : 'auto',
+			destroyOnClose : true,
+			modal : true
+		};
+		$.openImgInsertDialog.dialog = fm.dialog('<div class="image-inserter-item" style="background-image:url(\''+img+'\')">'+buttons+'</div>', opts);
+		$.openImgInsertDialog.dialog.id = 'ImgInsertDialog';
+		$.openImgInsertDialog.parent = $.openImgInsertDialog.dialog.parent();
 	}
 });
 
 function insertCode(align, thumb) {
-	$('.toast-item-close').click();
-	$('.toast-item').css('background-image','');
 	var code = '';
 	var size = '';
 	var isImg = (itemObject.mime.match(/^image/));
@@ -182,6 +189,15 @@ function insertCode(align, thumb) {
 			size = '';
 		}
 	}
+	$.insertAtCaret.continue_finder = $("#continue_finder:checked").val()? true : false;
+
+	try {
+		if ($.openImgInsertDialog.dialog) {
+			$.openImgInsertDialog.dialog.elfinderdialog('close');
+			$.openImgInsertDialog.dialog = null;
+		}
+	} catch(e) {}
+
 	insertCode.iSize = null;
 	insertCode.format = null;
 	if (! format) {
@@ -285,9 +301,7 @@ var getFileCallback_bbcode = function (file, fm) {
 		buttons += '<br>'
 				+ '<span class="file_info"><input id="continue_finder" class="button_input" type="checkbox" value="1"'+continue_checked+'><label for="continue_finder">'+fm.i18n('continues')+'</label></span>';
 
-		$().toastmessage( 'removeToast', $('.toast-item'));
-		$().toastmessage( 'showSuccessToast', buttons);
-		$('.toast-item').css('background-image','url("'+file.url+'")');
+		$.openImgInsertDialog(buttons, file.url, fm);
 	} else {
 		insertCode('',0);
 	}
@@ -349,9 +363,7 @@ var getFileCallback_xpwiki = function (file, fm) {
 		var continue_checked = (! $.insertAtCaret.continue_finder)? '' : ' checked="checked"';
 		buttons += '<br>'
 				+ '<span class="file_info"><input id="continue_finder" class="button_input" type="checkbox" value="1"'+continue_checked+'><label for="continue_finder">'+fm.i18n('continues')+'</label></span>';
-		$('.toast-item-close').click();
-		$().toastmessage( 'showSuccessToast', buttons);
-		$('.toast-item').css('background-image','url("'+file.url+'")');
+		$.openImgInsertDialog(buttons, file.url, fm);
 	} else {
 		insertCode('',0);
 	}
@@ -439,9 +451,7 @@ var getFileCallback_ckeditor = function (file, fm) {
 			buttons += '<br>'
 					+ '<span class="file_info">'+fm.i18n('resize')+':<input id="resize_px" style="width: 2.5em" class="button_input" value="'+tsize+'">px</span>';
 		}
-		$('.toast-item-close').click();
-		$().toastmessage( 'showSuccessToast', buttons);
-		$('.toast-item').css('background-image','url("'+path+'")');
+		$.openImgInsertDialog(buttons, path, fm);
 		
 	} else {
 		window.opener.CKEDITOR.tools.callFunction(funcNum, path);
