@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: 8256fde) (2013-08-20)
+ * Version 2.x_n (Nightly: 8d01879) (2013-09-01)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -3174,7 +3174,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: 8256fde)';
+elFinder.prototype.version = '2.x_n (Nightly: 8d01879)';
 
 
 
@@ -5622,7 +5622,7 @@ $.fn.elfindercwd = function(fm, options) {
 					var parent = $.extend(true, {}, fm.file(phash), {name : '..', mime : 'directory'});
 					parent = $(itemhtml(parent))
 						.addClass('elfinder-cwd-parent')
-						.bind('mousedown click mouseup dblclick mouseenter', function(e) {
+						.bind('mousedown click mouseup touchstart touchmove touchend dblclick mouseenter', function(e) {
 							e.preventDefault();
 							e.stopPropagation();
 						})
@@ -5669,6 +5669,20 @@ $.fn.elfindercwd = function(fm, options) {
 				// call fm.open()
 				.delegate(fileSelector, 'dblclick.'+fm.namespace, function(e) {
 					fm.dblclick({file : this.id});
+				})
+				// call fm.open() for touch device
+				.delegate(fileSelector, 'touchend.'+fm.namespace, function(e) {
+					var p = this.id ? $(this) : $(this).parents('[id]:first');
+					if (p.is('.'+clSelected)) {
+						fm.dblclick({file : this.id});
+					}
+				})
+				// unselect on scrolling for touch device
+				.delegate(fileSelector, 'touchmove.'+fm.namespace, function(e) {
+					var p = this.id ? $(this) : $(this).parents('[id]:first');
+					if (p.is('.'+clSelected)) {
+						p.trigger(evtUnselect);
+					}
 				})
 				// attach draggable
 				.delegate(fileSelector, 'mouseenter.'+fm.namespace, function(e) {
