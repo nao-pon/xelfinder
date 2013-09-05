@@ -262,11 +262,7 @@ function insertCode(align, thumb) {
 }
 
 var getFileCallback_bbcode = function (file, fm) {
-	if (!target) {
-		fm.exec(fm.OS == 'mac' ? 'rename' : 'open');
-		return;
-	}
-	if (!file.read) {
+	if (!target || !file.read) {
 		fm.exec('open');
 		return;
 	}
@@ -309,10 +305,6 @@ var getFileCallback_bbcode = function (file, fm) {
 
 var getFileCallback_xpwiki = function (file, fm) {
 	if (!target || !file.read) {
-		fm.exec(fm.OS == 'mac' ? 'rename' : 'open');
-		return;
-	}
-	if (!file.read) {
 		fm.exec('open');
 		return;
 	}

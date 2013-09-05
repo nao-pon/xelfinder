@@ -1,3 +1,11 @@
+body {
+	-webkit-touch-callout:none; // disable long tap popup
+	user-select:          none; // disable long tap link
+	-webkit-user-select:  none;
+	-moz-user-select:     none;
+	-khtml-user-select:   none;
+}
+
 #elfinder .elfinder-navbar {
 	width:180px;
 }
