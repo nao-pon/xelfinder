@@ -110,7 +110,7 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 		$this->d3dConf =& D3diaryConf::getInstance($mydirname, 0, 'photolist');
 		if (! is_object($this->d3dConf)) return false;
 
-		mysql_set_charset('utf8');
+		xoops_elFinder::dbSetCharset('utf8');
 		
 		// make catgory tree
 		$func =& $this->d3dConf->func ;

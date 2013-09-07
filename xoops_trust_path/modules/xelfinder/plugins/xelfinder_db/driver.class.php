@@ -188,7 +188,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			return false;
 		}
 
-		mysql_set_charset('utf8');
+		xoops_elFinder::dbSetCharset('utf8');
 
 		$this->mydirname = $this->options['mydirname'];
 

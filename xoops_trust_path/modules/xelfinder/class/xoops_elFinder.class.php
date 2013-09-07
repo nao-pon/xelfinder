@@ -336,4 +336,23 @@ class xoops_elFinder {
 		}
 		return $unames[$uid] = $uname;
 	}
+	
+	/**
+	 * Sets the default client character set
+	 * 
+	 * @param string $charset
+	 * @return bool
+	 */
+	public static function dbSetCharset($charset = 'utf8') {
+		static $link = null;
+		if (is_null($link)) {
+			$db = XoopsDatabaseFactory::getDatabaseConnection();
+			$link = (is_object($db->conn) && get_class($db->conn) === 'mysqli')? $db->conn : false;
+		}
+		if ($link) {
+			return mysqli_set_charset($link, $charset);
+		} else {
+			return mysql_set_charset($charset);
+		}
+	}
 }

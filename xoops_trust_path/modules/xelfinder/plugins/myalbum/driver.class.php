@@ -81,7 +81,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 		$this->db =& XoopsDatabaseFactory::getDatabaseConnection();
 		if (! is_object($this->db)) return false;
 
-		mysql_set_charset('utf8');
+		xoops_elFinder::dbSetCharset('utf8');
 
 		$this->mydirname = $this->options['mydirname'];
 
