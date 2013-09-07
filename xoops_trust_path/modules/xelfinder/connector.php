@@ -218,7 +218,11 @@ $opts = array(
 );
 
 if ($debug) {
-	error_reporting(E_ALL);
+	if (defined('E_STRICT')) {
+		error_reporting(E_ALL ^ E_STRICT);
+	} else {
+		error_reporting(E_ALL);
+	}
 } else {
 	error_reporting(0);
 }
