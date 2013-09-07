@@ -239,13 +239,13 @@ class xoops_elFinder {
 			if ($uid = $this->xoopsUser->getVar('uid')) {
 				$uid = intval($uid);
 				$table = $this->db->prefix($this->mydirname.'_userdat');
-				$netVolumes = mysql_real_escape_string(serialize($_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY]));
+				$netVolumes = $this->db->quoteString(serialize($_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY]));
 				$sql = 'SELECT `id` FROM `'.$table.'` WHERE `key`=\'netVolumes\' AND `uid`='.$uid;
 				if ($res = $this->db->query($sql)) {
 					if ($this->db->getRowsNum($res) > 0) {
-						$sql = 'UPDATE `'.$table.'` SET `data`="'.$netVolumes.'", `mtime`='.time().' WHERE `key`=\'netVolumes\' AND `uid`='.$uid;
+						$sql = 'UPDATE `'.$table.'` SET `data`='.$netVolumes.', `mtime`='.time().' WHERE `key`=\'netVolumes\' AND `uid`='.$uid;
 					} else {
-						$sql = 'INSERT `'.$table.'` SET `key`=\'netVolumes\', `uid` = '.$uid.', `data`="'.$netVolumes.'", `mtime`='.time();
+						$sql = 'INSERT `'.$table.'` SET `key`=\'netVolumes\', `uid` = '.$uid.', `data`='.$netVolumes.', `mtime`='.time();
 					}
 					$this->db->queryF($sql);
 				}
