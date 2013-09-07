@@ -1331,9 +1331,6 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$gids = join(',', $this->getGroupsByUid($uid));
 		$cut = ($_SERVER['REQUEST_METHOD'] == 'POST')? !empty($_POST['cut']) : !empty($_GET['cut']);
 		$local_path = (! $cut && is_array($stat) && !empty($stat['_localpath']))? $stat['_localpath'] : '';
-		if ($local_path) {
-			$local_path = $this->db->quoteString($local_path);
-		}
 		
 		$mime = $stat['mime'];
 		$w = $stat['width'];
@@ -1342,7 +1339,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$sql = $id > 0
 			? 'REPLACE INTO %s (`file_id`, `parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `umask`, `uid`, `gid`, `mime`, `width`, `height`, `gids`, `local_path`) VALUES ('.$id.', %d, %s, %d, %d, %d, "%s", "%s", %d, %d, "%s", %d, %d, "%s", %s)'
 			: 'INSERT INTO %s (`parent_id`, `name`, `size`, `ctime`, `mtime`, `perm`, `umask`, `uid`, `gid`, `mime`, `width`, `height`, `gids`, `local_path`) VALUES (%d, %s, %d, %d, %d, "%s", "%s", %d, %d, "%s", %d, %d, "%s", %s)';
-		$sql = sprintf($sql, $this->tbf, (int)$dir, $this->db->quoteString($name), $size, $time, $time, $perm, $umask, $uid, $gid, $mime, $w, $h, $gids, $local_path);
+		$sql = sprintf($sql, $this->tbf, (int)$dir, $this->db->quoteString($name), $size, $time, $time, $perm, $umask, $uid, $gid, $mime, $w, $h, $gids, $this->db->quoteString($local_path));
 
 		if ($this->query($sql)) {
 			if ($id < 1) $id = $this->db->getInsertId();
