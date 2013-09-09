@@ -53,7 +53,7 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 		$stat['simg'] = $photo['thumbnail'];
 		$stat['tooltip'] = 'Owner: '.$photo['uname'];
 		if ($photo['info']) {
-			$stat['tooltip'] .= "\r".trim(preg_replace('/\s+/', ' ', htmlspecialchars_decode(strip_tags($photo['info']), ENT_QUOTES)));
+			$stat['tooltip'] .= "\r".trim(preg_replace('/\s+/', ' ', htmlspecialchars_decode(strip_tags($photo['info']), ENT_QUOTES, 'UTF-8')));
 		}
 		if ($photo['openarea'] && $photo['uid'] != $uid) {
 			$stat['read'] = false;
