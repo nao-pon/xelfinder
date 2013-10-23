@@ -249,7 +249,7 @@ function insertCode(align, thumb) {
 			if (align) {
 				align = ',' + align;
 			}
-			if (thumb || o.tagName != 'TEXTAREA') {
+			if (thumb || o.tagName != 'TEXTAREA' || o.className.match(/\bnorich\b/)) {
 				code = '&ref('+itemPath+align+size+');';
 			} else {
 				code = '\n#ref('+itemPath+align+size+')\n';
