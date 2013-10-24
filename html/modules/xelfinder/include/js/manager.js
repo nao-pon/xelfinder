@@ -246,11 +246,19 @@ function insertCode(align, thumb) {
 			if (size) {
 				size = ',mw:'+size+',mh:'+size;
 			}
+			var orgAlign = align;
 			if (align) {
 				align = ',' + align;
 			}
 			if (thumb || o.tagName != 'TEXTAREA' || o.className.match(/\bnorich\b/)) {
 				code = '&ref('+itemPath+align+size+');';
+				if (!thumb) {
+					code += '&clear';
+					if (orgAlign == 'left' || orgAlign == 'right') {
+						code += '('+orgAlign+')';
+					}
+					code += ';';
+				}
 			} else {
 				code = '\n#ref('+itemPath+align+size+')\n';
 			}
