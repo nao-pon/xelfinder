@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: acd4736) (2013-10-24)
+ * Version 2.x_n (Nightly: 1eb0b5c) (2013-11-15)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -3174,7 +3174,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: acd4736)';
+elFinder.prototype.version = '2.x_n (Nightly: 1eb0b5c)';
 
 
 
@@ -4259,6 +4259,7 @@ elFinder.prototype.resources = {
 			fm.disable();
 			node.find('.elfinder-cwd-filename').empty('').append(input.val(file.name));
 			input.select().focus();
+			input[0].setSelectionRange && input[0].setSelectionRange(0, file.name.replace(/\..+$/, '').length);
 
 			return dfrd;
 
