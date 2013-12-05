@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: 1eb0b5c) (2013-11-15)
+ * Version 2.x_n (Nightly: f6eb483) (2013-12-05)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -2109,17 +2109,19 @@ elFinder.prototype = {
 						} else {
 							entry = items[i];
 						}
-						if (entry.isFile) {
-							paths.push('');
-							files.push(data.files.items[i].getAsFile());
-						} else if (entry.isDirectory) {
-							if (processing > 0) {
-								dirctorys.push(entry);
-							} else {
-								processing = 0;
-								dirReader = entry.createReader();
-								processing++;
-								readEntries(dirReader);
+						if (entry) {
+							if (entry.isFile) {
+								paths.push('');
+								files.push(data.files.items[i].getAsFile());
+							} else if (entry.isDirectory) {
+								if (processing > 0) {
+									dirctorys.push(entry);
+								} else {
+									processing = 0;
+									dirReader = entry.createReader();
+									processing++;
+									readEntries(dirReader);
+								}
 							}
 						}
 					}
@@ -3174,7 +3176,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: 1eb0b5c)';
+elFinder.prototype.version = '2.x_n (Nightly: f6eb483)';
 
 
 
@@ -5869,18 +5871,18 @@ $.fn.elfindercwd = function(fm, options) {
 				wrapper.removeClass(clDropActive);
 				var file = false;
 				var type = '';
-				if (e.dataTransfer && e.dataTransfer.items &&  e.dataTransfer.items.length) {
-					file = e.dataTransfer;
-					type = 'data';
-				} else if (e.dataTransfer && e.dataTransfer.files &&  e.dataTransfer.files.length) {
-					file = e.dataTransfer.files;
-					type = 'files';
-				} else if (e.dataTransfer.getData('text/html')) {
+				if (e.dataTransfer.getData('text/html')) {
 					file = [ e.dataTransfer.getData('text/html') ];
 					type = 'html';
 				} else if (e.dataTransfer.getData('text')) {
 					file = [ e.dataTransfer.getData('text') ];
 					type = 'text';
+				} else if (e.dataTransfer && e.dataTransfer.items &&  e.dataTransfer.items.length) {
+					file = e.dataTransfer;
+					type = 'data';
+				} else if (e.dataTransfer && e.dataTransfer.files &&  e.dataTransfer.files.length) {
+					file = e.dataTransfer.files;
+					type = 'files';
 				}
 				if (file) {
 					fm.exec('upload', {files : file, type : type});
@@ -9241,9 +9243,30 @@ elFinder.prototype.commands.open = function() {
 			}
 			w = 'width='+winW+',height='+winH;
 
-			if (!window.open(url, '_blank', w + ',top=50,left=50,scrollbars=yes,resizable=yes')) {
+			var wnd = window.open('', 'new_window', w + ',top=50,left=50,scrollbars=yes,resizable=yes');
+			if (!wnd) {
 				return dfrd.reject('errPopup');
 			}
+			
+			var form = document.createElement("form");
+			form.action = fm.options.url;
+			form.method = 'POST';
+			form.target = 'new_window';
+			form.style.display = 'none';
+			var params = $.extend({}, fm.options.customData, {
+				cmd: 'file',
+				target: file.hash
+			});
+			$.each(params, function(key, val)
+			{
+				var input = document.createElement("input");
+				input.name = key;
+				input.value = val;
+				form.appendChild(input);
+			});
+			
+			document.body.appendChild(form);
+			form.submit();
 		}
 		return dfrd.resolve(hashes);
 	}
@@ -11628,26 +11651,37 @@ elFinder.prototype.commands.upload = function() {
 			.append(button);
 		
 		pastebox = $('<div class="ui-corner-all elfinder-upload-dropbox" contenteditable=true></div>')
-			.focus(function() {
-				if (this.innerHTML) {
-					var src = this.innerHTML.replace(/<br[^>]*>/gi, ' ');
-					var type = src.match(/<[^>]+>/)? 'html' : 'text';
-					this.innerHTML = '';
-					upload({files : [ src ], type : type});
+			.on('paste drop', function (evt) {
+				var e = evt.originalEvent || evt;
+				var files = [];
+				var file;
+				if (e.clipboardData && e.clipboardData.items && e.clipboardData.items.length){
+					for (var i=0; i < e.clipboardData.items.length; i++) {
+						if (e.clipboardData.items[i].kind == 'file') {
+							file = e.clipboardData.items[i].getAsFile();
+							files.push(file);
+						}
+					}
+					if (files.length) {
+						upload({files : files, type : 'files'});
+						return;
+					}
 				}
+				var my = e.target;
+				setTimeout(function () {
+					if (my.innerHTML) {
+						var src = my.innerHTML.replace(/<br[^>]*>/gi, ' ');
+						var type = src.match(/<[^>]+>/)? 'html' : 'text';
+						my.innerHTML = '';
+						upload({files : [ src ], type : type});
+					}
+				}, 1);
 			})
-			.bind('dragenter mouseover', function(){
-				this.focus();
-				$(pastebox).addClass(hover);
+			.on('dragenter mouseover', function(){
+				pastebox.addClass(hover);
 			})
-			.bind('dragleave mouseout', function(){
-				this.blur();
-				$(pastebox).removeClass(hover);
-			})
-			.bind('mouseup keyup', function() {
-				setTimeout(function(){
-					$(pastebox).focus();
-				}, 100);
+			.on('dragleave mouseout', function(){
+				pastebox.removeClass(hover);
 			});
 		
 		if (fm.dragUpload) {
