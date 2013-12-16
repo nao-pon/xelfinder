@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: b3fee4c) (2013-12-13)
+ * Version 2.x_n (Nightly: 5432828) (2013-12-16)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -539,6 +539,7 @@ window.elFinder = function(node, opts) {
 		appendTo   : 'body',
 		addClasses : true,
 		delay      : 30,
+		distance   : 8,
 		revert     : true,
 		refreshPositions : true,
 		cursor     : 'move',
@@ -3176,7 +3177,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: b3fee4c)';
+elFinder.prototype.version = '2.x_n (Nightly: 5432828)';
 
 
 
