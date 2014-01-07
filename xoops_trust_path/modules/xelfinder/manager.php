@@ -76,7 +76,7 @@ $userLang = xelfinder_detect_lang();
 
 $jQueryCDN = '//ajax.googleapis.com/ajax/libs/jquery/%s/jquery.min.js';
 $jQueryUICDN = '//ajax.googleapis.com/ajax/libs/jqueryui/%s';
-$jQueryVersion   = '1.10.1';
+$jQueryVersion   = '1.10.2';
 $jQueryUIVersion = '1.10.3';
 
 if (! $jQueryUiTheme = @$config['jquery_ui_theme']) {
