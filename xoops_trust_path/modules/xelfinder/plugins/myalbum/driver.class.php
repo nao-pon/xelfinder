@@ -177,7 +177,8 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 			'read' => true,
 			'write' => false,
 			'locked' => true,
-			'hidden' => false
+			'hidden' => false,
+			'url'    => null
 		);
 
 		$_mtime = array();
@@ -417,7 +418,8 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 			'read' => true,
 			'write' => false,
 			'locked' => true,
-			'hidden' => false
+			'hidden' => false,
+			'url'    => null
 		);
 
 		if (! $cid) {

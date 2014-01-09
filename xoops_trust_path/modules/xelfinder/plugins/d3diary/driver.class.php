@@ -214,7 +214,8 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 			'read' => true,
 			'write' => false,
 			'locked' => true,
-			'hidden' => false
+			'hidden' => false,
+			'url'    => null
 		);
 
 		$_mtime = array();
@@ -437,7 +438,8 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 			'read' => true,
 			'write' => false,
 			'locked' => true,
-			'hidden' => false
+			'hidden' => false,
+			'url'    => null
 		);
 		
 		$uid = $this->d3dConf->uid;

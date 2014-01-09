@@ -121,7 +121,11 @@ class elFinderVolumeXoopsMailbbs extends elFinderVolumeLocalFileSystem {
 			$file_enc = rawurlencode($file);
 			$stat['name'] = $this->enabledFiles[$file];
 			$stat['url'] = $this->options['URL'] . $file_enc;
-			if ($stat['mime'] !== 'directory') $stat['_localpath'] = dirname(str_replace(XOOPS_ROOT_PATH, 'R', $path )) . DIRECTORY_SEPARATOR . $file_enc;
+			if ($stat['mime'] !== 'directory') {
+				$stat['_localpath'] = dirname(str_replace(XOOPS_ROOT_PATH, 'R', $path )) . DIRECTORY_SEPARATOR . $file_enc;
+			} else {
+				$stat['url']  = null;
+			}
 		}
 		return $stat;
 	}

@@ -43,7 +43,8 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 			'read' => true,
 			'write' => false,
 			'locked' => true,
-			'hidden' => false
+			'hidden' => false,
+			'url'    => null
 		);
 
 		$_mtime = array();
@@ -206,7 +207,8 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 			'read' => true,
 			'write' => false,
 			'locked' => true,
-			'hidden' => false
+			'hidden' => false,
+			'url'    => null
 		);
 
 		if (! $cid) {
