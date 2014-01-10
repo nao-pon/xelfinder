@@ -351,6 +351,9 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _abspath($path) {
+		if (! preg_match('/^_\d+_?(?:\d+(?:\.[a-zA-Z0-9.]+)?)?$/', $path)) {
+			$path = '_'; // root
+		}
 		return $path;
 	}
 

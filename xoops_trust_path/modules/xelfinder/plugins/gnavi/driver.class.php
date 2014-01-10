@@ -169,6 +169,20 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 	}
 
 	/**
+	 * Convert path related to root dir into real path
+	 *
+	 * @param  string  $path  file path
+	 * @return string
+	 * @author Dmitry (dio) Levashov
+	 **/
+	protected function _abspath($path) {
+		if (! preg_match('/^_\d+_?(?:\d+(?:_\d+)?(?:\.[a-zA-Z0-9.]+)?)?$/', $path)) {
+			$path = '_'; // root
+		}
+		return $path;
+	}
+
+	/**
 	 * Return stat for given path.
 	 * Stat contains following fields:
 	 * - (int)    size    file size in b. required

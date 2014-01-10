@@ -973,7 +973,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _abspath($path) {
-		return $path;
+		return intval($path);
 	}
 
 	/**
