@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: da32476) (2014-01-10)
+ * Version 2.x_n (Nightly: 4749751) (2014-01-11)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -1779,6 +1779,17 @@ window.elFinder = function(node, opts) {
 		// exec shortcuts
 		.bind(keydown+' '+keypress, execShortcut);
 	
+	// attach events to window
+	self.options.useBrowserHistory && $(window)
+		.on('popstate', function(ev) {
+			var target = ev.originalEvent.state.thash;
+			target && !$.isEmptyObject(self.files()) && self.request({
+				data   : {cmd  : 'open', target : target, onhistory : 1},
+				notify : {type : 'open', cnt : 1, hideCnt : true},
+				syncOnFail : true
+			});
+		});
+	
 	// send initial request and start to pray >_<
 	this.trigger('init')
 		.request({
@@ -3191,7 +3202,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: da32476)';
+elFinder.prototype.version = '2.x_n (Nightly: 4749751)';
 
 
 
@@ -3673,6 +3684,14 @@ elFinder.prototype._options = {
 	rememberLastDir : true,
 	
 	/**
+	 * Use browser native history with supported browsers
+	 *
+	 * @type Boolean
+	 * @default  true
+	 */
+	useBrowserHistory : true,
+	
+	/**
 	 * Lazy load config.
 	 * How many files display at once?
 	 *
@@ -3796,6 +3815,10 @@ elFinder.prototype.history = function(fm) {
 			update  = true;
 		},
 		/**
+		 * Browser native history object
+		 */
+		nativeHistory = (fm.options.useBrowserHistory && window.history && window.history.pushState)? window.history : null,
+		/**
 		 * Open prev/next folder
 		 *
 		 * @Boolen  open next folder?
@@ -3854,6 +3877,14 @@ elFinder.prototype.history = function(fm) {
 			current = history.length - 1;
 		}
 		update = true;
+
+		if (nativeHistory) {
+			if (! nativeHistory.state) {
+				nativeHistory.replaceState({thash: cwd}, null, location.pathname + location.search + '#elf_' + cwd);
+			} else {
+				nativeHistory.state.thash != cwd && nativeHistory.pushState({thash: cwd}, null, location.pathname + location.search + '#elf_' + cwd);
+			}
+		}
 	})
 	.reload(reset);
 	
@@ -8831,7 +8862,7 @@ elFinder.prototype.commands.info = function() {
 			content.push(row.replace(l, msg.path).replace(v, fm.escape(fm.path(file.hash, true))));
 			if (file.read) {
 				var href;
-				if (o.nullUrlDirLinkSelf && file.mime == 'directory' && file.url == null) {
+				if (o.nullUrlDirLinkSelf && file.mime == 'directory' && file.url === null) {
 					var loc = window.location;
 					href = loc.pathname + loc.search + '#elf_' + file.hash;
 				} else {
