@@ -55,7 +55,7 @@ $(document).ready(function() {
 		}
 	}
 	
-	$('#elfinder').elfinder({
+	var elfinderInstance = $('#elfinder').elfinder({
 		lang: lang,
 		url : connectorUrl,
 		urlUpload : myUrl + 'connector.php',
@@ -120,6 +120,17 @@ $(document).ready(function() {
 			          '|', 'info', 'perm']
 		}
 	}).elfinder('instance');
+	
+	// set document.title dynamically
+	var title = document.title;
+	elfinderInstance.bind('open', function(event) {
+		var data = event.data || null;
+		var path = '';
+		if (data && data.cwd) {
+			path = elf.path(data.cwd.hash) || null;
+		}
+		document.title =  path? path + ':' + title : title;
+	});
 
 });
 
