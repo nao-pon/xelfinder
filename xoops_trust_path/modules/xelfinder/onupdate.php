@@ -29,25 +29,39 @@ function xelfinder_onupdate_base( $module , $mydirname )
 	if(! $db->query($query)) {
 		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` ADD `gids` VARCHAR( 255 ) NOT NULL');
 	}
+
+	// check last update version
+	$cache_dir = (defined('XOOPS_MODULE_PATH')? XOOPS_MODULE_PATH : XOOPS_ROOT_PATH . '/modules') . '/' . $mydirname . '/cache';
+	$lastupdate = 0;
+	if (file_exists($cache_dir . '/lastupdate.dat')) {
+		$lastupdate = @unserialize(file_get_contents($cache_dir . '/lastupdate.dat'));
+	}
+	if (! is_numeric($lastupdate)) $lastupdate = 0;
+	file_put_contents($cache_dir . '/lastupdate.dat', serialize($module->getVar('version')));
 	
 	// from v 0.10
-	$query = "SELECT `mime_filter` FROM ".$db->prefix($mydirname."_file") ;
-	if(! $db->query($query)) {
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` ADD `mime_filter` VARCHAR( 255 ) NOT NULL');
+	if ($lastupdate < 10) {
+		$query = "SELECT `mime_filter` FROM ".$db->prefix($mydirname."_file") ;
+		if(! $db->query($query)) {
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` ADD `mime_filter` VARCHAR( 255 ) NOT NULL');
+		}
 	}
 	
 	// from v 0.13
-	$query = "SHOW COLUMNS FROM `".$db->prefix($mydirname."_file")."` LIKE 'mime'" ;
-	$res = $db->query($query);
-	$dat = $db->fetchArray($res);
-	if ($dat['Type'] !== 'varchar(255)') {
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `mime` `mime` varchar(255) NOT NULL DEFAULT \'unknown\'');
+	if ($lastupdate < 13) {
+		$query = "SHOW COLUMNS FROM `".$db->prefix($mydirname."_file")."` LIKE 'mime'" ;
+		$res = $db->query($query);
+		$dat = $db->fetchArray($res);
+		if ($dat['Type'] !== 'varchar(255)') {
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `mime` `mime` varchar(255) NOT NULL DEFAULT \'unknown\'');
+		}
 	}
 
 	// from v 0.17
-	$query = "SELECT `id` FROM ".$db->prefix($mydirname."_userdat") ;
-	if(! $db->query($query)) {
-		$db->queryF(
+	if ($lastupdate < 17) {
+		$query = "SELECT `id` FROM ".$db->prefix($mydirname."_userdat") ;
+		if(! $db->query($query)) {
+			$db->queryF(
 				'CREATE TABLE `'.$db->prefix($mydirname.'_userdat').'`'.
 				'(
 				  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -58,52 +72,49 @@ function xelfinder_onupdate_base( $module , $mydirname )
 				  PRIMARY KEY (`id`),
 				  KEY `uid_key` (`uid`,`key`)
 				) ENGINE=MyISAM' );
+		}
 	}
 	
 	//from v0.22
-	$query = "SELECT `local_path` FROM ".$db->prefix($mydirname."_file") ;
-	if(! $db->query($query)) {
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` ADD `local_path` VARCHAR( 255 ) NOT NULL');
+	if ($lastupdate < 22) {
+		$query = "SELECT `local_path` FROM ".$db->prefix($mydirname."_file") ;
+		if(! $db->query($query)) {
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` ADD `local_path` VARCHAR( 255 ) NOT NULL');
+		}
 	}
 	
 	//from v0.66 add default value for strict mode
-	$query = "SHOW COLUMNS FROM `".$db->prefix($mydirname."_file")."` LIKE 'parent_id'" ;
-	$res = $db->query($query);
-	$dat = $db->fetchArray($res);
-	if ($dat['Default'] === NULL) {
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `parent_id` `parent_id` INT( 10 ) UNSIGNED NOT NULL DEFAULT \'0\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `name` `name` varchar(255) NOT NULL DEFAULT \'\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `size` `size` int(10) unsigned NOT NULL DEFAULT \'0\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `ctime` `ctime` int(10) unsigned NOT NULL DEFAULT \'0\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `mtime` `mtime` int(10) unsigned NOT NULL DEFAULT \'0\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `perm` `perm` varchar(3) NOT NULL DEFAULT \'\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `uid` `uid` int(10) unsigned NOT NULL DEFAULT \'0\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `gid` `gid` int(10) unsigned NOT NULL DEFAULT \'0\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `home_of` `home_of` int(10) DEFAULT NULL DEFAULT \'0\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `width` `width` int(11) NOT NULL DEFAULT \'0\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `height` `height` int(11) NOT NULL DEFAULT \'0\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `gids` `gids` varchar(255) NOT NULL DEFAULT \'\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `mime_filter` `mime_filter` varchar(255) NOT NULL DEFAULT \'\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `local_path` `local_path` varchar(255) NOT NULL DEFAULT \'\'');
-		// link
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_link").'` CHANGE `file_id` `file_id` int(11) NOT NULL DEFAULT \'0\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_link").'` CHANGE `mid` `mid` int(10) unsigned NOT NULL DEFAULT \'0\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_link").'` CHANGE `param` `param` varchar(25) NOT NULL DEFAULT \'\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_link").'` CHANGE `val` `val` varchar(25) NOT NULL DEFAULT \'\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_link").'` CHANGE `title` `title` varchar(255) NOT NULL DEFAULT \'\'');
-		// userdat
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_userdat").'` CHANGE `uid` `uid` int(10) unsigned NOT NULL DEFAULT \'0\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_userdat").'` CHANGE `key` `key` varchar(255) NOT NULL DEFAULT \'\'');
-		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_userdat").'` CHANGE `mtime` `mtime` int(10) unsigned NOT NULL DEFAULT \'0\'');
+	if ($lastupdate < 66) {
+		$query = "SHOW COLUMNS FROM `".$db->prefix($mydirname."_file")."` LIKE 'parent_id'" ;
+		$res = $db->query($query);
+		$dat = $db->fetchArray($res);
+		if ($dat['Default'] === NULL) {
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `parent_id` `parent_id` INT( 10 ) UNSIGNED NOT NULL DEFAULT \'0\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `name` `name` varchar(255) NOT NULL DEFAULT \'\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `size` `size` int(10) unsigned NOT NULL DEFAULT \'0\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `ctime` `ctime` int(10) unsigned NOT NULL DEFAULT \'0\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `mtime` `mtime` int(10) unsigned NOT NULL DEFAULT \'0\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `perm` `perm` varchar(3) NOT NULL DEFAULT \'\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `uid` `uid` int(10) unsigned NOT NULL DEFAULT \'0\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `gid` `gid` int(10) unsigned NOT NULL DEFAULT \'0\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `home_of` `home_of` int(10) DEFAULT NULL DEFAULT \'0\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `width` `width` int(11) NOT NULL DEFAULT \'0\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `height` `height` int(11) NOT NULL DEFAULT \'0\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `gids` `gids` varchar(255) NOT NULL DEFAULT \'\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `mime_filter` `mime_filter` varchar(255) NOT NULL DEFAULT \'\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `local_path` `local_path` varchar(255) NOT NULL DEFAULT \'\'');
+			// link
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_link").'` CHANGE `file_id` `file_id` int(11) NOT NULL DEFAULT \'0\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_link").'` CHANGE `mid` `mid` int(10) unsigned NOT NULL DEFAULT \'0\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_link").'` CHANGE `param` `param` varchar(25) NOT NULL DEFAULT \'\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_link").'` CHANGE `val` `val` varchar(25) NOT NULL DEFAULT \'\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_link").'` CHANGE `title` `title` varchar(255) NOT NULL DEFAULT \'\'');
+			// userdat
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_userdat").'` CHANGE `uid` `uid` int(10) unsigned NOT NULL DEFAULT \'0\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_userdat").'` CHANGE `key` `key` varchar(255) NOT NULL DEFAULT \'\'');
+			$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_userdat").'` CHANGE `mtime` `mtime` int(10) unsigned NOT NULL DEFAULT \'0\'');
+		}
 	}
-	
-	$cache_dir = (defined('XOOPS_MODULE_PATH')? XOOPS_MODULE_PATH : XOOPS_ROOT_PATH . '/modules') . '/' . $mydirname . '/cache';
-	$lastupdate = 0;
-	if (file_exists($cache_dir . '/lastupdate.dat')) {
-		$lastupdate = @unserialize(file_get_contents($cache_dir . '/lastupdate.dat'));
-	}
-	if (! is_numeric($lastupdate)) $lastupdate = 0;
-	file_put_contents($cache_dir . '/lastupdate.dat', serialize($module->getVar('version')));
 	
 	// for version < 0.99 remove unless tmb file
 	if ($lastupdate < 99) {
