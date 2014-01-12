@@ -90,7 +90,7 @@ class xoops_elFinder {
 			if (! $this->moduleCheckRight($mydirname)) continue;
 			
 			$extOptions = array();
-			$extOptKeys = array('uploadmaxsize' => 'uploadMaxSize');
+			$extOptKeys = array('uploadmaxsize' => 'uploadMaxSize', 'id' => 'id');
 			if ($options) {
 				$options = str_getcsv($options, '|');
 				if (is_array($options[0])) {
@@ -185,6 +185,7 @@ class xoops_elFinder {
 						}
 						$volumeOptions['disabled'] = array_unique(array_merge($volumeOptions['disabled'], $disabledCmds));
 					}
+					!isset($volumeOptions['id']) && $volumeOptions['id'] = '_' . $mydirname;
 					$roots[] = $volumeOptions;
 				}
 			}

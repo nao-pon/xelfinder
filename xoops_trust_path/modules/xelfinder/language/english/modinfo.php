@@ -22,7 +22,7 @@ define( $constpref.'_ADMENU_MYPREFERENCES','Preferences');
 define( $constpref.'_MANAGER_TITLE' ,           'Page title of manager' );
 define( $constpref.'_MANAGER_TITLE_DESC' ,      '' );
 define( $constpref.'_VOLUME_SETTING' ,          'Volume Drivers' );
-define( $constpref.'_VOLUME_SETTING_DESC' ,     '[Module directory name]:[Plugin name]:[Saved files dirctory path]:[View name]:[Options]<br />Written line by line. Will be ignored and put a "#" at the beginning.<br />Options separates with "|".<br />Common option: gid=[Group ID to validate is specified by comma separated values]| uploadMaxSize=[Maximum upload file size (ex.2M)]' );
+define( $constpref.'_VOLUME_SETTING_DESC' ,     '[Module directory name]:[Plugin name]:[Saved files dirctory path]:[View name]:[Options]<br />Written line by line. Will be ignored and put a "#" at the beginning.<br />Options separates with "|".<br />Common option: gid=[Group ID to validate is specified by comma separated values]| uploadMaxSize=[Maximum upload file size (ex.2M)]| id=[Arbitrary unique ID]' );
 define( $constpref.'_SHARE_HOLDER' ,            'Share holder' );
 define( $constpref.'_DISABLED_CMDS_BY_GID' ,    'Disabled cmds of each group' );
 define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','Set [GroupID]=[Disabled cmds(comma-separated)] separated by ":".<br />Command list: mkdir, mkfile, rm, rename, duplicate, paste, upload, archive, extract, resize, netmount, pixlr' );
