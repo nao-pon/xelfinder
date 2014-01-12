@@ -1,12 +1,12 @@
 # Charactor Encoding
-AddDefaultCharset UTF-8
+AddDefaultCharset Off
 
 # PHP Settings
 # PHP5
 <IfModule mod_php5.c>
   php_flag  output_buffering              Off
   php_value output_handler                none
-  php_value default_charset               UTF-8
+  php_value default_charset               none
   php_value mbstring.language             Japanese
   php_flag  mbstring.encoding_translation Off
   php_value mbstring.http_input           pass
@@ -20,7 +20,7 @@ AddDefaultCharset UTF-8
 <IfModule mod_php4.c>
   php_flag  output_buffering              Off
   php_value output_handler                none
-  php_value default_charset               UTF-8
+  php_value default_charset               none
   php_value mbstring.language             Japanese
   php_flag  mbstring.encoding_translation Off
   php_value mbstring.http_input           pass
