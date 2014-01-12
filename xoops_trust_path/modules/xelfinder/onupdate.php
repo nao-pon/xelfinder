@@ -97,6 +97,20 @@ function xelfinder_onupdate_base( $module , $mydirname )
 		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_userdat").'` CHANGE `mtime` `mtime` int(10) unsigned NOT NULL DEFAULT \'0\'');
 	}
 	
+	// for version < 0.99 remove unless tmb file
+	if ($module->getVar('version') < 100) {
+		$tmbdir = XOOPS_ROOT_PATH . '/modules/' . $mydirname . '/cache/tmb';
+		if ($handle = opendir($tmbdir)) {
+			while (false !== ($entry = readdir($handle))) {
+				if (preg_match('/^[a-zA-Z]{1,2}[0-9]{1,3}_.+\.png$/', $entry)) {
+					//$msgs[] = $tmbdir.'/'.$entry;
+					@unlink($tmbdir.'/'.$entry);
+				}
+			}
+		}
+		$msgs[] = 'removed unless tmbs (Version < 0.99)';
+	}
+	
 	// TEMPLATES (all templates have been already removed by modulesadmin)
 	$tplfile_handler =& xoops_gethandler( 'tplfile' ) ;
 	$tpl_path = dirname(__FILE__).'/templates' ;
