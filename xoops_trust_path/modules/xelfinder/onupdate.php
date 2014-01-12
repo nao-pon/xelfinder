@@ -97,18 +97,28 @@ function xelfinder_onupdate_base( $module , $mydirname )
 		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_userdat").'` CHANGE `mtime` `mtime` int(10) unsigned NOT NULL DEFAULT \'0\'');
 	}
 	
+	$cache_dir = (defined('XOOPS_MODULE_PATH')? XOOPS_MODULE_PATH : XOOPS_ROOT_PATH . '/modules') . '/' . $mydirname . '/cache';
+	$lastupdate = 0;
+	if (file_exists($cache_dir . '/lastupdate.dat')) {
+		$lastupdate = @unserialize(file_get_contents($cache_dir . '/lastupdate.dat'));
+	}
+	if (! is_numeric($lastupdate)) $lastupdate = 0;
+	file_put_contents($cache_dir . '/lastupdate.dat', serialize($module->getVar('version')));
+	
 	// for version < 0.99 remove unless tmb file
-	if ($module->getVar('version') < 100) {
-		$tmbdir = XOOPS_ROOT_PATH . '/modules/' . $mydirname . '/cache/tmb';
+	if ($lastupdate < 99) {
+		$msgs[] = 'checking unless tmbs (Version < 0.99)';
+		$tmbdir = $cache_dir . '/tmb';
+		$_res = false;
 		if ($handle = opendir($tmbdir)) {
 			while (false !== ($entry = readdir($handle))) {
 				if (preg_match('/^[a-zA-Z]{1,2}[0-9]{1,3}_.+\.png$/', $entry)) {
 					//$msgs[] = $tmbdir.'/'.$entry;
-					@unlink($tmbdir.'/'.$entry);
+					$_res = @unlink($tmbdir.'/'.$entry);
 				}
 			}
 		}
-		$msgs[] = 'removed unless tmbs (Version < 0.99)';
+		if ($_res) $msgs[] = 'removed unless tmbs';
 	}
 	
 	// TEMPLATES (all templates have been already removed by modulesadmin)
