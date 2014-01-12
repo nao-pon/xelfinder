@@ -90,6 +90,8 @@ if (! preg_match('#^(?:https?:)?//#i', $jQueryUiTheme)) {
 	$jQueryUiTheme = sprintf($jQueryUICDN, $jQueryUIVersion) . '/themes/'.$jQueryUiTheme.'/jquery-ui.css';
 }
 
+$title = mb_convert_encoding($config['manager_title'], 'UTF-8', _CHARSET);
+
 while(ob_get_level() && @ob_end_clean()) {}
 
 ?>
@@ -97,7 +99,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title><?php echo $config['manager_title']?></title>
+		<title><?php echo $title?></title>
 		<?php echo $viewport ?>
 
 		<link rel="stylesheet" href="<?php echo $jQueryUiTheme?>" type="text/css">
