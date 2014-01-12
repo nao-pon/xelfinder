@@ -127,7 +127,7 @@ $(document).ready(function() {
 		var data = event.data || null;
 		var path = '';
 		if (data && data.cwd) {
-			path = elf.path(data.cwd.hash) || null;
+			path = elfinderInstance.path(data.cwd.hash) || null;
 		}
 		document.title =  path? path + ':' + title : title;
 	});
