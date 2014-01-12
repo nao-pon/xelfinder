@@ -19,6 +19,8 @@ define($constpref.'_ADMENU_MYBLOCKSADMIN' , 'ブロック管理/アクセス権�
 define($constpref.'_ADMENU_MYPREFERENCES' , '一般設定' ) ;
 
 // configurations
+define( $constpref.'_MANAGER_TITLE' ,           'マネージャのページタイトル' );
+define( $constpref.'_MANAGER_TITLE_DESC' ,      '' );
 define( $constpref.'_VOLUME_SETTING' ,          'ボリュームドライバ' );
 define( $constpref.'_VOLUME_SETTING_DESC' ,     '[モジュールディレクトリ名]:[プラグイン名]:[ファイル格納ディレクトリ]:[表示名]:[オプション]<br />行単位で記述。先頭に # を置くと無視されます。<br />オプションは | で区切ります。<br />共通オプション: gid=[有効にするグループIDをカンマ区切りで指定]| uploadMaxSize=[アップロードファイルサイズの上限値(例:2M)]' );
 define( $constpref.'_SHARE_HOLDER' ,            '共有フォルダ' );

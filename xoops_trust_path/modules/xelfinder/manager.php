@@ -97,7 +97,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>Image Manager - X-elFinder (elFinder 2.0 for XOOPS)</title>
+		<title><?php echo $config['manager_title']?></title>
 		<?php echo $viewport ?>
 
 		<link rel="stylesheet" href="<?php echo $jQueryUiTheme?>" type="text/css">

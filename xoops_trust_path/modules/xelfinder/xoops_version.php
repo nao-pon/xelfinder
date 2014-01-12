@@ -54,6 +54,14 @@ $modversion['hasComments'] = 0 ;
 
 // Configs
 $modversion['config'][] = array(
+	'name'			=> 'manager_title' ,
+	'title'			=> $constpref.'_MANAGER_TITLE' ,
+	'description'	=> $constpref.'_MANAGER_TITLE_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'text' ,
+	'default'		=> 'File Manager - X-elFinder (elFinder 2.0 for XOOPS)'
+) ;
+$modversion['config'][] = array(
 	'name'			=> 'volume_setting' ,
 	'title'			=> $constpref.'_VOLUME_SETTING' ,
 	'description'	=> $constpref.'_VOLUME_SETTING_DESC' ,
