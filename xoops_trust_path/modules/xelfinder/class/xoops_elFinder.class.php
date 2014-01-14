@@ -234,7 +234,7 @@ class xoops_elFinder {
 	 * @return void|true
 	 * @author Dmitry (dio) Levashov
 	 **/
-	public function log($cmd, $result, $args, $elfinder) {
+	public function log($cmd, &$result, $args, $elfinder) {
 	
 		if ($cmd === 'netmount' && is_object($this->xoopsUser) && !empty($result['sync'])) {
 			if ($uid = $this->xoopsUser->getVar('uid')) {
@@ -284,6 +284,17 @@ class xoops_elFinder {
 		}
 	
 		$this->write($log);
+		
+		if (in_array($cmd, array('mkdir', 'mkfile', 'put', 'paste', 'upload', 'extract', 'resize'))) {
+			if (! empty($result['changed'])) {
+				if (($target = $result['changed'][0]['phash'])
+				&& ($volume = $elfinder->getVolume($target))){
+					if ($parents = $volume->parents($target, true)) {
+						$result['changed'] = array_merge($result['changed'], $parents);
+					}
+				}
+			}
+		}
 	}
 	
 	/**

@@ -117,7 +117,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$sql = sprintf('UPDATE %s SET `perm`="%s", `gids`="%s", `mime_filter`=%s WHERE `file_id` = "%d" LIMIT 1', $this->tbf, $perm, $gids, $mime_filter, $path);
 		}
 		if ($this->query($sql) && $this->db->getAffectedRows() > 0) {
-			unset($this->cache[$path]);
+			unset($this->cache[(int)$path]);
 			return $stat = $this->stat($path);
 		} else {
 			$this->_debug($sql);
@@ -168,6 +168,19 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		}
 		
 		return array('groups' => $groups, 'uname' => $uname);
+	}
+	
+	private function updateDirTimestamp($dir, $mtime, $recursive = true) {
+		$sql = 'UPDATE %s SET mtime=%d WHERE file_id=%d AND mtime<%d LIMIT 1';
+		$sql = sprintf($sql, $this->tbf, $mtime, $dir, $mtime);
+		if ($this->query($sql)) {
+			unset($this->cache[(int)$dir]);
+		}
+		if ($recursive && $dir !== $this->root) {
+			if ($parent = $this->_dirname($dir)) {
+				$this->updateDirTimestamp($parent, $mtime, true);
+			}
+		}
 	}
 	
 	/*********************************************************************/
@@ -387,9 +400,11 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$size = filesize($local);
 			list($width, $height) = getimagesize($local);
 			
+			$time = time();
 			$sql = 'UPDATE %s SET mtime=%d, width=%d, height=%d, size=%d WHERE file_id=%d LIMIT 1';
-			$sql = sprintf($sql, $this->tbf, time(), $width, $height, $size, $path);
+			$sql = sprintf($sql, $this->tbf, $time, $width, $height, $size, $path);
 			$this->query($sql);
+			$this->updateDirTimestamp($this->_dirname($path), $time, true);
 			
 			$this->rmTmb($file);
 			$this->clearcache();
@@ -762,6 +777,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	* @author Dmitry (dio) Levashov
 	**/
 	protected function updateCache($path, $stat) {
+		$path = (int)$path;
 		$stat = parent::updateCache($path, $stat);
 		if ($stat && !isset($stat['locked'])) $stat['locked'] = 0;
 		return $this->cache[$path] = $stat;
@@ -1227,6 +1243,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 					}
 					fclose($target);
 					$this->_fclose($fp);
+					$this->updateDirTimestamp($targetDir, $time);
 					return $id;
 				}
 			}
@@ -1256,7 +1273,8 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		}
 		$sql = sprintf($sql, $this->tbf, $targetDir, $this->db->quoteString($name), $perm, $umask, $gid, $source);
 		if  ($this->query($sql) && $this->db->getAffectedRows() > 0) {
-			unset($this->cache[$source]);
+			unset($this->cache[(int)$source]);
+			$this->updateDirTimestamp($targetDir, $stat['ts']);
 			return $source;
 		} else {
 			return false;
@@ -1368,6 +1386,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 							$this->query($sql);
 						}
 					}
+					$this->updateDirTimestamp($dir, $time, true);
 					return $id;
 				} else {
 					$this->_unlink($id);
@@ -1403,7 +1422,10 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	protected function _filePutContents($path, $content) {
 		if ($local = $this->readlink($path)) {
 			if (file_put_contents($local, $content)) {
-				return $this->query(sprintf('UPDATE %s SET `size`=%d, `mtime`=%d WHERE `file_id` = "%d" LIMIT 1', $this->tbf, strlen($content), time(), $path));
+				$time = time();
+				unset($this->cache[(int)$path]);
+				$this->updateDirTimestamp($this->_dirname($path), $time, true);
+				return $this->query(sprintf('UPDATE %s SET `size`=%d, `mtime`=%d WHERE `file_id` = "%d" LIMIT 1', $this->tbf, strlen($content), $time, $path));
 			}
 		}
 		return false;
