@@ -14,11 +14,11 @@ var XELFINDER_URL;
 	}
 	if (typeof jQuery == 'undefined') {
 		document.write (
-			'<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript" charset="utf-8"></script>'
+			'<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js" type="text/javascript" charset="utf-8"></script>'
 				+
-			'<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>'
+			'<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>'
 				+
-			'<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/smoothness/jquery-ui.css" type="text/css" media="screen" charset="utf-8">'
+			'<link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.min.css" type="text/css" media="screen" charset="utf-8">'
 		);
 	}
 	document.write (
@@ -32,8 +32,8 @@ var XELFINDER_URL;
 function openWithSelfMain(url, name, w, h, returnwindow) {
 	var $ = jQuery;
 	
-	w = $(window).width() - 40;
-	h = $(window).height() - 40;
+	w = $(window).width() - 60;
+	h = $(window).height() - 60;
 	$.modal('<iframe name="'+name+'" id="xelf_window" src="' + url + '" height="'+h+'" width="'+w+'" style="border:0;overflow:hidden;" allowtransparency="true" scrolling="no" frameborder="0">', {
 		containerCss:{
 			backgroundColor:	"transparent",
@@ -47,7 +47,9 @@ function openWithSelfMain(url, name, w, h, returnwindow) {
 			width:				w
 		},
 		dataCss:{
-			padding:			0
+			padding:			0,
+			height:				h-20,
+			width:				w-20
 		},
 		overlayClose:			true,
 		zIndex:					100000

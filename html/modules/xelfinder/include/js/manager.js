@@ -1,3 +1,6 @@
+if (window.parent) {
+	$('.simplemodal-wrap', window.parent.document).css({overflow:'hidden'});
+}
 $(document).ready(function() {
 
 	elFinder.prototype.i18.en.messages.ntfperm = 'Changing permission';
