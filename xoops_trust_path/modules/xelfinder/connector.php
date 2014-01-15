@@ -197,14 +197,21 @@ $opts = array(
 	'locale' => 'ja_JP.UTF-8',
 	'bind'   => array(
 		'*'              => array($xoops_elFinder, 'log'),
-		'mkdir.pre mkfile.pre rename.pre' => 'Plugin.Normalizer.cmdPreprocess',
+		'mkdir.pre mkfile.pre rename.pre' => array(
+			'Plugin.Sanitizer.cmdPreprocess',
+			'Plugin.Normalizer.cmdPreprocess'
+		),
 		'upload.presave' => array(
+			'Plugin.Sanitizer.onUpLoadPreSave',
 			'Plugin.Normalizer.onUpLoadPreSave',
 			'Plugin.AutoResize.onUpLoadPreSave',
 			'Plugin.Watermark.onUpLoadPreSave'
 		),
 	),
 	'plugin' => array(
+		//'Sanitizer' => array(
+		//	'enable' => true,
+		//),
 		'AutoResize' => array(
 			'enable' => false
 		),
