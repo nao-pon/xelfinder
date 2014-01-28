@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.x_n (Nightly: 92ce888) (2014-01-26)
+ * Version 2.x_n (Nightly: c190f70) (2014-01-28)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -184,6 +184,13 @@ window.elFinder = function(node, opts) {
 		 * @type Array
 		 **/
 		queue = [],
+		
+		/**
+		 * Net drivers names
+		 *
+		 * @type Array
+		 **/
+		netDrivers = [],
 		
 		/**
 		 * Commands prototype
@@ -3202,7 +3209,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.x_n (Nightly: 92ce888)';
+elFinder.prototype.version = '2.x_n (Nightly: c190f70)';
 
 
 
@@ -5833,6 +5840,10 @@ $.fn.elfindercwd = function(fm, options) {
 					// e.preventDefault();
 					
 					
+				})
+				// unselect all on cwd click
+				.bind('click.'+fm.namespace, function(e) {
+					!e.shiftKey && !e.ctrlKey && !e.metaKey && unselectAll();
 				})
 				
 				// make files selectable
