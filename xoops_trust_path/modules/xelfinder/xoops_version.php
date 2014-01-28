@@ -64,7 +64,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_MANAGER_TITLE' ,
 	'description'	=> $constpref.'_MANAGER_TITLE_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> 'File Manager - X-elFinder (elFinder 2.0 for XOOPS)'
 ) ;
 $modversion['config'][] = array(
@@ -72,7 +72,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_VOLUME_SETTING' ,
 	'description'	=> $constpref.'_VOLUME_SETTING_DESC' ,
 	'formtype'		=> 'textarea' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> $mydirname.':xelfinder_db:uploads/xelfinder:'.constant($constpref.'_SHARE_HOLDER' ).'
 '.$mydirname.':xelfinder:uploads/elfinder:elFinder:gid=1
 myalbum:myalbum:uploads/photos:MyAlbum
@@ -86,7 +86,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_DISABLED_CMDS_BY_GID' ,
 	'description'	=> $constpref.'_DISABLED_CMDS_BY_GID_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> ''
 ) ;
 $modversion['config'][] = array(
@@ -166,7 +166,7 @@ $modversion['config'][] = array(
 // 	'title'			=> $constpref.'_JQUERY' ,
 // 	'description'	=> $constpref.'_JQUERY_DESC' ,
 // 	'formtype'		=> 'textbox' ,
-// 	'valuetype'		=> 'text' ,
+// 	'valuetype'		=> 'string' ,
 // 	'default'		=> ''
 // ) ;
 // $modversion['config'][] = array(
@@ -174,7 +174,7 @@ $modversion['config'][] = array(
 // 	'title'			=> $constpref.'_JQUERY_UI' ,
 // 	'description'	=> $constpref.'_JQUERY_UI_DESC' ,
 // 	'formtype'		=> 'textbox' ,
-// 	'valuetype'		=> 'text' ,
+// 	'valuetype'		=> 'string' ,
 // 	'default'		=> ''
 // ) ;
 $modversion['config'][] = array(
@@ -182,7 +182,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_JQUERY_UI_THEME' ,
 	'description'	=> $constpref.'_JQUERY_UI_THEME_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> 'smoothness'
 ) ;
 $modversion['config'][] = array(
@@ -190,7 +190,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_THUMBNAIL_SIZE' ,
 	'description'	=> $constpref.'_THUMBNAIL_SIZE_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> '160'
 ) ;
 $modversion['config'][] = array(
@@ -198,7 +198,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_DEFAULT_ITEM_PERM' ,
 	'description'	=> $constpref.'_DEFAULT_ITEM_PERM_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> '744'
 ) ;
 $modversion['config'][] = array(
@@ -214,7 +214,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_USERS_DIR_PERM',
 	'description'	=> $constpref.'_USERS_DIR_PERM_DESC',
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> '7cc'
 ) ;
 $modversion['config'][] = array(
@@ -222,7 +222,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_USERS_DIR_ITEM_PERM',
 	'description'	=> $constpref.'_USERS_DIR_ITEM_PERM_DESC',
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> '7cc'
 ) ;
 $modversion['config'][] = array(
@@ -238,7 +238,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_GUEST_DIR_PERM',
 	'description'	=> $constpref.'_GUEST_DIR_PERM_DESC',
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> '766'
 ) ;
 $modversion['config'][] = array(
@@ -246,7 +246,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_GUEST_DIR_ITEM_PERM',
 	'description'	=> $constpref.'_GUEST_DIR_ITEM_PERM_DESC',
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> '777'
 ) ;
 $modversion['config'][] = array(
@@ -262,7 +262,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_GROUP_DIR_PARENT',
 	'description'	=> $constpref.'_GROUP_DIR_PARENT_DESC',
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> constant($constpref.'_GROUP_DIR_PARENT_NAME')
 ) ;
 $modversion['config'][] = array(
@@ -270,7 +270,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_GROUP_DIR_PERM',
 	'description'	=> $constpref.'_GROUP_DIR_PERM_DESC',
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> '768'
 ) ;
 $modversion['config'][] = array(
@@ -278,7 +278,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_GROUP_DIR_ITEM_PERM',
 	'description'	=> $constpref.'_GROUP_DIR_ITEM_PERM_DESC',
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> '748'
 ) ;
 $modversion['config'][] = array(
@@ -286,7 +286,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_UPLOAD_ALLOW_ADMIN',
 	'description'	=> $constpref.'_UPLOAD_ALLOW_ADMIN_DESC',
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> 'all'
 ) ;
 $modversion['config'][] = array(
@@ -294,7 +294,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_AUTO_RESIZE_ADMIN' ,
 	'description'	=> $constpref.'_AUTO_RESIZE_ADMIN_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> ''
 ) ;
 $modversion['config'][] = array(
@@ -310,7 +310,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_UPLOAD_ALLOW_SPGROUPS',
 	'description'	=> $constpref.'_UPLOAD_ALLOW_SPGROUPS_DESC',
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> 'all'
 ) ;
 $modversion['config'][] = array(
@@ -318,7 +318,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_AUTO_RESIZE_SPGROUPS' ,
 	'description'	=> $constpref.'_AUTO_RESIZE_SPGROUPS_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> ''
 ) ;
 $modversion['config'][] = array(
@@ -326,7 +326,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_UPLOAD_ALLOW_USER',
 	'description'	=> $constpref.'_UPLOAD_ALLOW_USER_DESC',
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> 'image text/plain'
 ) ;
 $modversion['config'][] = array(
@@ -334,7 +334,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_AUTO_RESIZE_USER' ,
 	'description'	=> $constpref.'_AUTO_RESIZE_USER_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> '1024'
 ) ;
 $modversion['config'][] = array(
@@ -342,7 +342,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_UPLOAD_ALLOW_GUEST',
 	'description'	=> $constpref.'_UPLOAD_ALLOW_GUEST_DESC',
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> 'image'
 ) ;
 $modversion['config'][] = array(
@@ -350,7 +350,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_AUTO_RESIZE_GUEST' ,
 	'description'	=> $constpref.'_AUTO_RESIZE_GUEST_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> '1024'
 ) ;
 $modversion['config'][] = array(
