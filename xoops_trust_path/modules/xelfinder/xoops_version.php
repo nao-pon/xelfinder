@@ -12,7 +12,7 @@ $constpref = '_MI_' . strtoupper( $mydirname ) ;
 $modversion['name'] = 'xelFinder' ;
 //$modversion['name'] = $constpref.'_NAME') ;
 $modversion['description'] = constant($constpref.'_DESC');
-$modversion['version'] = 1.03 ;
+$modversion['version'] = 1.04 ;
 $modversion['credits'] = "Hypweb.net";
 $modversion['author'] = "nao-pon" ;
 $modversion['help'] = "" ;
@@ -54,7 +54,7 @@ $modversion['hasComments'] = 0 ;
 
 if (defined('LEGACY_BASE_VERSION')) {
 	if (!defined('XOOPSX_COREPACK_VERSION') && defined('_MI_LEGACY_DETAILED_VERSION') && substr(_MI_LEGACY_DETAILED_VERSION, 0, 9) === 'CorePack ') define('XOOPSX_COREPACK_VERSION', substr(_MI_LEGACY_DETAILED_VERSION, 9));
-	$_encrypt = defined('XOOPSX_COREPACK_VERSION')? (version_compare(XOOPSX_COREPACK_VERSION, '20140128', '>=')? 'encrypt' : 'string') : (version_compare(LEGACY_BASE_VERSION, '2.2.2.3', '>')? 'encrypt' : 'string');
+	$_encrypt = defined('XOOPSX_COREPACK_VERSION')? (version_compare(XOOPSX_COREPACK_VERSION, '20140129', '>=')? 'encrypt' : 'string') : (version_compare(LEGACY_BASE_VERSION, '2.2.2.3', '>')? 'encrypt' : 'string');
 } else {
 	$_encrypt = 'string';
 }
@@ -82,12 +82,12 @@ mailbbs:mailbbs:modules/mailbbs/imgs:MailBBS
 #xelfinder:ftp:preload:Preload:gid=1'
 ) ;
 $modversion['config'][] = array(
-	'name'			=> 'disabled_cmds_by_gid' ,
+	'name'			=> 'disabled_cmds_by_gids' ,
 	'title'			=> $constpref.'_DISABLED_CMDS_BY_GID' ,
 	'description'	=> $constpref.'_DISABLED_CMDS_BY_GID_DESC' ,
 	'formtype'		=> 'textbox' ,
 	'valuetype'		=> 'string' ,
-	'default'		=> ''
+	'default'		=> '3=mkdir,paste,archive,extract'
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'ftp_name' ,
