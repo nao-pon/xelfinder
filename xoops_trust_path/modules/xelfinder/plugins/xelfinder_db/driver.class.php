@@ -686,6 +686,8 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		
 		if ($stat['parent_id']) {
 			$stat['phash'] = $this->encode($stat['parent_id']);
+		} else {
+			$stat['phash'] = null;
 		}
 		if ($stat['mime'] == 'directory') {
 			unset($stat['width']);
