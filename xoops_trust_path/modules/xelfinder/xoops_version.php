@@ -52,6 +52,12 @@ $modversion['blocks'] = array() ;
 // Comments
 $modversion['hasComments'] = 0 ;
 
+if (defined('LEGACY_BASE_VERSION')) {
+	if (!defined('XOOPSX_COREPACK_VERSION') && defined('_MI_LEGACY_DETAILED_VERSION') && substr(_MI_LEGACY_DETAILED_VERSION, 0, 9) === 'CorePack ') define('XOOPSX_COREPACK_VERSION', substr(_MI_LEGACY_DETAILED_VERSION, 9));
+	$_encrypt = defined('XOOPSX_COREPACK_VERSION')? (version_compare(XOOPSX_COREPACK_VERSION, '20140128', '>=')? 'encrypt' : 'string') : (version_compare(LEGACY_BASE_VERSION, '2.2.2.3', '>')? 'encrypt' : 'string');
+} else {
+	$_encrypt = 'string';
+}
 // Configs
 $modversion['config'][] = array(
 	'name'			=> 'manager_title' ,
@@ -88,7 +94,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_FTP_NAME' ,
 	'description'	=> $constpref.'_FTP_NAME_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> $_encrypt ,
 	'default'		=> 'Local-FTP'
 ) ;
 $modversion['config'][] = array(
@@ -96,7 +102,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_FTP_HOST' ,
 	'description'	=> $constpref.'_FTP_HOST_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> $_encrypt ,
 	'default'		=> 'localhost'
 ) ;
 $modversion['config'][] = array(
@@ -104,7 +110,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_FTP_PORT' ,
 	'description'	=> $constpref.'_FTP_PORT_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> $_encrypt ,
 	'default'		=> '21'
 ) ;
 $modversion['config'][] = array(
@@ -112,7 +118,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_FTP_PATH' ,
 	'description'	=> $constpref.'_FTP_PATH_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> $_encrypt ,
 	'default'		=> XOOPS_ROOT_PATH
 ) ;
 $modversion['config'][] = array(
@@ -120,7 +126,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_FTP_USER' ,
 	'description'	=> $constpref.'_FTP_USER_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> $_encrypt ,
 	'default'		=> ''
 ) ;
 $modversion['config'][] = array(
@@ -128,7 +134,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_FTP_PASS' ,
 	'description'	=> $constpref.'_FTP_PASS_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> $_encrypt ,
 	'default'		=> ''
 ) ;
 $modversion['config'][] = array(
@@ -144,7 +150,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_DROPBOX_TOKEN' ,
 	'description'	=> $constpref.'_DROPBOX_TOKEN_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> $_encrypt ,
 	'default'		=> ''
 ) ;
 $modversion['config'][] = array(
@@ -152,7 +158,7 @@ $modversion['config'][] = array(
 	'title'			=> $constpref.'_DROPBOX_SECKEY' ,
 	'description'	=> $constpref.'_DROPBOX_SECKEY_DESC' ,
 	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'text' ,
+	'valuetype'		=> $_encrypt ,
 	'default'		=> ''
 ) ;
 // $modversion['config'][] = array(
