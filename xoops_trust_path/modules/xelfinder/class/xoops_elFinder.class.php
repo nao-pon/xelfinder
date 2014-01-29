@@ -65,8 +65,8 @@ class xoops_elFinder {
 		$roots = array();
 
 		$disabledCmds = array();
-		if (!$this->isAdmin && !empty($this->config['disabled_cmds_by_gid'])) {
-			$_parts = array_map('trim', explode(':', $this->config['disabled_cmds_by_gid']));
+		if (!$this->isAdmin && !empty($this->config['disabled_cmds_by_gids'])) {
+			$_parts = array_map('trim', explode(':', $this->config['disabled_cmds_by_gids']));
 			foreach($_parts as $_part) {
 				list($_gid, $_cmds) = explode('=', $_part, 2);
 				$_gid = intval($_gid);
