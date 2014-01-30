@@ -53,7 +53,7 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 		$stat['simg'] = $photo['thumbnail'];
 		$stat['tooltip'] = 'Owner: '.$photo['uname'];
 		if ($photo['info']) {
-			$stat['tooltip'] .= "\r".trim(preg_replace('/\s+/', ' ', htmlspecialchars_decode(strip_tags($photo['info']), ENT_QUOTES, 'UTF-8')));
+			$stat['tooltip'] .= "\r".trim(preg_replace('/\s+/', ' ', htmlspecialchars_decode(strip_tags($photo['info']), ENT_QUOTES)));
 		}
 		if ($photo['openarea'] && $photo['uid'] != $uid) {
 			$stat['read'] = false;
@@ -294,6 +294,20 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 		return $parents;
 	}
 
+	/**
+	 * Return thumbnail file name for required file
+	 *
+	 * @param  array  $stat  file stat
+	 * @return string
+	 * @author Dmitry (dio) Levashov
+	 * @author Naoki Sawada
+	 **/
+	protected function tmbname($stat) {
+		$path = $this->decode($stat['hash']);
+		list(, $lid) = explode('_', substr($path, 1), 2);
+		return $this->encode($lid).$stat['ts'].'.png';
+	}
+
 	/*********************** paths/urls *************************/
 
 	/**
@@ -369,7 +383,7 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _abspath($path) {
-		if (! preg_match('/^_\d+_?(?:\d+(?:\.[a-zA-Z0-9.]+)?)?$/', $path)) {
+		if (! preg_match('/^_\d+_?(?:[a-zA-Z0-9.]+)?$/', $path)) {
 			$path = '_'; // root
 		}
 		return $path;
@@ -469,7 +483,7 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 			}
 		} elseif ($cid !== 'root') {
 			// photos
-			list($photos) = $this->d3dConf->func->get_photolist(array(), $uid, 0, 0, array('pid' => $pid, 'enc' => 'UTF-8'));
+			list($photos) = $this->d3dConf->func->get_photolist(array(), $uid, 1, 0, array('pid' => $pid, 'enc' => 'UTF-8'));
 			
 			if ($photos) {
 				$realpath = realpath($this->options['filePath'].$photos[0]['pname']);
