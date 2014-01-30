@@ -39,7 +39,7 @@ foreach( array_keys( $adminmenu ) as $i ) {
 }
 if( empty( $adminmenu_hilighted ) ) {
 	foreach( array_keys( $adminmenu ) as $i ) {
-		if( stristr( $mymenu_uri , $adminmenu[$i]['link'] ) ) {
+		if( substr($adminmenu[$i]['link'], 0, 6) === 'admin/' && stristr( $mymenu_uri , $adminmenu[$i]['link'] ) ) {
 			$adminmenu[$i]['selected'] = true ;
 			$GLOBALS['altsysAdminPageTitle'] = $adminmenu[$i]['title'] ;
 			break ;
