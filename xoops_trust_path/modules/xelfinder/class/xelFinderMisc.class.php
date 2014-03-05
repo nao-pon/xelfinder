@@ -7,7 +7,7 @@ class xelFinderMisc {
 	var $mydirname;
 	var $mode;
 	
-	function readAuth($perm, $f_uid, $file_id) {
+	function readAuth($perm, $f_uid, $file_id = null) {
 		global $xoopsUser, $xoopsModule;
 		if (is_object($xoopsUser)) {
 			$uid = $xoopsUser->getVar('uid');
@@ -28,7 +28,7 @@ class xelFinderMisc {
 		$gus = intval($perm[2], 16);
 	
 		if ($readable = (($isOwner && (4 & $own) === 4) || ($inGroup && (4 & $grp) === 4) || (4 & $gus) === 4)) {
-			if ($this->mode === 'view' && ! empty($this->myConfig['edit_disable_linked'])) {
+			if ($file_id && $this->mode === 'view' && ! empty($this->myConfig['edit_disable_linked'])) {
 				if ((2 & $own) === 2 || (2 & $grp) === 2 || (2 & $gus) === 2 || (1 & $own) === 1 || (1 & $grp) === 1 || (1 & $gus) === 1) {
 					$refer = @ $_SERVER['HTTP_REFERER'];
 					if (strpos($refer, 'http') === 0 && ! preg_match('#^'.preg_quote(XOOPS_URL).'/[^?]+manager\.php#', $refer)) {
