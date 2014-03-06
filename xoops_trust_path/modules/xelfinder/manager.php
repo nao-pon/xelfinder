@@ -21,13 +21,11 @@ $xelfinderModule = $module_handler->getByDirname($mydirname);
 $config_handler =& xoops_gethandler('config');
 $config = $config_handler->getConfigsByCat(0, $xelfinderModule->getVar('mid'));
 
-if (!empty($config['ssl_connector_url']) && preg_match('/Firefox|Chrome|Safari/', $_SERVER['HTTP_USER_AGENT'])) {
-	$conector_url = $config['ssl_connector_url'];
-	$session_name = session_name();
-} else {
-	$session_name = $conector_url = '';
+$conector_url = $conn_is_ext = '';
+if (!empty($config['connector_url'])) {
+	$conector_url = $config['connector_url'];
+	!$config['conn_url_is_ext'] || $conn_is_ext = 1;
 }
-
 $managerJs = '';
 $_plugin_dir = dirname(__FILE__) . '/plugins/';
 $_js_cache_path = $_js_cache_times = array();
@@ -124,7 +122,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo sprintf($jQueryCDN, $jQueryVersion)?>"></script>
 		<script src="<?php echo sprintf($jQueryUICDN, $jQueryUIVersion)?>/jquery-ui.min.js"></script>
 
-<?php if ($debug) {?>
+		<?php if ($debug) {?>
 		<!-- elfinder core -->
 		<script src="<?php echo $elfurl ?>/js/elFinder.js"></script>
 		<script src="<?php echo $elfurl ?>/js/elFinder.version.js"></script>
@@ -205,7 +203,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var myUrl = moduleUrl + '/<?php echo $mydirname?>/';
 			var imgUrl = myUrl + 'images/';
 			var connectorUrl = '<?php echo $conector_url?>';
-			var sessionName = '<?php echo $session_name?>';
+			var connIsExt = <?php echo (int)$conn_is_ext?>;
 			var useSiteImg = <?php echo $siteimg ?>;
 			var imgThumb = '';
 			var itemPath = '';
@@ -221,6 +219,9 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var callbackFunc = <?php echo $callback ?>;
 			setInterval(function(){
 				jQuery.ajax({url:"<?php echo $myurl ?>/connector.php?keepalive=1",cache:false});
+				if (connectorUrl) {
+					jQuery.ajax({url:connectorUrl+"?keepalive=1",cache:false,xhrFields:{withCredentials:true}});
+				}
 			}, 300000); // keep alive interval 5min
 		</script>
 		<?php echo $managerJs ?>

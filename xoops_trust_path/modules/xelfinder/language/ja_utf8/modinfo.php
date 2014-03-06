@@ -100,8 +100,14 @@ define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '環境変数 "PATH_INFO" が利
 define( $constpref.'_EDIT_DISABLE_LINKED' ,     '[xelfinder_db] リンク済みファイルの書き込み禁止' );
 define( $constpref.'_EDIT_DISABLE_LINKED_DESC' ,'リンク切れや不用意な上書きを防止するためにリンク・参照されたファイルを自動的に書き込み禁止に設定します。' );
 
-define( $constpref.'_SSL_CONNECTOR_URL' ,       'セキュア接続 URL' );
-define( $constpref.'_SSL_CONNECTOR_URL_DESC' ,  'バックエンドとの通信のみセキュアな環境を利用する場合に https:// から始まる connector.php の URL を指定してください。<br />ブラウザの User Agent に "Firefox" "Chrome" "Safari" が含まれる場合のみ有効になります。' );
+define( $constpref.'_CONNECTOR_URL' ,           '外部またはセキュア接続のコネクタURL（任意）' );
+define( $constpref.'_CONNECTOR_URL_DESC' ,      '外部サイトのコネクタに接続する場合やバックエンドとの通信のみセキュアな環境を利用する場合に connector.php の URL を指定してください。' );
+
+define( $constpref.'_CONN_URL_IS_EXT',          '外部のコネクタURL' );
+define( $constpref.'_CONN_URL_IS_EXT_DESC',     '任意指定したコネクタURLが外部サイトの場合に「はい」、コネクタURLがバックエンド通信のみSSL接続するURLの場合は「いいえ」を選択してください。<br />外部サイトのコネクタに接続する場合は相手先サイトにて、当サイトのオリジンドメインが許可されている必要があります。' );
+
+define( $constpref.'_ALLOW_ORIGINS',            '許可するドメインオリジン' );
+define( $constpref.'_ALLOW_ORIGINS_DESC',       '当サイトのコネクタに接続を許可する外部サイトのドメインオリジン（例:"http://example.com" 最後のスラッシュは不要）を行区切りで設定します。' );
 
 define( $constpref.'_UNZIP_LANG_VALUE' ,        'unzip 実行時のロケール' );
 define( $constpref.'_UNZIP_LANG_VALUE_DESC' ,   'アーカイブ解凍のコマンド unzip 使用時の言語ロケール設定。<br />通常は指定なしで問題ないと思われるが、解凍後のファイル名が文字化けする場合には ja_JP.Shift_JIS などとすると解消される場合がある。' );

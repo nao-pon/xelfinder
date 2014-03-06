@@ -370,10 +370,26 @@ $modversion['config'][] = array(
 	'default'		=> 1
 ) ;
 $modversion['config'][] = array(
-	'name'			=> 'ssl_connector_url' ,
-	'title'			=> $constpref.'_SSL_CONNECTOR_URL',
-	'description'	=> $constpref.'_SSL_CONNECTOR_URL_DESC',
+	'name'			=> 'connector_url' ,
+	'title'			=> $constpref.'_CONNECTOR_URL',
+	'description'	=> $constpref.'_CONNECTOR_URL_DESC',
 	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> ''
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'conn_url_is_ext' ,
+	'title'			=> $constpref.'_CONN_URL_IS_EXT',
+	'description'	=> $constpref.'_CONN_URL_IS_EXT_DESC',
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> 0
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'allow_origins' ,
+	'title'			=> $constpref.'_ALLOW_ORIGINS',
+	'description'	=> $constpref.'_ALLOW_ORIGINS_DESC',
+	'formtype'		=> 'textarea' ,
 	'valuetype'		=> 'string' ,
 	'default'		=> ''
 ) ;

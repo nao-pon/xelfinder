@@ -100,8 +100,14 @@ define( $constpref.'_DISABLE_PATHINFO_DESC' ,   'The server which cannot use env
 define( $constpref.'_EDIT_DISABLE_LINKED' ,     '[xelfinder_db] Write-protect of linked file' );
 define( $constpref.'_EDIT_DISABLE_LINKED_DESC' ,'Write-protect automatically of referenced linked files  for order to prevent inadvertent overwriting or broken links.' );
 
-define( $constpref.'_SSL_CONNECTOR_URL' ,       'Secure connection URL' );
-define( $constpref.'_SSL_CONNECTOR_URL_DESC' ,  'When only communication with a back-end uses secure environment, please specify URL of "connector.php" which begins from "https://".<br />It\'s supports only "Firefox", "Chrome" & "Safari".' );
+define( $constpref.'_CONNECTOR_URL' ,           'Connector URL of ext or secure （Optional）' );
+define( $constpref.'_CONNECTOR_URL_DESC' ,      'URL of connector.php, when only communication with the case where it connects with the connector of an external site, or a back end uses secure environment.' );
+
+define( $constpref.'_CONN_URL_IS_EXT',          'Is external connector URL' );
+define( $constpref.'_CONN_URL_IS_EXT_DESC',     '"Yes", when connector URL which carried out arbitrary specification is an external site, in the case of URL to which connector URL makes SSL connection only of the back end communication, please choose "no".<br />When connecting it with the connector of an external site, the origin domain here needs to be permitted at the partner point site.' );
+
+define( $constpref.'_ALLOW_ORIGINS',            'Domain origins to permit' );
+define( $constpref.'_ALLOW_ORIGINS_DESC',       'The domain origin (example: "http://example.com" the last slash is unnecessary) of the external site which permits connection to the connector of this site is set up by line pause.' );
 
 define( $constpref.'_UNZIP_LANG_VALUE' ,        'Local for unzip' );
 define( $constpref.'_UNZIP_LANG_VALUE_DESC' ,   'Local (LANG) for unzip exec' );

@@ -21,6 +21,7 @@ $(document).ready(function() {
 	elFinder.prototype.i18.en.messages.thumbnail     = 'Thumbnail';
 	elFinder.prototype.i18.en.messages.continues     = 'Continue more';
 	elFinder.prototype.i18.en.messages.imageinsert   = 'Image insert options';
+	elFinder.prototype.i18.jp.messages.CannotUploadOldIE = '<p>Your browser "IE" cannot upload by this manager.</p><p>Please use the newest browser, when you upload files.</p>';
 
 	if (typeof elFinder.prototype.i18.jp != "undefined") {
 		elFinder.prototype.i18.jp.messages.ntfperm = 'アイテム属性を変更';
@@ -41,28 +42,40 @@ $(document).ready(function() {
 		elFinder.prototype.i18.jp.messages.thumbnail     = 'サムネイル';
 		elFinder.prototype.i18.jp.messages.continues     = 'さらに続ける';
 		elFinder.prototype.i18.jp.messages.imageinsert   = '画像挿入オプション';
+		elFinder.prototype.i18.jp.messages.CannotUploadOldIE = '<p>あなたがお使いの IE ブラウザでは、このマネージャーではファイルをアップロードすることができません。</p><p>ファイルをアップロードする場合は、最新のブラウザをご利用下さい。</p>';
 
 		elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
 	}
 	
 	var customData = { admin : adminMode, ctoken : cToken };
+	var cors = false;
+	var IElt10;
 	if (! connectorUrl) {
 		connectorUrl = myUrl + 'connector.php';
 	} else {
-		customData.xoopsUrl = rootUrl;
-	}
-	if (sessionName) {
-		var reg = new RegExp(sessionName+'=([^;]+)');
-		if (document.cookie.match(reg)) {
-			customData.sessionId = RegExp.$1;
+		cors = true;
+		if (! connIsExt) {
+			customData.xoopsUrl = rootUrl;
+		}
+		if (typeof document.uniqueID != 'undefined') {
+			(function(){
+				var xhr = new XMLHttpRequest();
+				if (!('withCredentials' in xhr)) {
+					jQuery('<script>').attr('src', myUrl+'/include/js/xdr/jquery.xdr.js').appendTo('head');
+					IElt10 = true;
+				}
+				xhr = null;
+			})();
 		}
 	}
 	
 	var elfinderInstance = $('#elfinder').elfinder({
 		lang: lang,
 		url : connectorUrl,
-		urlUpload : myUrl + 'connector.php',
+		urlUpload : (cors && connIsExt)? connectorUrl : myUrl + 'connector.php',
 		customData : customData,
+		customHeaders: cors? {'X-Requested-With' : 'XMLHttpRequest'} : {},
+		xhrFields: cors? {withCredentials: true} : {},
 		requestType : 'POST',
 		height: $(window).height() - 20,
 		getFileCallback : callbackFunc,
@@ -99,12 +112,12 @@ $(document).ready(function() {
 			}
 		},
 		commands : [
-    		'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook',
-    		'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy',
-    		'cut', 'paste', 'edit',
-    		'extract', 'archive',
-    		'search', 'info', 'view', 'help', 'resize', 'sort', 'netmount', 'netunmount', 'pixlr', 'perm'
-    	],
+		    		'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook',
+		    		'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy',
+		    		'cut', 'paste', 'edit',
+		    		'extract', 'archive',
+		    		'search', 'info', 'view', 'help', 'resize', 'sort', 'netmount', 'netunmount', (cors && connIsExt)? null : 'pixlr', 'perm'
+		    	],
 		commandsOptions : {
 			  getfile : {
 			    onlyURL : false,
@@ -124,11 +137,26 @@ $(document).ready(function() {
 		}
 	}).elfinder('instance');
 	
-	// set document.title dynamically
+	// set document.title dynamically etc.
 	var title = document.title;
 	elfinderInstance.bind('open', function(event) {
 		var data = event.data || null;
 		var path = '';
+		
+		if (data.init && IElt10) {
+			var dialog = $('<div class="elfinder-dialog-resize"/>');
+			dialog.append(elfinderInstance.i18n('CannotUploadOldIE'));
+			var buttons = {};
+			buttons[elfinderInstance.i18n('btnYes')] = function() { dialog.elfinderdialog('close'); };
+			elfinderInstance.dialog(dialog, {
+					title : elfinderInstance.i18n('cmdupload'),
+					width : '400px',
+					buttons: buttons,
+					destroyOnClose : true,
+					modal : true
+				});
+		}
+		
 		if (data && data.cwd) {
 			path = elfinderInstance.path(data.cwd.hash) || null;
 		}

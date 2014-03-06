@@ -1,6 +1,6 @@
 <?php
 // for keep alive
-if (! empty($_GET['keepalive'])) exit('0');
+if (! empty($_GET['keepalive']) && $_SERVER['REQUEST_METHOD'] !== 'OPTIONS') exit(0);
 
 @ set_time_limit(120); // just in case it too long, not recommended for production
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__) . '/include/compat.php';
 if (! isset($_SESSION['XELFINDER_CTOKEN'])
 		|| ! isset($_REQUEST['ctoken'])
 		|| $_SESSION['XELFINDER_CTOKEN'] !== $_REQUEST['ctoken']) {
-	exit(json_encode(array('error' => 'errAccess')));
+	//! empty($_SERVER['HTTP_ORIGIN']) || (isset($_REQUEST['cmd']) && $_REQUEST['cmd'] === 'file') || exit(json_encode(array('error' => 'errAccess')));
 }
 
 define('_MD_ELFINDER_LIB_PATH', XOOPS_TRUST_PATH . '/libs/elfinder');
@@ -37,19 +37,43 @@ require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeLocalFileSystem.class.php';
 
 //////////////////////////////////////////////////////
 // for XOOPS
+$config = $xoopsModuleConfig;
+$allowOrigins = array_map('trim', preg_split('/\s+/', $config['allow_origins']));
+
 define('_MD_XELFINDER_NETVOLUME_SESSION_KEY', 'xel_'.$mydirname.'_NetVolumes');
 
 if (! defined('XOOPS_MODULE_PATH')) define('XOOPS_MODULE_PATH', XOOPS_ROOT_PATH . '/modules');
 if (! defined('XOOPS_MODULE_URL')) define('XOOPS_MODULE_URL', XOOPS_URL . '/modules');
 
 define('_MD_ELFINDER_MYDIRNAME', $mydirname);
-if (empty($_REQUEST['xoopsUrl'])) {
+$origin = isset($_SERVER['HTTP_ORIGIN'])? $_SERVER['HTTP_ORIGIN'] : '';
+
+if (empty($_REQUEST['xoopsUrl']) && !$origin) {
 	define('_MD_XELFINDER_SITEURL', XOOPS_URL);
 	define('_MD_XELFINDER_MODULE_URL', XOOPS_MODULE_URL);
 } else {
-	define('_MD_XELFINDER_SITEURL', $_REQUEST['xoopsUrl']);
+	if (!$origin
+	 || !in_array($origin, $allowOrigins)
+	 || (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])
+	 		 && !in_array(strtoupper($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']), array('POST', 'GET', 'OPTIOINS')))
+	) {
+		exit(json_encode(array('error' => 'errAccess')));
+	}
+	define('_MD_XELFINDER_SITEURL', empty($_REQUEST['xoopsUrl'])? XOOPS_URL : $_REQUEST['xoopsUrl']);
 	define('_MD_XELFINDER_MODULE_URL', str_replace(XOOPS_URL, _MD_XELFINDER_SITEURL, XOOPS_MODULE_URL));
-	header('Access-Control-Allow-Origin: ' . _MD_XELFINDER_SITEURL);
+	header('Access-Control-Allow-Origin: ' . $origin);
+	!isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])
+	 || header('Access-Control-Allow-Methods: ' . $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']);
+	header('Access-Control-Allow-Credentials: true');
+	header('Access-Control-Max-Age: 1000');
+	if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
+		header('Access-Control-Allow-Headers: '
+				. $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']);
+	} else {
+		header('Access-Control-Allow-Headers: *');
+	}
+
+	if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS' || ! empty($_GET['keepalive'])) exit(0);
 }
 
 define('ELFINDER_IMG_PARENT_URL', XOOPS_URL . '/common/elfinder/');
@@ -58,7 +82,6 @@ require dirname(__FILE__) . '/class/xelFinder.class.php';
 require dirname(__FILE__) . '/class/xelFinderVolumeFTP.class.php';
 
 $extras = array();
-$config = $xoopsModuleConfig;
 $config_MD5 = md5(serialize($config));
 if (strtoupper(_CHARSET) !== 'UTF-8') {
 	mb_convert_variables('UTF-8', _CHARSET, $config);
