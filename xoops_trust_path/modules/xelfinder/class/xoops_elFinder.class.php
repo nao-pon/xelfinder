@@ -235,8 +235,9 @@ class xoops_elFinder {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	public function log($cmd, &$result, $args, $elfinder) {
-	
-		if ($cmd === 'netmount' && is_object($this->xoopsUser) && !empty($result['sync'])) {
+		$log = $cmd.' ['.date('d.m H:s')."]\n";
+		
+		if ($cmd === 'netmount' && is_object($this->xoopsUser) && (!empty($result['sync']) || !empty($result['added']))) {
 			if ($uid = $this->xoopsUser->getVar('uid')) {
 				$uid = intval($uid);
 				$table = $this->db->prefix($this->mydirname.'_userdat');
@@ -251,10 +252,7 @@ class xoops_elFinder {
 					$this->db->queryF($sql);
 				}
 			}
-				
 		}
-	
-		$log = $cmd.' ['.date('d.m H:s')."]\n";
 	
 		if (!empty($result['error'])) {
 			$log .= "\tERROR: ".implode(' ', $result['error'])."\n";
