@@ -217,12 +217,6 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $myurl ?>/include/js/manager.js" charset="UTF-8"></script>
 		<script type="text/javascript" charset="UTF-8">
 			var callbackFunc = <?php echo $callback ?>;
-			setInterval(function(){
-				jQuery.ajax({url:"<?php echo $myurl ?>/connector.php?keepalive=1",cache:false});
-				if (connectorUrl) {
-					jQuery.ajax({url:connectorUrl+"?keepalive=1",cache:false,xhrFields:{withCredentials:true}});
-				}
-			}, 300000); // keep alive interval 5min
 		</script>
 		<?php echo $managerJs ?>
 	</head>

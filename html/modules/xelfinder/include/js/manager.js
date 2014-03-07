@@ -47,6 +47,15 @@ $(document).ready(function() {
 		elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
 	}
 	
+	// keep alive
+	var extCheck = connectorUrl;
+	setInterval(function(){
+		jQuery.ajax({url:myUrl+"/connector.php?keepalive=1",cache:false});
+		if (extCheck) {
+			jQuery.ajax({url:extCheck+"?keepalive=1",cache:false,xhrFields:{withCredentials:true}});
+		}
+	}, 300000); // keep alive interval 5min
+	
 	var customData = { admin : adminMode, ctoken : cToken };
 	var cors = false;
 	var IElt10;
