@@ -21,11 +21,14 @@ if (strpos($incPath, $addPath) === FALSE) {
 // load compat functions
 require_once dirname(__FILE__) . '/include/compat.php';
 
+// HTTP request header origin
+$origin = isset($_SERVER['HTTP_ORIGIN'])? $_SERVER['HTTP_ORIGIN'] : '';
+
 // Check cToken for protect from CSRF
 if (! isset($_SESSION['XELFINDER_CTOKEN'])
 		|| ! isset($_REQUEST['ctoken'])
 		|| $_SESSION['XELFINDER_CTOKEN'] !== $_REQUEST['ctoken']) {
-	//! empty($_SERVER['HTTP_ORIGIN']) || (isset($_REQUEST['cmd']) && $_REQUEST['cmd'] === 'file') || exit(json_encode(array('error' => 'errAccess')));
+	! $origin || (isset($_REQUEST['cmd']) && $_REQUEST['cmd'] === 'file') || exit(json_encode(array('error' => 'errAccess')));
 }
 
 define('_MD_ELFINDER_LIB_PATH', XOOPS_TRUST_PATH . '/libs/elfinder');
@@ -46,7 +49,6 @@ if (! defined('XOOPS_MODULE_PATH')) define('XOOPS_MODULE_PATH', XOOPS_ROOT_PATH 
 if (! defined('XOOPS_MODULE_URL')) define('XOOPS_MODULE_URL', XOOPS_URL . '/modules');
 
 define('_MD_ELFINDER_MYDIRNAME', $mydirname);
-$origin = isset($_SERVER['HTTP_ORIGIN'])? $_SERVER['HTTP_ORIGIN'] : '';
 
 if (empty($_REQUEST['xoopsUrl']) && !$origin) {
 	define('_MD_XELFINDER_SITEURL', XOOPS_URL);
