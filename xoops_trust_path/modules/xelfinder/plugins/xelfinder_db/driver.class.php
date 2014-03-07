@@ -821,7 +821,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$current_stat = $this->stat($path);
 		if (! empty($current_stat['filter'])) {
 			$filter = $this->db->quoteString($current_stat['filter']);
-			$filter = trim($filter, $filter[0]);
+			$filter = substr($filter, 1, strlen($filter)-2);
 			$filter = str_replace('*', '%', $filter);
 			$q = array();
 			foreach(explode(' ', $filter) as $val) {
@@ -899,7 +899,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$result = array();
 
 			$q = $this->db->quoteString($q);
-			$q = '%'.trim($q, $q[0]).'%';
+			$q = '%'.substr($q, 1, strlen($q)-2).'%';
 			$sql = 'SELECT `file_id`, `mime`, `uid`, `gid`, `gids`, `perm`, `home_of` FROM '.$this->tbf.' WHERE `name` LIKE \''.$q.'\'';
 			
 			$res = $this->query($sql);
