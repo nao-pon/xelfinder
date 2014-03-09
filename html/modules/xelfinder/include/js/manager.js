@@ -63,6 +63,7 @@ $(document).ready(function() {
 		connectorUrl = myUrl + 'connector.php';
 	} else {
 		cors = true;
+		customData.myUrl = myUrl;
 		if (! connIsExt) {
 			customData.xoopsUrl = rootUrl;
 		}
