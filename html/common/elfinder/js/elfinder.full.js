@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 4ddf2a7) (2014-03-06)
+ * Version 2.1_n (Nightly: 0b2fac9) (2014-03-09)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -3244,7 +3244,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 4ddf2a7)';
+elFinder.prototype.version = '2.1_n (Nightly: 0b2fac9)';
 
 
 
@@ -3518,21 +3518,36 @@ elFinder.prototype._options = {
 			},
 			dropbox: {
 				inputs: {
-					host     : $('<span id="elfinder-cmd-netmout-dropbox-host"><span class="elfinder-info-spinner"/></span></span><input type="hidden" value="dropbox"/>'),
+					host     : $('<span><span class="elfinder-info-spinner"/></span></span><input type="hidden"/>'),
 					path     : $('<input type="text" value="/"/>'),
-					user     : $('<input id="elfinder-cmd-netmout-dropbox-user" type="hidden"/>'),
-					pass     : $('<input id="elfinder-cmd-netmout-dropbox-pass" type="hidden"/>')
+					user     : $('<input type="hidden"/>'),
+					pass     : $('<input type="hidden"/>')
 				},
 				select: function(fm){
-					if ($('#elfinder-cmd-netmout-dropbox-host').find('span').length) {
+					var self = this;
+					if (self.inputs.host.find('span').length) {
 						fm.request({
-							data : {cmd : 'netmount', protocol: 'dropbox', host: 'dropbox.com', user: 'init', pass: 'init', options: {url: fm.uploadURL}},
+							data : {cmd : 'netmount', protocol: 'dropbox', host: 'dropbox.com', user: 'init', pass: 'init', options: {url: fm.uploadURL, id: fm.id}},
 							preventDefault : true
 						}).done(function(data){
-							$('#elfinder-cmd-netmout-dropbox-host')
-							.html(data.body.replace(/\{msg:([^}]+)\}/g, function(whole,s1){return fm.i18n(s1,'Dropbox.com');}));
+							self.inputs.host.find('span').removeClass("elfinder-info-spinner");
+							self.inputs.host.find('span').html(data.body.replace(/\{msg:([^}]+)\}/g, function(whole,s1){return fm.i18n(s1,'Dropbox.com');}));
 						}).fail(function(){});
 					}					
+				},
+				done: function(fm, data){
+					var self = this;
+					if (data.mode == 'makebtn') {
+						self.inputs.host.find('span').removeClass("elfinder-info-spinner");
+						self.inputs.host.find('input').hover(function(){$(this).toggleClass("ui-state-hover");});
+						self.inputs.host[1].value = "";
+					} else {
+						self.inputs.host.find('span').removeClass("elfinder-info-spinner");
+						self.inputs.host.find('span').html("Dropbox.com");
+						self.inputs.host[1].value = "dropbox";
+						self.inputs.user.val("done");
+						self.inputs.pass.val("done");
+					}
 				}
 			}
 		},
@@ -4606,7 +4621,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'cmdsort'      : 'Sort',
 			'cmdnetmount'  : 'Mount network volume', // added 18.04.2012
 			'cmdnetunmount': 'Unmount', // added 30.04.2012
-
+			
 			'cmdpixlr'     : 'Edit on Pixlr',
 			
 			/*********************************** buttons ***********************************/ 
@@ -9182,6 +9197,15 @@ elFinder.prototype.commands.netmount = function() {
 				return fm.dialog(content, opts).ready(function(){inputs.protocol.change();});
 			}
 			;
+		
+		fm.bind('netmount', function(e) {
+			var d = e.data || null;
+			if (d && d.protocol) {
+				if (o[d.protocol] && typeof o[d.protocol].done == 'function') {
+					o[d.protocol].done(fm, d);
+				}
+			}
+		});
 
 		if (!self.dialog) {
 			self.dialog = create();
