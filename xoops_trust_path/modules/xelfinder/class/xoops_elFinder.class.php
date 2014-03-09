@@ -55,6 +55,7 @@ class xoops_elFinder {
 							foreach($data as $volume) {
 								if ($volume['host'] === 'dropbox' && !empty($volume['dropboxUid']) && !empty($volume['accessToken']) && !empty($volume['accessTokenSecret'])) {
 									$_SESSION['elFinderDropboxTokens'] = array($volume['dropboxUid'], $volume['accessToken'], $volume['accessTokenSecret']);
+									break;
 								}
 							}
 						}
