@@ -63,6 +63,7 @@ $(document).ready(function() {
 		connectorUrl = myUrl + 'connector.php';
 	} else {
 		cors = true;
+		customData.myUrl = myUrl;
 		if (! connIsExt) {
 			customData.xoopsUrl = rootUrl;
 		}
@@ -125,7 +126,7 @@ $(document).ready(function() {
 		    		'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy',
 		    		'cut', 'paste', 'edit',
 		    		'extract', 'archive',
-		    		'search', 'info', 'view', 'help', 'resize', 'sort', 'netmount', 'netunmount', (cors && connIsExt)? null : 'pixlr', 'perm'
+		    		'search', 'info', 'view', 'help', 'resize', 'sort', 'netmount', 'netunmount', 'pixlr', 'perm'
 		    	],
 		commandsOptions : {
 			  getfile : {
