@@ -52,6 +52,11 @@ class xoops_elFinder {
 						list($data) = $this->db->fetchRow($res);
 						if ($data = @unserialize($data)) {
 							$_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY] = $data;
+							foreach($data as $volume) {
+								if ($volume['host'] === 'dropbox' && !empty($volume['dropboxUid']) && !empty($volume['accessToken']) && !empty($volume['accessTokenSecret'])) {
+									$_SESSION['elFinderDropboxTokens'] = array($volume['dropboxUid'], $volume['accessToken'], $volume['accessTokenSecret']);
+								}
+							}
 						}
 					}
 				}
