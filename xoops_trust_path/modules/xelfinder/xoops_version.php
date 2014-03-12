@@ -163,6 +163,22 @@ $modversion['config'][] = array(
 	'default'		=> ''
 ) ;
 $modversion['config'][] = array(
+	'name'			=> 'dropbox_acc_token' ,
+	'title'			=> $constpref.'_DROPBOX_ACC_TOKEN' ,
+	'description'	=> $constpref.'_DROPBOX_ACC_TOKEN_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> $_encrypt ,
+	'default'		=> ''
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'dropbox_acc_seckey' ,
+	'title'			=> $constpref.'_DROPBOX_ACC_SECKEY' ,
+	'description'	=> $constpref.'_DROPBOX_ACC_SECKEY_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> $_encrypt ,
+	'default'		=> ''
+) ;
+$modversion['config'][] = array(
 	'name'			=> 'dropbox_name' ,
 	'title'			=> $constpref.'_DROPBOX_NAME' ,
 	'description'	=> $constpref.'_DROPBOX_NAME_DESC' ,
@@ -184,22 +200,6 @@ $modversion['config'][] = array(
 	'description'	=> $constpref.'_DROPBOX_WRITABLE_GROUPS_DESC' ,
 	'formtype'		=> 'group_multi' ,
 	'valuetype'		=> 'array' ,
-	'default'		=> '1|2'
-) ;
-$modversion['config'][] = array(
-	'name'			=> 'dropbox_acc_token' ,
-	'title'			=> $constpref.'_DROPBOX_ACC_TOKEN' ,
-	'description'	=> $constpref.'_DROPBOX_ACC_TOKEN_DESC' ,
-	'formtype'		=> 'textbox' ,
-	'valuetype'		=> $_encrypt ,
-	'default'		=> ''
-) ;
-$modversion['config'][] = array(
-	'name'			=> 'dropbox_acc_seckey' ,
-	'title'			=> $constpref.'_DROPBOX_ACC_SECKEY' ,
-	'description'	=> $constpref.'_DROPBOX_ACC_SECKEY_DESC' ,
-	'formtype'		=> 'textbox' ,
-	'valuetype'		=> $_encrypt ,
 	'default'		=> ''
 ) ;
 // $modversion['config'][] = array(
