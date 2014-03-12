@@ -13,6 +13,7 @@ define( $constpref.'_DESC' , 'The module which uses the file manager elFinder of
 // admin menu
 define( $constpref.'_ADMENU_GOTO_MODULE' , 'Goto Module' ) ;
 define( $constpref.'_ADMENU_GOTO_MANAGER' ,'FileManager' ) ;
+define( $constpref.'_ADMENU_DROPBOX' ,     'Get Dropbox App Token' ) ;
 define( $constpref.'_ADMENU_MYLANGADMIN',  'Languages');
 define( $constpref.'_ADMENU_MYTPLSADMIN',  'Templates');
 define( $constpref.'_ADMENU_MYBLOCKSADMIN','Blocks/Permissions');
@@ -22,7 +23,7 @@ define( $constpref.'_ADMENU_MYPREFERENCES','Preferences');
 define( $constpref.'_MANAGER_TITLE' ,           'Page title of manager' );
 define( $constpref.'_MANAGER_TITLE_DESC' ,      '' );
 define( $constpref.'_VOLUME_SETTING' ,          'Volume Drivers' );
-define( $constpref.'_VOLUME_SETTING_DESC' ,     '[Module directory name]:[Plugin name]:[Saved files dirctory path]:[View name]:[Options]<br />Written line by line. Will be ignored and put a "#" at the beginning.<br />Options separates with "|".<br />Common option: gid=[Group ID to validate is specified by comma separated values]| uploadMaxSize=[Maximum upload file size (ex.2M)]| id=[Arbitrary unique ID]' );
+define( $constpref.'_VOLUME_SETTING_DESC' ,     '[Module directory name]:[Plugin name]:[Saved files dirctory path]:[View name]:[Options]<br />Written line by line. Will be ignored and put a "#" at the beginning.<br />Options separates with "|".<br />Common option:<br />gid=[Group ID to validate is specified by comma separated values]<br />defaults=[What validates each permission of read, write, hidden, and lock as a default is specified in each initial "r" "w" "h" "l" (example:  defaults=rw)]<br />uploadMaxSize=[Maximum upload file size (ex.2M)]<br />id=[Arbitrary unique ID]' );
 define( $constpref.'_SHARE_HOLDER' ,            'Share holder' );
 define( $constpref.'_DISABLED_CMDS_BY_GID' ,    'Disabled cmds of each group' );
 define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','Set [GroupID]=[Disabled cmds(comma-separated)] separated by ":".<br />Command list: mkdir, mkfile, rm, rename, duplicate, paste, upload, archive, extract, resize, netmount, pixlr' );
@@ -44,6 +45,16 @@ define( $constpref.'_DROPBOX_TOKEN' ,           'Dropbox.com App key' );
 define( $constpref.'_DROPBOX_TOKEN_DESC' ,      'Developers - Dropbox [ https://www.dropbox.com/developers ]' );
 define( $constpref.'_DROPBOX_SECKEY' ,          'Dropbox.com App secret' );
 define( $constpref.'_DROPBOX_SECKEY_DESC' ,     '' );
+define( $constpref.'_DROPBOX_NAME' ,                 'Shared Dropbox volume display name' );
+define( $constpref.'_DROPBOX_NAME_DESC' ,            'Unlike mount of network volume, shared Dropbox volume is displayed on all the users.' );
+define( $constpref.'_DROPBOX_PATH' ,                 'Root pass of shared Dropbox' );
+define( $constpref.'_DROPBOX_PATH_DESC' ,            'The path of the class which may generally be indicated in shared Dropbox volume is specified. (example:  "/Public")<br />A Dropbox setup is "dropbox" of a volume driver. It is used also for plugin.<br />"dropbox" プラグイン用のみに設定する場合はルートパスを空欄にしてください。' );
+define( $constpref.'_DROPBOX_WRITABLE_GROUPS' ,      'Groups which permits full access to Share Dropbox' );
+define( $constpref.'_DROPBOX_WRITABLE_GROUPS_DESC' , 'To the group set up here, all the accesses, such as creation, deletion, movement, etc. of file or directory, are permitted. Other groups can only be read.' );
+define( $constpref.'_DROPBOX_ACC_TOKEN' ,            'Access token key of shared Dropbox' );
+define( $constpref.'_DROPBOX_ACC_TOKEN_DESC' ,       'The access token key for using it in shared Dropbox volume and the access token secret key of Dropbox are acquirable with a "Get Dropbox App Token" menu.' );
+define( $constpref.'_DROPBOX_ACC_SECKEY' ,           'Access token secret key of shared Dropbox' );
+define( $constpref.'_DROPBOX_ACC_SECKEY_DESC' ,      '' );
 define( $constpref.'_JQUERY_UI_THEME' ,         'jQuery UI Theme' );
 define( $constpref.'_JQUERY_UI_THEME_DESC' ,    'Theme name or URL to jQuery Theme CSS (Default: smoothness)' );
 define( $constpref.'_THUMBNAIL_SIZE' ,          '[xelfinder_db] Thumbnail size of image insertion' );
@@ -114,5 +125,15 @@ define( $constpref.'_UNZIP_LANG_VALUE_DESC' ,   'Local (LANG) for unzip exec' );
 
 define( $constpref.'_DEBUG' ,                   'Enable Debug mode' );
 define( $constpref.'_DEBUG_DESC' ,              'If it is set in a debug mode, an individual file will be read instead of "elfinder.min.css" and "elfinder.min.js" by elFinder.<br />Moreover, debugging information is included in the response of JavaScript.<br />We recommend "No debug" for performance improvement.' );
+
+// admin/dropbox.php
+define( $constpref.'_DROPBOX_STEP1' ,        'Step 1: Make App');
+define( $constpref.'_DROPBOX_GOTO_APP' ,     'Please create App at the following link place (Dropbox.com), acquire App key and App secre, and set to "%s" and "%s" of Preferences.');
+define( $constpref.'_DROPBOX_GET_TOKEN' ,    'Get "Dropbox App Token"');
+define( $constpref.'_DROPBOX_STEP2' ,        'Step 2: Go to Dropbox and approves');
+define( $constpref.'_DROPBOX_GOTO_CONFIRM' , 'Please move on to the following link place (Dropbox.com), and approve an application.');
+define( $constpref.'_DROPBOX_CONFIRM_LINK' , 'Go to Dropbox.com and approves an application. ');
+define( $constpref.'_DROPBOX_STEP3' ,        'Step 3: Completed. It sets to Preferences.');
+define( $constpref.'_DROPBOX_SET_PREF' ,     'Please set the following value as each item of Preferences.');
 
 }

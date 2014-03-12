@@ -13,6 +13,7 @@ define( $constpref.'_DESC' , 'Webе┘б╝е╣д╬е╒ебедеые▐е═б╝е╕еу elFinder дЄедесб╝е╕е
 // admin menu
 define($constpref.'_ADMENU_GOTO_MODULE' ,   'ете╕ехб╝еы▓ш╠╠' ) ;
 define($constpref.'_ADMENU_GOTO_MANAGER' ,  'е╒ебедеые▐е═б╝е╕еу' ) ;
+define($constpref.'_ADMENU_DROPBOX' ,       'Dropbox App Token ╝ш╞└' ) ;
 define($constpref.'_ADMENU_MYLANGADMIN' ,   '╕└╕ь─ъ┐Ї┤╔═¤' ) ;
 define($constpref.'_ADMENU_MYTPLSADMIN' ,   'е╞еєе╫еьб╝е╚┤╔═¤' ) ;
 define($constpref.'_ADMENU_MYBLOCKSADMIN' , 'е╓еэе├еп┤╔═¤/евепе╗е╣╕в╕┬' ) ;
@@ -22,7 +23,7 @@ define($constpref.'_ADMENU_MYPREFERENCES' , '░ь╚╠└▀─ъ' ) ;
 define( $constpref.'_MANAGER_TITLE' ,           'е▐е═б╝е╕еуд╬е┌б╝е╕е┐еде╚еы' );
 define( $constpref.'_MANAGER_TITLE_DESC' ,      '' );
 define( $constpref.'_VOLUME_SETTING' ,          'е▄еъехб╝ере╔ещеде╨' );
-define( $constpref.'_VOLUME_SETTING_DESC' ,     '[ете╕ехб╝еые╟егеьепе╚еъ╠╛]:[е╫еще░едеє╠╛]:[е╒ебедеы│╩╟╝е╟егеьепе╚еъ]:[╔╜╝и╠╛]:[еке╫е╖ечеє]<br />╣╘├▒░╠д╟╡н╜╥бг└ш╞мд╦ # дЄ├╓дпд╚╠╡╗ыд╡дьд▐д╣бг<br />еке╫е╖ечеєд╧ | д╟╢ш└┌дъд▐д╣бг<br />╢ж─╠еке╫е╖ечеє: gid=[═н╕·д╦д╣дые░еыб╝е╫IDдЄелеєе▐╢ш└┌дъд╟╗╪─ъ]| uploadMaxSize=[еве├е╫еэб╝е╔е╒ебедеые╡еде║д╬╛х╕┬├═(╬у:2M)]| id=[╟д░╒д╬░ь░╒д╩ID]' );
+define( $constpref.'_VOLUME_SETTING_DESC' ,     '[ете╕ехб╝еые╟егеьепе╚еъ╠╛]:[е╫еще░едеє╠╛]:[е╒ебедеы│╩╟╝е╟егеьепе╚еъ]:[╔╜╝и╠╛]:[еке╫е╖ечеє]<br />╣╘├▒░╠д╟╡н╜╥бг└ш╞мд╦ # дЄ├╓дпд╚╠╡╗ыд╡дьд▐д╣бг<br />еке╫е╖ечеєд╧ б╓|б╫ д╟╢ш└┌дъд▐д╣бг<br />╢ж─╠еке╫е╖ечеє:<br />gid=[═н╕·д╦д╣дые░еыб╝е╫IDдЄелеєе▐╢ш└┌дъд╟╗╪─ъ]<br />defaults=[read, write, hidden, lock д╬│╞е╤б╝е▀е├е╖ечеєдЄе╟е╒ейеые╚д╚д╖д╞═н╕·д╦д╣дыдтд╬дЄд╜дьд╛дьд╬╞м╩╕╗· r w h l д╟╗╪─ъб╩╬у: defaults=rwб╦]<br />uploadMaxSize=[еве├е╫еэб╝е╔е╒ебедеые╡еде║д╬╛х╕┬├═(╬у:2M)]<br />id=[╟д░╒д╬░ь░╒д╩IDб╩╕╟─ъеъеєепд╬URLе╧е├е╖ехд╦═°═╤д╡дьд▐д╣б╦]' );
 define( $constpref.'_SHARE_HOLDER' ,            '╢ж═не╒ейеые└' );
 define( $constpref.'_DISABLED_CMDS_BY_GID' ,    'е░еыб╝е╫╦ш╠╡╕·е│е▐еєе╔' );
 define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','е░еыб╝е╫╦шд╦╠╡╕·д╦д╣дые│е▐еєе╔дЄ [е░еыб╝е╫ID]=[╠╡╕·е│е▐еєе╔(елеєе▐╢ш└┌дъ)] д╚д╖д╞ ":" д╟╢ш└┌д├д╞╗╪─ъд╣дыбг<br />е│е▐еєе╔╠╛: mkdir, mkfile, rm, rename, duplicate, paste, upload, archive, extract, resize, netmount, pixlr' );
@@ -44,6 +45,16 @@ define( $constpref.'_DROPBOX_TOKEN' ,           'Dropbox.com еве╫еъе▒б╝е╖ечеє Ke
 define( $constpref.'_DROPBOX_TOKEN_DESC' ,      'Developers - Dropbox [ https://www.dropbox.com/developers ]' );
 define( $constpref.'_DROPBOX_SECKEY' ,          'Dropbox.com еве╫еъе▒б╝е╖ечеє Secret key' );
 define( $constpref.'_DROPBOX_SECKEY_DESC' ,     '' );
+define( $constpref.'_DROPBOX_NAME' ,                 '╢ж═нд╬Dropboxе▄еъехб╝ер╔╜╝и╠╛' );
+define( $constpref.'_DROPBOX_NAME_DESC' ,            '╢ж═нд╬Dropboxе▄еъехб╝ерд╧бве═е├е╚еяб╝епе▄еъехб╝ерд╬е▐ежеєе╚д╚░уддбвд╣д┘д╞д╬ецб╝е╢б╝д╦╔╜╝ид╡дьд▐д╣бг' );
+define( $constpref.'_DROPBOX_PATH' ,                 '╢ж═нDropboxд╬еыб╝е╚е╤е╣' );
+define( $constpref.'_DROPBOX_PATH_DESC' ,            '╢ж═нд╬Dropboxе▄еъехб╝ерд╟░ь╚╠д╦│л╝ид╖д╞дтдшдд│м┴╪д╬е╤е╣дЄ╗╪─ъд╖д▐д╣бг(└▀─ъ╬у: "/Public")<br />Dropbox └▀─ъд╧е▄еъехб╝ере╔ещеде╨д╬ "dropbox" е╫еще░едеєд╦дт╗╚═╤д╡дьд▐д╣бг<br />"dropbox" е╫еще░едеє═╤д╬д▀д╦└▀─ъд╣ды╛ь╣чд╧еыб╝е╚е╤е╣дЄ╢ї═єд╦д╖д╞дпд└д╡ддбг' );
+define( $constpref.'_DROPBOX_WRITABLE_GROUPS' ,      '╢ж═нDropboxд╦е╒еыевепе╗е╣дЄ╡Ў▓─д╣дые░еыб╝е╫' );
+define( $constpref.'_DROPBOX_WRITABLE_GROUPS_DESC' , 'д│д│д╦└▀─ъд╖д┐е░еыб╝е╫д╪д╧бве╒ебедеыбже╟егеьепе╚еъд╬║ю└обж║я╜№бж░▄╞░д╩д╔бв┴┤д╞д╬евепе╗е╣дм╡Ў▓─д╡дьд▐д╣бгд╜д╬┬╛д╬е░еыб╝е╫д╧╞╔д▀╝шдъд╬д▀▓─╟╜д╟д╣бг' );
+define( $constpref.'_DROPBOX_ACC_TOKEN' ,            '╢ж═нDropboxд╬евепе╗е╣е╚б╝епеєбженб╝' );
+define( $constpref.'_DROPBOX_ACC_TOKEN_DESC' ,       '╢ж═нд╬Dropboxе▄еъехб╝ерд╟╗╚═╤д╣дыд┐дсд╬евепе╗е╣е╚б╝епеєбженб╝д╚Dropbox д╬евепе╗е╣е╚б╝епеєбже╖б╝епеье├е╚енб╝д╧б╓Dropbox App Token ╝ш╞└б╫есе╦ехб╝д╦д╞╝ш╞└д╟днд▐д╣бг' );
+define( $constpref.'_DROPBOX_ACC_SECKEY' ,           '╢ж═нDropboxд╬евепе╗е╣е╚б╝епеєбже╖б╝епеье├е╚енб╝' );
+define( $constpref.'_DROPBOX_ACC_SECKEY_DESC' ,      '' );
 define( $constpref.'_JQUERY_UI_THEME' ,         'jQuery UI д╬е╞б╝е▐' );
 define( $constpref.'_JQUERY_UI_THEME_DESC' ,    'jQuery UI д╬е╞б╝е▐дЄе╞б╝е▐╠╛бв╦Їд╧ CSS д╬ URL д╟╗╪─ъд╖д▐д╣бг (е╟е╒ейеые╚: smoothness)' );
 define( $constpref.'_THUMBNAIL_SIZE' ,          '[xelfinder_db] ▓ш┴№┴▐╞■╗■д╬е╡ере═едеые╡еде║' );
@@ -114,5 +125,15 @@ define( $constpref.'_UNZIP_LANG_VALUE_DESC' ,   'евб╝еледе╓▓Є┼рд╬е│е▐еєе╔ unzip 
 
 define( $constpref.'_DEBUG' ,                   'е╟е╨е├е░етб╝е╔дЄ═н╕·д╦д╣ды' );
 define( $constpref.'_DEBUG_DESC' ,              'е╟е╨е├е░етб╝е╔д╦д╣дыд╚ elFinder д╬ "elfinder.min.css", "elfinder.min.js" д╟д╧д╩дп╕─╩╠д╬е╒ебедеыдЄ╞╔д▀╣■д▀д▐д╣бг<br />д▐д┐бвJavaScript д╬еье╣е▌еєе╣д╦е╟е╨е░╛Ё╩єдЄ┤▐дсд▐д╣бг<br />е╤е╒ейб╝е▐еєе╣╕■╛хд╬д┐дсд╦бв─╠╛яд╧е╟е╨е├е░етб╝е╔д╧╠╡╕·д╦д╖д╞▒┐═╤д╣дыд│д╚дЄдк┤лдсд╖д▐д╣бг' );
+
+// admin/dropbox.php
+define( $constpref.'_DROPBOX_STEP1' ,        'Step 1: App д╬║ю└о');
+define( $constpref.'_DROPBOX_GOTO_APP' ,     '╝бд╬еъеєеп└ш (Dropbox.com) д╟ App дЄ║ю└од╖бв App key д╚ App secre дЄ╝ш╞└д╖бв░ь╚╠└▀─ъд╬б╓%sб╫д╚б╓%sб╫д╪└▀─ъд╖д╞дпд└д╡ддбг');
+define( $constpref.'_DROPBOX_GET_TOKEN' ,    'Dropbox App Token д╬╝ш╞└');
+define( $constpref.'_DROPBOX_STEP2' ,        'Step 2: Dropbox д╪╣╘днбвеве╫еъдЄ╟з▓─');
+define( $constpref.'_DROPBOX_GOTO_CONFIRM' , '╝бд╬еъеєеп└ш (Dropbox.com) д╪┐╩д▀бвеве╫еъдЄ╟з▓─д╖д╞дпд└д╡ддбг');
+define( $constpref.'_DROPBOX_CONFIRM_LINK' , 'Dropbox.com д╪╣╘днбвеве╫еъдЄ╟з▓─д╣ды');
+define( $constpref.'_DROPBOX_STEP3' ,        'Step 3: ╝ш╞└┤░╬╗бг░ь╚╠└▀─ъд╪└▀─ъ');
+define( $constpref.'_DROPBOX_SET_PREF' ,     '╝бд╬├═дЄ░ь╚╠└▀─ъд╬│╞╣р╠▄д╦└▀─ъд╖д╞дпд└д╡ддбг');
 
 }

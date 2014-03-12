@@ -79,7 +79,8 @@ myalbum:myalbum:uploads/photos:MyAlbum
 gnavi:gnavi:uploads/gnavi:GNAVI
 mailbbs:mailbbs:modules/mailbbs/imgs:MailBBS
 #xelfinder:xelfinder:preload:Preload:gid=1
-#xelfinder:ftp:preload:Preload:gid=1'
+#xelfinder:ftp:preload:Preload:gid=1
+#xelfinder:dropbox:/:Dropbox:gid=1'
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'disabled_cmds_by_gids' ,
@@ -157,6 +158,46 @@ $modversion['config'][] = array(
 	'name'			=> 'dropbox_seckey' ,
 	'title'			=> $constpref.'_DROPBOX_SECKEY' ,
 	'description'	=> $constpref.'_DROPBOX_SECKEY_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> $_encrypt ,
+	'default'		=> ''
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'dropbox_name' ,
+	'title'			=> $constpref.'_DROPBOX_NAME' ,
+	'description'	=> $constpref.'_DROPBOX_NAME_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> 'Dropbox'
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'dropbox_path' ,
+	'title'			=> $constpref.'_DROPBOX_PATH' ,
+	'description'	=> $constpref.'_DROPBOX_PATH_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> '/'
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'dropbox_writable_groups' ,
+	'title'			=> $constpref.'_DROPBOX_WRITABLE_GROUPS' ,
+	'description'	=> $constpref.'_DROPBOX_WRITABLE_GROUPS_DESC' ,
+	'formtype'		=> 'group_multi' ,
+	'valuetype'		=> 'array' ,
+	'default'		=> '1|2'
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'dropbox_acc_token' ,
+	'title'			=> $constpref.'_DROPBOX_ACC_TOKEN' ,
+	'description'	=> $constpref.'_DROPBOX_ACC_TOKEN_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> $_encrypt ,
+	'default'		=> ''
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'dropbox_acc_seckey' ,
+	'title'			=> $constpref.'_DROPBOX_ACC_SECKEY' ,
+	'description'	=> $constpref.'_DROPBOX_ACC_SECKEY_DESC' ,
 	'formtype'		=> 'textbox' ,
 	'valuetype'		=> $_encrypt ,
 	'default'		=> ''
@@ -303,7 +344,7 @@ $modversion['config'][] = array(
 	'description'	=> $constpref.'_SPECIAL_GROUPS_DESC',
 	'formtype'		=> 'group_multi' ,
 	'valuetype'		=> 'array' ,
-	'default'		=> array()
+	'default'		=> ''
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'upload_allow_spgroups' ,

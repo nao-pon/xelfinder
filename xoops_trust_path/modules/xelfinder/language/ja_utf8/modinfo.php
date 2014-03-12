@@ -13,6 +13,7 @@ define( $constpref.'_DESC' , 'Webベースのファイルマネージャ elFinde
 // admin menu
 define($constpref.'_ADMENU_GOTO_MODULE' ,   'モジュール画面' ) ;
 define($constpref.'_ADMENU_GOTO_MANAGER' ,  'ファイルマネージャ' ) ;
+define($constpref.'_ADMENU_DROPBOX' ,       'Dropbox App Token 取得' ) ;
 define($constpref.'_ADMENU_MYLANGADMIN' ,   '言語定数管理' ) ;
 define($constpref.'_ADMENU_MYTPLSADMIN' ,   'テンプレート管理' ) ;
 define($constpref.'_ADMENU_MYBLOCKSADMIN' , 'ブロック管理/アクセス権限' ) ;
@@ -22,7 +23,7 @@ define($constpref.'_ADMENU_MYPREFERENCES' , '一般設定' ) ;
 define( $constpref.'_MANAGER_TITLE' ,           'マネージャのページタイトル' );
 define( $constpref.'_MANAGER_TITLE_DESC' ,      '' );
 define( $constpref.'_VOLUME_SETTING' ,          'ボリュームドライバ' );
-define( $constpref.'_VOLUME_SETTING_DESC' ,     '[モジュールディレクトリ名]:[プラグイン名]:[ファイル格納ディレクトリ]:[表示名]:[オプション]<br />行単位で記述。先頭に # を置くと無視されます。<br />オプションは | で区切ります。<br />共通オプション: gid=[有効にするグループIDをカンマ区切りで指定]| uploadMaxSize=[アップロードファイルサイズの上限値(例:2M)]| id=[任意の一意なID]' );
+define( $constpref.'_VOLUME_SETTING_DESC' ,     '[モジュールディレクトリ名]:[プラグイン名]:[ファイル格納ディレクトリ]:[表示名]:[オプション]<br />行単位で記述。先頭に # を置くと無視されます。<br />オプションは 「|」 で区切ります。<br />共通オプション:<br />gid=[有効にするグループIDをカンマ区切りで指定]<br />defaults=[read, write, hidden, lock の各パーミッションをデフォルトとして有効にするものをそれぞれの頭文字 r w h l で指定（例: defaults=rw）]<br />uploadMaxSize=[アップロードファイルサイズの上限値(例:2M)]<br />id=[任意の一意なID（固定リンクのURLハッシュに利用されます）]' );
 define( $constpref.'_SHARE_HOLDER' ,            '共有フォルダ' );
 define( $constpref.'_DISABLED_CMDS_BY_GID' ,    'グループ毎無効コマンド' );
 define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','グループ毎に無効にするコマンドを [グループID]=[無効コマンド(カンマ区切り)] として ":" で区切って指定する。<br />コマンド名: mkdir, mkfile, rm, rename, duplicate, paste, upload, archive, extract, resize, netmount, pixlr' );
@@ -44,6 +45,16 @@ define( $constpref.'_DROPBOX_TOKEN' ,           'Dropbox.com アプリケーシ�
 define( $constpref.'_DROPBOX_TOKEN_DESC' ,      'Developers - Dropbox [ https://www.dropbox.com/developers ]' );
 define( $constpref.'_DROPBOX_SECKEY' ,          'Dropbox.com アプリケーション Secret key' );
 define( $constpref.'_DROPBOX_SECKEY_DESC' ,     '' );
+define( $constpref.'_DROPBOX_NAME' ,                 '共有のDropboxボリューム表示名' );
+define( $constpref.'_DROPBOX_NAME_DESC' ,            '共有のDropboxボリュームは、ネットワークボリュームのマウントと違い、すべてのユーザーに表示されます。' );
+define( $constpref.'_DROPBOX_PATH' ,                 '共有Dropboxのルートパス' );
+define( $constpref.'_DROPBOX_PATH_DESC' ,            '共有のDropboxボリュームで一般に開示してもよい階層のパスを指定します。(設定例: "/Public")<br />Dropbox 設定はボリュームドライバの "dropbox" プラグインにも使用されます。<br />"dropbox" プラグイン用のみに設定する場合はルートパスを空欄にしてください。' );
+define( $constpref.'_DROPBOX_WRITABLE_GROUPS' ,      '共有Dropboxにフルアクセスを許可するグループ' );
+define( $constpref.'_DROPBOX_WRITABLE_GROUPS_DESC' , 'ここに設定したグループへは、ファイル・ディレクトリの作成・削除・移動など、全てのアクセスが許可されます。その他のグループは読み取りのみ可能です。' );
+define( $constpref.'_DROPBOX_ACC_TOKEN' ,            '共有Dropboxのアクセストークン・キー' );
+define( $constpref.'_DROPBOX_ACC_TOKEN_DESC' ,       '共有のDropboxボリュームで使用するためのアクセストークン・キーとDropbox のアクセストークン・シークレットキーは「Dropbox App Token 取得」メニューにて取得できます。' );
+define( $constpref.'_DROPBOX_ACC_SECKEY' ,           '共有Dropboxのアクセストークン・シークレットキー' );
+define( $constpref.'_DROPBOX_ACC_SECKEY_DESC' ,      '' );
 define( $constpref.'_JQUERY_UI_THEME' ,         'jQuery UI のテーマ' );
 define( $constpref.'_JQUERY_UI_THEME_DESC' ,    'jQuery UI のテーマをテーマ名、又は CSS の URL で指定します。 (デフォルト: smoothness)' );
 define( $constpref.'_THUMBNAIL_SIZE' ,          '[xelfinder_db] 画像挿入時のサムネイルサイズ' );
@@ -114,5 +125,15 @@ define( $constpref.'_UNZIP_LANG_VALUE_DESC' ,   'アーカイブ解凍のコマ�
 
 define( $constpref.'_DEBUG' ,                   'デバッグモードを有効にする' );
 define( $constpref.'_DEBUG_DESC' ,              'デバッグモードにすると elFinder の "elfinder.min.css", "elfinder.min.js" ではなく個別のファイルを読み込みます。<br />また、JavaScript のレスポンスにデバグ情報を含めます。<br />パフォーマンス向上のために、通常はデバッグモードは無効にして運用することをお勧めします。' );
+
+// admin/dropbox.php
+define( $constpref.'_DROPBOX_STEP1' ,        'Step 1: App の作成');
+define( $constpref.'_DROPBOX_GOTO_APP' ,     '次のリンク先 (Dropbox.com) で App を作成し、 App key と App secre を取得し、一般設定の「%s」と「%s」へ設定してください。');
+define( $constpref.'_DROPBOX_GET_TOKEN' ,    'Dropbox App Token の取得');
+define( $constpref.'_DROPBOX_STEP2' ,        'Step 2: Dropbox へ行き、アプリを認可');
+define( $constpref.'_DROPBOX_GOTO_CONFIRM' , '次のリンク先 (Dropbox.com) へ進み、アプリを認可してください。');
+define( $constpref.'_DROPBOX_CONFIRM_LINK' , 'Dropbox.com へ行き、アプリを認可する');
+define( $constpref.'_DROPBOX_STEP3' ,        'Step 3: 取得完了。一般設定へ設定');
+define( $constpref.'_DROPBOX_SET_PREF' ,     '次の値を一般設定の各項目に設定してください。');
 
 }

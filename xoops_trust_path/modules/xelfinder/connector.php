@@ -208,6 +208,19 @@ if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HAS
 		);
 		$rootVolumes[] = $ftp;
 	}
+	if (defined('ELFINDER_DROPBOX_CONSUMERKEY') && $config['dropbox_path'] && $config['dropbox_acc_token'] && $config['dropbox_acc_seckey']) {
+		$dropbox = array(
+			'driver'            => 'DropboxX',
+			'consumerKey'       => ELFINDER_DROPBOX_CONSUMERKEY,
+			'consumerSecret'    => ELFINDER_DROPBOX_CONSUMERSECRET,
+			'alias'             => trim($config['dropbox_name']),
+			'accessToken'       => trim($config['dropbox_acc_token']),
+			'accessTokenSecret' => trim($config['dropbox_acc_seckey']),
+			'path'              => '/'.trim($config['dropbox_path'], ' /'),
+			'defaults' => array('read' => true, 'write' => ((array_intersect($memberGroups, ( isset($config['dropbox_writable_groups'])? $config['dropbox_writable_groups'] : array() )))? true : false), 'hidden' => false, 'locked' => false),
+		);
+		$rootVolumes[] = $dropbox;
+	}
 	$_SESSION['XELFINDER_RV_'.$mydirname] = base64_encode(serialize($rootVolumes));
 	$_SESSION['XELFINDER_CFG_HASH_'.$mydirname] = $config_MD5;
 }

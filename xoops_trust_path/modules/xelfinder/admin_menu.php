@@ -11,6 +11,10 @@ $adminmenu = array(
 		'title' => constant( $constpref.'_ADMENU_GOTO_MANAGER' ) ,
 		'link' => 'manager.php?admin=1' ,
 	) ,
+	array(
+		'title' => constant( $constpref.'_ADMENU_DROPBOX' ) ,
+		'link' => 'admin/index.php?page=dropbox' ,
+	)
 ) ;
 
 $adminmenu4altsys = array(

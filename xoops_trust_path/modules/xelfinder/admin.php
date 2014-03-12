@@ -48,7 +48,7 @@ if( ! empty( $_GET['lib'] ) ) {
 	}
 } else {
 	// load language files (main.php & admin.php)
-	$langman->read( 'admin.php' , $mydirname , $mytrustdirname ) ;
+	$langman->read( 'modinfo.php' , $mydirname , $mytrustdirname ) ;
 	$langman->read( 'main.php' , $mydirname , $mytrustdirname ) ;
 
 	// fork each pages of this module
@@ -61,4 +61,11 @@ if( ! empty( $_GET['lib'] ) ) {
 	} else {
 		die( 'wrong request' ) ;
 	}
+
 }
+
+function xelfinderAdminLang($name) {
+	$pref = '_MI_'.strtoupper($GLOBALS['mydirname']).'_';
+	return defined($pref.$name)? constant($pref.$name) : $pref.$name;
+}
+

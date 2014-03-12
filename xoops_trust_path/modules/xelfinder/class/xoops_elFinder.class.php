@@ -28,7 +28,7 @@ class xoops_elFinder {
 			'mimeDetect' => 'auto',
 			'tmbSize'	 => 48,
 			'tmbCrop'	 => true,
-			'defaults' => array('read' => true, 'write' => false)
+			'defaults' => array('read' => true, 'write' => false, 'hidden' => false, 'locked' => false)
 	);
 	
 	public function __construct($mydirname, $opt = array()) {
@@ -97,6 +97,7 @@ class xoops_elFinder {
 			
 			$extOptions = array();
 			$extOptKeys = array('uploadmaxsize' => 'uploadMaxSize', 'id' => 'id');
+			$defaults = null;
 			if ($options) {
 				$options = str_getcsv($options, '|');
 				if (is_array($options[0])) {
@@ -108,6 +109,15 @@ class xoops_elFinder {
 						if ($_gids && $this->mygids) {
 							if (! array_intersect($this->mygids, $_gids)) {
 								continue 2;
+							}
+						}
+					} else if (strpos($_op, 'defaults=') === 0) {
+						list(,$_tmp) = explode('=', $_op, 2);
+						$defaults = $this->defaultVolumeOptions['defaults'];
+						$_tmp = strtolower($_tmp);
+						foreach($defaults as $_p) {
+							if (strpos($_tmp, $_p[0]) !== false) {
+								$defaults[$_p] = true;
 							}
 						}
 					} else if (strpos($_op, 'plugin.') === 0) {
@@ -168,6 +178,9 @@ class xoops_elFinder {
 						}
 					}
 				}
+			}
+			if (is_array($defaults)) {
+				$extOptions['defaults'] = $defaults;
 			}
 			
 			if ($title === '') $title = $mydirname;
