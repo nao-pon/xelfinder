@@ -107,6 +107,9 @@ $xoops_elFinder = new xoops_elFinder($mydirname);
 $xoops_elFinder->setConfig($config);
 $xoops_elFinder->setLogfile($debug? XOOPS_TRUST_PATH . '/cache/elfinder.log.txt' : '');
 
+// Access control
+include_once dirname(__FILE__).'/class/xelFinderAccess.class.php';
+
 // Get volumes
 if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HASH_'.$mydirname] === $config_MD5) {
 	$rootVolumes = unserialize(base64_decode($_SESSION['XELFINDER_RV_'.$mydirname]));
@@ -209,6 +212,17 @@ if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HAS
 		$rootVolumes[] = $ftp;
 	}
 	if (defined('ELFINDER_DROPBOX_CONSUMERKEY') && $config['dropbox_path'] && $config['dropbox_acc_token'] && $config['dropbox_acc_seckey']) {
+		$dropbox_access = null;
+		$dropboxIsInGroup = (array_intersect($memberGroups, ( isset($config['dropbox_writable_groups'])? $config['dropbox_writable_groups'] : array() )));
+		if (!$isAdmin) {
+			$dropbox_access = new xelFinderAccess();
+			if (isset($config['dropbox_hidden_ext']))
+				$dropbox_access->setHiddenExtention($config['dropbox_hidden_ext']);
+			if (isset($config['dropbox_write_ext']))
+				$dropbox_access->setWriteExtention($dropboxIsInGroup? $config['dropbox_write_ext'] : '');
+			if (isset($config['dropbox_unlock_ext']))
+				$dropbox_access->setUnlockExtention($dropboxIsInGroup? $config['dropbox_unlock_ext'] : '');
+		}
 		$dropbox = array(
 			'driver'            => 'DropboxX',
 			'consumerKey'       => ELFINDER_DROPBOX_CONSUMERKEY,
@@ -217,7 +231,11 @@ if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HAS
 			'accessToken'       => trim($config['dropbox_acc_token']),
 			'accessTokenSecret' => trim($config['dropbox_acc_seckey']),
 			'path'              => '/'.trim($config['dropbox_path'], ' /'),
-			'defaults' => array('read' => true, 'write' => ((array_intersect($memberGroups, ( isset($config['dropbox_writable_groups'])? $config['dropbox_writable_groups'] : array() )))? true : false), 'hidden' => false, 'locked' => false),
+			'defaults' => array('read' => true, 'write' => ($dropboxIsInGroup? true : false), 'hidden' => false, 'locked' => false),
+			'accessControl'     => is_object($dropbox_access)? array($dropbox_access, 'access') : null,
+			'uploadDeny'        => (!$isAdmin && !empty($config['dropbox_upload_mime']))? array('all') : array(),
+			'uploadAllow'       => (!$isAdmin && !empty($config['dropbox_upload_mime']))? array_map('trim', explode(',', $config['dropbox_upload_mime'])) : array(),
+			'uploadOrder'       => array('deny', 'allow'),
 		);
 		$rootVolumes[] = $dropbox;
 	}
@@ -263,7 +281,7 @@ $opts = array(
 	'debug' => $debug,
 	'netVolumesSessionKey' => _MD_XELFINDER_NETVOLUME_SESSION_KEY,
 	'roots' => $rootVolumes,
-	'callbackWindowURL' => ($_REQUEST['myUrl']? $_REQUEST['myUrl'] . 'connector.php?cmd=callback' : '')
+	'callbackWindowURL' => !empty($_REQUEST['myUrl'])? ($_REQUEST['myUrl'] . 'connector.php?cmd=callback') : ''
 );
 
 if ($debug) {

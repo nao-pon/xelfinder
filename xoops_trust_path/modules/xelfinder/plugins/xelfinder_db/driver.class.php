@@ -766,7 +766,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @return bool
 	 * @author Naoki Sawada
 	 **/
-	protected function attr($path, $name, $val=false) {
+	protected function attr($path, $name, $val=false, $isDir=null) {
 		return $val;
 	}
 	

@@ -195,11 +195,43 @@ $modversion['config'][] = array(
 	'default'		=> '/'
 ) ;
 $modversion['config'][] = array(
+	'name'			=> 'dropbox_hidden_ext' ,
+	'title'			=> $constpref.'_DROPBOX_HIDDEN_EXT' ,
+	'description'	=> $constpref.'_DROPBOX_HIDDEN_EXT_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> ''
+) ;
+$modversion['config'][] = array(
 	'name'			=> 'dropbox_writable_groups' ,
 	'title'			=> $constpref.'_DROPBOX_WRITABLE_GROUPS' ,
 	'description'	=> $constpref.'_DROPBOX_WRITABLE_GROUPS_DESC' ,
 	'formtype'		=> 'group_multi' ,
 	'valuetype'		=> 'array' ,
+	'default'		=> ''
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'dropbox_upload_mime' ,
+	'title'			=> $constpref.'_DROPBOX_UPLOAD_MIME' ,
+	'description'	=> $constpref.'_DROPBOX_UPLOAD_MIME_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> 'image,text/plain'
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'dropbox_write_ext' ,
+	'title'			=> $constpref.'_DROPBOX_WRITE_EXT' ,
+	'description'	=> $constpref.'_DROPBOX_WRITE_EXT_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> '/,.jpeg,.jpg,.gif,.png,.txt'
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'dropbox_unlock_ext' ,
+	'title'			=> $constpref.'_DROPBOX_UNLOCK_EXT' ,
+	'description'	=> $constpref.'_DROPBOX_UNLOCK_EXT_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
 	'default'		=> ''
 ) ;
 // $modversion['config'][] = array(
