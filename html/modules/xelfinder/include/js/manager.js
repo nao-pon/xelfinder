@@ -21,7 +21,8 @@ $(document).ready(function() {
 	elFinder.prototype.i18.en.messages.thumbnail     = 'Thumbnail';
 	elFinder.prototype.i18.en.messages.continues     = 'Continue more';
 	elFinder.prototype.i18.en.messages.imageinsert   = 'Image insert options';
-	elFinder.prototype.i18.jp.messages.CannotUploadOldIE = '<p>Your browser "IE" cannot upload by this manager.</p><p>Please use the newest browser, when you upload files.</p>';
+	elFinder.prototype.i18.en.messages.CannotUploadOldIE = '<p>Your browser "IE" cannot upload by this manager.</p><p>Please use the newest browser, when you upload files.</p>';
+	elFinder.prototype.i18.en.messages.errPleaseReload = 'Not found access token.<br />Please reload on browser, or re-open popup window.';
 
 	if (typeof elFinder.prototype.i18.jp != "undefined") {
 		elFinder.prototype.i18.jp.messages.ntfperm = 'アイテム属性を変更';
@@ -43,6 +44,8 @@ $(document).ready(function() {
 		elFinder.prototype.i18.jp.messages.continues     = 'さらに続ける';
 		elFinder.prototype.i18.jp.messages.imageinsert   = '画像挿入オプション';
 		elFinder.prototype.i18.jp.messages.CannotUploadOldIE = '<p>あなたがお使いの IE ブラウザでは、このマネージャーではファイルをアップロードすることができません。</p><p>ファイルをアップロードする場合は、最新のブラウザをご利用下さい。</p>';
+		elFinder.prototype.i18.en.messages.errPleaseReload = '接続に必要なトークンが見つかりません。<br />ブラウザでリロードするかポップアップウィンドウを開きなおしてください。';
+		elFinder.prototype.i18.en.messages.errAccessPleaseReload = '接続に必要なトークンが見つかりません。<br />ブラウザでリロードするかポップアップウィンドウを開きなおしてください。';
 
 		elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
 	}

@@ -28,7 +28,7 @@ $origin = isset($_SERVER['HTTP_ORIGIN'])? $_SERVER['HTTP_ORIGIN'] : '';
 if (! isset($_SESSION['XELFINDER_CTOKEN'])
 		|| ! isset($_REQUEST['ctoken'])
 		|| $_SESSION['XELFINDER_CTOKEN'] !== $_REQUEST['ctoken']) {
-	$origin || (isset($_GET['cmd']) && $_GET['cmd'] === 'callback') || (isset($_REQUEST['cmd']) && $_REQUEST['cmd'] === 'file') || exit(json_encode(array('error' => 'errAccess')));
+	$origin || (isset($_GET['cmd']) && $_GET['cmd'] === 'callback') || (isset($_REQUEST['cmd']) && $_REQUEST['cmd'] === 'file') || exit(json_encode(array('error' => 'errPleaseReload')));
 	if ($origin && $_REQUEST['ctoken']) {
 		$_SESSION['XELFINDER_CTOKEN'] = $_REQUEST['ctoken'];
 	}
