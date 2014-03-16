@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 3057609) (2014-03-16)
+ * Version 2.1_n (Nightly: dfa46cb) (2014-03-16)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -3244,7 +3244,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 3057609)';
+elFinder.prototype.version = '2.1_n (Nightly: dfa46cb)';
 
 
 
@@ -8259,7 +8259,6 @@ elFinder.prototype.commands.edit = function() {
 				opts   = fm.options,
 				dfrd   = $.Deferred(), 
 				data   = {cmd : 'file', target : hash},
-				url    = fm.url(hash) || fm.options.url,
 				id    = 'edit-'+fm.namespace+'-'+file.hash,
 				d = fm.getUI().find('#'+id), 
 				error;
