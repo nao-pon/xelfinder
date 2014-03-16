@@ -90,6 +90,8 @@ if (! preg_match('#^(?:https?:)?//#i', $jQueryUiTheme)) {
 
 $title = mb_convert_encoding($config['manager_title'], 'UTF-8', _CHARSET);
 
+$useCKEditor = (is_file(XOOPS_ROOT_PATH.'/modules/ckeditor4/ckeditor/ckeditor.js'));
+
 while(ob_get_level() && @ob_end_clean()) {}
 
 ?>
@@ -191,9 +193,11 @@ while(ob_get_level() && @ob_end_clean()) {}
 <?php } else {?>
 		<script src="<?php echo $elfurl ?>/js/elfinder.min.js"></script>
 <?php }?>
-		
 		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.<?php echo $userLang?>.js" charset="UTF-8"></script>
-
+<?php if ($useCKEditor) { ?>
+		<script src="<?php echo XOOPS_URL ?>/modules/ckeditor4/ckeditor/ckeditor.js" type="text/javascript"></script>
+<?php }?>
+		
 		<!-- elFinder initialization (REQUIRED) -->
 		<link rel="stylesheet" href="<?php echo $myurl ?>/include/css/manager.css" type="text/css">
 		<script type="text/javascript">
@@ -212,6 +216,25 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var lang = '<?php echo $userLang?>';
 			var adminMode = <?php echo $admin?>;
 			var cToken = '<?php echo $cToken?>';
+<?php if ($useCKEditor) {?>
+			var editorTextHtml = {
+					mimes : ['text/html'],
+					load : function(textarea) {
+						CKEDITOR.replace( textarea.id, {
+							fullPage: true,
+							allowedContent: true
+						});
+					},
+					close : function(textarea, instance) {
+						CKEDITOR.instances[textarea.id].destroy();
+					},
+					save : function(textarea, editor) {
+						textarea.value = CKEDITOR.instances[textarea.id].getData();
+					}
+				};
+<?php } else {?>
+			var editorTextHtml = {};
+<?php }?>
 		</script>
 		<script src="<?php echo $myurl ?>/include/js/commands/perm.js"></script>
 		<script src="<?php echo $myurl ?>/include/js/manager.js" charset="UTF-8"></script>
@@ -221,10 +244,8 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<?php echo $managerJs ?>
 	</head>
 	<body>
-
 		<!-- Element where elFinder will be created (REQUIRED) -->
 		<div id="elfinder"></div>
-
 	</body>
 </html>
 <?php exit();

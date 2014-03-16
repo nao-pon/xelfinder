@@ -136,6 +136,10 @@ $(document).ready(function() {
 			    onlyURL : false,
 			    multiple : false,
 			    folders : false
+			  },
+			  edit : {
+			      mimes : ['text/plain', 'text/html', 'text/javascript'],
+			      editors : [ editorTextHtml ]
 			  }
 		},
 		contextmenu : {
