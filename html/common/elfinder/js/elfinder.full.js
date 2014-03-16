@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 7fa1adf) (2014-03-13)
+ * Version 2.1_n (Nightly: 3057609) (2014-03-16)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -3244,7 +3244,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 7fa1adf)';
+elFinder.prototype.version = '2.1_n (Nightly: 3057609)';
 
 
 
@@ -5810,12 +5810,19 @@ $.fn.elfindercwd = function(fm, options) {
 					        p.nextAll('.'+clSelected+':first').length;
 					$(this).data('longtap', setTimeout(function(){
 						// long tap
-						p.trigger(p.is('.'+clSelected) ? evtUnselect : evtSelect);
-						trigger();
-						if (sel == 0 && p.is('.'+clSelected)) {
-							p.trigger('click');
+						if (p.is('.'+clSelected) && sel > 0) {
+							p.trigger(evtUnselect);
 							trigger();
-						} 
+						} else {
+							p.trigger(evtSelect);
+							trigger();
+							p.trigger(fm.trigger('contextmenu', {
+								'type'    : 'files',
+								'targets' : fm.selected(),
+								'x'       : e.originalEvent.touches[0].clientX,
+								'y'       : e.originalEvent.touches[0].clientY
+							}));
+						}
 					}, 500));
 				})
 				.delegate(fileSelector, 'touchmove.'+fm.namespace+' touchend.'+fm.namespace, function(e) {
@@ -5887,7 +5894,7 @@ $.fn.elfindercwd = function(fm, options) {
 					if (file.length) {
 						e.stopPropagation();
 						e.preventDefault();
-						if (!file.is('.'+clDisabled)) {
+						if (!file.is('.'+clDisabled) && !file.data('touching')) {
 							if (!file.is('.'+clSelected)) {
 								// cwd.trigger('unselectall');
 								unselectAll();
@@ -6231,7 +6238,8 @@ $.fn.elfinderdialog = function(opts) {
 					     containment : 'document' })
 				.css({
 					width  : opts.width,
-					height : opts.height
+					height : opts.height,
+					maxWidth: opts.maxWidth? opts.maxWidth : $(window).width()-10
 				})
 				.mousedown(function(e) {
 					e.stopPropagation();
@@ -10158,7 +10166,7 @@ elFinder.prototype.commands.quicklook = function() {
 			preview = this.preview,
 			i, p;
 		
-		width  = o.width  > 0 ? parseInt(o.width)  : 450;	
+		width  = o.width  > 0 ? parseInt(o.width)  : Math.min(450, $(window).width()-10);	
 		height = o.height > 0 ? parseInt(o.height) : 300;
 
 		fm.one('load', function() {
