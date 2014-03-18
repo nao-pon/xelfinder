@@ -3,5 +3,5 @@
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: dfa46cb)';
+elFinder.prototype.version = '2.1_n (Nightly: 7cccb73)';
 
