@@ -180,6 +180,18 @@ $(document).ready(function() {
 		document.title =  path? path + ':' + title : title;
 	});
 
+	// fit to window.height on window.resize
+	var resizeTimer = null;
+	$(window).resize(function() {
+		resizeTimer && clearTimeout(resizeTimer);
+		resizeTimer = setTimeout(function() {
+			var h = parseInt($(window).height()) - 20;
+			if (h != parseInt($('#elfinder').height())) {
+				elfinderInstance.resize('100%', h);
+			}
+		}, 200);
+	});
+
 });
 
 $.extend({
