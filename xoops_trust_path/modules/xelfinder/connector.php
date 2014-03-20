@@ -45,6 +45,8 @@ require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeLocalFileSystem.class.php';
 // for XOOPS
 $config = $xoopsModuleConfig;
 $allowOrigins = array_map('trim', preg_split('/\s+/', $config['allow_origins']));
+$allowOrigins[] = preg_replace('#(^https?://[^/]+).*#i', '$1', XOOPS_URL);
+$allowOrigins = array_flip($allowOrigins);
 
 define('_MD_XELFINDER_NETVOLUME_SESSION_KEY', 'xel_'.$mydirname.'_NetVolumes');
 
@@ -58,7 +60,7 @@ if (empty($_REQUEST['xoopsUrl']) && !$origin) {
 	define('_MD_XELFINDER_MODULE_URL', XOOPS_MODULE_URL);
 } else {
 	if (!$origin
-	 || !in_array($origin, $allowOrigins)
+	 || !isset($allowOrigins[$origin])
 	 || (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])
 	 		 && !in_array(strtoupper($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']), array('POST', 'GET', 'OPTIOINS')))
 	) {
