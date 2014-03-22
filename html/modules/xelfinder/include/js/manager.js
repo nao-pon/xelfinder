@@ -160,24 +160,26 @@ $(document).ready(function() {
 		var data = event.data || null;
 		var path = '';
 		
-		if (data.init && IElt10) {
-			var dialog = $('<div class="elfinder-dialog-resize"/>');
-			dialog.append(elfinderInstance.i18n('CannotUploadOldIE'));
-			var buttons = {};
-			buttons[elfinderInstance.i18n('btnYes')] = function() { dialog.elfinderdialog('close'); };
-			elfinderInstance.dialog(dialog, {
-					title : elfinderInstance.i18n('cmdupload'),
-					width : '400px',
-					buttons: buttons,
-					destroyOnClose : true,
-					modal : true
-				});
+		if (data) {
+			if (data.init && IElt10) {
+				var dialog = $('<div class="elfinder-dialog-resize"/>');
+				dialog.append(elfinderInstance.i18n('CannotUploadOldIE'));
+				var buttons = {};
+				buttons[elfinderInstance.i18n('btnYes')] = function() { dialog.elfinderdialog('close'); };
+				elfinderInstance.dialog(dialog, {
+						title : elfinderInstance.i18n('cmdupload'),
+						width : '400px',
+						buttons: buttons,
+						destroyOnClose : true,
+						modal : true
+					});
+			}
+			
+			if (data.cwd) {
+				path = elfinderInstance.path(data.cwd.hash) || null;
+			}
+			document.title =  path? path + ':' + title : title;
 		}
-		
-		if (data && data.cwd) {
-			path = elfinderInstance.path(data.cwd.hash) || null;
-		}
-		document.title =  path? path + ':' + title : title;
 	});
 
 	// fit to window.height on window.resize
