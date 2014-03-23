@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: e45ead0) (2014-03-23)
+ * Version 2.1_n (Nightly: 95b226f) (2014-03-23)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -3246,7 +3246,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: e45ead0)';
+elFinder.prototype.version = '2.1_n (Nightly: 95b226f)';
 
 
 
@@ -5806,6 +5806,7 @@ $.fn.elfindercwd = function(fm, options) {
 				})
 				// for touch device
 				.delegate(fileSelector, 'touchstart.'+fm.namespace, function(e) {
+					e.stopPropagation();
 					$(this).data('touching', true);
 					var p = this.id ? $(this) : $(this).parents('[id]:first'),
 					  sel = p.prevAll('.'+clSelected+':first').length +
@@ -5828,6 +5829,7 @@ $.fn.elfindercwd = function(fm, options) {
 					}, 500));
 				})
 				.delegate(fileSelector, 'touchmove.'+fm.namespace+' touchend.'+fm.namespace, function(e) {
+					e.stopPropagation();
 					clearTimeout($(this).data('longtap'));
 				})
 				// attach draggable
@@ -5964,6 +5966,22 @@ $.fn.elfindercwd = function(fm, options) {
 						'y'       : e.clientY
 					});
 					
+				})
+				// for touch device
+				.bind('touchstart.'+fm.namespace, function(e) {
+					$(this).data('touching', true);
+					$(this).data('longtap', setTimeout(function(){
+						// long tap
+						fm.trigger('contextmenu', {
+							'type'    : 'cwd',
+							'targets' : [fm.cwd().hash],
+							'x'       : e.originalEvent.touches[0].clientX,
+							'y'       : e.originalEvent.touches[0].clientY
+						});
+					}, 500));
+				})
+				.bind('touchmove '+fm.namespace+' touchend.'+fm.namespace, function(e) {
+					clearTimeout($(this).data('longtap'));
 				}),
 			
 			resize = function() {
