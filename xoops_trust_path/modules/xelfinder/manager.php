@@ -68,7 +68,7 @@ $debug = (! empty($config['debug']));
 $cToken = md5(session_id() . XOOPS_ROOT_PATH . (defined(XOOPS_SALT)? XOOPS_SALT : XOOPS_DB_PASS));
 $_SESSION['XELFINDER_CTOKEN'] = $cToken;
 
-$viewport = (preg_match('/Mobile/i', $_SERVER['HTTP_USER_AGENT']))? '<meta name="viewport" content="width=device-width" />' : '';
+$viewport = (preg_match('/Mobile/i', $_SERVER['HTTP_USER_AGENT']))? '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2" />' : '';
 
 $userLang = xelfinder_detect_lang();
 
