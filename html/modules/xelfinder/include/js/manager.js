@@ -124,13 +124,7 @@ $(document).ready(function() {
 				maxWidth : 500
 			}
 		},
-		commands : [
-		    		'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook',
-		    		'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy',
-		    		'cut', 'paste', 'edit',
-		    		'extract', 'archive',
-		    		'search', 'info', 'view', 'help', 'resize', 'sort', 'netmount', 'netunmount', 'pixlr', 'perm'
-		    	],
+		commands : elfinderCmds,
 		commandsOptions : {
 			  getfile : {
 			    onlyURL : false,

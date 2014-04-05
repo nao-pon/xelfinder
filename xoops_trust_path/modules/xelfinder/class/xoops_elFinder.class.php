@@ -65,13 +65,9 @@ class xoops_elFinder {
 		}
 	}
 	
-	public function getRootVolumes($config, $extras = array()) {
-		$pluginPath = dirname(dirname(__FILE__)) . '/plugins/';
-		$configs = explode("\n", $config);
-		$roots = array();
-
+	public function getDisablesCmds($useAdmin = true) {
 		$disabledCmds = array();
-		if (!$this->isAdmin && !empty($this->config['disabled_cmds_by_gids'])) {
+		if ((!$useAdmin || !$this->isAdmin) && !empty($this->config['disabled_cmds_by_gids'])) {
 			$_parts = array_map('trim', explode(':', $this->config['disabled_cmds_by_gids']));
 			foreach($_parts as $_part) {
 				list($_gid, $_cmds) = explode('=', $_part, 2);
@@ -85,6 +81,15 @@ class xoops_elFinder {
 			}
 			$disabledCmds = array_unique($disabledCmds);
 		}
+		return $disabledCmds;
+	}
+	
+	public function getRootVolumes($config, $extras = array()) {
+		$pluginPath = dirname(dirname(__FILE__)) . '/plugins/';
+		$configs = explode("\n", $config);
+		$roots = array();
+
+		$disabledCmds = $this->getDisablesCmds();
 		
 		foreach($configs as $_conf) {
 			$_conf = trim($_conf);

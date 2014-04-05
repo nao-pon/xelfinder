@@ -21,6 +21,20 @@ $xelfinderModule = $module_handler->getByDirname($mydirname);
 $config_handler =& xoops_gethandler('config');
 $config = $config_handler->getConfigsByCat(0, $xelfinderModule->getVar('mid'));
 
+// load xoops_elFinder
+include_once dirname(__FILE__).'/class/xoops_elFinder.class.php';
+$xoops_elFinder = new xoops_elFinder($mydirname);
+$xoops_elFinder->setConfig($config);
+
+// make cmds array as json
+$disabledCmds = $xoops_elFinder->getDisablesCmds($admin);
+$cmds = array('open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook',
+			'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy',
+			'cut', 'paste', 'edit', 'extract', 'archive', 'search', 'info', 'view', 'help',
+			'resize', 'sort', 'netmount', 'netunmount', 'pixlr', 'perm');
+$cmds = array_values(array_diff($cmds, $disabledCmds));
+$cmds = json_encode($cmds);
+
 $conector_url = $conn_is_ext = '';
 if (!empty($config['connector_url'])) {
 	$conector_url = $config['connector_url'];
@@ -235,6 +249,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 <?php } else {?>
 			var editorTextHtml = {};
 <?php }?>
+			var elfinderCmds = <?php echo $cmds?>;
 		</script>
 		<script src="<?php echo $myurl ?>/include/js/commands/perm.js"></script>
 		<script src="<?php echo $myurl ?>/include/js/manager.js" charset="UTF-8"></script>
