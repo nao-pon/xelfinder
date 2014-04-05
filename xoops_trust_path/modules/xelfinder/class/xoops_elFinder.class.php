@@ -34,15 +34,22 @@ class xoops_elFinder {
 	public function __construct($mydirname, $opt = array()) {
 		global $xoopsUser, $xoopsModule;
 		
+		if (!is_object($xoopsModule)) {
+			$module_handler = xoops_gethandler('module');
+			$mModule = $module_handler->getByDirname($mydirname);
+		} else {
+			$mModule = $xoopsModule;
+		}
+		
 		$this->xoopsUser = $xoopsUser;
-		$this->xoopsModule = $xoopsModule;
-		$this->isAdmin = (is_object($xoopsUser) && $xoopsUser->isAdmin($xoopsModule->getVar('mid')));
+		$this->xoopsModule = $mModule;
+		$this->isAdmin = (is_object($xoopsUser) && $xoopsUser->isAdmin($mModule->getVar('mid')));
 		$this->mydirname = $mydirname;
 		$this->db = & XoopsDatabaseFactory::getDatabaseConnection();
 		$this->defaultVolumeOptions = array_merge($this->defaultVolumeOptions, $opt);
 		$this->mygids = is_object($this->xoopsUser)? $this->xoopsUser->getGroups() : array(XOOPS_GROUP_ANONYMOUS);
 		
-		if (!isset($_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY]) && is_object($this->xoopsUser)) {
+		if (defined('_MD_XELFINDER_NETVOLUME_SESSION_KEY') && !isset($_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY]) && is_object($this->xoopsUser)) {
 			if ($uid = $this->xoopsUser->getVar('uid')) {
 				$uid = intval($uid);
 				$table = $this->db->prefix($this->mydirname.'_userdat');
