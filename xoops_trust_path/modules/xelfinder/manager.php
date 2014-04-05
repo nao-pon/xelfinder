@@ -86,20 +86,35 @@ $viewport = (preg_match('/Mobile/i', $_SERVER['HTTP_USER_AGENT']))? '<meta name=
 
 $userLang = xelfinder_detect_lang();
 
-$jQueryCDN = '//ajax.googleapis.com/ajax/libs/jquery/%s/jquery.min.js';
-$jQueryUICDN = '//ajax.googleapis.com/ajax/libs/jqueryui/%s';
-$jQueryVersion   = '1.10.2';
-$jQueryUIVersion = '1.10.3';
-
-if (! $jQueryUiTheme = @$config['jquery_ui_theme']) {
-	$jQueryUiTheme = 'smoothness';
+if (empty($config['jquery'])) {
+	$jQueryVersion   = '1.11.0';
+	$jQueryCDN = '//ajax.googleapis.com/ajax/libs/jquery/%s/jquery.min.js';
+	$jQueryUrl = sprintf($jQueryCDN, $jQueryVersion);
 } else {
-	if ($jQueryUiTheme === 'base' && version_compare($jQueryUIVersion, '1.10.1', '>')) {
-		$jQueryUiTheme = 'smoothness';
-	}
+	$jQueryUrl = trim($config['jquery']);
 }
-if (! preg_match('#^(?:https?:)?//#i', $jQueryUiTheme)) {
-	$jQueryUiTheme = sprintf($jQueryUICDN, $jQueryUIVersion) . '/themes/'.$jQueryUiTheme.'/jquery-ui.css';
+
+if (empty($config['jquery_ui'])) {
+	$jQueryUIVersion = '1.10.3';
+	$jQueryUICDN = '//ajax.googleapis.com/ajax/libs/jqueryui/%s';
+	$jQueryUIUrl = sprintf($jQueryUICDN, $jQueryUIVersion).'/jquery-ui.min.js';
+} else {
+	$jQueryUIUrl = trim($config['jquery_ui']);
+}
+
+if (empty($config['jquery_ui_css'])) {
+	if (! $jQueryUiTheme = @$config['jquery_ui_theme']) {
+		$jQueryUiTheme = 'smoothness';
+	} else {
+		if ($jQueryUiTheme === 'base' && version_compare($jQueryUIVersion, '1.10.1', '>')) {
+			$jQueryUiTheme = 'smoothness';
+		}
+	}
+	if (! preg_match('#^(?:https?:)?//#i', $jQueryUiTheme)) {
+		$jQueryUiTheme = sprintf($jQueryUICDN, $jQueryUIVersion) . '/themes/'.$jQueryUiTheme.'/jquery-ui.min.css';
+	}
+} else {
+	$jQueryUiTheme = trim($config['jquery_ui_css']);
 }
 
 $title = mb_convert_encoding($config['manager_title'], 'UTF-8', _CHARSET);
@@ -135,8 +150,8 @@ while(ob_get_level() && @ob_end_clean()) {}
 
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/theme.css"       type="text/css" >
 
-		<script src="<?php echo sprintf($jQueryCDN, $jQueryVersion)?>"></script>
-		<script src="<?php echo sprintf($jQueryUICDN, $jQueryUIVersion)?>/jquery-ui.min.js"></script>
+		<script src="<?php echo $jQueryUrl?>"></script>
+		<script src="<?php echo $jQueryUIUrl?>"></script>
 
 		<?php if ($debug) {?>
 		<!-- elfinder core -->
