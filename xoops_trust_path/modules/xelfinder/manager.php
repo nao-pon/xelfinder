@@ -27,7 +27,7 @@ $xoops_elFinder = new xoops_elFinder($mydirname);
 $xoops_elFinder->setConfig($config);
 
 // make cmds array as json
-$disabledCmds = $xoops_elFinder->getDisablesCmds($admin);
+$disabledCmds = $xoops_elFinder->getDisablesCmds();
 $cmds = array('open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook',
 			'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy',
 			'cut', 'paste', 'edit', 'extract', 'archive', 'search', 'info', 'view', 'help',
