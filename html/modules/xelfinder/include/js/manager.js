@@ -133,7 +133,8 @@ $(document).ready(function() {
 			  },
 			  edit : {
 			      mimes : ['text/plain', 'text/html', 'text/javascript'],
-			      editors : [ editorTextHtml ]
+			      editors : [ editorTextHtml ],
+			      dialogWidth: '80%'
 			  }
 		},
 		contextmenu : {
