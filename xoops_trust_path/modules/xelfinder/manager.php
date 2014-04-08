@@ -251,7 +251,8 @@ while(ob_get_level() && @ob_end_clean()) {}
 					load : function(textarea) {
 						CKEDITOR.replace( textarea.id, {
 							fullPage: true,
-							allowedContent: true
+							allowedContent: true,
+							filebrowserBrowseUrl: '<?php echo XOOPS_MODULE_URL ?>/<?php echo $mydirname?>/manager.php?cb=ckeditor'
 						});
 					},
 					close : function(textarea, instance) {
