@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 9637ce2) (2014-04-08)
+ * Version 2.1_n (Nightly: 2c6a9e8) (2014-04-08)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -873,6 +873,8 @@
 	text-align:center;
 	padding:2em 0;
 	border:3px dashed #aaa;
+	height: 1em;
+	overflow: hidden;
 }
 
 .elfinder-upload-dropbox.ui-state-hover {
