@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: cf77a86) (2014-04-09)
+ * Version 2.1_n (Nightly: 0f584be) (2014-04-10)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -2331,7 +2331,7 @@ elFinder.prototype = {
 				isDataType  = (data.type == 'data'),
 				files       = data.input ? data.input.files : self.uploads.checkFile(data, self), 
 				cnt         = data.checked? (isDataType? files[0].length : files.length) : files.length,
-				loaded      = 5,
+				loaded      = 5, prev,
 				notify      = false,
 				startNotify = function() {
 					return setTimeout(function() {
@@ -2340,6 +2340,8 @@ elFinder.prototype = {
 					}, self.options.notifyDelay);
 				},
 				notifyto, notifyto2;
+			
+			prev = loaded;
 			
 			if (!isDataType && !cnt) {
 				return dfrd.reject(['errUploadNoFiles']);
@@ -2354,7 +2356,14 @@ elFinder.prototype = {
 			}, false);
 			
 			xhr.addEventListener('load', function() {
-				var status = xhr.status, data;
+				var status = xhr.status, res;
+				
+				if ((data.checked || notify) && prev == loaded) {
+					loaded = 100;
+					if (loaded - prev > 0) {
+						self.notify({type : 'upload', cnt : 0, progress : (loaded - prev)*cnt});
+					}
+				}
 				
 				if (status > 500) {
 					return dfrd.reject('errResponse');
@@ -2369,12 +2378,14 @@ elFinder.prototype = {
 					return dfrd.reject(['errResponse', 'errDataEmpty']);
 				}
 
-				data = self.parseUploadData(xhr.responseText);
-				data.error ? dfrd.reject(data.error) : dfrd.resolve(data);
+				res = self.parseUploadData(xhr.responseText);
+				res._multiupload = data.multiupload? true : false;
+				res.error ? dfrd.reject(res.error) : dfrd.resolve(res);
 			}, false);
 			
 			xhr.upload.addEventListener('progress', function(e) {
-				var prev = loaded, curr;
+				var curr;
+				prev = loaded;
 
 				if (e.lengthComputable) {
 					
@@ -2399,11 +2410,13 @@ elFinder.prototype = {
 			
 			var send = function(files, paths){
 				var size = 0, fcnt = 1, sfiles = [], c = 0, total = cnt, maxFileSize;
-				if (! data.checked) {
+				if (! data.checked && (isDataType || data.type == 'files')) {
 					maxFileSize = fm.option('uploadMaxSize')? fm.option('uploadMaxSize') : fm.uplMaxSize;
 					for (var i=0; i < files.length; i++) {
 						if (maxFileSize && files[i].size >= maxFileSize) {
 							self.error(self.i18n('errUploadFile', files[i].name) + ' ' + self.i18n('errUploadFileSize'));
+							cnt--;
+							total--;
 							continue;
 						}
 						if ((fm.uplMaxSize && size + files[i].size >= fm.uplMaxSize) || fcnt > fm.uplMaxFile) {
@@ -2434,16 +2447,17 @@ elFinder.prototype = {
 					}
 					
 					if (sfiles.length > 1) {
-						notifyto = startNotify();
+						if (!notifyto) notifyto = startNotify();
+						var added = [];
 						for (var i=0; i < sfiles.length; i++) {
-							fm.exec('upload', {type: data.type, files: sfiles[i], checked: true}).always(function() {
-								if (notify) {
-									var _cnt = (isDataType? this[0] : this).length;
-									total -= _cnt;
-									if (total < 1) {
-										notifyto && clearTimeout(notifyto);
-										self.notify({type : 'upload', cnt : -cnt, progress : 100 * cnt});
-									}
+							fm.exec('upload', {type: data.type, files: sfiles[i], checked: true, multiupload: true})
+							.always(function(e) {
+								if (e.added) added = $.merge(added, e.added);
+								added && fm.trigger('multiupload', {added: added});
+								total -= (isDataType? this[0] : this).length;
+								if (notify && total < 1) {
+									notifyto && clearTimeout(notifyto);
+									self.notify({type : 'upload', cnt : -cnt, progress : 100*cnt});
 								}
 							}.bind(sfiles[i]));
 						}
@@ -3255,7 +3269,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: cf77a86)';
+elFinder.prototype.version = '2.1_n (Nightly: 0f584be)';
 
 
 
@@ -6152,7 +6166,8 @@ $.fn.elfindercwd = function(fm, options) {
 				trigger();
 			})
 			// select new files after some actions
-			.bind('mkdir mkfile duplicate upload rename archive extract', function(e) {
+			.bind('mkdir mkfile duplicate upload rename archive extract multiupload', function(e) {
+				if (e.type == 'upload' && e.data._multiupload) return;
 				var phash = fm.cwd().hash, files;
 				
 				unselectAll();
