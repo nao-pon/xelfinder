@@ -138,15 +138,19 @@ if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HAS
 	if ($isAdmin) {
 		$config['uploadAllow'] = @$config['upload_allow_admin'];
 		$config['autoResize'] = @$config['auto_resize_admin'];
+		$config['uploadMaxSize'] = @$config['upload_max_admin'];
 	} elseif ($inSpecialGroup) {
 		$config['uploadAllow'] = @$config['upload_allow_spgroups'];
 		$config['auto_resize'] = @$config['auto_resize_spgroups'];
+		$config['uploadMaxSize'] = @$config['upload_max_spgroups'];
 	} elseif ($memberUid) {
 		$config['uploadAllow'] = @$config['upload_allow_user'];
 		$config['autoResize'] = @$config['auto_resize_user'];
+		$config['uploadMaxSize'] = @$config['upload_max_user'];
 	} else {
 		$config['uploadAllow'] = @$config['upload_allow_guest'];
 		$config['autoResize'] = @$config['auto_resize_guest'];
+		$config['uploadMaxSize'] = @$config['upload_max_guest'];
 	}
 	
 	$config['uploadAllow'] = trim($config['uploadAllow']);
@@ -171,7 +175,7 @@ if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HAS
 	}
 	foreach (
 			array('default_umask', 'use_users_dir', 'users_dir_perm', 'users_dir_umask', 'use_guest_dir', 'guest_dir_perm', 'guest_dir_umask',
-					'use_group_dir', 'group_dir_parent', 'group_dir_perm', 'group_dir_umask', 'uploadAllow', 'URL', 'unzip_lang_value')
+					'use_group_dir', 'group_dir_parent', 'group_dir_perm', 'group_dir_umask', 'uploadAllow', 'uploadMaxSize', 'URL', 'unzip_lang_value')
 			as $_extra
 	) {
 		$extras[$mydirname.':xelfinder_db'][$_extra] = empty($config[$_extra])? '' : $config[$_extra];

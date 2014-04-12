@@ -380,6 +380,14 @@ $modversion['config'][] = array(
 	'default'		=> ''
 ) ;
 $modversion['config'][] = array(
+	'name'			=> 'upload_max_admin' ,
+	'title'			=> $constpref.'_UPLOAD_MAX_ADMIN' ,
+	'description'	=> $constpref.'_UPLOAD_MAX_ADMIN_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> ''
+) ;
+$modversion['config'][] = array(
 	'name'			=> 'special_groups' ,
 	'title'			=> $constpref.'_SPECIAL_GROUPS',
 	'description'	=> $constpref.'_SPECIAL_GROUPS_DESC',
@@ -404,6 +412,14 @@ $modversion['config'][] = array(
 	'default'		=> ''
 ) ;
 $modversion['config'][] = array(
+	'name'			=> 'upload_max_spgroups' ,
+	'title'			=> $constpref.'_UPLOAD_MAX_SPGROUPS' ,
+	'description'	=> $constpref.'_UPLOAD_MAX_SPGROUPS_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> ''
+) ;
+$modversion['config'][] = array(
 	'name'			=> 'upload_allow_user' ,
 	'title'			=> $constpref.'_UPLOAD_ALLOW_USER',
 	'description'	=> $constpref.'_UPLOAD_ALLOW_USER_DESC',
@@ -420,6 +436,14 @@ $modversion['config'][] = array(
 	'default'		=> '1024'
 ) ;
 $modversion['config'][] = array(
+	'name'			=> 'upload_max_user' ,
+	'title'			=> $constpref.'_UPLOAD_MAX_USER' ,
+	'description'	=> $constpref.'_UPLOAD_MAX_USER_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> ''
+) ;
+$modversion['config'][] = array(
 	'name'			=> 'upload_allow_guest' ,
 	'title'			=> $constpref.'_UPLOAD_ALLOW_GUEST',
 	'description'	=> $constpref.'_UPLOAD_ALLOW_GUEST_DESC',
@@ -434,6 +458,14 @@ $modversion['config'][] = array(
 	'formtype'		=> 'textbox' ,
 	'valuetype'		=> 'string' ,
 	'default'		=> '1024'
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'upload_max_guest' ,
+	'title'			=> $constpref.'_UPLOAD_MAX_GUEST' ,
+	'description'	=> $constpref.'_UPLOAD_MAX_GUEST_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> ''
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'disable_pathinfo' ,

@@ -101,6 +101,8 @@ define( $constpref.'_UPLOAD_ALLOW_ADMIN' ,      '[xelfinder_db] Upload allow MIM
 define( $constpref.'_UPLOAD_ALLOW_ADMIN_DESC' , 'Specifies the MIME types, separated by a space.<br />all: Allow all, none: Nothing<br />ex. image text/plain' );
 define( $constpref.'_AUTO_RESIZE_ADMIN' ,       '[xelfinder_db] Auto resize for Admin (px)' );
 define( $constpref.'_AUTO_RESIZE_ADMIN_DESC' ,  'Value(px) which resizes a picture automatically so that it may fit in the specified rectangle size at the time of upload.<br />An input of nothing will not perform automatic resizing.' );
+define( $constpref.'_UPLOAD_MAX_ADMIN' ,        '[xelfinder_db]  Allowed max filesize for Admin' );
+define( $constpref.'_UPLOAD_MAX_ADMIN_DESC',    'The maximum file size which an administrator can upload is specified. It becomes unlimited with empty or "0". (ex. 10M)' );
 
 define( $constpref.'_SPECIAL_GROUPS' ,          '[xelfinder_db] Special groups' );
 define( $constpref.'_SPECIAL_GROUPS_DESC' ,     'Select groups you want to special group. (Multiple Select)' );
@@ -108,16 +110,22 @@ define( $constpref.'_UPLOAD_ALLOW_SPGROUPS' ,   '[xelfinder_db] Upload allow MIM
 define( $constpref.'_UPLOAD_ALLOW_SPGROUPS_DESC','' );
 define( $constpref.'_AUTO_RESIZE_SPGROUPS' ,    '[xelfinder_db] Auto resize for Special groups (px)' );
 define( $constpref.'_AUTO_RESIZE_SPGROUPS_DESC','' );
+define( $constpref.'_UPLOAD_MAX_SPGROUPS' ,     '[xelfinder_db] Allowed max filesize for Special groups' );
+define( $constpref.'_UPLOAD_MAX_SPGROUPS_DESC', '' );
 
 define( $constpref.'_UPLOAD_ALLOW_USER' ,       '[xelfinder_db] Upload allow MIME types for Registed user' );
 define( $constpref.'_UPLOAD_ALLOW_USER_DESC' ,  '' );
 define( $constpref.'_AUTO_RESIZE_USER' ,        '[xelfinder_db] Auto resize for Registed user (px)' );
 define( $constpref.'_AUTO_RESIZE_USER_DESC',    '' );
+define( $constpref.'_UPLOAD_MAX_USER' ,         '[xelfinder_db] Allowed max filesize for user' );
+define( $constpref.'_UPLOAD_MAX_USER_DESC',     '' );
 
 define( $constpref.'_UPLOAD_ALLOW_GUEST' ,      '[xelfinder_db] Upload allow MIME types for Guest' );
 define( $constpref.'_UPLOAD_ALLOW_GUEST_DESC' , '' );
 define( $constpref.'_AUTO_RESIZE_GUEST' ,       '[xelfinder_db] Auto resize for Guest (px)' );
 define( $constpref.'_AUTO_RESIZE_GUEST_DESC',   '' );
+define( $constpref.'_UPLOAD_MAX_GUEST' ,        '[xelfinder_db] Allowed max filesize for Guest' );
+define( $constpref.'_UPLOAD_MAX_GUEST_DESC',    '' );
 
 define( $constpref.'_DISABLE_PATHINFO' ,        '[xelfinder_db] Not use PathInfo of file reference URL' );
 define( $constpref.'_DISABLE_PATHINFO_DESC' ,   'The server which cannot use environment variable "PATH_INFO" needs to choose "Yes".' );

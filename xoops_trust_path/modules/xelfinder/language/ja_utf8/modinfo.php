@@ -101,6 +101,8 @@ define( $constpref.'_UPLOAD_ALLOW_ADMIN' ,      '[xelfinder_db] 管理者にア�
 define( $constpref.'_UPLOAD_ALLOW_ADMIN_DESC' , 'MIME タイプを半角スペース区切りで記述。<br />all: 全て許可, none: 何も許可しない<br />例: image text/plain' );
 define( $constpref.'_AUTO_RESIZE_ADMIN' ,       '[xelfinder_db] 管理者用自動リサイズ (px)' );
 define( $constpref.'_AUTO_RESIZE_ADMIN_DESC' ,  '画像をアップロード時、指定した矩形サイズに収まるように自動リサイズする値(px)。<br />何も入力しないと自動リサイズは行われません。' );
+define( $constpref.'_UPLOAD_MAX_ADMIN' ,        '[xelfinder_db] 管理者用最大ファイルサイズ' );
+define( $constpref.'_UPLOAD_MAX_ADMIN_DESC',    '管理者がアップロード可能な最大ファイルサイズを指定します。無指定または 0 で無制限となります。(例 10M)' );
 
 define( $constpref.'_SPECIAL_GROUPS' ,          '[xelfinder_db] 特定グループ' );
 define( $constpref.'_SPECIAL_GROUPS_DESC' ,     '特定グループとするグループを選択 (複数選択可)' );
@@ -108,16 +110,22 @@ define( $constpref.'_UPLOAD_ALLOW_SPGROUPS' ,   '[xelfinder_db] 特定グルー�
 define( $constpref.'_UPLOAD_ALLOW_SPGROUPS_DESC','' );
 define( $constpref.'_AUTO_RESIZE_SPGROUPS' ,    '[xelfinder_db] 特定グループ用自動リサイズ (px)' );
 define( $constpref.'_AUTO_RESIZE_SPGROUPS_DESC','' );
+define( $constpref.'_UPLOAD_MAX_SPGROUPS' ,     '[xelfinder_db] 特定グループ用最大ファイルサイズ' );
+define( $constpref.'_UPLOAD_MAX_SPGROUPS_DESC', '' );
 
 define( $constpref.'_UPLOAD_ALLOW_USER' ,       '[xelfinder_db] 登録ユーザーにアップロードを許可する MIME タイプ' );
 define( $constpref.'_UPLOAD_ALLOW_USER_DESC' ,  '' );
 define( $constpref.'_AUTO_RESIZE_USER' ,        '[xelfinder_db] 登録ユーザー用自動リサイズ (px)' );
 define( $constpref.'_AUTO_RESIZE_USER_DESC',    '' );
+define( $constpref.'_UPLOAD_MAX_USER' ,         '[xelfinder_db] 登録ユーザー用最大ファイルサイズ' );
+define( $constpref.'_UPLOAD_MAX_USER_DESC',     '' );
 
 define( $constpref.'_UPLOAD_ALLOW_GUEST' ,      '[xelfinder_db] ゲストにアップロードを許可する MIME タイプ' );
 define( $constpref.'_UPLOAD_ALLOW_GUEST_DESC' , '' );
 define( $constpref.'_AUTO_RESIZE_GUEST' ,       '[xelfinder_db] ゲスト用自動リサイズ (px)' );
 define( $constpref.'_AUTO_RESIZE_GUEST_DESC',   '' );
+define( $constpref.'_UPLOAD_MAX_GUEST' ,        '[xelfinder_db] ゲスト用最大ファイルサイズ' );
+define( $constpref.'_UPLOAD_MAX_GUEST_DESC',    '' );
 
 define( $constpref.'_DISABLE_PATHINFO' ,        '[xelfinder_db] ファイル参照URLの PathInfo を使用しない' );
 define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '環境変数 "PATH_INFO" が利用できないサーバーは「はい」を選択してください。' );
