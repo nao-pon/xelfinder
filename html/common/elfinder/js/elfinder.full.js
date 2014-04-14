@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: ee5a4c3) (2014-04-12)
+ * Version 2.1_n (Nightly: 25898a2) (2014-04-14)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -2328,7 +2328,7 @@ elFinder.prototype = {
 					}),
 				xhr         = new XMLHttpRequest(),
 				formData    = new FormData(),
-				isDataType  = (data.type == 'data'),
+				isDataType  = (data.isDataType || data.type == 'data'),
 				files       = data.input ? data.input.files : self.uploads.checkFile(data, self), 
 				cnt         = data.checked? (isDataType? files[0].length : files.length) : files.length,
 				loaded      = 5, prev,
@@ -2516,7 +2516,14 @@ elFinder.prototype = {
 								}
 								if (sfiles.length) {
 									for (var i=0; i < sfiles.length; i++) {
-										fm.exec('upload', {type: data.type, files: sfiles[i], checked: true, target: target, multiupload: true, cid: chunkID})
+										fm.exec('upload', {
+											type: data.type,
+											isDataType: isDataType,
+											files: sfiles[i],
+											checked: true,
+											target: target,
+											multiupload: true,
+											cid: chunkID})
 										.always(function(e) {
 											if (e.added) added = $.merge(added, e.added);
 											if (last == ++done) {
@@ -3345,7 +3352,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: ee5a4c3)';
+elFinder.prototype.version = '2.1_n (Nightly: 25898a2)';
 
 
 
@@ -8168,7 +8175,7 @@ elFinder.prototype.commands.download = function() {
 	var self   = this,
 		fm     = this.fm,
 		filter = function(hashes) {
-			return $.map(self.files(hashes), function(f) { return f.mime == 'directory' ? null : f });
+			return $.map(self.files(hashes), function(f) { return f.mime == 'directory' ? null : f; });
 		};
 	
 	this.shortcuts = [{
@@ -8179,8 +8186,8 @@ elFinder.prototype.commands.download = function() {
 		var sel = this.fm.selected(),
 			cnt = sel.length;
 		
-		return  !this._disabled && !this.fm.UA.Mobile && cnt && (!fm.UA.IE || cnt == 1) && cnt == filter(sel).length ? 0 : -1;
-	}
+		return  !this._disabled && cnt && ((!fm.UA.IE && !fm.UA.Mobile) || cnt == 1) && cnt == filter(sel).length ? 0 : -1;
+	};
 	
 	this.exec = function(hashes) {
 		var fm      = this.fm,
@@ -8207,11 +8214,22 @@ elFinder.prototype.commands.download = function() {
 		
 		base += base.indexOf('?') === -1 ? '?' : '&';
 		
+		var url;
 		for (i = 0; i < files.length; i++) {
-			iframes += '<iframe class="downloader" id="downloader-' + files[i].hash+'" style="display:none" src="'+base + 'cmd=file&target=' + files[i].hash+'&download=1'+cdata+'"/>';
+			url = base + 'cmd=file&target=' + files[i].hash+'&download=1'+cdata;
+			if (fm.UA.Mobile) {
+				setTimeout(function(){
+					if (! window.open(url)) {
+						fm.error('errPopup');
+					}
+				}, 100);
+			} else {
+				iframes += '<iframe class="downloader" id="downloader-' + files[i].hash+'" style="display:none" src="'+url+'"/>';
+			}
 		}
 		$(iframes)
 			.appendTo('body')
+			.attr('src', this.attr('src'))
 			.ready(function() {
 				setTimeout(function() {
 					$(iframes).each(function() {
@@ -8221,9 +8239,9 @@ elFinder.prototype.commands.download = function() {
 			});
 		fm.trigger('download', {files : files});
 		return dfrd.resolve(hashes);
-	}
+	};
 
-}
+};
 
 /*
  * File: /home/osc/elFinder/js/commands/duplicate.js
