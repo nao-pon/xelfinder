@@ -15,8 +15,10 @@ ini_set('mbstring.http_output', 'pass');
 $incPath = get_include_path();
 $addPath = XOOPS_TRUST_PATH . '/PEAR';
 if (strpos($incPath, $addPath) === FALSE) {
-	set_include_path( $incPath . PATH_SEPARATOR . $addPath );
+	//set_include_path( $incPath . PATH_SEPARATOR . $addPath );
+	set_include_path( $addPath . PATH_SEPARATOR . $incPath );
 }
+define('ELFINDER_DROPBOX_USE_CURL_PUT', true);
 
 // load compat functions
 require_once dirname(__FILE__) . '/include/compat.php';
