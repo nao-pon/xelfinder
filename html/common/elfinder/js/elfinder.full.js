@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 0b9596e) (2014-04-14)
+ * Version 2.1_n (Nightly: d4b6b8c) (2014-04-16)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -2310,6 +2310,8 @@ elFinder.prototype = {
 		// upload transport using XMLHttpRequest
 		xhr : function(data, fm) { 
 			var self   = fm ? fm : this,
+				notifyto = null, notifyto2 = null,
+				dataChecked = data.checked,
 				dfrd   = $.Deferred()
 					.fail(function(error) {
 						error && self.error(error);
@@ -2324,22 +2326,26 @@ elFinder.prototype = {
 					})
 					.always(function() {
 						notifyto && clearTimeout(notifyto);
-						! data.checked && notify && self.notify({type : 'upload', cnt : -cnt, progress : 100*cnt});
+						dataChecked && !data.multiupload && checkNotify() && self.notify({type : 'upload', cnt : -cnt, progress : 0, size : 0});
 					}),
 				xhr         = new XMLHttpRequest(),
 				formData    = new FormData(),
 				isDataType  = (data.isDataType || data.type == 'data'),
 				files       = data.input ? data.input.files : self.uploads.checkFile(data, self), 
 				cnt         = data.checked? (isDataType? files[0].length : files.length) : files.length,
-				loaded      = 5, prev,
+				loaded      = 0, prev,
+				filesize    = 0,
 				notify      = false,
-				startNotify = function() {
+				checkNotify = function() {
+					return notify = (notify || self.ui.notify.children('.elfinder-notify-upload').length);
+				},
+				startNotify = function(size) {
+					if (size) filesize = size;
 					return setTimeout(function() {
 						notify = true;
-						self.notify({type : 'upload', cnt : cnt, progress : loaded*cnt});
+						self.notify({type : 'upload', cnt : cnt, progress : loaded, size : filesize});
 					}, self.options.notifyDelay);
 				},
-				notifyto = null, notifyto2 = null,
 				target = (data.target || self.cwd().hash),
 				chunkID = (data.cid || +new Date());
 			
@@ -2357,15 +2363,8 @@ elFinder.prototype = {
 				dfrd.reject(['errConnect', 'errAbort']);
 			}, false);
 			
-			xhr.addEventListener('load', function() {
-				var status = xhr.status, res;
-				
-				if ((data.checked || notify) && prev == loaded) {
-					loaded = 100;
-					if (loaded - prev > 0) {
-						self.notify({type : 'upload', cnt : 0, progress : (loaded - prev)*cnt});
-					}
-				}
+			xhr.addEventListener('load', function(e) {
+				var status = xhr.status, res, curr = 0;
 				
 				if (status > 500) {
 					return dfrd.reject('errResponse');
@@ -2379,6 +2378,9 @@ elFinder.prototype = {
 				if (!xhr.responseText) {
 					return dfrd.reject(['errResponse', 'errDataEmpty']);
 				}
+				if (checkNotify() && (curr = e.loaded - prev)) {
+					self.notify({type : 'upload', cnt : 0, progress : curr, size : 0});
+				}
 
 				res = self.parseUploadData(xhr.responseText);
 				res._multiupload = data.multiupload? true : false;
@@ -2386,12 +2388,15 @@ elFinder.prototype = {
 			}, false);
 			
 			xhr.upload.addEventListener('progress', function(e) {
-				var curr;
-				prev = loaded;
+				var curr, size = 0;
 
 				if (e.lengthComputable) {
 					
-					curr = parseInt(e.loaded*100 / e.total);
+					loaded = e.loaded;
+
+					if (!filesize && !data.multiupload) {
+						size = filesize = e.total;
+					}
 
 					// to avoid strange bug in safari (not in chrome) with drag&drop.
 					// bug: macos finder opened in any folder,
@@ -2399,19 +2404,20 @@ elFinder.prototype = {
 					// drop file from finder
 					// on first attempt request starts (progress callback called ones) but never ends.
 					// any next drop - successfull.
-					if (!data.checked && curr > 0 && !notifyto) {
+					if (!data.checked && loaded > 0 && !notifyto) {
 						notifyto = startNotify();
 					}
 					
-					if (curr - prev > 4) {
-						loaded = curr;
-						(data.checked || notify) && self.notify({type : 'upload', cnt : 0, progress : (loaded - prev)*cnt});
+					curr = loaded - prev;
+					if (size || (curr/e.total) >= 0.05) {
+						prev = loaded;
+						checkNotify() && self.notify({type : 'upload', cnt : 0, progress : curr, size : size});
 					}
 				}
 			}, false);
 			
 			var send = function(files, paths){
-				var size = 0, fcnt = 1, sfiles = [], c = 0, total = cnt, maxFileSize;
+				var size = 0, fcnt = 1, sfiles = [], c = 0, total = cnt, maxFileSize, totalSize = 0;
 				if (! data.checked && (isDataType || data.type == 'files')) {
 					maxFileSize = fm.option('uploadMaxSize')? fm.option('uploadMaxSize') : 0;
 					for (var i=0; i < files.length; i++) {
@@ -2431,6 +2437,8 @@ elFinder.prototype = {
 							var chunks = -1;
 							var blob = files[i];
 							var total = Math.floor(SIZE / BYTES_PER_CHUNK);
+
+							totalSize += SIZE;
 							while(start < SIZE) {
 								var chunk;
 								if ('slice' in blob) {
@@ -2443,7 +2451,7 @@ elFinder.prototype = {
 									chunk = null;
 									break;
 								}
-								chunk.chunk = blob.name + '.' + ++chunks + '_' + total + '.part';
+								chunk._chunk = blob.name + '.' + ++chunks + '_' + total + '.part';
 								
 								if (size) {
 									c++;
@@ -2472,7 +2480,6 @@ elFinder.prototype = {
 								cnt--;
 								total--;
 							} else {
-								cnt += chunks;
 								total += chunks;
 							}
 							continue;
@@ -2496,6 +2503,7 @@ elFinder.prototype = {
 							sfiles[c].push(files[i]);
 						}
 						size += files[i].size;
+						totalSize += files[i].size;
 						fcnt++;
 					}
 					
@@ -2505,7 +2513,7 @@ elFinder.prototype = {
 					}
 					
 					if (sfiles.length > 1) {
-						if (!notify) notifyto = startNotify();
+						notifyto = startNotify(totalSize);
 						var added = [],
 							done = 0,
 							last = sfiles.length,
@@ -2528,9 +2536,9 @@ elFinder.prototype = {
 											if (e.added) added = $.merge(added, e.added);
 											if (last == ++done) {
 												fm.trigger('multiupload', {added: added});
-												if (notify) {
-													notifyto && clearTimeout(notifyto);
-													self.notify({type : 'upload', cnt : -cnt, progress : 100*cnt});
+												notifyto && clearTimeout(notifyto);
+												if (checkNotify()) {
+													self.notify({type : 'upload', cnt : -cnt, progress : 0, size : 0});
 												}
 											}
 											multi(files, 1); // Next one
@@ -2549,6 +2557,8 @@ elFinder.prototype = {
 						files = sfiles[0];
 					}
 				}
+				
+				dataChecked = true;
 				
 				if (! files.length) {
 					dfrd.reject(['errUploadNoFiles']);
@@ -2583,8 +2593,8 @@ elFinder.prototype = {
 				
 				$.each(files, function(i, file) {
 					formData.append('upload[]', file);
-					if (file.chunk) {
-						formData.append('chunk', file.chunk);
+					if (file._chunk) {
+						formData.append('chunk', file._chunk);
 						formData.append('cid', chunkID);
 					}
 				});
@@ -2674,7 +2684,6 @@ elFinder.prototype = {
 		key = 'elfinder-'+key+this.id;
 		
 		if (val === null) {
-			console.log('remove', key)
 			return s.removeItem(key);
 		}
 		
@@ -2907,7 +2916,8 @@ elFinder.prototype = {
 			notify   = ndialog.children('.elfinder-notify-'+type),
 			ntpl     = '<div class="elfinder-notify elfinder-notify-{type}"><span class="elfinder-dialog-icon elfinder-dialog-icon-{type}"/><span class="elfinder-notify-msg">{msg}</span> <span class="elfinder-notify-cnt"/><div class="elfinder-notify-progressbar"><div class="elfinder-notify-progress"/></div></div>',
 			delta    = opts.cnt,
-			progress = opts.progress >= 0 ? opts.progress : 0,
+			size     = (typeof opts.size != 'undefined')? parseInt(opts.size) : null,
+			progress = (typeof opts.progress != 'undefined' && opts.progress >= 0) ? opts.progress : null,
 			cnt, total, prc;
 
 		if (!type) {
@@ -2919,7 +2929,7 @@ elFinder.prototype = {
 				.appendTo(ndialog)
 				.data('cnt', 0);
 
-			if (progress) {
+			if (progress != null) {
 				notify.data({progress : 0, total : 0});
 			}
 		}
@@ -2931,14 +2941,19 @@ elFinder.prototype = {
 			ndialog.is(':hidden') && ndialog.elfinderdialog('open');
 			notify.data('cnt', cnt);
 			
-			if (progress
+			if ((progress != null)
 			&& (total = notify.data('total')) >= 0
 			&& (prc = notify.data('progress')) >= 0) {
 
-				total    = delta + parseInt(notify.data('total'));
-				prc      = progress + prc;
-				progress = parseInt(prc/total);
+				total += size != null? size : delta;
+				prc   += progress;
+				(size == null && delta < 0) && (prc += delta * 100); 
 				notify.data({progress : prc, total : total});
+				if (size != null) {
+					prc *= 100;
+					total = Math.max(1, total);
+				}
+				progress = parseInt(prc/total);
 				
 				notify.find('.elfinder-notify-progress')
 					.animate({
@@ -3352,7 +3367,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 0b9596e)';
+elFinder.prototype.version = '2.1_n (Nightly: d4b6b8c)';
 
 
 
