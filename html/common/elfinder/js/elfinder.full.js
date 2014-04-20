@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 2f885a2) (2014-04-20)
+ * Version 2.1_n (Nightly: 10617f1) (2014-04-20)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -2635,10 +2635,10 @@ elFinder.prototype = {
 					} else {
 						files = sfiles[0];
 					}
-					
-					if (!fm.UA.Safari || !data.files) {
-						notifyto = startNotify();
-					}
+				}
+				
+				if (!dataChecked && (!fm.UA.Safari || !data.files)) {
+					notifyto = startNotify();
 				}
 				
 				dataChecked = true;
@@ -3456,7 +3456,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 2f885a2)';
+elFinder.prototype.version = '2.1_n (Nightly: 10617f1)';
 
 
 
