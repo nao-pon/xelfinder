@@ -138,8 +138,17 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		}		
 		
 		$gids = $this->getGroupsByUid($stat['uid']);
-		$xoopsMenber =& xoops_gethandler('member');
-		$list = $xoopsMenber->getGroupList();
+		if (defined('_CHARSET') && _CHARSET === 'UTF-8') {
+			$xoopsMenber = xoops_gethandler('member');
+			$list = $xoopsMenber->getGroupList();
+		} else {
+			$xoopsGroup = xoops_gethandler('group');
+			$_groups = $xoopsGroup->getObjects(null, true);
+			$list = array();
+			foreach (array_keys($_groups) as $i) {
+				$list[$i] = htmlspecialchars($_groups[$i]->getVar('name', 'n'), ENT_QUOTES, 'UTF-8');
+			}
+		}
 		$targetGroups = array_map('intval', explode(',', $stat['gids']));
 		foreach($gids as $id) {
 			$id = (int)$id;
