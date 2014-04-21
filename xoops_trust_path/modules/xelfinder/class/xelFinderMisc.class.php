@@ -7,6 +7,17 @@ class xelFinderMisc {
 	var $mydirname;
 	var $mode;
 	
+	public function dbSetCharset($charset = 'utf8') {
+		if (!$this->db) return false;
+		$db = $this->db;
+		$link = (is_object($db->conn) && get_class($db->conn) === 'mysqli')? $db->conn : false;
+		if ($link) {
+			return mysqli_set_charset($link, $charset);
+		} else {
+			return mysql_set_charset($charset);
+		}
+	}
+	
 	function readAuth($perm, $f_uid, $file_id = null) {
 		global $xoopsUser, $xoopsModule;
 		if (is_object($xoopsUser)) {
