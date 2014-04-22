@@ -1355,7 +1355,11 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		if ($id > 0) $this->rmTmb($stat);
 		rewind($fp);
 		$fstat = fstat($fp);
-		$size = $fstat['size'];
+		if (is_array($fstat) && isset($fstat['size'])) {
+			$size = $fstat['size'];
+		} else {
+			$size = 0;
+		}
 		$time = time();
 		$gid = 0;
 		$uid = (int)$this->x_uid;
@@ -1396,6 +1400,13 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 							$sql = sprintf($sql, $this->tbf, $width, $height, $size, $id);
 							$this->query($sql);
 						}
+					}
+					if ($size === 0) {
+						clearstatcache($local);
+						$size = filesize($local);
+						$sql = 'UPDATE %s SET size=%d WHERE file_id=%d LIMIT 1';
+						$sql = sprintf($sql, $this->tbf, $size, $id);
+						$this->query($sql);
 					}
 					$this->updateDirTimestamp($dir, $time, true);
 					return $id;
