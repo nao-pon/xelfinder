@@ -337,6 +337,16 @@ function insertCode(align, thumb) {
 	$.insertAtCaret(code);
 }
 
+function encodeDecodeURI(str) {
+	var ret;
+	try {
+		ret = encodeURI(decodeURI(str));
+	} catch (e) {
+		ret = str;
+	}
+	return ret;
+}
+
 var getFileCallback_bbcode = function (file, fm) {
 	if (!target || !file.read) {
 		fm.exec('open');
@@ -353,8 +363,8 @@ var getFileCallback_bbcode = function (file, fm) {
 		eval('if (typeof get_thumb_'+module+' == "function" ){' +
 			'thumb = get_thumb_'+module+'(basename, file);}' );
 	}
-	imgThumb = encodeURI(decodeURI(thumb));
-	itemPath = encodeURI(decodeURI(path));
+	imgThumb = encodeDecodeURI(thumb);
+	itemPath = encodeDecodeURI(path);
 	itemObject = file;
 
 	if (isImg) {
@@ -398,16 +408,8 @@ var getFileCallback_xpwiki = function (file, fm) {
 		eval('if (typeof get_thumb_'+module+' == "function" ){' +
 			'thumb = get_thumb_'+module+'(basename, file);}' );
 	}
-	try {
-		imgThumb = encodeURI(decodeURI(thumb));
-	} catch(e) {
-		imgThumb = thumb;
-	}
-	try {
-		itemPath = encodeURI(decodeURI(path));
-	} catch(e) {
-		itemPath = path;
-	}
+	imgThumb = encodeDecodeURI(thumb);
+	itemPath = encodeDecodeURI(path);
 	itemObject = file;
 	
 	if (itemPath.match(/\?/) && ! itemPath.match(/\.[^.?]+$/)) {
@@ -451,7 +453,7 @@ var getFileCallback_xpwikifck = function (file, fm) {
 	}
 	if (x) {
 		var path = file.url.replace(rootUrl+'/', '');
-		path = encodeURI(decodeURI(path));
+		path = encodeDecodeURI(path);
 		if (! path.match(/^http/)) {
 			path = 'site://' + path;
 		}
@@ -490,7 +492,7 @@ function tmbFunc_ckeditor(tmb){
 	return tmb;
 }
 var getFileCallback_ckeditor = function (file, fm) {
-	var path = encodeURI(decodeURI(file.url));
+	var path = encodeDecodeURI(file.url);
 	var basename = path.replace( /^.*\//, '' );
 	var modules_basename = moduleUrl.replace(rootUrl, '').replace(/\//g, '');
 	var reg = new RegExp('^.*?(?:'+modules_basename+'|uploads)\/([^\/]+)\/.*$');
@@ -505,7 +507,7 @@ var getFileCallback_ckeditor = function (file, fm) {
 	var localHostReg = new RegExp('^' + window.location.protocol + '//' + window.location.host);
 	path = path.replace(localHostReg, '');
 	if (thumb) {
-		thumb = encodeURI(rootUrl+'/'+decodeURI(thumb));
+		thumb = rootUrl+'/'+encodeDecodeURI(thumb);
 		thumb = thumb.replace(localHostReg, '');
 		var fullsize = ' title="' + fm.i18n('fullsize') + '"';
 		var thumbnail = ' title="' + fm.i18n('thumbnail') + '"';
