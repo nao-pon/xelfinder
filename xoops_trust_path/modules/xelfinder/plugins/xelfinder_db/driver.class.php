@@ -688,11 +688,6 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	}
 	
 	protected function makeStat($stat) {
-		static $name_enc = null;
-		if (is_null($name_enc)) {
-			$name_enc = (defined('_CHARSET') && _CHARSET !== 'UTF-8' && function_exists('mb_convert_encoding'))? _CHARSET : false;
-		}
-		
 		if ($stat['parent_id']) {
 			$stat['phash'] = $this->encode($stat['parent_id']);
 		} else {
@@ -706,9 +701,6 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		}
 		$this->setAuthByPerm($stat);
 		$name = $stat['name'];
-		if ($name_enc) {
-			$name = mb_convert_encoding($name, $name_enc, 'UTF-8');
-		}
 		if ($stat['mime'] !== 'directory') {
 			if (strpos($this->options['URL'], '?') === false) {
 				$stat['url'] = $this->options['URL'].$stat['file_id'].'/'.rawurlencode($name); // Use pathinfo "index.php/[id]/[name]
