@@ -347,6 +347,13 @@ function encodeDecodeURI(str) {
 	return ret;
 }
 
+function getModuleName(file) {
+	var modules_basename = moduleUrl.replace(rootUrl, '').replace(/\//g, '');
+	var reg = new RegExp('^'+rootUrl.replace(/([.*+?^=!:${}()|[\]\/\\])/g, "\\$1")+'\/(?:(?:'+modules_basename+'|uploads)\/)?([^\/]+)\/.*$');
+	var module = file.url.replace(reg, '$1');
+	return module;
+}
+
 var getFileCallback_bbcode = function (file, fm) {
 	if (!target || !file.read) {
 		fm.exec('open');
@@ -354,9 +361,7 @@ var getFileCallback_bbcode = function (file, fm) {
 	}
 	var path = file.url.replace(rootUrl+'/', '');
 	var basename = path.replace( /^.*\//, '' );
-	var modules_basename = moduleUrl.replace(rootUrl, '').replace(/\//g, '');
-	var reg = new RegExp('^.*?(?:'+modules_basename+'|uploads)\/([^\/]+)\/.*$');
-	var module = path.replace(reg, '$1');
+	var module =getModuleName(file);
 	var thumb = '';
 	var isImg = (file.mime.match(/^image/))? true : false;
 	if (isImg && module.match(/^[a-zA-Z0-9_-]+$/)) {
@@ -399,9 +404,7 @@ var getFileCallback_xpwiki = function (file, fm) {
 		path = file.alias.replace('R/', '');
 	}
 	var basename = path.replace( /^.*\//, '' );
-	var modules_basename = moduleUrl.replace(rootUrl, '').replace(/\//g, '');
-	var reg = new RegExp('^.*?(?:'+modules_basename+'|uploads)\/([^\/]+)\/.*$');
-	var module = path.replace(reg, '$1');
+	var module =getModuleName(file);
 	var thumb = '';
 	var isImg = (file.mime.match(/^image/))? true : false;
 	if (isImg && module.match(/^[a-zA-Z0-9_-]+$/)) {
@@ -494,9 +497,7 @@ function tmbFunc_ckeditor(tmb){
 var getFileCallback_ckeditor = function (file, fm) {
 	var path = encodeDecodeURI(file.url);
 	var basename = path.replace( /^.*\//, '' );
-	var modules_basename = moduleUrl.replace(rootUrl, '').replace(/\//g, '');
-	var reg = new RegExp('^.*?(?:'+modules_basename+'|uploads)\/([^\/]+)\/.*$');
-	var module = path.replace(reg, '$1');
+	var module = getModuleName(file);
 	var thumb = '';
 	var isImg = (file.mime.match(/^image/))? true : false;
 	if (isImg && module.match(/^[a-zA-Z0-9_-]+$/)) {
