@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 53d111f) (2014-10-09)
+ * Version 2.1_n (Nightly: 2b7f666) (2014-11-12)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -3470,7 +3470,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 53d111f)';
+elFinder.prototype.version = '2.1_n (Nightly: 2b7f666)';
 
 
 
@@ -11014,6 +11014,9 @@ elFinder.prototype.commands.rename = function() {
 					}
 				})
 				.mousedown(function(e) {
+					e.stopPropagation();
+				})
+				.click(function(e) { // for touch device
 					e.stopPropagation();
 				})
 				.dblclick(function(e) {
