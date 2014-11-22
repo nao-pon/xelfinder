@@ -87,7 +87,7 @@ $viewport = (preg_match('/Mobile/i', $_SERVER['HTTP_USER_AGENT']))? '<meta name=
 $userLang = xelfinder_detect_lang();
 
 if (empty($config['jquery'])) {
-	$jQueryVersion   = '1.11.0';
+	$jQueryVersion   = '1.11.1';
 	$jQueryCDN = '//ajax.googleapis.com/ajax/libs/jquery/%s/jquery.min.js';
 	$jQueryUrl = sprintf($jQueryCDN, $jQueryVersion);
 } else {
@@ -95,7 +95,7 @@ if (empty($config['jquery'])) {
 }
 
 if (empty($config['jquery_ui'])) {
-	$jQueryUIVersion = '1.10.3';
+	$jQueryUIVersion = '1.11.2';
 	$jQueryUICDN = '//ajax.googleapis.com/ajax/libs/jqueryui/%s';
 	$jQueryUIUrl = sprintf($jQueryUICDN, $jQueryUIVersion).'/jquery-ui.min.js';
 } else {
