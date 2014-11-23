@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 29e1769) (2014-11-23)
+ * Version 2.1_n (Nightly: f90d939) (2014-11-23)
  * http://elfinder.org
  * 
  * Copyright 2009-2013, Studio 42
@@ -3470,7 +3470,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 29e1769)';
+elFinder.prototype.version = '2.1_n (Nightly: f90d939)';
 
 
 
@@ -6300,7 +6300,7 @@ $.fn.elfindercwd = function(fm, options) {
 				
 				if (l != list) {
 					list = l;
-					content(fm.files());
+					content(query ? lastSearch : fm.files(), !!query);
 
 					$.each(sel, function(i, h) {
 						selectFile(h);
@@ -7173,7 +7173,7 @@ $.fn.elfindersearchbutton = function(cmd) {
 					});
 					
 				} else {
-					cmd.fm.trigger('searchend')
+					cmd.fm.trigger('searchend');
 				}
 			},
 			abort = function() {
@@ -7206,7 +7206,7 @@ $.fn.elfindersearchbutton = function(cmd) {
 		
 		$('<span class="ui-icon ui-icon-close"/>')
 			.appendTo(button)
-			.click(abort)
+			.click(abort);
 		
 		// wait when button will be added to DOM
 		setTimeout(function() {
@@ -7229,7 +7229,6 @@ $.fn.elfindersearchbutton = function(cmd) {
 			.bind('searchend', function() {
 				input.val('');
 			})
-			.viewchange(abort)
 			.shortcut({
 				pattern     : 'ctrl+f f3',
 				description : cmd.title,
@@ -7237,7 +7236,7 @@ $.fn.elfindersearchbutton = function(cmd) {
 			});
 
 	});
-}
+};
 
 /*
  * File: /home/osc/elFinder/js/ui/sortbutton.js
@@ -10923,6 +10922,8 @@ elFinder.prototype.commands.quicklook.plugins = [
  **/
 elFinder.prototype.commands.reload = function() {
 	
+	var search = false;
+	
 	this.alwaysEnabled = true;
 	this.updateOnSelect = true;
 	
@@ -10932,23 +10933,33 @@ elFinder.prototype.commands.reload = function() {
 	
 	this.getstate = function() {
 		return 0;
-	}
+	};
+	
+	this.init = function() {
+		this.fm.bind('search searchend', function(e) {
+			search = e.type == 'search';
+		});
+	};
 	
 	this.exec = function() {
-		var fm      = this.fm,
-			dfrd    = fm.sync(),
-			timeout = setTimeout(function() {
-				fm.notify({type : 'reload', cnt : 1, hideCnt : true});
-				dfrd.always(function() { fm.notify({type : 'reload', cnt  : -1}); });
-			}, fm.notifyDelay);
-			
-		return dfrd.always(function() { 
-			clearTimeout(timeout); 
-			fm.trigger('reload');
-		});
-	}
+		var fm = this.fm;
+		if (!search) {
+			var dfrd    = fm.sync(),
+				timeout = setTimeout(function() {
+					fm.notify({type : 'reload', cnt : 1, hideCnt : true});
+					dfrd.always(function() { fm.notify({type : 'reload', cnt  : -1}); });
+				}, fm.notifyDelay);
+				
+			return dfrd.always(function() { 
+				clearTimeout(timeout); 
+				fm.trigger('reload');
+			});
+		} else {
+			$('div.elfinder-toolbar > div.'+fm.res('class', 'searchbtn') + ' > span.ui-icon-search').click();
+		}
+	};
 
-}
+};
 
 /*
  * File: /home/osc/elFinder/js/commands/rename.js
