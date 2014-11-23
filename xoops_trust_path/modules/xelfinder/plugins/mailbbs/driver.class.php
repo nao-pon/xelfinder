@@ -141,4 +141,48 @@ class elFinderVolumeXoopsMailbbs extends elFinderVolumeLocalFileSystem {
 		return false;
 	}
 
+	/**
+	 * Recursive files search
+	 *
+	 * @param  string  $path   dir path
+	 * @param  string  $q      search string
+	 * @param  array   $mimes
+	 * @return array
+	 * @author Dmitry (dio) Levashov, Naoki Sawada
+	 **/
+	protected function doSearch($path, $q, $mimes) {
+		$result = array();
+	
+		foreach($this->_scandir($path) as $p) {
+			$stat = $this->stat($p);
+	
+			if (!$stat) { // invalid links
+				continue;
+			}
+	
+			if (!empty($stat['hidden']) || !$this->mimeAccepted($stat['mime'])) {
+				continue;
+			}
+				
+			$name = $stat['name'];
+	
+			if ($this->stripos($name, $q) !== false || $this->stripos(basename($stat['_localpath']), $q) !== false) {
+				$_path = $this->_path($p);
+				if (preg_match('//u', $_path) !== false) { // UTF-8 check for json_encode()
+					$stat['path'] = $_path;
+				}
+// 				if ($this->URL && !isset($stat['url'])) {
+// 					$stat['url'] = $this->URL . str_replace($this->separator, '/', substr($p, strlen($this->root) + 1));
+// 				}
+	
+				$result[] = $stat;
+			}
+// 			if ($stat['mime'] == 'directory' && $stat['read'] && !isset($stat['alias'])) {
+// 				$result = array_merge($result, $this->doSearch($p, $q, $mimes));
+// 			}
+		}
+	
+		return $result;
+	}
+	
 } // END class
