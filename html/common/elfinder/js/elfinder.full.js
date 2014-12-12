@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: dc0331b) (2014-12-08)
+ * Version 2.1_n (Nightly: c1325de) (2014-12-12)
  * http://elfinder.org
  * 
  * Copyright 2009-2014, Studio 42
@@ -2939,7 +2939,116 @@ elFinder.prototype = {
 	},
 	
 	_sortRules : {
-		name : function(file1, file2) { return file1.name.toLowerCase().localeCompare(file2.name.toLowerCase()); },
+		name : function(file1, file2) {
+			var self = elFinder.prototype._sortRules.name;
+			if (typeof self.loc == 'undefined') {
+				self.loc = (navigator.userLanguage || navigator.browserLanguage || navigator.language || 'en-US');
+			}
+			if (typeof self.sort == 'undefined') {
+				if ('11'.localeCompare('2', self.loc, {numeric: true}) > 0) {
+					// Native support
+					self.sort = function(a, b) {
+						return a.localeCompare(b, self.loc, {numeric: true});
+					};
+				} else {
+					/*
+					 * Edited for elFinder (emulates localeCompare() by numeric) by Naoki Sawada aka nao-pon
+					 */
+					/*
+					 * Huddle/javascript-natural-sort (https://github.com/Huddle/javascript-natural-sort)
+					 */
+					/*
+					 * Natural Sort algorithm for Javascript - Version 0.7 - Released under MIT license
+					 * Author: Jim Palmer (based on chunking idea from Dave Koelle)
+					 * http://opensource.org/licenses/mit-license.php
+					 */
+					self.sort = function(a, b) {
+						var re = /(^-?[0-9]+(\.?[0-9]*)[df]?e?[0-9]?$|^0x[0-9a-f]+$|[0-9]+)/gi,
+						sre = /(^[ ]*|[ ]*$)/g,
+						dre = /(^([\w ]+,?[\w ]+)?[\w ]+,?[\w ]+\d+:\d+(:\d+)?[\w ]?|^\d{1,4}[\/\-]\d{1,4}[\/\-]\d{1,4}|^\w+, \w+ \d+, \d{4})/,
+						hre = /^0x[0-9a-f]+$/i,
+						ore = /^0/,
+						syre = /^[\x01\x21-\x2f\x3a-\x40\x5b-\x60\x7b-\x7e]/, // symbol first - (Naoki Sawada)
+						i = function(s) { return self.sort.insensitive && (''+s).toLowerCase() || ''+s },
+						// convert all to strings strip whitespace
+						// first character is "_", it's smallest - (Naoki Sawada)
+						x = i(a).replace(sre, '').replace(/^_/, "\x01") || '',
+						y = i(b).replace(sre, '').replace(/^_/, "\x01") || '',
+						// chunk/tokenize
+						xN = x.replace(re, '\0$1\0').replace(/\0$/,'').replace(/^\0/,'').split('\0'),
+						yN = y.replace(re, '\0$1\0').replace(/\0$/,'').replace(/^\0/,'').split('\0'),
+						// numeric, hex or date detection
+						xD = parseInt(x.match(hre)) || (xN.length != 1 && x.match(dre) && Date.parse(x)),
+						yD = parseInt(y.match(hre)) || xD && y.match(dre) && Date.parse(y) || null,
+						oFxNcL, oFyNcL,
+						locRes = 0;
+
+						// first try and sort Hex codes or Dates
+						if (yD) {
+							if ( xD < yD ) return -1;
+							else if ( xD > yD ) return 1;
+						}
+						// natural sorting through split numeric strings and default strings
+						for(var cLoc=0, numS=Math.max(xN.length, yN.length); cLoc < numS; cLoc++) {
+	
+							// find floats not starting with '0', string or 0 if not defined (Clint Priest)
+							oFxNcL = !(xN[cLoc] || '').match(ore) && parseFloat(xN[cLoc]) || xN[cLoc] || 0;
+							oFyNcL = !(yN[cLoc] || '').match(ore) && parseFloat(yN[cLoc]) || yN[cLoc] || 0;
+	
+							// handle numeric vs string comparison - number < string - (Kyle Adams)
+							// but symbol first < number - (Naoki Sawada)
+							if (isNaN(oFxNcL) !== isNaN(oFyNcL)) {
+								if (isNaN(oFxNcL) && (typeof oFxNcL !== 'string' || ! oFxNcL.match(syre))) {
+									return 1;
+								} else if (typeof oFyNcL !== 'string' || ! oFyNcL.match(syre)) {
+									return -1;
+								}
+							}
+	
+							// use decimal number comparison if either value is string zero
+							if (parseInt(oFxNcL, 10) === 0) oFxNcL = 0;
+							if (parseInt(oFyNcL, 10) === 0) oFyNcL = 0;
+	
+							// rely on string comparison if different types - i.e. '02' < 2 != '02' < '2'
+							if (typeof oFxNcL !== typeof oFyNcL) {
+								oFxNcL += '';
+								oFyNcL += '';
+							}
+	
+							// use locale sensitive sort for strings when case insensitive
+							// note: localeCompare interleaves uppercase with lowercase (e.g. A,a,B,b)
+							if (self.sort.insensitive && typeof oFxNcL === 'string' && typeof oFyNcL === 'string') {
+								locRes = oFxNcL.localeCompare(oFyNcL, self.loc);
+								if (locRes !== 0) return locRes;
+							}
+	
+							if (oFxNcL < oFyNcL) return -1;
+							if (oFxNcL > oFyNcL) return 1;
+						}
+						return 0;
+					};
+					self.sort.insensitive = true;
+				}
+			}
+			var n1 = file1.name.toLowerCase(),
+			    n2 = file2.name.toLowerCase(),
+			    e1 = '',
+			    e2 = '',
+			    m, ret;
+			if (m = n1.match(/^(.+)(\.[0-9a-z.]+)$/)) {
+				n1 = m[1];
+				e1 = m[2];
+			}
+			if (m = n2.match(/^(.+)(\.[0-9a-z.]+)$/)) {
+				n2 = m[1];
+				e2 = m[2];
+			}
+			ret = self.sort(n1, n2);
+			if (ret == 0 && (e1 || e2) && e1 != e2) {
+				ret = self.sort(e1, e2);
+			}
+			return ret;
+		},
 		size : function(file1, file2) { 
 			var size1 = parseInt(file1.size) || 0,
 				size2 = parseInt(file2.size) || 0;
@@ -3471,7 +3580,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: dc0331b)';
+elFinder.prototype.version = '2.1_n (Nightly: c1325de)';
 
 
 
@@ -5232,7 +5341,7 @@ $.fn.elfindercontextmenu = function(fm) {
 				
 				
 				$.each(types[type]||[], function(i, name) {
-					var cmd, node, submenu;
+					var cmd, node, submenu, hover;
 					
 					if (name == '|' && sep) {
 						menu.append('<div class="elfinder-contextmenu-separator"/>');
@@ -5251,16 +5360,46 @@ $.fn.elfindercontextmenu = function(fm) {
 							
 							submenu = $('<div class="ui-corner-all elfinder-contextmenu-sub"/>')
 								.appendTo(node.append('<span class="elfinder-contextmenu-arrow"/>'));
-								
+							
+							hover = function(){
+									var win    = $(window),
+									baseleft   = $(node).offset().left,
+									basetop    = $(node).offset().top,
+									basewidth  = $(node).outerWidth(),
+									width      = submenu.outerWidth(),
+									height     = submenu.outerHeight(),
+									wwidth     = win.scrollLeft() + win.width(),
+									wheight    = win.scrollTop() + win.height(),
+									margin     = 5, x, y, over;
+
+									over = (baseleft + basewidth + width + margin) - wwidth;
+									x = (over > 0)? basewidth - over : basewidth;
+									over = (basetop + 5 + height + margin) - wheight;
+									y = (over > 0)? 5 - over : 5;
+
+									var css = {
+										left : x,
+										top : y
+									};
+									submenu.css(css).toggle();
+							};
+							
 							node.addClass('elfinder-contextmenu-group')
-								.hover(function() {
-									submenu.toggle()
-								})
+								.hover(function() { hover(); })
+								.on('touchstart', function(e){
+									if (node.hasClass('ui-state-hover')) {
+										return true;
+									}
+									node.addClass('ui-state-hover');
+									e.preventDefault();
+									hover();
+									return false;
+								});
 								
 							$.each(cmd.variants, function(i, variant) {
 								submenu.append(
 									$('<div class="elfinder-contextmenu-item"><span>'+variant[1]+'</span></div>')
-										.click(function(e) {
+										.on('click touchstart', function(e) {
 											e.stopPropagation();
 											close();
 											cmd.exec(targets, variant[0]);
@@ -5974,7 +6113,7 @@ $.fn.elfindercwd = function(fm, options) {
 
 				wrapper[list ? 'addClass' : 'removeClass']('elfinder-cwd-wrapper-list');
 
-				list && cwd.html('<table><thead><tr class="ui-state-default"><td >'+msg.name+'</td><td>'+msg.perm+'</td><td>'+msg.mod+'</td><td>'+msg.size+'</td><td>'+msg.kind+'</td></tr></thead><tbody/></table>');
+				list && cwd.html('<table><thead><tr class="ui-state-default"><td class="elfinder-cwd-view-th-name">'+msg.name+'</td><td class="elfinder-cwd-view-th-perm">'+msg.perm+'</td><td class="elfinder-cwd-view-th-date">'+msg.mod+'</td><td class="elfinder-cwd-view-th-size">'+msg.size+'</td><td class="elfinder-cwd-view-th-kind">'+msg.kind+'</td></tr></thead><tbody/></table>');
 		
 				buffer = $.map(files, function(f) { return any || f.phash == phash ? f : null; });
 				
@@ -6064,14 +6203,16 @@ $.fn.elfindercwd = function(fm, options) {
 							p.trigger(evtUnselect);
 							trigger();
 						} else {
-							p.trigger(evtSelect);
-							trigger();
-							p.trigger(fm.trigger('contextmenu', {
-								'type'    : 'files',
-								'targets' : fm.selected(),
-								'x'       : e.originalEvent.touches[0].clientX,
-								'y'       : e.originalEvent.touches[0].clientY
-							}));
+							if (e.target.nodeName != 'TD' || fm.selected().length > 0) {
+								p.trigger(evtSelect);
+								trigger();
+								p.trigger(fm.trigger('contextmenu', {
+									'type'    : 'files',
+									'targets' : fm.selected(),
+									'x'       : e.originalEvent.touches[0].clientX,
+									'y'       : e.originalEvent.touches[0].clientY
+								}));
+							}
 						}
 					}, 500));
 				})
@@ -6143,7 +6284,7 @@ $.fn.elfindercwd = function(fm, options) {
 				.bind('contextmenu.'+fm.namespace, function(e) {
 					var file = $(e.target).closest('.'+clFile);
 					
-					if (file.length) {
+					if (file.length && (e.target.nodeName != 'TD' || $.inArray(file.get(0).id, fm.selected()) > -1)) {
 						e.stopPropagation();
 						e.preventDefault();
 						if (!file.is('.'+clDisabled) && !file.data('touching')) {
@@ -12083,6 +12224,9 @@ elFinder.prototype.commands.search = function() {
  * @author Dmitry (dio) Levashov
  **/
 elFinder.prototype.commands.sort = function() {
+	var self  = this,
+	fm    = self.fm;
+	
 	/**
 	 * Command options
 	 *
@@ -12090,23 +12234,69 @@ elFinder.prototype.commands.sort = function() {
 	 */
 	this.options = {ui : 'sortbutton'};
 	
+	fm.bind('open sortchange', function() {
+		self.variants = [];
+		$.each(fm.sortRules, function(name, value) {
+			var sort = {
+					type  : name,
+					order : name == fm.sortType ? fm.sortOrder == 'asc' ? 'desc' : 'asc' : fm.sortOrder
+				};
+			var arr = name == fm.sortType ? (sort.order == 'asc'? 'n' : 's') : '';
+			self.variants.push([sort, (arr? '<span class="ui-icon ui-icon-arrowthick-1-'+arr+'"></span>' : '') + '&nbsp;' + fm.i18n('sort'+name)]);
+		});
+	});
+	
+	fm.bind('open sortchange viewchange', function() {
+		var timer = null;
+		timer && clearTimeout(timer);
+		timer = setTimeout(function(){
+			var cols = $(fm.cwd).find('div.elfinder-cwd-wrapper-list table');
+			if (cols.length) {
+				$.each(fm.sortRules, function(name, value) {
+					var td = cols.find('thead tr td.elfinder-cwd-view-th-'+name);
+					if (td.length) {
+						var current = ( name == fm.sortType),
+						sort = {
+							type  : name,
+							order : current ? fm.sortOrder == 'asc' ? 'desc' : 'asc' : fm.sortOrder
+						},arr;
+						if (current) {
+							arr = fm.sortOrder == 'asc' ? 'n' : 's';
+							$('<span class="ui-icon ui-icon-triangle-1-'+arr+'"/>').css({left:'+center+'}).appendTo(td);
+						}
+						$(td).on('click', function(e){
+							e.stopPropagation();
+							self.exec([], sort);
+						})
+						.hover(function() {
+							$(this).addClass('ui-state-hover');
+						},function() {
+							$(this).removeClass('ui-state-hover');
+						});
+					}
+					
+				});
+			}
+		}, 100);
+	});
+	
 	this.getstate = function() {
 		return 0;
-	}
+	};
 	
-	this.exec = function(hashes, sort) {
+	this.exec = function(hashes, sortopt) {
 		var fm = this.fm,
 			sort = $.extend({
 				type  : fm.sortType,
 				order : fm.sortOrder,
 				stick : fm.sortStickFolders
-			}, sort);
+			}, sortopt);
 
 		this.fm.setSort(sort.type, sort.order, sort.stick);
 		return $.Deferred().resolve();
-	}
+	};
 
-}
+};
 
 /*
  * File: /js/commands/up.js
