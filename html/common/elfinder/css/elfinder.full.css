@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: c1325de) (2014-12-12)
+ * Version 2.1_n (Nightly: 53432c2) (2014-12-16)
  * http://elfinder.org
  * 
  * Copyright 2009-2014, Studio 42
@@ -658,11 +658,17 @@ div.elfinder-cwd-wrapper-list tr.ui-state-default td span.ui-icon {
 
 /*.elfinder-cwd-view-list { padding:0 0 4px 0; }*/
 
-.elfinder-cwd table { width:100%; border-collapse:collapse; border:0 solid; margin:0 0 10px 0; }
+.elfinder-cwd table { 
+	width: 100%;
+	border-collapse: separate;
+	border: 0 solid;
+	margin: 0 0 10px 0;
+	border-spacing: 0;
+}
 .elfinder .elfinder-cwd table thead tr { border-left:0 solid; border-top:0 solid; border-right:0 solid; }
 
 .elfinder .elfinder-cwd table td { 
-	padding:3px 12px;
+	padding:4px 12px;
 	white-space:pre;
 	overflow:hidden;
 	text-align:right;
