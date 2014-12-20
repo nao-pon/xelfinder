@@ -202,7 +202,7 @@ if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HAS
 			'path'    => $config['ftp_path'],
 			'user'    => $config['ftp_user'],
 			'pass'    => $config['ftp_pass'],
-			'enable_search' => !empty($config['ftp_search']),
+			'disabled'=> !empty($config['ftp_search'])? array() : array('search'),
 			'is_local'=> true,
 			'tmpPath' => XOOPS_MODULE_PATH . '/'.$mydirname.'/cache',
 			'utf8fix' => true,

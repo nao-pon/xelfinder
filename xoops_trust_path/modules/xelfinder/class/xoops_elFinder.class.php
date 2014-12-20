@@ -108,7 +108,12 @@ class xoops_elFinder {
 			if (! $this->moduleCheckRight($mydirname)) continue;
 			
 			$extOptions = array();
-			$extOptKeys = array('uploadmaxsize' => 'uploadMaxSize', 'id' => 'id');
+			$extOptKeys = array(
+				'uploadmaxsize' => 'uploadMaxSize',
+				'id'            => 'id',
+				'encoding'      => 'encoding',
+				'locale'        => 'locale'
+			);
 			$defaults = null;
 			if ($options) {
 				$options = str_getcsv($options, '|');

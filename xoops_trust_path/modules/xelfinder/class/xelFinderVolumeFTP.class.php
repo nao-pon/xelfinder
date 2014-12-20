@@ -32,6 +32,13 @@ class elFinderVolumeFTPx extends elFinderVolumeFTP {
 			return $this->setError('Unable to login into '.$this->options['host']);
 		}
 	
+		// try switch utf8 mode
+		if ($this->encoding) {
+			@ftp_exec($this->connect, 'OPTS UTF8 OFF');
+		} else {
+			@ftp_exec($this->connect, 'OPTS UTF8 ON' );
+		}
+		
 		// switch off extended passive mode - may be usefull for some servers
 		@ftp_exec($this->connect, 'epsv4 off' );
 		// enter passive mode if required
@@ -50,7 +57,7 @@ class elFinderVolumeFTPx extends elFinderVolumeFTP {
 		$features = ftp_raw($this->connect, 'FEAT');
 		if (!is_array($features)) {
 			$this->umount();
-			return $this->setError('Server does not support command FEAT. wtf? 0_o');
+			return $this->setError('Server does not support command FEAT.');
 		}
 	
 		foreach ($features as $feat) {
@@ -59,7 +66,7 @@ class elFinderVolumeFTPx extends elFinderVolumeFTP {
 			}
 		}
 	
-		return $this->setError('Server does not support command MLST. wtf? 0_o');
+		return $this->setError('Server does not support command MLST.');
 	}
 	
 	protected function setLocalRoot() {
@@ -81,11 +88,4 @@ class elFinderVolumeFTPx extends elFinderVolumeFTP {
 		return false;
 	}
 	
-	protected function doSearch($path, $q, $mimes) {
-		if ($this->options['enable_search']) {
-			return parent::doSearch($path, $q, $mimes);
-		} else {
-			return array();
-		}
-	}
 }
