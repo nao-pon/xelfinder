@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 53432c2) (2014-12-16)
+ * Version 2.1_n (Nightly: a9e835b) (2014-12-20)
  * http://elfinder.org
  * 
  * Copyright 2009-2014, Studio 42
@@ -1882,7 +1882,7 @@ elFinder.prototype = {
 			messages        : {}
 		},
 		months : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-		monthsShort : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+		monthsShort : ['msJan', 'msFeb', 'msMar', 'msApr', 'msMay', 'msJun', 'msJul', 'msAug', 'msSep', 'msOct', 'msNov', 'msDec'],
 
 		days : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
 		daysShort : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
@@ -3580,7 +3580,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 53432c2)';
+elFinder.prototype.version = '2.1_n (Nightly: a9e835b)';
 
 
 
@@ -3846,10 +3846,12 @@ elFinder.prototype._options = {
 			ftp: {
 				inputs: {
 					host     : $('<input type="text"/>'),
-					port     : $('<input type="text"/>'),
+					port     : $('<input type="text" placeholder="21"/>'),
 					path     : $('<input type="text" value="/"/>'),
 					user     : $('<input type="text"/>'),
-					pass     : $('<input type="password"/>')
+					pass     : $('<input type="password"/>'),
+					encoding : $('<input type="text" placeholder="Optional"/>'),
+					locale   : $('<input type="text" placeholder="Optional"/>')
 				}
 			},
 			dropbox: {
@@ -4844,7 +4846,7 @@ $.fn.dialogelfinder = function(opts) {
 /**
  * English translation
  * @author Troex Nevelin <troex@fury.scancode.ru>
- * @version 2014-04-08
+ * @version 2014-12-19
  */
 if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object') {
 	elFinder.prototype.i18.en = {
@@ -4982,6 +4984,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'btnApprove': 'Goto $1 & approve', // added 26.04.2012
 			'btnUnmount': 'Unmount', // added 30.04.2012
 			'btnConv'   : 'Convert', // added 08.04.2014
+			
 			/******************************** notifications ********************************/
 			'ntfopen'     : 'Open folder',
 			'ntffile'     : 'Open file',
@@ -5012,18 +5015,44 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'dateUnknown' : 'unknown',
 			'Today'       : 'Today',
 			'Yesterday'   : 'Yesterday',
-			'Jan'         : 'Jan',
-			'Feb'         : 'Feb',
-			'Mar'         : 'Mar',
-			'Apr'         : 'Apr',
+			'msJan'       : 'Jan',
+			'msFeb'       : 'Feb',
+			'msMar'       : 'Mar',
+			'msApr'       : 'Apr',
+			'msMay'       : 'May',
+			'msJun'       : 'Jun',
+			'msJul'       : 'Jul',
+			'msAug'       : 'Aug',
+			'msSep'       : 'Sep',
+			'msOct'       : 'Oct',
+			'msNov'       : 'Nov',
+			'msDec'       : 'Dec',
+			'January'     : 'January',
+			'February'    : 'February',
+			'March'       : 'March',
+			'April'       : 'April',
 			'May'         : 'May',
-			'Jun'         : 'Jun',
-			'Jul'         : 'Jul',
-			'Aug'         : 'Aug',
-			'Sep'         : 'Sep',
-			'Oct'         : 'Oct',
-			'Nov'         : 'Nov',
-			'Dec'         : 'Dec',
+			'June'        : 'June',
+			'July'        : 'July',
+			'August'      : 'August',
+			'September'   : 'September',
+			'October'     : 'October',
+			'November'    : 'November',
+			'December'    : 'December',
+			'Sunday'      : 'Sunday',
+			'Monday'      : 'Monday',
+			'Tuesday'     : 'Tuesday',
+			'Wednesday'   : 'Wednesday',
+			'Thursday'    : 'Thursday',
+			'Friday'      : 'Friday',
+			'Saturday'    : 'Saturday',
+			'Sun'         : 'Sun', 
+			'Mon'         : 'Mon', 
+			'Tue'         : 'Tue', 
+			'Wed'         : 'Wed', 
+			'Thu'         : 'Thu', 
+			'Fri'         : 'Fri', 
+			'Sat'         : 'Sat',
 
 			/******************************** sort variants ********************************/
 			'sortname'          : 'by name', 
@@ -5113,6 +5142,8 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'confirmUnmount'      : 'Are you unmount $1?',  // added 30.04.2012
 			'dropFilesBrowser': 'Drop or Paste files from browser', // added 30.05.2012
 			'dropPasteFiles'  : 'Drop or Paste files here', // added 07.04.2014
+			'encoding'        : 'Encoding', // from v2.1 added 19.12.2014
+			'locale'          : 'Locale',   // from v2.1 added 19.12.2014
 
 			/********************************** mimetypes **********************************/
 			'kindUnknown'     : 'Unknown',
@@ -5192,7 +5223,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'kindVideoMKV'    : 'Matroska movie',
 			'kindVideoOGG'    : 'Ogg movie'
 		}
-	}
+	};
 }
 
 
