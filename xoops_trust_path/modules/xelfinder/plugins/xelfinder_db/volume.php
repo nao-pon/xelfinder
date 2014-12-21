@@ -15,7 +15,6 @@ if (is_dir(XOOPS_TRUST_PATH . $path)) {
 		'alias'     => $title,
 		'tmbURL'     => _MD_XELFINDER_MODULE_URL . '/'.$mydirname.'/cache/tmb/',
 		'tmbPath'    => XOOPS_MODULE_PATH . '/'.$mydirname.'/cache/tmb',
-		'quarantine' => XOOPS_MODULE_PATH . '/'.$mydirname.'/cache/tmb/.quarantine',
 		//'tmbSize'    => 140,
 		//'tmbCrop'    => false,
 		'uploadAllow'     => array('image'),
