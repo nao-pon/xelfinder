@@ -98,6 +98,7 @@ class xoops_elFinder {
 
 		$disabledCmds = $this->getDisablesCmds();
 		
+		$ids = array();
 		foreach($configs as $_conf) {
 			$_conf = trim($_conf);
 			if (! $_conf || $_conf[0] === '#') continue;
@@ -222,6 +223,14 @@ class xoops_elFinder {
 						$volumeOptions['disabled'] = array_unique(array_merge($volumeOptions['disabled'], $disabledCmds));
 					}
 					!isset($volumeOptions['id']) && $volumeOptions['id'] = '_' . $mydirname;
+					if (isset($ids[$volumeOptions['id']])) {
+						$i = 1;
+						while(isset($ids[$volumeOptions['id']])){
+							$volumeOptions['id'] = preg_replace('/\d+$/', '', $volumeOptions['id']);
+							$volumeOptions['id'] .= $i++;
+						}
+					}
+					$ids[$volumeOptions['id']] = true;
 					$roots[] = $volumeOptions;
 				}
 			}
