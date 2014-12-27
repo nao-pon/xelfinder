@@ -92,6 +92,7 @@ $(document).ready(function() {
 		requestType : 'POST',
 		height: $(window).height() - 20,
 		getFileCallback : callbackFunc,
+		ui : ['toolbar', 'places', 'tree', 'path', 'stat'],
 		uiOptions : {
 			// toolbar configuration
 			toolbar : [
