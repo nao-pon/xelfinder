@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 89e7d83) (2014-12-28)
+ * Version 2.1_n (Nightly: 11166e7) (2014-12-29)
  * http://elfinder.org
  * 
  * Copyright 2009-2014, Studio 42
@@ -3580,7 +3580,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 89e7d83)';
+elFinder.prototype.version = '2.1_n (Nightly: 11166e7)';
 
 
 
@@ -7270,14 +7270,11 @@ $.fn.elfinderplaces = function(fm, opts) {
 					}
 				})
 				// for touch device
-				//.on('touchstart.'+fm.namespace, '.'+navdir+':not(.'+clroot+')', function(e) {
 				.on('touchstart', '.'+navdir+':not(.'+clroot+')', function(e) {
-					var p    = $(this),
-					    hash = $(this).attr('id').substr(6);
-					
-					p.data('longtap', null);
-					p.data('touching', true);
-					p.data('tmlongtap', setTimeout(function(){
+					var hash = $(this).attr('id').substr(6),
+					p = $(this)
+					.data('longtap', null)
+					.data('tmlongtap', setTimeout(function(){
 						// long tap
 						p.data('longtap', true);
 						fm.trigger('contextmenu', {
@@ -7291,7 +7288,6 @@ $.fn.elfinderplaces = function(fm, opts) {
 						});
 					}, 500));
 				})
-				//.on('touchmove.'+fm.namespace+' touchend.'+fm.namespace, '.'+navdir+':not(.'+clroot+')', function(e) {
 				.on('touchmove touchend', '.'+navdir+':not(.'+clroot+')', function(e) {
 					clearTimeout($(this).data('tmlongtap'));
 				});
@@ -8084,11 +8080,10 @@ $.fn.elfindertree = function(fm, opts) {
 				})
 				// for touch device
 				.delegate('.'+navdir, 'touchstart', function(e) {
-					var p = $(this),
-					evt = e.originalEvent;
-					p.data('longtap', null);
-					p.data('touching', true);
-					p.data('tmlongtap', setTimeout(function(e){
+					var evt = e.originalEvent,
+					p = $(this)
+					.data('longtap', null)
+					.data('tmlongtap', setTimeout(function(e){
 						// long tap
 						p.data('longtap', true);
 						fm.trigger('contextmenu', {
