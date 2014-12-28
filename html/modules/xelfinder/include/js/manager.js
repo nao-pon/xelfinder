@@ -140,13 +140,13 @@ $(document).ready(function() {
 		},
 		contextmenu : {
 			// navbarfolder menu
-			navbar : ['open', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'info', 'perm', 'netunmount'],
+			navbar : ['open', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'places', 'info', 'perm', 'netunmount'],
 			// current directory menu
 			cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'sort', '|', 'info', 'perm'],
 			// current directory file menu
 			files  : ['getfile', '|','open', 'quicklook', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', 'pixlr',
 			          '|', 'archive', 'extract',
-			          '|', 'info', 'perm']
+			          '|', 'places', 'info', 'perm']
 		}
 	}).elfinder('instance');
 	
