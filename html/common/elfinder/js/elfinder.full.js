@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 7b85969) (2014-12-28)
+ * Version 2.1_n (Nightly: bf40094) (2014-12-28)
  * http://elfinder.org
  * 
  * Copyright 2009-2014, Studio 42
@@ -3580,7 +3580,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 7b85969)';
+elFinder.prototype.version = '2.1_n (Nightly: bf40094)';
 
 
 
@@ -4176,11 +4176,11 @@ elFinder.prototype._options = {
 	 */
 	contextmenu : {
 		// navbarfolder menu
-		navbar : ['open', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'info', 'netunmount'],
+		navbar : ['open', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'places', 'info', 'netunmount'],
 		// current directory menu
 		cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'sort', '|', 'info'],
 		// current directory file menu
-		files  : ['getfile', '|','open', 'quicklook', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', 'pixlr', '|', 'archive', 'extract', '|', 'info']
+		files  : ['getfile', '|','open', 'quicklook', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', 'pixlr', '|', 'archive', 'extract', '|', 'places', 'info']
 	},
 
 	/**
@@ -4969,6 +4969,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'cmdsort'      : 'Sort',
 			'cmdnetmount'  : 'Mount network volume', // added 18.04.2012
 			'cmdnetunmount': 'Unmount', // added 30.04.2012
+			'cmdplaces'    : 'To Places', // added 28.12.2014
 			
 			'cmdpixlr'     : 'Edit on Pixlr',
 			
@@ -7260,7 +7261,42 @@ $.fn.elfinderplaces = function(fm, opts) {
 						save();
 						resolve && ui.helper.hide();
 					}
+				})
+				// for touch device
+				//.on('touchstart.'+fm.namespace, '.'+navdir+':not(.'+clroot+')', function(e) {
+				.on('touchstart', '.'+navdir+':not(.'+clroot+')', function(e) {
+					var p = $(this);
+					places.data('longtap', null);
+					p.data('touching', true);
+					p.data('tmlongtap', setTimeout(function(){
+						// long tap
+						places.data('longtap', true);
+						fm.trigger('contextmenu', {
+							raw : [{
+								label    : fm.i18n('rmFromPlaces'),
+								icon     : 'rm',
+								callback : function() { remove(hash); save(); }
+							}],
+							'x'       : e.originalEvent.touches[0].clientX,
+							'y'       : e.originalEvent.touches[0].clientY
+						});
+					}, 500));
+				})
+				//.on('touchmove.'+fm.namespace+' touchend.'+fm.namespace, '.'+navdir+':not(.'+clroot+')', function(e) {
+				.on('touchmove touchend', '.'+navdir+':not(.'+clroot+')', function(e) {
+					clearTimeout($(this).data('tmlongtap'));
 				});
+
+		// "on regist" for command exec
+		$(this).on('regist', function(e, files){
+			$.each(files, function(i, hash) {
+				var dir = fm.file(hash);
+				if (dir && dir.mime == 'directory' && $.inArray(dir.hash, dirs) === -1) {
+					add(dir);
+				}
+			});
+			save();
+		});
 	
 
 		// on fm load - show places and load files from backend
@@ -10316,6 +10352,41 @@ elFinder.prototype.commands.pixlr = function() {
 
 		return dfrd.resolve();
 	};
+};
+
+/*
+ * File: /js/commands/places.js
+ */
+
+/**
+ * @class  elFinder command "places"
+ * Regist to Places
+ *
+ * @author Naoki Sawada
+ **/
+elFinder.prototype.commands.places = function() {
+	var self   = this,
+	fm     = this.fm,
+	filter = function(hashes) {
+		return $.map(self.files(hashes), function(f) { return f.mime == 'directory' ? f : null; });
+	},
+	places = null;
+	
+	this.getstate = function(sel) {
+		var sel = this.hashes(sel),
+		cnt = sel.length;
+		
+		return  places && cnt && cnt == filter(sel).length ? 0 : -1;
+	};
+	
+	this.exec = function(hashes) {
+		places.trigger('regist', [hashes]);
+	};
+	
+	fm.one('load', function(){
+		places = fm.ui.places;
+	});
+
 };
 
 /*
