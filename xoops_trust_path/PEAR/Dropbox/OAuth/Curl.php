@@ -73,8 +73,9 @@ class Dropbox_OAuth_Curl extends Dropbox_OAuth {
 		if (strtoupper($method) == 'POST') {
 			curl_setopt($ch, CURLOPT_URL, $uri);
 			curl_setopt($ch, CURLOPT_POST, true);
-			if (is_array($arguments))
-			    $arguments=http_build_query($arguments);
+			if (is_array($arguments)) {
+				$arguments=http_build_query($arguments);
+			}
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $arguments);
 			$httpHeaders['Content-Length']=strlen($arguments);
 		} else if (strtoupper($method) == 'PUT' && $this->inFile) {
@@ -93,6 +94,7 @@ class Dropbox_OAuth_Curl extends Dropbox_OAuth {
 		curl_setopt($ch, CURLOPT_TIMEOUT, 600);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+		curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
 		curl_setopt($ch, CURLOPT_CAINFO, dirname(__FILE__) . DIRECTORY_SEPARATOR . 'ca-bundle.pem');
 		//Build header
 		$headers = array();
@@ -121,15 +123,19 @@ class Dropbox_OAuth_Curl extends Dropbox_OAuth {
 		if (!empty($errorno))
 			throw new Dropbox_Exception_NotFound('Curl error: ('.$errorno.') '.$error."\n");
 
-			if ($status>=300) {
-			$body = @json_decode($response, true);
-			$jsonErr = (is_array($body) && isset($body['error']))? $body['error'] : '';
+		if ($status>=300) {
+			$body = array();
+			$body = json_decode($response, true);
+			if (!is_array($body)) {
+				$body = array();
+			}
+			$jsonErr = isset($body['error'])? $body['error'] : '';
 			switch ($status) {
 				// Not modified
 				case 304 :
 					return array(
-					'httpStatus' => 304,
-					'body' => null,
+						'httpStatus' => 304,
+						'body' => null,
 					);
 					break;
 				case 400 :
