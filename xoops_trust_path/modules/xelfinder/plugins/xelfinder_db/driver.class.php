@@ -120,7 +120,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			unset($this->cache[(int)$path]);
 			return $stat = $this->stat($path);
 		} else {
-			$this->_debug($sql);
+			//$this->_debug($sql);
 			return $this->setError(elFinder::ERROR_SAVE, $stat['name']);
 		}
 	}
@@ -334,17 +334,6 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		return false;
 	}
 
-	/**
-	 * Return temporary file path for required file
-	 *
-	 * @param  string  $path   file path
-	 * @return string
-	 * @author Dmitry (dio) Levashov
-	 **/
-	protected function tmpname($path) {
-		return $this->tmpPath.DIRECTORY_SEPARATOR.md5($path);
-	}
-
 	protected function getUmask($dir, & $gid) {
 		$umask = '';
 		if ($dir > 0) {
@@ -522,7 +511,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$localpath = rtrim($localpath, DIRECTORY_SEPARATOR);
 		//$localpath = mb_convert_encoding($localpath, 'UTF-8', 'AUTO');
 		$name = basename($localpath);
-		$this->_debug($localpath);
+		//$this->_debug($localpath);
 		if ($this->nameAccepted($name)) {
 			$width = $height = 0;
 			if (is_dir($localpath)) {
