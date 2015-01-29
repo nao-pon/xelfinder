@@ -227,10 +227,12 @@ abstract class elFinderVolumeDriver {
 		'accessControl'   => null,
 		// some data required by access control
 		'accessControlData' => null,
-		// default permissions. not set hidden/locked here - take no effect
+		// default permissions.
 		'defaults'     => array(
 			'read'   => true,
-			'write'  => true
+			'write'  => true,
+			'locked' => false,
+			'hidden' => false
 		),
 		// files attributes
 		'attributes'   => array(),
@@ -611,8 +613,8 @@ abstract class elFinderVolumeDriver {
 		$this->defaults = array(
 			'read'    => isset($this->options['defaults']['read'])  ? !!$this->options['defaults']['read']  : true,
 			'write'   => isset($this->options['defaults']['write']) ? !!$this->options['defaults']['write'] : true,
-			'locked'  => false,
-			'hidden'  => false
+			'locked'  => isset($this->options['defaults']['locked']) ? !!$this->options['defaults']['locked'] : false,
+			'hidden'  => isset($this->options['defaults']['hidden']) ? !!$this->options['defaults']['hidden'] : false
 		);
 
 		// root attributes
@@ -788,7 +790,7 @@ abstract class elFinderVolumeDriver {
 			$this->tmbURL .= '/';
 		}
 		
-		$this->nameValidator = is_string($this->options['acceptedName']) && !empty($this->options['acceptedName']) 
+		$this->nameValidator = !empty($this->options['acceptedName']) && (is_string($this->options['acceptedName']) || is_callable($this->options['acceptedName']))
 			? $this->options['acceptedName']
 			: '';
 
@@ -1056,14 +1058,6 @@ abstract class elFinderVolumeDriver {
 		$path = $this->decode($hash);
 		
 		return ($file = $this->stat($path)) ? $file : $this->setError(elFinder::ERROR_FILE_NOT_FOUND);
-		
-		if (($file = $this->stat($path)) != false) {
-			if ($realpath) {
-				$file['realpath'] = $path;
-			}
-			return $file;
-		}
-		return $this->setError(elFinder::ERROR_FILE_NOT_FOUND);
 	}
 	
 	/**
@@ -1829,7 +1823,7 @@ abstract class elFinderVolumeDriver {
 	 **/
 	public function rm($hash) {
 		return $this->commandDisabled('rm')
-			? array(elFinder::ERROR_ACCESS_DENIED)
+			? $this->setError(elFinder::ERROR_PERM_DENIED)
 			: $this->remove($this->decode($hash));
 	}
 	
@@ -2196,7 +2190,7 @@ abstract class elFinderVolumeDriver {
 	}
 	
 	/**
-	 * Validate file name based on $this->options['acceptedName'] regexp
+	 * Validate file name based on $this->options['acceptedName'] regexp or function
 	 *
 	 * @param  string  $name  file name
 	 * @return bool
@@ -2204,12 +2198,13 @@ abstract class elFinderVolumeDriver {
 	 **/
 	protected function nameAccepted($name) {
 		if ($this->nameValidator) {
-			if (function_exists($this->nameValidator)) {
-				$f = $this->nameValidator;
-				return $f($name);
+			if (is_callable($this->nameValidator)) {
+				$res = call_user_func($this->nameValidator, $name);
+				return $res;
 			}
-
-			return preg_match($this->nameValidator, $name);
+			if (preg_match($this->nameValidator, '') !== false) {
+				return preg_match($this->nameValidator, $name);
+			}
 		}
 		return true;
 	}
@@ -2548,7 +2543,7 @@ abstract class elFinderVolumeDriver {
 		$stat['write'] = intval($this->attr($path, 'write', isset($stat['write']) ? !!$stat['write'] : null, $isDir));
 		if ($root) {
 			$stat['locked'] = 1;
-		} elseif ($this->attr($path, 'locked', !empty($stat['locked']), $isDir)) {
+		} elseif ($this->attr($path, 'locked', isset($stat['locked']) ? !!$stat['locked'] : null, $isDir)) {
 			$stat['locked'] = 1;
 		} else {
 			unset($stat['locked']);
@@ -2556,9 +2551,9 @@ abstract class elFinderVolumeDriver {
 
 		if ($root) {
 			unset($stat['hidden']);
-		} elseif ($this->attr($path, 'hidden', !empty($stat['hidden']), $isDir) 
+		} elseif ($this->attr($path, 'hidden', isset($stat['hidden']) ? !!$stat['hidden'] : null, $isDir) 
 		|| !$this->mimeAccepted($stat['mime'])) {
-			$stat['hidden'] = $root ? 0 : 1;
+			$stat['hidden'] = 1;
 		} else {
 			unset($stat['hidden']);
 		}
