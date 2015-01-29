@@ -44,8 +44,8 @@ $(document).ready(function() {
 		elFinder.prototype.i18.jp.messages.continues     = 'さらに続ける';
 		elFinder.prototype.i18.jp.messages.imageinsert   = '画像挿入オプション';
 		elFinder.prototype.i18.jp.messages.CannotUploadOldIE = '<p>あなたがお使いの IE ブラウザでは、このマネージャーではファイルをアップロードすることができません。</p><p>ファイルをアップロードする場合は、最新のブラウザをご利用下さい。</p>';
-		elFinder.prototype.i18.en.messages.errPleaseReload = '接続に必要なトークンが見つかりません。<br />ブラウザでリロードするかポップアップウィンドウを開きなおしてください。';
-		elFinder.prototype.i18.en.messages.errAccessPleaseReload = '接続に必要なトークンが見つかりません。<br />ブラウザでリロードするかポップアップウィンドウを開きなおしてください。';
+		elFinder.prototype.i18.jp.messages.errPleaseReload = '接続に必要なトークンが見つかりません。<br />ブラウザでリロードするかポップアップウィンドウを開きなおしてください。';
+		elFinder.prototype.i18.jp.messages.errAccessPleaseReload = '接続に必要なトークンが見つかりません。<br />ブラウザでリロードするかポップアップウィンドウを開きなおしてください。';
 
 		elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
 	}
