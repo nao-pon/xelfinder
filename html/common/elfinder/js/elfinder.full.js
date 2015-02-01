@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 363c0b9) (2015-01-29)
+ * Version 2.1_n (Nightly: 06a7256) (2015-02-01)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -376,6 +376,13 @@ window.elFinder = function(node, opts) {
 	
 	if (opts.uiOptions && opts.uiOptions.toolbar) {
 		this.options.uiOptions.toolbar = opts.uiOptions.toolbar;
+	}
+
+	if (opts.uiOptions && opts.uiOptions.cwd && opts.uiOptions.cwd.listView && opts.uiOptions.cwd.listView.columns) {
+		this.options.uiOptions.cwd.listView.columns = opts.uiOptions.cwd.listView.columns;
+	}
+	if (opts.uiOptions && opts.uiOptions.cwd && opts.uiOptions.cwd.listView && opts.uiOptions.cwd.listView.columnsCustomName) {
+		this.options.uiOptions.cwd.listView.columnsCustomName = opts.uiOptions.cwd.listView.columnsCustomName;
 	}
 
 	$.extend(this.options.contextmenu, opts.contextmenu);
@@ -1954,6 +1961,7 @@ elFinder.prototype = {
 			'application/x-awk'             : 'AWK',
 			'application/x-gzip'            : 'GZIP',
 			'application/x-bzip2'           : 'BZIP',
+			'application/x-xz'              : 'XZ',
 			'application/zip'               : 'ZIP',
 			'application/x-zip'               : 'ZIP',
 			'application/x-rar'             : 'RAR',
@@ -3579,7 +3587,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 363c0b9)';
+elFinder.prototype.version = '2.1_n (Nightly: 06a7256)';
 
 
 
@@ -3959,7 +3967,21 @@ elFinder.prototype._options = {
 		},
 		cwd : {
 			// display parent folder with ".." name :)
-			oldSchool : false
+			oldSchool : false,
+			
+			// file info columns displayed
+			listView : {
+				// name is always displayed, cols are ordered
+				columns : ['perm', 'date', 'size', 'kind'],
+				// override this if you want custom columns name
+				// example
+				// columnsCustomName : {
+				//		date : 'Last modification',
+				// 		kind : 'Mime type'
+				// }
+				columnsCustomName : {}
+									
+			}
 		}
 	},
 
@@ -5167,6 +5189,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'kindTAR'         : 'TAR archive',
 			'kindGZIP'        : 'GZIP archive',
 			'kindBZIP'        : 'BZIP archive',
+			'kindXZ'          : 'XZ archive',
 			'kindZIP'         : 'ZIP archive',
 			'kindRAR'         : 'RAR archive',
 			'kindJAR'         : 'Java JAR file',
@@ -5618,6 +5641,15 @@ $.fn.elfindercwd = function(fm, options) {
 			
 			lastSearch = [],
 
+			customColsBuild = function() {
+				var customCols = '';
+				var columns = fm.options.uiOptions.cwd.listView.columns;
+				for (var i = 0; i < columns.length; i++) {
+					customCols += '<td>{' + columns[i] + '}</td>';
+				}
+				return customCols;
+			},
+
 			/**
 			 * File templates
 			 *
@@ -5625,7 +5657,7 @@ $.fn.elfindercwd = function(fm, options) {
 			 **/
 			templates = {
 				icon : '<div id="{hash}" class="'+clFile+' {permsclass} {dirclass} ui-corner-all" title="{tooltip}"><div class="elfinder-cwd-file-wrapper ui-corner-all"><div class="elfinder-cwd-icon {mime} ui-corner-all" unselectable="on" {style}/>{marker}</div><div class="elfinder-cwd-filename" title="{name}">{name}</div></div>',
-				row  : '<tr id="{hash}" class="'+clFile+' {permsclass} {dirclass}" title="{tooltip}"><td><div class="elfinder-cwd-file-wrapper"><span class="elfinder-cwd-icon {mime}"/>{marker}<span class="elfinder-cwd-filename">{name}</span></div></td><td>{perms}</td><td>{date}</td><td>{size}</td><td>{kind}</td></tr>'
+				row  : '<tr id="{hash}" class="'+clFile+' {permsclass} {dirclass}" title="{tooltip}"><td><div class="elfinder-cwd-file-wrapper"><span class="elfinder-cwd-icon {mime}"/>{marker}<span class="elfinder-cwd-filename">{name}</span></div></td>'+customColsBuild()+'</tr>',
 			},
 			
 			permsTpl = fm.res('tpl', 'perms'),
@@ -5643,7 +5675,7 @@ $.fn.elfindercwd = function(fm, options) {
 				permsclass : function(f) {
 					return fm.perms2class(f);
 				},
-				perms : function(f) {
+				perm : function(f) {
 					return fm.formatPermissions(f);
 				},
 				dirclass : function(f) {
@@ -6117,9 +6149,25 @@ $.fn.elfindercwd = function(fm, options) {
 			msg = {
 				name : fm.i18n('name'),
 				perm : fm.i18n('perms'),
-				mod  : fm.i18n('modify'),
+				date : fm.i18n('modify'),
 				size : fm.i18n('size'),
 				kind : fm.i18n('kind')
+			},
+			
+			customColsNameBuild = function() {
+				var name = '',
+				customColsName = '',
+				columns = fm.options.uiOptions.cwd.listView.columns,
+				names = $.extend({}, msg, fm.options.uiOptions.cwd.listView.columnsCustomName);
+				for (var i = 0; i < columns.length; i++) {
+					if (typeof names[columns[i]] !== 'undefined') {
+						name = names[columns[i]];
+					} else {
+						name = fm.i18n(columns[i]);
+					}
+					customColsName +='<td class="elfinder-cwd-view-th-'+columns[i]+'">'+name+'</td>';
+				}
+				return customColsName;
 			},
 			
 			/**
@@ -6146,7 +6194,7 @@ $.fn.elfindercwd = function(fm, options) {
 
 				wrapper[list ? 'addClass' : 'removeClass']('elfinder-cwd-wrapper-list');
 
-				list && cwd.html('<table><thead><tr class="ui-state-default"><td class="elfinder-cwd-view-th-name">'+msg.name+'</td><td class="elfinder-cwd-view-th-perm">'+msg.perm+'</td><td class="elfinder-cwd-view-th-date">'+msg.mod+'</td><td class="elfinder-cwd-view-th-size">'+msg.size+'</td><td class="elfinder-cwd-view-th-kind">'+msg.kind+'</td></tr></thead><tbody/></table>');
+				list && cwd.html('<table><thead><tr class="ui-state-default"><td class="elfinder-cwd-view-th-name">'+msg.name+'</td>'+customColsNameBuild()+'</tr></thead><tbody/></table>');
 		
 				buffer = $.map(files, function(f) { return any || f.phash == phash ? f : null; });
 				
