@@ -234,7 +234,8 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 						$row['size'] = filesize($realpath);
 						$row['mime'] = $this->mimetypeInternalDetect($row['id']);
 						$row['simg'] = trim($this->options['smallImg'], '/');
-						$row['tooltip'] = 'Owner: ' . xoops_elFinder::getUnameByUid($row['uid']);
+						$row['owner'] = xoops_elFinder::getUnameByUid($row['uid']);
+						$row['tooltip'] = 'Owner: ' . $row['owner'];
 						unset($row['uid'], $row['pid'], $row['lid'], $row['id']);
 						if (($stat = $this->updateCache($id, $row)) && empty($stat['hidden'])) {
 							$this->dirsCache[$path][] = $id;
@@ -466,7 +467,8 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 				$stat['size'] = filesize($realpath);
 				$stat['mime'] = $this->mimetypeInternalDetect($stat['id']);
 				$stat['simg'] = trim($this->options['smallImg'], '/');
-				$stat['tooltip'] = 'Owner: ' . xoops_elFinder::getUnameByUid($stat['uid']);
+				$stat['owner'] = xoops_elFinder::getUnameByUid($stat['uid']);
+				$stat['tooltip'] = 'Owner: ' . $stat['owner'];
 				unset($stat['uid'], $stat['lid'], $stat['cid'], $stat['id']);
 				return $stat;
 			}

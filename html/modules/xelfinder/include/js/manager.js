@@ -26,6 +26,8 @@ $(document).ready(function() {
 
 	if (typeof elFinder.prototype.i18.jp != "undefined") {
 		mes_jp = elFinder.prototype.i18.jp.messages;
+		mes_jp.read    = '読取'; // over write
+		mes_jp.write   = '書込'; // over write
 		mes_jp.ntfperm = 'アイテム属性を変更';
 		mes_jp.cmdperm = '属性変更';
 		mes_jp.newitem = '新規アイテム';
@@ -124,6 +126,24 @@ $(document).ready(function() {
 			navbar : {
 				minWidth : 150,
 				maxWidth : 500
+			},
+			cwd : {
+				// display parent folder with ".." name :)
+				oldSchool : false,
+				
+				// file info columns displayed
+				listView : {
+					// name is always displayed, cols are ordered
+					columns : ['perm', 'date', 'size', 'kind', 'owner'],
+					// override this if you want custom columns name
+					// example
+					// columnsCustomName : {
+					//		date : 'Last modification',
+					// 		kind : 'Mime type'
+					// }
+					columnsCustomName : {}
+										
+				}
 			}
 		},
 		commands : elfinderCmds,

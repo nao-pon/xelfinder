@@ -126,7 +126,8 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 							$row['size'] = filesize($realpath);
 							$row['mime'] = $this->mimetypeInternalDetect($ids[$_cnt]);
 							$row['simg'] = trim($this->options['smallImg'], '/');
-							$row['tooltip'] = 'Owner: ' . xoops_elFinder::getUnameByUid($row['uid']);
+							$row['owner'] = xoops_elFinder::getUnameByUid($row['uid']);
+							$row['tooltip'] = 'Owner: ' . $row['owner'];
 							if (($stat = $this->updateCache($id, $row)) && empty($stat['hidden'])) {
 								$this->dirsCache[$path][] = $id;
 							}
@@ -266,7 +267,8 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 				$stat['size'] = filesize($realpath);
 				$stat['mime'] = $this->mimetypeInternalDetect($stat['id']);
 				$stat['simg'] = trim($this->options['smallImg'], '/');
-				$stat['tooltip'] = 'Owner: ' . xoops_elFinder::getUnameByUid($stat['uid']);
+				$stat['owner'] = xoops_elFinder::getUnameByUid($stat['uid']);
+				$stat['tooltip'] = 'Owner: ' . $stat['owner'];
 				unset($stat['lid'], $stat['id']);
 				return $stat;
 			}
