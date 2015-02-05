@@ -313,7 +313,7 @@ $modversion['config'][] = array(
 	'description'	=> $constpref.'_USE_GUEST_DIR_DESC',
 	'formtype'		=> 'yesno' ,
 	'valuetype'		=> 'int' ,
-	'default'		=> 1
+	'default'		=> 0
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'guest_dir_perm' ,
