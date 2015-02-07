@@ -289,7 +289,7 @@ $modversion['config'][] = array(
 	'description'	=> $constpref.'_USE_USERS_DIR_DESC',
 	'formtype'		=> 'yesno' ,
 	'valuetype'		=> 'int' ,
-	'default'		=> 1
+	'default'		=> 0
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'users_dir_perm' ,
@@ -337,7 +337,7 @@ $modversion['config'][] = array(
 	'description'	=> $constpref.'_USE_GROUP_DIR_DESC',
 	'formtype'		=> 'yesno' ,
 	'valuetype'		=> 'int' ,
-	'default'		=> 1
+	'default'		=> 0
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'group_dir_parent' ,
