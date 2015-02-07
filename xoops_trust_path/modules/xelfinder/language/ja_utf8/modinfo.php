@@ -27,6 +27,10 @@ define( $constpref.'_VOLUME_SETTING_DESC' ,     '[モジュールディレクト
 define( $constpref.'_SHARE_HOLDER' ,            '共有フォルダ' );
 define( $constpref.'_DISABLED_CMDS_BY_GID' ,    'グループ毎無効コマンド' );
 define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','グループ毎(管理者を除く)に無効にするコマンドを [グループID]=[無効コマンド(カンマ区切り)] として ":" で区切って指定する。<br />コマンド名: mkdir, mkfile, rm, rename, duplicate, paste, upload, archive, extract, resize, netmount, perm, pixlr など' );
+define( $constpref.'_DISABLE_WRITES_GUEST' ,    'ゲスト書き込み無効' );
+define( $constpref.'_DISABLE_WRITES_GUEST_DESC','ゲスト向けにグループ毎無効コマンドに指定した無効コマンドに合わせ、書き込み系コマンドをすべて追加します。' );
+define( $constpref.'_DISABLE_WRITES_USER' ,     '登録ユーザー書き込み無効' );
+define( $constpref.'_DISABLE_WRITES_USER_DESC', '登録ユーザー向けにグループ毎無効コマンドに指定した無効コマンドに合わせ、書き込み系コマンドをすべて追加します。' );
 define( $constpref.'_FTP_NAME' ,                'FTP ネットボリューム表示名' );
 define( $constpref.'_FTP_NAME_DESC' ,           '管理者用の FTP 接続ネットボリュームの表示名' );
 define( $constpref.'_FTP_HOST' ,                'FTP ホスト名' );

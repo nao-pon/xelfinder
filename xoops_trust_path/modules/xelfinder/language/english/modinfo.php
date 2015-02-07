@@ -27,6 +27,10 @@ define( $constpref.'_VOLUME_SETTING_DESC' ,     '[Module directory name]:[Plugin
 define( $constpref.'_SHARE_HOLDER' ,            'Share holder' );
 define( $constpref.'_DISABLED_CMDS_BY_GID' ,    'Disabled cmds of each group' );
 define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','Set [GroupID]=[Disabled cmds(comma-separated)] separated by ":".<br />Command list: mkdir, mkfile, rm, rename, duplicate, paste, upload, archive, extract, resize, netmount, perm, pixlr etc...' );
+define( $constpref.'_DISABLE_WRITES_GUEST' ,    'Disable writing cmds to guest' );
+define( $constpref.'_DISABLE_WRITES_GUEST_DESC','All writing commands are added to the disabled commands to guests.' );
+define( $constpref.'_DISABLE_WRITES_USER' ,     'Disable writing cmds to user' );
+define( $constpref.'_DISABLE_WRITES_USER_DESC', 'All writing commands are added to the disabled commands to registed users.' );
 define( $constpref.'_FTP_NAME' ,                'Name of FTP net volume' );
 define( $constpref.'_FTP_NAME_DESC' ,           'The display name of the FTP connection net volume for administrators.' );
 define( $constpref.'_FTP_HOST' ,                'FTP Host name' );

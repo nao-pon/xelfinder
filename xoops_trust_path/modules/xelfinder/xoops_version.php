@@ -91,6 +91,22 @@ $modversion['config'][] = array(
 	'default'		=> '3=mkdir,paste,archive,extract'
 ) ;
 $modversion['config'][] = array(
+	'name'			=> 'disable_writes_guest' ,
+	'title'			=> $constpref.'_DISABLE_WRITES_GUEST' ,
+	'description'	=> $constpref.'_DISABLE_WRITES_GUEST_DESC' ,
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> '1'
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'disable_writes_user' ,
+	'title'			=> $constpref.'_DISABLE_WRITES_USER' ,
+	'description'	=> $constpref.'_DISABLE_WRITES_USER_DESC' ,
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> '0'
+) ;
+$modversion['config'][] = array(
 	'name'			=> 'ftp_name' ,
 	'title'			=> $constpref.'_FTP_NAME' ,
 	'description'	=> $constpref.'_FTP_NAME_DESC' ,

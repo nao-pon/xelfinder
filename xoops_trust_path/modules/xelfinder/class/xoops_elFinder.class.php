@@ -31,6 +31,21 @@ class xoops_elFinder {
 			'defaults' => array('read' => true, 'write' => false, 'hidden' => false, 'locked' => false)
 	);
 	
+	protected $writeCmds = array(
+	    'mkdir',
+	    'mkfile',
+	    'rm',
+	    'rename',
+	    'duplicate',
+	    'paste',
+	    'upload',
+	    'put',
+	    'archive',
+	    'resize',
+		'perm',
+	    'pixlr'
+	);
+	
 	public function __construct($mydirname, $opt = array()) {
 		global $xoopsUser, $xoopsModule;
 		
@@ -74,19 +89,24 @@ class xoops_elFinder {
 	
 	public function getDisablesCmds($useAdmin = true) {
 		$disabledCmds = array();
-		if ((!$useAdmin || !$this->isAdmin) && !empty($this->config['disabled_cmds_by_gids'])) {
-			$_parts = array_map('trim', explode(':', $this->config['disabled_cmds_by_gids']));
-			foreach($_parts as $_part) {
-				list($_gid, $_cmds) = explode('=', $_part, 2);
-				$_gid = intval($_gid);
-				$_cmds = trim($_cmds);
-				if (! $_gid || ! $_cmds) continue;
-				if (in_array($_gid, $this->mygids)) {
-					$_cmds = array_map('trim', explode(',', $_cmds));
-					$disabledCmds = array_merge($disabledCmds, $_cmds);
+		if (!$useAdmin || !$this->isAdmin) {
+			if (!empty($this->config['disable_writes_' . (is_object($this->xoopsUser)? 'user' : 'guest')])) {
+				$disabledCmds = $this->writeCmds;
+			} 
+			if (!empty($this->config['disabled_cmds_by_gids'])) {
+				$_parts = array_map('trim', explode(':', $this->config['disabled_cmds_by_gids']));
+				foreach($_parts as $_part) {
+					list($_gid, $_cmds) = explode('=', $_part, 2);
+					$_gid = intval($_gid);
+					$_cmds = trim($_cmds);
+					if (! $_gid || ! $_cmds) continue;
+					if (in_array($_gid, $this->mygids)) {
+						$_cmds = array_map('trim', explode(',', $_cmds));
+						$disabledCmds = array_merge($disabledCmds, $_cmds);
+					}
 				}
+				$disabledCmds = array_unique($disabledCmds);
 			}
-			$disabledCmds = array_unique($disabledCmds);
 		}
 		return $disabledCmds;
 	}

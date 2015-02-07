@@ -27,6 +27,10 @@ define( $constpref.'_VOLUME_SETTING_DESC' ,     '[¥â¥¸¥å¡¼¥ë¥Ç¥£¥ì¥¯¥È¥êÌ¾]:[¥×¥
 define( $constpref.'_SHARE_HOLDER' ,            '¶¦Í­¥Õ¥©¥ë¥À' );
 define( $constpref.'_DISABLED_CMDS_BY_GID' ,    '¥°¥ë¡¼¥×ËèÌµ¸ú¥³¥Þ¥ó¥É' );
 define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','¥°¥ë¡¼¥×Ëè(´ÉÍý¼Ô¤ò½ü¤¯)¤ËÌµ¸ú¤Ë¤¹¤ë¥³¥Þ¥ó¥É¤ò [¥°¥ë¡¼¥×ID]=[Ìµ¸ú¥³¥Þ¥ó¥É(¥«¥ó¥Þ¶èÀÚ¤ê)] ¤È¤·¤Æ ":" ¤Ç¶èÀÚ¤Ã¤Æ»ØÄê¤¹¤ë¡£<br />¥³¥Þ¥ó¥ÉÌ¾: mkdir, mkfile, rm, rename, duplicate, paste, upload, archive, extract, resize, netmount, perm, pixlr ¤Ê¤É' );
+define( $constpref.'_DISABLE_WRITES_GUEST' ,    '¥²¥¹¥È½ñ¤­¹þ¤ßÌµ¸ú' );
+define( $constpref.'_DISABLE_WRITES_GUEST_DESC','¥²¥¹¥È¸þ¤±¤Ë¥°¥ë¡¼¥×ËèÌµ¸ú¥³¥Þ¥ó¥É¤Ë»ØÄê¤·¤¿Ìµ¸ú¥³¥Þ¥ó¥É¤Ë¹ç¤ï¤»¡¢½ñ¤­¹þ¤ß·Ï¥³¥Þ¥ó¥É¤ò¤¹¤Ù¤ÆÄÉ²Ã¤·¤Þ¤¹¡£' );
+define( $constpref.'_DISABLE_WRITES_USER' ,     'ÅÐÏ¿¥æ¡¼¥¶¡¼½ñ¤­¹þ¤ßÌµ¸ú' );
+define( $constpref.'_DISABLE_WRITES_USER_DESC', 'ÅÐÏ¿¥æ¡¼¥¶¡¼¸þ¤±¤Ë¥°¥ë¡¼¥×ËèÌµ¸ú¥³¥Þ¥ó¥É¤Ë»ØÄê¤·¤¿Ìµ¸ú¥³¥Þ¥ó¥É¤Ë¹ç¤ï¤»¡¢½ñ¤­¹þ¤ß·Ï¥³¥Þ¥ó¥É¤ò¤¹¤Ù¤ÆÄÉ²Ã¤·¤Þ¤¹¡£' );
 define( $constpref.'_FTP_NAME' ,                'FTP ¥Í¥Ã¥È¥Ü¥ê¥å¡¼¥àÉ½¼¨Ì¾' );
 define( $constpref.'_FTP_NAME_DESC' ,           '´ÉÍý¼ÔÍÑ¤Î FTP ÀÜÂ³¥Í¥Ã¥È¥Ü¥ê¥å¡¼¥à¤ÎÉ½¼¨Ì¾' );
 define( $constpref.'_FTP_HOST' ,                'FTP ¥Û¥¹¥ÈÌ¾' );
