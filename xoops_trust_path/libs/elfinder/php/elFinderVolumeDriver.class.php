@@ -2377,16 +2377,19 @@ abstract class elFinderVolumeDriver {
 	 * Get image size array with `dimensions`
 	 *
 	 * @param string $path path need convert encoding to server encoding
+	 * @param string $mime file mime type
 	 * @return array|false
 	 */
-	public function getImageSize($path) {
+	public function getImageSize($path, $mime = '') {
 		$size = false;
-		if ($work = $this->getWorkFile($path)) {
-			if ($size = @getimagesize($work)) {
-				$size['dimensions'] = $size[0].'x'.$size[1];
+		if ($mime === '' || strtolower(substr($mime, 0, 5)) === 'image') {
+			if ($work = $this->getWorkFile($path)) {
+				if ($size = @getimagesize($work)) {
+					$size['dimensions'] = $size[0].'x'.$size[1];
+				}
 			}
+			is_file($work) && @unlink($work);
 		}
-		is_file($work) && @unlink($work);
 		return $size;
 	}
 	
@@ -2920,7 +2923,7 @@ abstract class elFinderVolumeDriver {
 					$name = $stat['name'];
 					if (!$this->copy($this->joinPathCE($src, $name), $dst, $name)) {
 						$this->remove($dst, true); // fall back
-						return false;
+						return $this->setError($this->error, elFinder::ERROR_COPY, $this->_path($src));
 					}
 				}
 			}
@@ -2996,7 +2999,8 @@ abstract class elFinderVolumeDriver {
 			
 			foreach ($volume->scandir($src) as $entr) {
 				if (!$this->copyFrom($volume, $entr['hash'], $path, $entr['name'])) {
-					return false;
+					$this->remove($path, true); // fall back
+					return $this->setError($this->error, elFinder::ERROR_COPY, $errpath);
 				}
 			}
 			
