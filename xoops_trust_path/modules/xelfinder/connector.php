@@ -23,6 +23,9 @@ define('ELFINDER_DROPBOX_USE_CURL_PUT', true);
 // load compat functions
 require_once dirname(__FILE__) . '/include/compat.php';
 
+// load composer auto loader 
+require_once __DIR__ . '/plugins/vendor/autoload.php';
+
 // HTTP request header origin
 $origin = isset($_SERVER['HTTP_ORIGIN'])? $_SERVER['HTTP_ORIGIN'] : '';
 
@@ -262,6 +265,7 @@ foreach($rootVolumes as $rootVolume) {
 
 $opts = array(
 	'locale' => 'ja_JP.UTF-8',
+	'sessionCacheKey' => 'xel_'.$mydirname.'_Caches',
 	'bind'   => array(
 		'*'              => array($xoops_elFinder, 'log'),
 		'mkdir.pre mkfile.pre rename.pre' => array(
@@ -313,6 +317,7 @@ $connector->run();
 
 function debug($str) {
 	ob_start();
+	//debug_print_backtrace();
 	var_dump($str);
 	$str = ob_get_clean();
 	file_put_contents(dirname(__FILE__) . '/debug.txt', $str . "\n", FILE_APPEND);
