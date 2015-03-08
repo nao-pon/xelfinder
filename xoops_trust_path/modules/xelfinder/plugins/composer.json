@@ -1,0 +1,9 @@
+{
+    "require": {
+        "league/flysystem": "1.1.*@dev",
+        "nao-pon/flysystem-copy": "dev-pilot",
+        "nao-pon/copy": "@dev",
+        "nao-pon/flysystem-cached-adapter": "dev-pilot",
+        "nao-pon/elfinder-flysystem-driver": "dev-pilot"
+    }
+}

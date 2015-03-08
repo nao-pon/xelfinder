@@ -1,0 +1,22 @@
+language: php
+php:
+- 5.3
+- 5.4
+- 5.5
+- 5.6
+- hhvm
+before_script:
+- composer self-update
+- composer install
+script:
+- sh -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then php vendor/bin/parallel-lint --exclude vendor .; fi;'
+- php vendor/bin/phpunit
+- sh -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then php bin/coverage-checker.php clover.xml 75; fi;'
+- sh -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then wget https://scrutinizer-ci.com/ocular.phar; fi;'
+- sh -c 'if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then php ocular.phar code-coverage:upload --format=php-clover clover.xml; fi;'
+env:
+  global:
+  - secure: Lwlbsp5X6Gl5etx8r9agUtAUQEWf81wxDQxYbUl/P8D6tBw6jKjOTpEyz2GC1/ytMkB81yC10QCkL5q5UwFirsucr9cq6cRkQicwWLn9pIcI8vwBdHXA1k5Q9EvL0fa8RgkNenSXBK2qs63JV8aVJ6st8jKEY/r9bPLXqcfL9DU=
+  - secure: osWOHa3FaCAsEvsOwMhXP+GYWkX9HwDs3I2LrWT8wibxxYCuLg5blSptevJO5e13Lvk8061wNej1lc/xb08QmpRWxAxS8V1Pqkl35uz6L3EbzwRhP2RkySWUhmbKbiwcHyJ0KwTekFDPrX7GuecQK1whBOkaY05ur8WC6fgano8=
+  - secure: bNt+yzHeSEk0pAQe2/Jq+vIgDTl4/PZkr/DyuS/xLterzXDdicmYysqBbdrL3Qzo9pKU7bvf+ljL2L96FTD9phaIpcd34OmB7RCAh4+B91YyVp0qiSWO3Aq1KKVipUciVuGKo60MkdIWyIOTpZ6SlbtloT0wN+5MpWFwLxcEit8=
+  - secure: HqtxqHDhtyZlpdhm/1Ox8uMUn4PA4F8MAoOE14U9PnDeQByRTPkuThK27Su+6QkUmMJgdKIwesPOjRAZTTgllVhDAcO7VwOkVUu0zjYwyKfoysPeuYYFEUM0b4m96QZOzOSwglrMOjupxGHLshm5ut362koFrDCG7Ot63ZxuljU=
