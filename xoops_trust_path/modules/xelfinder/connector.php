@@ -24,7 +24,9 @@ define('ELFINDER_DROPBOX_USE_CURL_PUT', true);
 require_once dirname(__FILE__) . '/include/compat.php';
 
 // load composer auto loader 
-require_once __DIR__ . '/plugins/vendor/autoload.php';
+if (version_compare(PHP_VERSION, '5.3.2', '>=')) {
+	require_once __DIR__ . '/plugins/vendor/autoload.php';
+}
 
 // HTTP request header origin
 $origin = isset($_SERVER['HTTP_ORIGIN'])? $_SERVER['HTTP_ORIGIN'] : '';
