@@ -277,6 +277,8 @@ function insertCode(align, thumb) {
 		size = $('#resize_px').val();
 		if (size && (! size.match(/[\d]{1,4}/) || (!!insertCode.iSize && insertCode.iSize <= size))) {
 			size = '';
+		} else {
+			$.insertAtCaret.resizePx = size;
 		}
 	}
 	$.insertAtCaret.continue_finder = $("#continue_finder:checked").val()? true : false;
@@ -402,7 +404,7 @@ var getFileCallback_bbcode = function (file, fm) {
 					+ '<span class="file_info">'+fm.i18n('size')+': ' + file.width + 'x' + file.height+'</span>';
 		if (file.url.match(/\bview\b/)) {
 			insertCode.iSize = Math.max(file.width, file.height);
-			var tsize = Math.min(insertCode.iSize, defaultTmbSize);
+			var tsize = $.insertAtCaret.resizePx || Math.min(insertCode.iSize, defaultTmbSize);
 			buttons += '<br>'
 					+ '<span class="file_info">'+fm.i18n('resize')+':<input id="resize_px" style="width: 2.5em" class="button_input" value="'+tsize+'">px</span>';
 		}
@@ -447,7 +449,7 @@ var getFileCallback_xpwiki = function (file, fm) {
 		var wraparound = ' title="' + fm.i18n('wraparound') + '"';
 		var inline = ' title="' + fm.i18n('inline') + '"';
 		insertCode.iSize = Math.max(file.width, file.height);
-		var tsize = Math.min(insertCode.iSize, defaultTmbSize);
+		var tsize = $.insertAtCaret.resizePx || Math.min(insertCode.iSize, defaultTmbSize);
 		var buttons = '<span onclick="insertCode(\'left\',1);"'+wraparound+'><img src="'+imgUrl+'alignleft.gif" alt="" /></span> <span onclick="insertCode(\'\',1)"'+inline+'><img src="'+imgUrl+'aligncenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',1)"'+wraparound+'><img src="'+imgUrl+'alignright.gif" alt="" /></span>'
 					+ '<br>'
 					+ '<span onclick="insertCode(\'left\',0);"'+nowrap+'><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',0)"'+nowrap+'><img src="'+imgUrl+'alignbigcenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',0)"'+nowrap+'><img src="'+imgUrl+'alignbigright.gif" alt="" /></span>'
@@ -540,7 +542,7 @@ var getFileCallback_ckeditor = function (file, fm) {
 		+ '<br><span class="file_info">'+fm.i18n('size')+': ' + file.width + 'x' + file.height+'</span>';
 		if (file.url.match(/\bview\b/)) {
 			insertCode.iSize = Math.max(file.width, file.height);
-			var tsize = Math.min(insertCode.iSize, defaultTmbSize);
+			var tsize = $.insertAtCaret.resizePx || Math.min(insertCode.iSize, defaultTmbSize);
 			buttons += '<br>'
 					+ '<span class="file_info">'+fm.i18n('resize')+':<input id="resize_px" style="width: 2.5em" class="button_input" value="'+tsize+'">px</span>';
 		}
