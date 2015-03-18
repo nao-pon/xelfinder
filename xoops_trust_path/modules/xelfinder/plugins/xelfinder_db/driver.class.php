@@ -1440,6 +1440,19 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$this->_unpack($archive, $arc);
 		@unlink($archive);
 		
+		// get files list
+		$ls = array();
+		foreach (scandir($localdir) as $i => $name) {
+			if ($name != '.' && $name != '..') {
+				$ls[] = $name;
+			}
+		}
+			
+		// no files - extract error ?
+		if (empty($ls)) {
+			return false;
+		}
+		
 		// find symlinks
 		$this->archiveSize = 0;
 		if ($this->_findSymlinks($localdir)) {
@@ -1454,31 +1467,35 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			return $this->setError(elFinder::ERROR_ARC_MAXSIZE);
 		}
 		
-		// get files list
-		$ls = array();
 		$dir = $this->decode($stat['phash']);
 
-		// create unique name for directory
-		$name = $stat['name'];
-		if (preg_match('/\.((tar\.(gz|bz|bz2|z|lzo))|cpio\.gz|ps\.gz|xcf\.(gz|bz2)|[a-z0-9]{1,4})$/i', $name, $m)) {
-			$name = substr($name, 0,  strlen($name)-strlen($m[0]));
-		}
-
-		if ($this->_joinPath($dir, $name) > -1) {
-			$name = $this->uniqueName($dir, $name, '-', false);
-		}
-		$dir = $this->_mkdir($dir, $name);
-		
-		if ($dir < 1) {
-			$this->rmdirRecursive($localdir);
-			return false;
-		}
-		
-		$_ok = false;
-		foreach (scandir($localdir) as $name) {
-			if ($name != '.' && $name != '..') {
-				$res = $this->localFileSave($localdir.DIRECTORY_SEPARATOR.$name, $dir, true);
-				if (!$_ok && $res > 0) $_ok = true;
+		$src = $localdir.DIRECTORY_SEPARATOR.$ls[0];
+		if (count($ls) === 1 && is_file($src)) {
+			$dir = $this->localFileSave($src, $dir, true);
+			$_ok = $dir? true : false;
+		} else {
+			// create unique name for directory
+			$name = $stat['name'];
+			if (preg_match('/\.((tar\.(gz|bz|bz2|z|lzo))|cpio\.gz|ps\.gz|xcf\.(gz|bz2)|[a-z0-9]{1,4})$/i', $name, $m)) {
+				$name = substr($name, 0,  strlen($name)-strlen($m[0]));
+			}
+	
+			if ($this->_joinPath($dir, $name) > -1) {
+				$name = $this->uniqueName($dir, $name, '-', false);
+			}
+			$dir = $this->_mkdir($dir, $name);
+			
+			if ($dir < 1) {
+				$this->rmdirRecursive($localdir);
+				return false;
+			}
+			
+			$_ok = false;
+			foreach (scandir($localdir) as $name) {
+				if ($name != '.' && $name != '..') {
+					$res = $this->localFileSave($localdir.DIRECTORY_SEPARATOR.$name, $dir, true);
+					if (!$_ok && $res > 0) $_ok = true;
+				}
 			}
 		}
 		
@@ -1487,7 +1504,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		if ($_ok) {
 			return $dir;
 		} else {
-			$this->_rmdir($dir);
+			$dir && $this->_rmdir($dir);
 		}
 
 		// no files - extract error ?
