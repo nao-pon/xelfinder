@@ -583,17 +583,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @author Naoki Sawada
 	 **/
 	protected function rrmdir($dir) {
-		foreach (scandir($dir) as $file) {
-			if ($file != '.' && $file != '..') {
-				$file = $dir.DIRECTORY_SEPARATOR.$file;
-				if(is_dir($file)) {
-					$this->rrmdir($file);
-				} else {
-					@ unlink($file);
-				}
-			}
-		}
-		return rmdir($dir);
+		return $this->rmdirRecursive($dir);
 	}
 	
 	protected function makeStat($stat) {
@@ -1398,7 +1388,8 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			foreach (scandir($realpath) as $name) {
 				if ($name != '.' && $name != '..') {
 					$p = $realpath.DIRECTORY_SEPARATOR.$name;
-					if (is_link($p)) {
+					if (is_link($p) || !$this->nameAccepted($name)) {
+						$this->setError(elFinder::ERROR_SAVE, $name);
 						return true;
 					}
 					if (is_dir($p) && $this->_findSymlinks($p)) {
@@ -1428,16 +1419,20 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$localpath = $this->readlink($id);
 		$stat = $this->stat($id);
 		
-		$localdir = XOOPS_TRUST_PATH.DIRECTORY_SEPARATOR.'cache'.DIRECTORY_SEPARATOR.str_replace(' ', '_', microtime()).basename($localpath);
+		$localdir = XOOPS_TRUST_PATH.DIRECTORY_SEPARATOR.'cache'.DIRECTORY_SEPARATOR.md5(basename($localpath).mt_rand());
 		$archive = $localdir.DIRECTORY_SEPARATOR.basename($localpath);
 		if (!@mkdir($localdir)) {
 			return false;
 		}
 		
+		// insurance unexpected shutdown
+		register_shutdown_function(array($this, 'rmdirRecursive'), realpath($localdir));
+		
 		chmod($localdir, 0777);
 		
 		// copy in quarantine
 		if (!copy($localpath, $archive)) {
+			$this->rmdirRecursive($localdir);
 			return false;
 		}
 		
@@ -1449,13 +1444,13 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$this->archiveSize = 0;
 		if ($this->_findSymlinks($localdir)) {
 			// remove arc copy
-			$this->rrmdir($localdir);
-			return $this->setError(elFinder::ERROR_ARC_SYMLINKS);
+			$this->rmdirRecursive($localdir);
+			return $this->setError(array_merge($this->error, array(elFinder::ERROR_ARC_SYMLINKS)));
 		}
 		
 		// check max files size
 		if ($this->options['maxArcFilesSize'] > 0 && $this->options['maxArcFilesSize'] < $this->archiveSize) {
-			$this->rrmdir($localdir);
+			$this->rmdirRecursive($localdir);
 			return $this->setError(elFinder::ERROR_ARC_MAXSIZE);
 		}
 		
@@ -1474,7 +1469,10 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		}
 		$dir = $this->_mkdir($dir, $name);
 		
-		if ($dir < 1) return false;
+		if ($dir < 1) {
+			$this->rmdirRecursive($localdir);
+			return false;
+		}
 		
 		$_ok = false;
 		foreach (scandir($localdir) as $name) {
@@ -1484,7 +1482,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			}
 		}
 		
-		$this->rrmdir($localdir);
+		$this->rmdirRecursive($localdir);
 		
 		if ($_ok) {
 			return $dir;
@@ -1528,7 +1526,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$ret = $this->localFileSave($_dir.DIRECTORY_SEPARATOR.$name, $dir);
 
 		if ($mkdir) {
-			$this->rrmdir($_dir);
+			$this->rmdirRecursive($_dir);
 		} else {
 			foreach($_tmpfiles as $file) {
 				@ unlink($_dir.DIRECTORY_SEPARATOR.$file);
