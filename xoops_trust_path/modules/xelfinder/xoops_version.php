@@ -58,7 +58,7 @@ if (defined('LEGACY_BASE_VERSION')) {
 } else {
 	$_encrypt = 'string';
 }
-$_checkbox = (defined('_MI_LEGACY_DETAILED_VERSION') && version_compare(_MI_LEGACY_DETAILED_VERSION, 'CorePack 20120825', '>='));
+$_group_multi = ((defined('_MI_LEGACY_DETAILED_VERSION') && version_compare(_MI_LEGACY_DETAILED_VERSION, 'CorePack 20120825', '>='))? 'group_checkbox' : 'group_multi');
 // Configs
 $modversion['config'][] = array(
 	'name'			=> 'manager_title' ,
@@ -119,7 +119,7 @@ $modversion['config'][] = array(
 	'name'			=> 'mail_notify_group' ,
 	'title'			=> $constpref.'_MAIL_NOTIFY_GROUP' ,
 	'description'	=> $constpref.'_MAIL_NOTIFY_GROUP_DESC' ,
-	'formtype'		=> ($_checkbox? 'group_checkbox' : 'group_multi') ,
+	'formtype'		=> $_group_multi ,
 	'valuetype'		=> 'array' ,
 	'default'		=> ''
 ) ;
@@ -239,7 +239,7 @@ $modversion['config'][] = array(
 	'name'			=> 'dropbox_writable_groups' ,
 	'title'			=> $constpref.'_DROPBOX_WRITABLE_GROUPS' ,
 	'description'	=> $constpref.'_DROPBOX_WRITABLE_GROUPS_DESC' ,
-	'formtype'		=> 'group_multi' ,
+	'formtype'		=> $_group_multi ,
 	'valuetype'		=> 'array' ,
 	'default'		=> ''
 ) ;
@@ -424,7 +424,7 @@ $modversion['config'][] = array(
 	'name'			=> 'special_groups' ,
 	'title'			=> $constpref.'_SPECIAL_GROUPS',
 	'description'	=> $constpref.'_SPECIAL_GROUPS_DESC',
-	'formtype'		=> ($_checkbox? 'group_checkbox' : 'group_multi') ,
+	'formtype'		=> $_group_multi ,
 	'valuetype'		=> 'array' ,
 	'default'		=> ''
 ) ;
