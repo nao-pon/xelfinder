@@ -31,6 +31,10 @@ define( $constpref.'_DISABLE_WRITES_GUEST' ,    'Disable writing cmds to guest' 
 define( $constpref.'_DISABLE_WRITES_GUEST_DESC','All writing commands are added to the disabled commands to guests.' );
 define( $constpref.'_DISABLE_WRITES_USER' ,     'Disable writing cmds to user' );
 define( $constpref.'_DISABLE_WRITES_USER_DESC', 'All writing commands are added to the disabled commands to registed users.' );
+define( $constpref.'_MAIL_NOTIFY_GUEST' ,       'E-Mail Notify (Guest)' );
+define( $constpref.'_MAIL_NOTIFY_GUEST_DESC',   'Mailing notifies an administrator of file addition by a guest.' );
+define( $constpref.'_MAIL_NOTIFY_GROUP' ,       'E-Mail Notify (Groups)' );
+define( $constpref.'_MAIL_NOTIFY_GROUP_DESC',   'Mailing notifies an administrator of file addition by selected groups.' );
 define( $constpref.'_FTP_NAME' ,                'Name of FTP net volume' );
 define( $constpref.'_FTP_NAME_DESC' ,           'The display name of the FTP connection net volume for administrators.' );
 define( $constpref.'_FTP_HOST' ,                'FTP Host name' );

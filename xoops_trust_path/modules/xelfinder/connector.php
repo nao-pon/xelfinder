@@ -201,6 +201,7 @@ if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HAS
 	if ($isAdmin && !empty($config['ftp_host']) && !empty($config['ftp_port']) && !empty($config['ftp_user']) && !empty($config['ftp_pass'])) {
 		$ftp = array(
 			'driver'  => 'FTPx',
+			'id'      => 'ad',
 			'alias'   => $config['ftp_name'],
 			'host'    => $config['ftp_host'],
 			'port'    => $config['ftp_port'],
@@ -238,6 +239,7 @@ if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HAS
 		}
 		$dropbox = array(
 			'driver'            => 'DropboxX',
+			'id'                => 'sh',
 			'consumerKey'       => ELFINDER_DROPBOX_CONSUMERKEY,
 			'consumerSecret'    => ELFINDER_DROPBOX_CONSUMERSECRET,
 			'alias'             => trim($config['dropbox_name']),

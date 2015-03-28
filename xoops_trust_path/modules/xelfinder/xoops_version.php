@@ -58,6 +58,7 @@ if (defined('LEGACY_BASE_VERSION')) {
 } else {
 	$_encrypt = 'string';
 }
+$_checkbox = (defined('_MI_LEGACY_DETAILED_VERSION') && version_compare(_MI_LEGACY_DETAILED_VERSION, 'CorePack 20120825', '>='));
 // Configs
 $modversion['config'][] = array(
 	'name'			=> 'manager_title' ,
@@ -105,6 +106,22 @@ $modversion['config'][] = array(
 	'formtype'		=> 'yesno' ,
 	'valuetype'		=> 'int' ,
 	'default'		=> '0'
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'mail_notify_guest' ,
+	'title'			=> $constpref.'_MAIL_NOTIFY_GUEST' ,
+	'description'	=> $constpref.'_MAIL_NOTIFY_GUEST_DESC' ,
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> '0'
+) ;
+$modversion['config'][] = array(
+	'name'			=> 'mail_notify_group' ,
+	'title'			=> $constpref.'_MAIL_NOTIFY_GROUP' ,
+	'description'	=> $constpref.'_MAIL_NOTIFY_GROUP_DESC' ,
+	'formtype'		=> ($_checkbox? 'group_checkbox' : 'group_multi') ,
+	'valuetype'		=> 'array' ,
+	'default'		=> ''
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'ftp_name' ,
@@ -407,7 +424,7 @@ $modversion['config'][] = array(
 	'name'			=> 'special_groups' ,
 	'title'			=> $constpref.'_SPECIAL_GROUPS',
 	'description'	=> $constpref.'_SPECIAL_GROUPS_DESC',
-	'formtype'		=> 'group_multi' ,
+	'formtype'		=> ($_checkbox? 'group_checkbox' : 'group_multi') ,
 	'valuetype'		=> 'array' ,
 	'default'		=> ''
 ) ;

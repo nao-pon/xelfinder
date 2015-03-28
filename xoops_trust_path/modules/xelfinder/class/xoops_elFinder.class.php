@@ -346,6 +346,91 @@ class xoops_elFinder {
 			}
 		}
 	
+		if ($result['added'] && in_array($cmd, array('mkdir', 'mkfile', 'put', 'upload', 'extract'))) {
+			$mail = false;
+			if (is_object($this->xoopsUser)) {
+				if ($this->isAdmin) {
+					$mail = in_array(XOOPS_GROUP_ADMIN, $this->config['mail_notify_group']);
+				} else {
+					$mail = (array_intersect($this->config['mail_notify_group'], $this->mygids));
+				}
+			} else {
+				$mail = ($this->config['mail_notify_guest']);
+			}
+			//$log .= "\n\$mail=".($mail? 'On' : 'Off')."\n";
+			
+			if ($mail) {
+				$config_handler = xoops_gethandler('config');
+				$xoopsConfig = $config_handler->getConfigsByCat(XOOPS_CONF);
+				
+				$sep = "\n".str_repeat('-', 40)."\n";
+				$self = XOOPS_MODULE_URL . '/' . $this->mydirname . '/connector.php';
+				if (is_object($this->xoopsUser)) {
+					$uname = $this->xoopsUser->uname('n');
+					$uid = $this->xoopsUser->uid();
+				} else {
+					$uname = $xoopsConfig['anonymous'];
+					$uid = 0;
+				}
+				$date = date('c');
+				
+				$head = <<<EOD
+USER: $uname
+UID: $uid
+IP: ${_SERVER['REMOTE_ADDR']}
+CMD: $cmd
+DATE: $date
+EOD;
+				$msg = array();
+			
+				foreach ($result['added'] as $file) {
+	
+					$url = 'unknown';
+					if (!empty($file['url'])) {
+						$url = ($file['url'] !=  1)? $file['url'] : 'ondemand';
+					} else {
+						$url = $self . '?cmd=file&target='.$file['hash'];
+					}
+					$dl = $self . '?cmd=file&download=1&target='.$file['hash'];
+					$hash = $file['hash'];
+					$path = $elfinder->realpath($file['hash']);
+					$name = $file['name'];
+					$manager = XOOPS_MODULE_URL . '/' . $this->mydirname . '/manager.php#elf_' . $file['phash'];
+					$msg[] = <<<EOD
+HASH: $hash
+PATH: $path
+NAME: $name
+URL: $url
+DOWNLOAD: $dl
+MANAGER: $manager
+EOD;
+				}
+			
+				$sitename = $xoopsConfig['sitename'];
+				$modname = $this->xoopsModule->getVar('name');
+				$subject = '[' . $modname . '] Cmd: "'.$cmd.'" Report';
+				$message = join($sep, $msg);
+				if (strtoupper(_CHARSET) !== 'UTF-8') {
+					ini_set('mbstring.internal_encoding', _CHARSET);
+					$message = mb_convert_encoding($message, _CHARSET, 'UTF-8');
+				}
+				
+				$xoopsMailer = getMailer();
+				$xoopsMailer->useMail();
+				$xoopsMailer->setFromEmail($xoopsConfig['adminmail']);
+				$xoopsMailer->setFromName($sitename.':'.$modname);
+				$xoopsMailer->setSubject($subject);
+				$xoopsMailer->setBody($head.$sep.$message);
+				$xoopsMailer->setToEmails($xoopsConfig['adminmail']);
+				$xoopsMailer->send();
+				$xoopsMailer->reset();
+			
+				if (strtoupper(_CHARSET) !== 'UTF-8') {
+					ini_set('mbstring.internal_encoding', 'UTF-8');
+				}
+			}
+		}
+		
 		$this->write($log);
 		
 		if (in_array($cmd, array('mkdir', 'mkfile', 'put', 'paste', 'upload', 'extract', 'resize'))) {
