@@ -346,7 +346,7 @@ class xoops_elFinder {
 			}
 		}
 	
-		if ($result['added'] && in_array($cmd, array('mkdir', 'mkfile', 'put', 'upload', 'extract'))) {
+		if (!empty($result['added']) && in_array($cmd, array('mkdir', 'mkfile', 'put', 'upload', 'extract'))) {
 			$mail = false;
 			if (is_object($this->xoopsUser)) {
 				if ($this->isAdmin) {
