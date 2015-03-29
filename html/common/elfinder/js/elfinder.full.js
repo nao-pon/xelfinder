@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 3e0e1c9) (2015-03-28)
+ * Version 2.1_n (Nightly: 4e012ac) (2015-03-29)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -3587,7 +3587,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 3e0e1c9)';
+elFinder.prototype.version = '2.1_n (Nightly: 4e012ac)';
 
 
 
@@ -7125,6 +7125,7 @@ $.fn.elfinderplaces = function(fm, opts) {
 			tpl       = fm.res('tpl', 'navdir'),
 			ptpl      = fm.res('tpl', 'perms'),
 			spinner   = $(fm.res('tpl', 'navspinner')),
+			key       = 'places'+(opts.suffix? opts.suffix : ''),
 			/**
 			 * Convert places dir node into dir hash
 			 *
@@ -7145,7 +7146,7 @@ $.fn.elfinderplaces = function(fm, opts) {
 			 *
 			 * @return void
 			 **/
-			save      = function() { fm.storage('places', dirs.join(',')); },
+			save      = function() { fm.storage(key, dirs.join(',')); },
 			/**
 			 * Return node for given dir object
 			 *
@@ -7374,7 +7375,7 @@ $.fn.elfinderplaces = function(fm, opts) {
 			
 			places.show().parent().show();
 
-			dirs = $.map((fm.storage('places') || '').split(','), function(hash) { return hash || null;});
+			dirs = $.map((fm.storage(key) || '').split(','), function(hash) { return hash || null;});
 			
 			if (dirs.length) {
 				root.prepend(spinner);
