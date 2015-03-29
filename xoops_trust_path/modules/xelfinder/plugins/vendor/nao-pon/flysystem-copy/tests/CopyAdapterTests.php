@@ -1,8 +1,8 @@
 <?php
 
 use Barracuda\Copy\API;
-use League\Flysystem\Copy\CopyAdapter as Copy;
 use League\Flysystem\Config;
+use League\Flysystem\Copy\CopyAdapter as Copy;
 
 class CopyAdapterTests extends PHPUnit_Framework_TestCase
 {
@@ -37,8 +37,8 @@ class CopyAdapterTests extends PHPUnit_Framework_TestCase
 
         $mock->shouldReceive('uploadFromString')->andReturn(
             (object) [
-                'type' => 'file',
-                'path' => 'something',
+                'type'          => 'file',
+                'path'          => 'something',
                 'modified_time' => '10 September 2000',
             ], false);
         $result = $adapter->write('something', $contents, new Config());
@@ -58,8 +58,8 @@ class CopyAdapterTests extends PHPUnit_Framework_TestCase
 
         $mock->shouldReceive('uploadFromString')->andReturn(
             (object) [
-                'type' => 'file',
-                'path' => 'something',
+                'type'          => 'file',
+                'path'          => 'something',
                 'modified_time' => '10 September 2000',
             ]);
         $result = $adapter->update('something', $contents, new Config());
@@ -75,8 +75,8 @@ class CopyAdapterTests extends PHPUnit_Framework_TestCase
     {
         $mock->shouldReceive('uploadFromStream')->andReturn(
             (object) [
-                'type' => 'file',
-                'path' => 'something',
+                'type'          => 'file',
+                'path'          => 'something',
                 'modified_time' => '10 September 2000',
             ], false);
 
@@ -103,8 +103,8 @@ class CopyAdapterTests extends PHPUnit_Framework_TestCase
 
         $mock->shouldReceive('uploadFromStream')->andReturn(
             (object) [
-                'type' => 'file',
-                'path' => 'something',
+                'type'          => 'file',
+                'path'          => 'something',
                 'modified_time' => '10 September 2000',
             ]);
 
@@ -138,11 +138,11 @@ class CopyAdapterTests extends PHPUnit_Framework_TestCase
         $mock = $this->getClientMock();
         $mock->shouldReceive('listPath')->twice()->andReturn([
             (object) [
-                'type' => 'file',
+                'type'          => 'file',
                 'modified_time' => '10 September 2000',
-                'path' => 'something',
-                'size' => 15,
-                'mime_type' => 'application/octet-stream',
+                'path'          => 'something',
+                'size'          => 15,
+                'mime_type'     => 'application/octet-stream',
             ],
         ],
             false
@@ -200,9 +200,9 @@ class CopyAdapterTests extends PHPUnit_Framework_TestCase
     {
         $mock->shouldReceive('createDir')->andReturn([
                 (object) [
-                    'type' => 'dir',
+                    'type'          => 'dir',
                     'modified_time' => '10 September 2000',
-                    'path' => 'something',
+                    'path'          => 'something',
                 ],
             ]
         );
@@ -226,16 +226,16 @@ class CopyAdapterTests extends PHPUnit_Framework_TestCase
     {
         $mock->shouldReceive('listPath')->andReturn([
             (object) [
-                'type' => 'dir',
-                'path' => 'dirname',
+                'type'          => 'dir',
+                'path'          => 'dirname',
                 'modified_time' => '10 September 2000',
             ],
             (object) [
-                'type' => 'file',
-                'path' => 'dirname/file',
+                'type'          => 'file',
+                'path'          => 'dirname/file',
                 'modified_time' => '10 September 2000',
-                'mime_type' => 'application/octet-stream',
-                'size' => 15,
+                'mime_type'     => 'application/octet-stream',
+                'size'          => 15,
             ],
         ],
             (object) [],

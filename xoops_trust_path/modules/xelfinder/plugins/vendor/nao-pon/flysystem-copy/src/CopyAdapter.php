@@ -156,11 +156,11 @@ class CopyAdapter extends AbstractAdapter
      */
     public function copy($path, $newpath)
     {
-        $location = $this->applyPathPrefix($path);
+        $origin = $this->applyPathPrefix($path);
         $destination = $this->applyPathPrefix($newpath);
 
         try {
-            $this->client->copy($location, $destination);
+            $this->client->copy($origin, $destination);
         } catch (\Exception $e) {
             return false;
         }

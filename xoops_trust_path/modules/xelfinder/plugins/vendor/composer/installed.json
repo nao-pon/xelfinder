@@ -87,12 +87,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/thephpleague/flysystem.git",
-            "reference": "51cd7cd7ee0defbaafc6ec0d3620110a5d71e11a"
+            "reference": "bbd933abd8b9644531d4fdc6354a99363d6c160e"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/51cd7cd7ee0defbaafc6ec0d3620110a5d71e11a",
-            "reference": "51cd7cd7ee0defbaafc6ec0d3620110a5d71e11a",
+            "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/bbd933abd8b9644531d4fdc6354a99363d6c160e",
+            "reference": "bbd933abd8b9644531d4fdc6354a99363d6c160e",
             "shasum": ""
         },
         "require": {
@@ -123,7 +123,7 @@
             "league/flysystem-ziparchive": "Allows you to use ZipArchive adapter",
             "predis/predis": "Allows you to use Predis for caching"
         },
-        "time": "2015-03-10 11:04:14",
+        "time": "2015-03-26 08:46:41",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -164,50 +164,6 @@
             "sftp",
             "storage"
         ]
-    },
-    {
-        "name": "nao-pon/flysystem-copy",
-        "version": "dev-pilot",
-        "version_normalized": "dev-pilot",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/nao-pon/flysystem-copy.git",
-            "reference": "07473a2dae1c30b259569a58f717da6764505b69"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/nao-pon/flysystem-copy/zipball/07473a2dae1c30b259569a58f717da6764505b69",
-            "reference": "07473a2dae1c30b259569a58f717da6764505b69",
-            "shasum": ""
-        },
-        "require": {
-            "league/flysystem": "~1.0",
-            "nao-pon/copy": "dev-pilot",
-            "php": ">=5.4.0"
-        },
-        "require-dev": {
-            "mockery/mockery": "0.9.*",
-            "phpunit/phpunit": "~4.0"
-        },
-        "time": "2015-02-20 06:31:52",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "League\\Flysystem\\Copy\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Frank de Jonge",
-                "email": "info@frenky.net"
-            }
-        ],
-        "description": "Flysystem adapter for Copy.com"
     },
     {
         "name": "nao-pon/copy",
@@ -251,64 +207,6 @@
         "homepage": "https://github.com/nao-pon/php-client-library",
         "keywords": [
             "copy"
-        ]
-    },
-    {
-        "name": "intervention/image",
-        "version": "2.1.2",
-        "version_normalized": "2.1.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Intervention/image.git",
-            "reference": "572806fd083b622dd430d76c34564459596fef2a"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/Intervention/image/zipball/572806fd083b622dd430d76c34564459596fef2a",
-            "reference": "572806fd083b622dd430d76c34564459596fef2a",
-            "shasum": ""
-        },
-        "require": {
-            "ext-fileinfo": "*",
-            "php": ">=5.3.0"
-        },
-        "require-dev": {
-            "mockery/mockery": "~0.9.2",
-            "phpunit/phpunit": "3.*"
-        },
-        "suggest": {
-            "ext-gd": "to use GD library based image processing.",
-            "ext-imagick": "to use Imagick based image processing.",
-            "intervention/imagecache": "Caching extension for the Intervention Image library"
-        },
-        "time": "2015-03-09 13:03:15",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Intervention\\Image\\": "src/Intervention/Image"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Oliver Vogel",
-                "email": "oliver@olivervogel.net",
-                "homepage": "http://olivervogel.net/"
-            }
-        ],
-        "description": "Image handling and manipulation library with support for Laravel integration",
-        "homepage": "http://image.intervention.io/",
-        "keywords": [
-            "gd",
-            "image",
-            "imagick",
-            "laravel",
-            "thumbnail",
-            "watermark"
         ]
     },
     {
@@ -367,5 +265,107 @@
             "elfinder",
             "filesystem"
         ]
+    },
+    {
+        "name": "intervention/image",
+        "version": "2.1.3",
+        "version_normalized": "2.1.3.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Intervention/image.git",
+            "reference": "8f3761154b4c1f5128365dfc32cbf757f27d97b6"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Intervention/image/zipball/8f3761154b4c1f5128365dfc32cbf757f27d97b6",
+            "reference": "8f3761154b4c1f5128365dfc32cbf757f27d97b6",
+            "shasum": ""
+        },
+        "require": {
+            "ext-fileinfo": "*",
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "mockery/mockery": "~0.9.2",
+            "phpunit/phpunit": "3.*"
+        },
+        "suggest": {
+            "ext-gd": "to use GD library based image processing.",
+            "ext-imagick": "to use Imagick based image processing.",
+            "intervention/imagecache": "Caching extension for the Intervention Image library"
+        },
+        "time": "2015-03-18 17:41:04",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Intervention\\Image\\": "src/Intervention/Image"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Oliver Vogel",
+                "email": "oliver@olivervogel.net",
+                "homepage": "http://olivervogel.net/"
+            }
+        ],
+        "description": "Image handling and manipulation library with support for Laravel integration",
+        "homepage": "http://image.intervention.io/",
+        "keywords": [
+            "gd",
+            "image",
+            "imagick",
+            "laravel",
+            "thumbnail",
+            "watermark"
+        ]
+    },
+    {
+        "name": "nao-pon/flysystem-copy",
+        "version": "dev-pilot",
+        "version_normalized": "dev-pilot",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/nao-pon/flysystem-copy.git",
+            "reference": "00e58d3f7aa0223a146fcaeea1e9de0e44742072"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/nao-pon/flysystem-copy/zipball/00e58d3f7aa0223a146fcaeea1e9de0e44742072",
+            "reference": "00e58d3f7aa0223a146fcaeea1e9de0e44742072",
+            "shasum": ""
+        },
+        "require": {
+            "league/flysystem": "~1.0",
+            "nao-pon/copy": "dev-pilot",
+            "php": ">=5.4.0"
+        },
+        "require-dev": {
+            "mockery/mockery": "0.9.*",
+            "phpunit/phpunit": "~4.0"
+        },
+        "time": "2015-03-29 11:51:09",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "League\\Flysystem\\Copy\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Frank de Jonge",
+                "email": "info@frenky.net"
+            }
+        ],
+        "description": "Flysystem adapter for Copy.com"
     }
 ]
