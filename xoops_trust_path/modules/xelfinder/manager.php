@@ -244,6 +244,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var itemObject = [];
 			var defaultTmbSize = <?php echo $default_tmbsize?>;
 			var lang = '<?php echo $userLang?>';
+			var xoopsUid = '<?php echo $xoops_elFinder->getUid()?>';
 			var adminMode = <?php echo $admin?>;
 			var cToken = '<?php echo $cToken?>';
 <?php if ($useCKEditor) {?>

@@ -15,6 +15,7 @@ class xoops_elFinder {
 	
 	protected $config;
 	protected $mygids;
+	protected $uid;
 	
 	/**
 	* Log file path
@@ -63,28 +64,30 @@ class xoops_elFinder {
 		$this->db = & XoopsDatabaseFactory::getDatabaseConnection();
 		$this->defaultVolumeOptions = array_merge($this->defaultVolumeOptions, $opt);
 		$this->mygids = is_object($this->xoopsUser)? $this->xoopsUser->getGroups() : array(XOOPS_GROUP_ANONYMOUS);
+		$this->uid = is_object($this->xoopsUser)? intval($this->xoopsUser->getVar('uid')) : 0;
 		
-		if (defined('_MD_XELFINDER_NETVOLUME_SESSION_KEY') && !isset($_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY]) && is_object($this->xoopsUser)) {
-			if ($uid = $this->xoopsUser->getVar('uid')) {
-				$uid = intval($uid);
-				$table = $this->db->prefix($this->mydirname.'_userdat');
-				$sql = 'SELECT `data` FROM `'.$table.'` WHERE `key`=\'netVolumes\' AND `uid`='.$uid.' LIMIT 1';
-				if ($res = $this->db->query($sql)) {
-					if ($this->db->getRowsNum($res) > 0) {
-						list($data) = $this->db->fetchRow($res);
-						if ($data = @unserialize($data)) {
-							$_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY] = $data;
-							foreach($data as $volume) {
-								if ($volume['host'] === 'dropbox' && !empty($volume['dropboxUid']) && !empty($volume['accessToken']) && !empty($volume['accessTokenSecret'])) {
-									$_SESSION['elFinderDropboxTokens'] = array($volume['dropboxUid'], $volume['accessToken'], $volume['accessTokenSecret']);
-									break;
-								}
+		if (defined('_MD_XELFINDER_NETVOLUME_SESSION_KEY') && !isset($_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY]) && $this->uid) {
+			$table = $this->db->prefix($this->mydirname.'_userdat');
+			$sql = 'SELECT `data` FROM `'.$table.'` WHERE `key`=\'netVolumes\' AND `uid`='.$this->uid.' LIMIT 1';
+			if ($res = $this->db->query($sql)) {
+				if ($this->db->getRowsNum($res) > 0) {
+					list($data) = $this->db->fetchRow($res);
+					if ($data = @unserialize($data)) {
+						$_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY] = $data;
+						foreach($data as $volume) {
+							if ($volume['host'] === 'dropbox' && !empty($volume['dropboxUid']) && !empty($volume['accessToken']) && !empty($volume['accessTokenSecret'])) {
+								$_SESSION['elFinderDropboxTokens'] = array($volume['dropboxUid'], $volume['accessToken'], $volume['accessTokenSecret']);
+								break;
 							}
 						}
 					}
 				}
 			}
 		}
+	}
+	
+	public function getUid() {
+		return $this->uid;
 	}
 	
 	public function getDisablesCmds($useAdmin = true) {

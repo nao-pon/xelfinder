@@ -144,6 +144,9 @@ $(document).ready(function() {
 					columnsCustomName : {}
 										
 				}
+			},
+			places : {
+				suffix : xoopsUid
 			}
 		},
 		commands : elfinderCmds,
