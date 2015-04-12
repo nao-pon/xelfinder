@@ -87,12 +87,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/thephpleague/flysystem.git",
-            "reference": "bbd933abd8b9644531d4fdc6354a99363d6c160e"
+            "reference": "8da3ec24fcb18b0361fa68ebffc54d60003a0045"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/bbd933abd8b9644531d4fdc6354a99363d6c160e",
-            "reference": "bbd933abd8b9644531d4fdc6354a99363d6c160e",
+            "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/8da3ec24fcb18b0361fa68ebffc54d60003a0045",
+            "reference": "8da3ec24fcb18b0361fa68ebffc54d60003a0045",
             "shasum": ""
         },
         "require": {
@@ -102,7 +102,7 @@
             "ext-fileinfo": "*",
             "league/phpunit-coverage-listener": "~1.1",
             "mockery/mockery": "~0.9",
-            "phpspec/phpspec": "~2.0.0",
+            "phpspec/phpspec": "~2.0",
             "phpspec/prophecy-phpunit": "~1.0",
             "phpunit/phpunit": "~4.1",
             "predis/predis": "~1.0",
@@ -123,7 +123,7 @@
             "league/flysystem-ziparchive": "Allows you to use ZipArchive adapter",
             "predis/predis": "Allows you to use Predis for caching"
         },
-        "time": "2015-03-26 08:46:41",
+        "time": "2015-04-04 18:53:55",
         "type": "library",
         "extra": {
             "branch-alias": {
