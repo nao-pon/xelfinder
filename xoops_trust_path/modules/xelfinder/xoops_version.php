@@ -79,9 +79,11 @@ $modversion['config'][] = array(
 myalbum:myalbum:uploads/photos:MyAlbum
 gnavi:gnavi:uploads/gnavi:GNAVI
 mailbbs:mailbbs:modules/mailbbs/imgs:MailBBS
+#xelfinder:xelfinder:[trust]/cache:TrustCache:gid=1
 #xelfinder:xelfinder:preload:Preload:gid=1
 #xelfinder:ftp:preload:Preload:gid=1
-#xelfinder:dropbox:/:Dropbox:gid=1'
+#xelfinder:dropbox:/:Dropbox:gid=1
+#xelfinder:flyCopy:/:Copy.com:gid=1|ext_consumerKey=[Consumer Key]|ext_consumerSecret=[Consumer Secret]|ext_accessToken=[Access Token]|ext_tokenSecret=[Token Secret]'
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'disabled_cmds_by_gids' ,

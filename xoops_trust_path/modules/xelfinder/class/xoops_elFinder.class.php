@@ -225,7 +225,8 @@ class xoops_elFinder {
 			}
 			
 			if ($title === '') $title = $mydirname;
-			$path = '/' . trim($path, '/') . '/';
+			$path = trim($path, '/');
+			$path = ($path === '')? '/' : '/' . $path . '/';
 			$volume = $pluginPath . $plugin . '/volume.php';
 			if (is_file($volume)) {
 				$extra = isset($extras[$mydirname.':'.$plugin])? $extras[$mydirname.':'.$plugin] : array();
