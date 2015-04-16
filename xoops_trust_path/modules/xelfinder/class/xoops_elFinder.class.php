@@ -415,7 +415,12 @@ EOD;
 				$subject = '[' . $modname . '] Cmd: "'.$cmd.'" Report';
 				$message = join($sep, $msg);
 				if (strtoupper(_CHARSET) !== 'UTF-8') {
-					ini_set('mbstring.internal_encoding', _CHARSET);
+					ini_set('default_charset', _CHARSET);
+					if (version_compare(PHP_VERSION, '5.6', '<')) {
+						ini_set('mbstring.internal_encoding', _CHARSET);
+					} else {
+						@ini_set('mbstring.internal_encoding', '');
+					}
 					$message = mb_convert_encoding($message, _CHARSET, 'UTF-8');
 				}
 				

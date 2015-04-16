@@ -5,9 +5,16 @@ if (! empty($_GET['keepalive']) && $_SERVER['REQUEST_METHOD'] !== 'OPTIONS') exi
 @ set_time_limit(120); // just in case it too long, not recommended for production
 
 // needed for case insensitive search to work, due to broken UTF-8 support in PHP
-ini_set('mbstring.internal_encoding', 'UTF-8');
-ini_set('mbstring.http_input', 'pass');
-ini_set('mbstring.http_output', 'pass');
+ini_set('default_charset', 'UTF-8');
+if (version_compare(PHP_VERSION, '5.6', '<')) {
+	ini_set('mbstring.internal_encoding', 'UTF-8');
+	ini_set('mbstring.http_input', 'pass');
+	ini_set('mbstring.http_output', 'pass');
+} else {
+	@ini_set('mbstring.internal_encoding', '');
+	@ini_set('mbstring.http_input', '');
+	@ini_set('mbstring.http_output', '');
+}
 
 //error_reporting(E_ALL | E_STRICT); // Set E_ALL for debuging
 

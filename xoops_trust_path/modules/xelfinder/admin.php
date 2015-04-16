@@ -1,5 +1,10 @@
 <?php
-ini_set('mbstring.internal_encoding', _CHARSET);
+ini_set('default_charset', _CHARSET);
+if (version_compare(PHP_VERSION, '5.6', '<')) {
+	ini_set('mbstring.internal_encoding', _CHARSET);
+} else {
+	@ini_set('mbstring.internal_encoding', '');
+}
 if (! defined('XOOPS_MODULE_PATH')) define('XOOPS_MODULE_PATH', XOOPS_ROOT_PATH . '/modules');
 if (! defined('XOOPS_MODULE_URL')) define('XOOPS_MODULE_URL', XOOPS_URL . '/modules');
 
