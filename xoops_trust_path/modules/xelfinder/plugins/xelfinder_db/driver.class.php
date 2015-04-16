@@ -297,7 +297,8 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @author Naoki Sawada
 	 **/
 	protected function make($path, $name, $mime, $home_of = 'NULL') {
-
+		if ($name === '') return false;  // It's insurance 
+		
 		$time = time();
 		$gid = 0;;
 		$umask = $this->getUmask($path, $gid);
@@ -412,8 +413,8 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 				}
 
 				if ($group_parent) {
-					$xoopsMenber =& xoops_gethandler('member');
-					$groups = $xoopsMenber->getGroupList(new Criteria('group_type' , 'Anonymous', '!='));
+					$xoopsGroup = xoops_gethandler('group');
+					$groups = $xoopsGroup->getObjects(new Criteria('group_type' , 'Anonymous', '!='), true);
 					$sql = 'SELECT gid FROM '.$this->tbf.' WHERE home_of < 0';
 					if (($res = $this->query($sql)) && $this->db->getRowsNum($res)) {
 						while ($row = $this->db->fetchRow($res)) {
@@ -421,7 +422,8 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 						}
 					}
 					if ($groups) {
-						foreach($groups as $gid => $gname) {
+						foreach($groups as $gid => $gobj) {
+							$gname = $groups[$gid]->getVar('name', 'n');
 							$gid *= -1;
 							$this->makeUmask = $this->options['group_dir_umask'];
 							$this->makePerm = $this->options['group_dir_perm'];
@@ -712,6 +714,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		if ($res) {
 			while ($row = $this->db->fetchArray($res)) {
 				$id = $row['file_id'];
+				if ($row['name'] === '') $row['name'] = 'Unknown';
 				$row = $this->makeStat($row);
 				if (($stat = $this->updateCache($id, $row)) && empty($stat['hidden'])) {
 					$this->dirsCache[$path][] = $id;
@@ -963,7 +966,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$res = $this->query($sql);
 
 		if ($res && $stat = $this->db->fetchArray($res)) {
-			//if ($path == 1685) {var_dump($stat);exit;}
+			if ($stat['name'] === '') $stat['name'] = 'Unknown';
 			return $this->makeStat($stat);
 		} else if ($rootCheck && $path == $this->root) {
 			$this->_mkdir(0, 'VolumeRoot');
