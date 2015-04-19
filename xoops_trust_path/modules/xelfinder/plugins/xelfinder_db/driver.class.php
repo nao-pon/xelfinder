@@ -415,7 +415,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 				if ($group_parent) {
 					$xoopsGroup = xoops_gethandler('group');
 					$groups = $xoopsGroup->getObjects(new Criteria('group_type' , 'Anonymous', '!='), true);
-					$sql = 'SELECT gid FROM '.$this->tbf.' WHERE home_of < 0';
+					$sql = 'SELECT gid FROM '.$this->tbf.' WHERE home_of < 0 AND mime = \'directory\'';
 					if (($res = $this->query($sql)) && $this->db->getRowsNum($res)) {
 						while ($row = $this->db->fetchRow($res)) {
 							unset($groups[$row[0]]);
@@ -434,7 +434,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			}
 
 			if ($this->options['use_guest_dir']) {
-				$sql = 'SELECT file_id FROM '.$this->tbf.' WHERE home_of = 0 LIMIT 1';
+				$sql = 'SELECT file_id FROM '.$this->tbf.' WHERE home_of = 0 AND mime = \'directory\' LIMIT 1';
 				if (($res = $this->query($sql)) && $this->db->getRowsNum($res) < 1) {
 					$config_handler =& xoops_gethandler('config');
 					$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
