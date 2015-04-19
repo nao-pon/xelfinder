@@ -132,6 +132,12 @@ function xelfinder_onupdate_base( $module , $mydirname )
 		if ($_res) $msgs[] = 'removed unless tmbs';
 	}
 	
+	if ($lastupdate < 166) {
+		$msgs[] = 'ALTER TABLE file `home_of` and fix data (Version < 1.66)';		
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `home_of` `home_of` INT(10) NULL DEFAULT NULL');
+		$db->queryF('UPDATE `'.$db->prefix($mydirname."_file").'` SET `home_of` = NULL WHERE `home_of` = 0 AND `mime` != \'directory\'');
+	}
+	
 	// TEMPLATES (all templates have been already removed by modulesadmin)
 	$tplfile_handler =& xoops_gethandler( 'tplfile' ) ;
 	$tpl_path = dirname(__FILE__).'/templates' ;

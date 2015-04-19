@@ -9,7 +9,7 @@ CREATE TABLE `file` (
   `umask` varchar(3) NOT NULL DEFAULT '022',
   `uid` int(10) unsigned NOT NULL DEFAULT '0',
   `gid` int(10) unsigned NOT NULL DEFAULT '0',
-  `home_of` int(10) DEFAULT NULL DEFAULT '0',
+  `home_of` int(10) DEFAULT NULL,
   `mime` varchar(255) NOT NULL DEFAULT 'unknown',
   `width` int(11) NOT NULL DEFAULT '0',
   `height` int(11) NOT NULL DEFAULT '0',
