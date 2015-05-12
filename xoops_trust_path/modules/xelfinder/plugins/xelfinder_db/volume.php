@@ -10,7 +10,7 @@ if (is_dir(XOOPS_TRUST_PATH . $path)) {
 		'driver'    => 'XoopsXelfinder_db',
 		'mydirname' => $mydirname,
 		'path'      => '1',
-		'filePath'  => XOOPS_TRUST_PATH . $path . rawurlencode(substr(_MD_XELFINDER_SITEURL, strpos(_MD_XELFINDER_SITEURL, '://') + 3)) . '_' . $mydirname . '_',
+		'filePath'  => XOOPS_TRUST_PATH . $path . rawurlencode(defined('XELFINDER_DB_FILENAME_PREFIX')? XELFINDER_DB_FILENAME_PREFIX : substr(_MD_XELFINDER_SITEURL, strpos(_MD_XELFINDER_SITEURL, '://') + 3)) . '_' . $mydirname . '_',
 		'URL'       => _MD_XELFINDER_MODULE_URL . '/' . $mydirname . '/index.php/view/',
 		'alias'     => $title,
 		'tmbURL'     => _MD_XELFINDER_MODULE_URL . '/'.$mydirname.'/cache/tmb/',
