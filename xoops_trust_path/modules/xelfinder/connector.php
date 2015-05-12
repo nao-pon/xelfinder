@@ -322,7 +322,7 @@ while( ob_get_level() ) {
 	if (! @ ob_end_clean()) break;
 }
 
-$connector = new elFinderConnector(new xelFinder($opts), true);
+$connector = new elFinderConnector(new xelFinder($opts), $debug);
 $connector->run();
 
 
