@@ -286,6 +286,7 @@ $opts = array(
 		'upload.presave' => array(
 			'Plugin.Sanitizer.onUpLoadPreSave',
 			'Plugin.Normalizer.onUpLoadPreSave',
+			array($xoops_elFinder, 'autoRotateOnUpLoadPreSave'),
 			'Plugin.AutoResize.onUpLoadPreSave',
 			'Plugin.Watermark.onUpLoadPreSave'
 		),

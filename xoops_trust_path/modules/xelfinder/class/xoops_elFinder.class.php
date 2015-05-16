@@ -470,6 +470,33 @@ EOD;
 	}
 	
 	/**
+	 * JPEG image auto rotation by EXIF info for OnUpLoadPreSave callback
+	 * 
+	 * @param string $path
+	 * @param string $name
+	 * @param string $src
+	 * @param object $elfinder
+	 * @param object $volume
+	 * @return boolean
+	 */
+	public function autoRotateOnUpLoadPreSave(&$path, &$name, $src, $elfinder, $volume) {
+		if (! class_exists('HypCommonFunc') || version_compare(HypCommonFunc::get_version(), '20150515', '<')) {
+			return false;
+		}
+		$srcImgInfo = @getimagesize($src);
+		if ($srcImgInfo === false) {
+			return false;
+		}
+		if (! in_array($srcImgInfo[2], array(IMAGETYPE_JPEG, IMAGETYPE_JPEG2000))) {
+			return false;
+		}
+		$ret = HypCommonFunc::rotateImage($src, 0, 95, $srcImgInfo);
+		// remove exif gps info
+		HypCommonFunc::removeExifGps($src, $srcImgInfo);
+		return ($ret);
+	}
+	
+	/**
 	 * Get uname by uid
 	 * @param int $uid
 	 * @return string
