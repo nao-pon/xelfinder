@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 0e182dd) (2015-05-17)
+ * Version 2.1_n (Nightly: e87c14d) (2015-05-20)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -3587,7 +3587,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 0e182dd)';
+elFinder.prototype.version = '2.1_n (Nightly: e87c14d)';
 
 
 
@@ -8150,7 +8150,7 @@ $.fn.elfindertree = function(fm, opts) {
 					fm.trigger('searchend');
 				
 					if (hash != fm.cwd().hash && !link.is('.'+disabled)) {
-						fm.exec('open', file.thash || hash);
+						fm.exec('open', file.thash || hash, {thash: file.thash});
 					} else if (link.is('.'+collapsed)) {
 						link.children('.'+arrow).click();
 					}
@@ -10008,23 +10008,26 @@ elFinder.prototype.commands.open = function() {
 			: (cnt && !this.fm.UA.Mobile) ? ($.map(sel, function(file) { return file.mime == 'directory' ? null : file}).length == cnt ? 0 : -1) : -1
 	}
 	
-	this.exec = function(hashes) {
+	this.exec = function(hashes, opts) {
 		var fm    = this.fm, 
 			dfrd  = $.Deferred().fail(function(error) { error && fm.error(error); }),
 			files = this.files(hashes),
 			cnt   = files.length,
+			thash = (typeof opts == 'object')? opts.thash : false,
 			file, url, s, w, imgW, imgH, winW, winH;
 
-		if (!cnt) {
-			return dfrd.reject();
+		if (!cnt && !thash) {
+			{
+				return dfrd.reject();
+			}
 		}
 
 		// open folder
-		if (cnt == 1 && (file = files[0]) && file.mime == 'directory') {
-			return file && !file.read
+		if (thash || (cnt == 1 && (file = files[0]) && file.mime == 'directory')) {
+			return !thash && file && !file.read
 				? dfrd.reject(['errOpen', file.name, 'errPerm'])
 				: fm.request({
-						data   : {cmd  : 'open', target : file.thash || file.hash},
+						data   : {cmd  : 'open', target : thash || file.thash || file.hash},
 						notify : {type : 'open', cnt : 1, hideCnt : true},
 						syncOnFail : true
 					});
