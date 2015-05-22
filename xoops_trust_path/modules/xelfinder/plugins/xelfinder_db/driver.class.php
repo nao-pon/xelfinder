@@ -798,6 +798,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	protected function doSearch($path, $q, $mimes) {
 		
 		if ($path != $this->root) {
+			// @todo do sql search
 			return parent::doSearch($path, $q, $mimes);
 		} else {
 			$result = array();
@@ -809,7 +810,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$res = $this->query($sql);
 			if ($res) {
 				while ($stat = $this->db->fetchArray($res)) {
-					if ($stat['mime'] === 'directory' || !$this->mimeAccepted($stat['mime'], $mimes)) {
+					if (!$this->mimeAccepted($stat['mime'], $mimes)) {
 						continue;
 					}
 					$this->setAuthByPerm($stat);
