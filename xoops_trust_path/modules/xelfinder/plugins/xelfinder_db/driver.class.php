@@ -810,7 +810,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$res = $this->query($sql);
 			if ($res) {
 				while ($stat = $this->db->fetchArray($res)) {
-					if (!$this->mimeAccepted($stat['mime'], $mimes)) {
+					if (($mimes && $stat['mime'] === 'directory') || !$this->mimeAccepted($stat['mime'], $mimes)) {
 						continue;
 					}
 					$this->setAuthByPerm($stat);
