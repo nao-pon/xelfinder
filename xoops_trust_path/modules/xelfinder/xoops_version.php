@@ -12,7 +12,7 @@ $constpref = '_MI_' . strtoupper( $mydirname ) ;
 $modversion['name'] = 'xelFinder' ;
 //$modversion['name'] = $constpref.'_NAME') ;
 $modversion['description'] = constant($constpref.'_DESC');
-$modversion['version'] = 1.70 ;
+$modversion['version'] = 1.71 ;
 $modversion['credits'] = "Hypweb.net";
 $modversion['author'] = "nao-pon" ;
 $modversion['help'] = "" ;
@@ -66,7 +66,7 @@ $modversion['config'][] = array(
 	'description'	=> $constpref.'_MANAGER_TITLE_DESC' ,
 	'formtype'		=> 'textbox' ,
 	'valuetype'		=> 'string' ,
-	'default'		=> 'File Manager - X-elFinder (elFinder 2.0 for XOOPS)'
+	'default'		=> 'File Manager - X-elFinder (elFinder 2.1 for XOOPS)'
 ) ;
 $modversion['config'][] = array(
 	'name'			=> 'volume_setting' ,
