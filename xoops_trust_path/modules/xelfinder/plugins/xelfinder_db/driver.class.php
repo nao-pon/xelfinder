@@ -797,31 +797,81 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 **/
 	protected function doSearch($path, $q, $mimes) {
 		
+		$filters = $dirs = array();
 		if ($path != $this->root) {
-			// @todo do sql search
-			return parent::doSearch($path, $q, $mimes);
-		} else {
-			$result = array();
-
-			$q = $this->db->quoteString($q);
-			$q = '%'.substr($q, 1, strlen($q)-2).'%';
-			$sql = 'SELECT `file_id`, `mime`, `uid`, `gid`, `gids`, `perm`, `home_of` FROM '.$this->tbf.' WHERE `name` LIKE \''.$q.'\'';
-			
-			$res = $this->query($sql);
-			if ($res) {
-				while ($stat = $this->db->fetchArray($res)) {
-					if (($mimes && $stat['mime'] === 'directory') || !$this->mimeAccepted($stat['mime'], $mimes)) {
-						continue;
+			$inpath = array(intval($path));
+			while($inpath) {
+				$in = '('.join(',', $inpath).')';
+				$inpath = array();
+				$sql = 'SELECT `file_id`, `mime_filter` FROM '.$this->tbf.' WHERE `parent_id` IN '.$in.' AND `mime` = \'directory\'';
+				if ($res = $this->query($sql)) {
+					$_dir = array();
+					while ($dat = $this->db->fetchArray($res)) {
+						if ($dat['mime_filter']) {
+							$filters[] = $dat['mime_filter'];
+						} else {
+							$inpath[] = $dat['file_id'];
+						}
 					}
-					$this->setAuthByPerm($stat);
-					if (empty($stat['hidden'])) {
-						$result[] = $this->stat($stat['file_id']);
-					}
+					$dirs = array_merge($dirs, $inpath);
 				}
 			}
-			
-			return $result;
 		}
+		
+		$result = array();
+		
+		if ($mimes) {
+			$whrs = array();
+			foreach($mimes as $mime) {
+				if (strpos($mime, '/') === false) {
+					$mime = $this->db->quoteString($mime);
+					$mime = substr($mime, 1, strlen($mime)-2);
+					$whrs[] = sprintf('`mime` LIKE \'%s/%%\'', $mime);
+				} else {
+					$whrs[] = sprintf('`mime` = %s', $this->db->quoteString($mime));
+				}
+				$whr = join(' OR ', $whrs);
+			}
+		} else {
+			$q = $this->db->quoteString($q);
+			$q = '%'.substr($q, 1, strlen($q)-2).'%';
+			$whr = '`name` LIKE \''.$q.'\'';
+		}
+		
+		$filter = '';
+		if ($filters) {
+			$filter = $this->db->quoteString(join(' ', $filters));
+			$filter = substr($filter, 1, strlen($filter)-2);
+			$filter = str_replace('*', '%', $filter);
+			$_f = array();
+			foreach(explode(' ', $filter) as $val) {
+				if (strpos($val, '/') === false && strpos($val, '%') === false ) {
+					$val .= '%';
+				}
+				$_f[] = '`mime` LIKE \'' . $val . '\'';
+			}
+			$filter = ' OR ' . join(' OR ', $_f);
+		}
+		if ($dirs) {
+			$whr = '(' . $whr . ') AND (`parent_id` IN (' . join(',', $dirs) . ')' . $filter . ')';
+		}
+		
+		$sql = 'SELECT `file_id`, `mime`, `uid`, `gid`, `gids`, `perm`, `home_of` FROM '.$this->tbf.' WHERE '.$whr;
+		
+		$res = $this->query($sql);
+		if ($res) {
+			while ($stat = $this->db->fetchArray($res)) {
+				if (!$this->mimeAccepted($stat['mime'], $mimes)) {
+					continue;
+				}
+				$this->setAuthByPerm($stat);
+				if (empty($stat['hidden'])) {
+					$result[] = $this->stat($stat['file_id']);
+				}
+			}
+		}
+		
+		return $result;
 	}
 	
 	/*********************** paths/urls *************************/
