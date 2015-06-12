@@ -279,7 +279,7 @@ $opts = array(
 	'sessionCacheKey' => 'xel_'.$mydirname.'_Caches',
 	'bind'   => array(
 		'*'              => array($xoops_elFinder, 'log'),
-		'mkdir.pre mkfile.pre rename.pre' => array(
+		'mkdir.pre mkfile.pre rename.pre archive.pre' => array(
 			'Plugin.Sanitizer.cmdPreprocess',
 			'Plugin.Normalizer.cmdPreprocess'
 		),

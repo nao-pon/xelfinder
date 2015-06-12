@@ -63,11 +63,12 @@ class elFinderVolumeFTPx extends elFinderVolumeFTP {
 	
 		foreach ($features as $feat) {
 			if (strpos(trim($feat), 'MLST') === 0) {
-				return true;
+				$this->MLSTsupprt = true;
+				break;
 			}
 		}
-	
-		return $this->setError('Server does not support command MLST.');
+		
+		return true;
 	}
 	
 	protected function setLocalRoot() {

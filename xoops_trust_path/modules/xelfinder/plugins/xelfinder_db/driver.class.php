@@ -511,13 +511,14 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	protected function localFileSave($localpath, $dir, $check_mime_accept = false) {
 		$path = -1;
 		$localpath = rtrim($localpath, DIRECTORY_SEPARATOR);
-		//$localpath = mb_convert_encoding($localpath, 'UTF-8', 'AUTO');
 		$name = basename($localpath);
-		//$this->_debug($localpath);
 		if ($this->nameAccepted($name)) {
 			$width = $height = 0;
 			if (is_dir($localpath)) {
-				$path = $this->_mkdir($dir, $name);
+				$test = $this->_joinPath($dir, $name);
+				$_stat = '';
+				($test > 0) && ($_stat = $this->_stat($test)) && ($_stat = $_stat['mime']);
+				$path = ($_stat === 'directory')? $test : $this->_mkdir($dir, $name);
 				if ($path > 0) {
 					$_ok = false;
 					foreach (scandir($localpath) as $c_name) {
@@ -526,7 +527,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 							if (!$_ok && $_res > 0) $_ok = true;
 						}
 					}
-					if (! $_ok) {
+					if (! $_ok && $test === -1) {
 						$path = -1;
 						$this->_rmdir($path);
 					}
@@ -1523,11 +1524,14 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		
 		$dir = $this->decode($stat['phash']);
 
+		$extractTo = $this->extractToNewdir; // 'auto', ture or false
+		
 		$src = $localdir.DIRECTORY_SEPARATOR.$ls[0];
-		if (count($ls) === 1 && is_file($src)) {
+		$_ok = false;
+		if (($extractTo === 'auto' || !$extractTo) && count($ls) === 1 && is_file($src)) {
 			$dir = $this->localFileSave($src, $dir, true);
 			$_ok = $dir? true : false;
-		} else {
+		} else if ($extractTo === 'auto' || $extractTo) {
 			// create unique name for directory
 			$name = $stat['name'];
 			if (preg_match('/\.((tar\.(gz|bz|bz2|z|lzo))|cpio\.gz|ps\.gz|xcf\.(gz|bz2)|[a-z0-9]{1,4})$/i', $name, $m)) {
@@ -1544,12 +1548,26 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 				return false;
 			}
 			
-			$_ok = false;
 			foreach (scandir($localdir) as $name) {
 				if ($name != '.' && $name != '..') {
 					$res = $this->localFileSave($localdir.DIRECTORY_SEPARATOR.$name, $dir, true);
 					if (!$_ok && $res > 0) $_ok = true;
 				}
+			}
+		} else {
+			$result = array();
+			foreach($ls as $name) {
+				$src = $localdir.DIRECTORY_SEPARATOR.$name;
+				$add = $this->localFileSave($src, $dir, true);
+				if ($add > 0) {
+					$result[] = $add;
+				}
+			}
+			if ($result) {
+				$_ok = true;
+				$dir = $result;
+			} else {
+				$dir = 0;
 			}
 		}
 		
