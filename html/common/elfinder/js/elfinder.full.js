@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 40e589b) (2015-05-29)
+ * Version 2.1_n (Nightly: c3ccd4b) (2015-06-12)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -3283,9 +3283,9 @@ elFinder.prototype = {
 		prefix = this.i18n(prefix); 
 		phash = phash || this.cwd().hash;
 
-		if ((p = prefix.indexOf('.txt')) != -1) {
-			ext    = '.txt';
-			prefix = prefix.substr(0, p);
+		if (p = prefix.match(/^(.+)(\.[^.]+)$/)) {
+			ext    = p[2];
+			prefix = p[1];
 		}
 		
 		name   = prefix+ext;
@@ -3587,7 +3587,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 40e589b)';
+elFinder.prototype.version = '2.1_n (Nightly: c3ccd4b)';
 
 
 
@@ -4698,6 +4698,7 @@ elFinder.prototype.resources = {
 					write : true,
 					date  : 'Today '+date.getHours()+':'+date.getMinutes()
 				},
+				data = this.data || {},
 				node = cwd.trigger('create.'+fm.namespace, file).find('#'+id),
 				input = $('<input type="text"/>')
 					.keydown(function(e) {
@@ -4730,7 +4731,7 @@ elFinder.prototype.resources = {
 							fm.lockfiles({files : [id]});
 
 							fm.request({
-									data        : {cmd : cmd, name : name, target : phash}, 
+									data        : $.extend({cmd : cmd, name : name, target : phash}, data || {}), 
 									notify      : {type : cmd, cnt : 1},
 									preventFail : true,
 									syncOnFail  : true
@@ -4740,6 +4741,12 @@ elFinder.prototype.resources = {
 								})
 								.done(function(data) {
 									dfrd.resolve(data);
+									if (data.added && data.added[0]) {
+										var newItem = cwd.find('#'+data.added[0].hash);
+										if (newItem.length) {
+											cwd.parent().scrollTop(newItem.offset().top);
+										}
+									}
 								});
 						}
 					});
@@ -5013,6 +5020,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'btnAll'    : 'All',       // from v2.1 added 22.5.2015
 			'btnMime'   : 'MIME Type', // from v2.1 added 22.5.2015
 			'btnFileName':'Filename',  // from v2.1 added 22.5.2015
+			'btnSaveClose': 'Save & Close', // from v2.1 added 12.6.2015
 			
 			/******************************** notifications ********************************/
 			'ntfopen'     : 'Open folder',
@@ -6441,7 +6449,7 @@ $.fn.elfindercwd = function(fm, options) {
 						parent.prepend(file);
 					}
 					
-					cwd.scrollTop(0);
+					cwd.parent().scrollTop(0);
 				})
 				// unselect all selected files
 				.bind('unselectall', unselectAll)
@@ -6809,7 +6817,7 @@ $.fn.elfinderdialog = function(opts) {
 				})
 				.bind('totop', function() {
 					$(this).mousedown().find('.ui-button:first').focus().end().find(':text:first').focus();
-					$(this).data('modal') && overlay.elfinderoverlay('show');
+					$(this).data('modal') && overlay.is(':hidden') && overlay.elfinderoverlay('show');
 					overlay.zIndex($(this).zIndex());
 				})
 				.data({modal: opts.modal}),
@@ -8532,7 +8540,7 @@ elFinder.prototype.commands.archive = function() {
 	});
 	
 	this.getstate = function() {
-		return !this._disabled && mimes.length && fm.selected().length && fm.cwd().write ? 0 : -1;
+		return !this._disabled && mimes.length && (fm.selected().length || dfrd.state() == 'pending') && fm.cwd().write ? 0 : -1;
 	}
 	
 	this.exec = function(hashes, type) {
@@ -8560,11 +8568,10 @@ elFinder.prototype.commands.archive = function() {
 			}
 		}
 
-		return fm.request({
-			data       : {cmd : 'archive', targets : this.hashes(hashes), type : mime},
-			notify     : {type : 'archive', cnt : 1},
-			syncOnFail : true
-		});
+		self.mime   = mime;
+		self.prefix = ((cnt > 1)? 'Archive' : files[0].name) + '.' + fm.option('archivers')['createext'][mime];
+		self.data   = {targets : self.hashes(hashes), type : mime};
+		return $.proxy(fm.res('mixin', 'make'), self)();
 	}
 
 }
@@ -8864,12 +8871,15 @@ elFinder.prototype.commands.edit = function() {
 				ta   = $('<textarea class="elfinder-file-edit" rows="20" id="'+id+'-ta">'+fm.escape(content)+'</textarea>'),
 				save = function() {
 					ta.editor && ta.editor.save(ta[0], ta.editor.instance);
-					dfrd.resolve(ta.getContent());
-					ta.elfinderdialog('close');
+					dfrd.notify(ta.getContent());
 				},
 				cancel = function() {
 					dfrd.reject();
 					ta.elfinderdialog('close');
+				},
+				savecl = function() {
+					save();
+					cancel();
 				},
 				opts = {
 					title   : file.name,
@@ -8940,8 +8950,9 @@ elFinder.prototype.commands.edit = function() {
 					});
 				}
 				
-				opts.buttons[fm.i18n('Save')]   = save;
-				opts.buttons[fm.i18n('Cancel')] = cancel;
+				opts.buttons[fm.i18n('btnSave')]      = save;
+				opts.buttons[fm.i18n('btnSaveClose')] = savecl;
+				opts.buttons[fm.i18n('btnCancel')]    = cancel;
 				
 				fm.dialog(ta, opts).attr('id', id);
 				return dfrd.promise();
@@ -8999,7 +9010,7 @@ elFinder.prototype.commands.edit = function() {
 					});
 				} else {
 					dialog(id, file, data.content)
-						.done(function(content) {
+						.progress(function(content) {
 							fm.request({
 								options : {type : 'post'},
 								data : {
@@ -9085,11 +9096,13 @@ elFinder.prototype.commands.extract = function() {
 			})
 		};
 	
+	this.variants = [];
 	this.disableOnSearch = true;
 	
 	// Update mimes list on open/reload
 	fm.bind('open reload', function() {
 		mimes = fm.option('archivers')['extract'] || [];
+		self.variants = [['makedir', fm.i18n('cmdmkdir')], ['intohere', fm.i18n('btnCwd')]];
 		self.change();
 	});
 	
@@ -9100,15 +9113,17 @@ elFinder.prototype.commands.extract = function() {
 		return !this._disabled && cnt && this.fm.cwd().write && filter(sel).length == cnt ? 0 : -1;
 	}
 	
-	this.exec = function(hashes) {
+	this.exec = function(hashes, extractTo) {
 		var files    = this.files(hashes),
 			dfrd     = $.Deferred(),
-			cnt      = files.length, 
+			cnt      = files.length,
+			makedir  = (extractTo == 'makedir')? 1 : 0,
 			i, error,
 			decision;
 
 		var overwriteAll = false;
 		var omitAll = false;
+		var mkdirAll = 0;
 
 		var names = $.map(fm.files(hashes), function(file) { return file.name; });
 		var map = {};
@@ -9136,7 +9151,7 @@ elFinder.prototype.commands.extract = function() {
 				dfrd.reject(error);
 			} else {
 				fm.request({
-					data:{cmd:'extract', target:file.hash},
+					data:{cmd:'extract', target:file.hash, makedir:makedir},
 					notify:{type:'extract', cnt:1},
 					syncOnFail:true
 				})
@@ -9151,14 +9166,21 @@ elFinder.prototype.commands.extract = function() {
 		};
 		
 		var confirm = function(files, index) {
-			var file = files[index];
-			var name = file.name.replace(/\.((tar\.(gz|bz|bz2|z|lzo))|cpio\.gz|ps\.gz|xcf\.(gz|bz2)|[a-z0-9]{1,4})$/ig, '');
-			var existed = ($.inArray(name, names) >= 0);
-			if(existed && map[name].mime != 'directory') {
+			var file = files[index],
+			name = file.name.replace(/\.((tar\.(gz|bz|bz2|z|lzo))|cpio\.gz|ps\.gz|xcf\.(gz|bz2)|[a-z0-9]{1,4})$/ig, ''),
+			existed = ($.inArray(name, names) >= 0),
+			next = function(){
+				if((index+1) < cnt) {
+					confirm(files, index+1);
+				} else {
+					dfrd.resolve();
+				}
+			};
+			if (!makedir && existed && map[name].mime != 'directory') {
 				fm.confirm(
 					{
 						title : fm.i18n('ntfextract'),
-						text  : fm.i18n(['errExists', name, 'confirmRepl']),
+						text  : ['errExists', name, 'confirmRepl'],
 						accept:{
 							label : 'btnYes',
 							callback:function (all) {
@@ -9174,7 +9196,7 @@ elFinder.prototype.commands.extract = function() {
 										dfrd.resolve();
 									}
 								} else if(overwriteAll) {
-									for (i = 0; i < cnt; i++) {
+									for (i = index; i < cnt; i++) {
 										unpack(files[i]);
 									}
 									dfrd.resolve();
@@ -9199,16 +9221,44 @@ elFinder.prototype.commands.extract = function() {
 								dfrd.resolve();
 							}
 						},
-						all : (cnt > 1)
+						all : ((index+1) < cnt)
 					}
 				);
+			} else if (!makedir) {
+				if (mkdirAll == 0) {
+					fm.confirm({
+						title : fm.i18n('cmdextract'),
+						text  : [fm.i18n('cmdextract')+' "'+file.name+'"', 'confirmRepl'],
+						accept:{
+							label : 'btnYes',
+							callback:function (all) {
+								all && (mkdirAll = 1);
+								unpack(file);
+								next();
+							}
+						},
+						reject : {
+							label : 'btnNo',
+							callback:function (all) {
+								all && (mkdirAll = -1);
+								next();
+							}
+						},
+						cancel : {
+							label : 'btnCancel',
+							callback:function () {
+								dfrd.resolve();
+							}
+						},
+						all : ((index+1) < cnt)
+					});
+				} else {
+					(mkdirAll > 0) && unpack(file);
+					next();
+				}
 			} else {
 				unpack(file);
-				if((index+1) < cnt) {
-					confirm(files, index+1);
-				} else {
-					dfrd.resolve();
-				}
+				next();
 			}
 		};
 		
