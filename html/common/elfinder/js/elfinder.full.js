@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 97f2dbc) (2015-06-14)
+ * Version 2.1_n (Nightly: 8381ea0) (2015-06-18)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -576,21 +576,37 @@ window.elFinder = function(node, opts) {
 		cursorAt   : {left : 50, top : 47},
 		start      : function(e, ui) {
 			var targets = $.map(ui.helper.data('files')||[], function(h) { return h || null ;}),
+			locked = false,
 			cnt, h;
 			cnt = targets.length;
 			while (cnt--) {
 				h = targets[cnt];
 				if (files[h].locked) {
+					locked = true;
 					ui.helper.addClass('elfinder-drag-helper-plus').data('locked', true);
 					break;
 				}
 			}
+			!locked && self.trigger('lockfiles', {files : targets});
+
 		},
-		stop       : function() { self.trigger('focus').trigger('dragstop'); },
+		stop       : function(e, ui) {
+			self.trigger('focus').trigger('dragstop');
+			if (! ui.helper.data('droped')) {
+				self.trigger('unlockfiles', {files : $.map(ui.helper.data('files')||[], function(h) { return h || null ;})});
+			}
+		},
 		helper     : function(e, ui) {
 			var element = this.id ? $(this) : $(this).parents('[id]:first'),
 				helper  = $('<div class="elfinder-drag-helper"><span class="elfinder-drag-helper-icon-plus"/></div>'),
-				icon    = function(mime) { return '<div class="elfinder-cwd-icon '+self.mime2class(mime)+' ui-corner-all"/>'; },
+				icon    = function(f) {
+					var mime = f.mime, i;
+					i = '<div class="elfinder-cwd-icon '+self.mime2class(mime)+' ui-corner-all"/>';
+					if (f.tmb && f.tmb !== 1) {
+						i = $(i).css('background', "url('"+self.option('tmbUrl')+f.tmb+"') center center no-repeat").get(0).outerHTML;
+					}
+					return i;
+				},
 				hashes, l;
 			
 			self.trigger('dragstart', {target : element[0], originalEvent : e});
@@ -599,15 +615,17 @@ window.elFinder = function(node, opts) {
 				? self.selected() 
 				: [self.navId2Hash(element.attr('id'))];
 			
-			helper.append(icon(files[hashes[0]].mime)).data('files', hashes).data('locked', false);
+			helper.append(icon(files[hashes[0]])).data('files', hashes).data('locked', false).data('droped', false);
 
 			if ((l = hashes.length) > 1) {
-				helper.append(icon(files[hashes[l-1]].mime) + '<span class="elfinder-drag-num">'+l+'</span>');
+				helper.append(icon(files[hashes[l-1]]) + '<span class="elfinder-drag-num">'+l+'</span>');
 			}
 			
 			$(document).bind(keydown + ' keyup.' + namespace, function(e){
+				var ctr = (e.shiftKey||e.ctrlKey||e.metaKey);
 				if (helper.is(':visible') && ! helper.data('locked')) {
-					helper.toggleClass('elfinder-drag-helper-plus', e.shiftKey||e.ctrlKey||e.metaKey);
+					helper.toggleClass('elfinder-drag-helper-plus', ctr);
+					self.trigger(ctr? 'unlockfiles' : 'lockfiles', {files : hashes});
 				}
 			});
 			
@@ -632,6 +650,7 @@ window.elFinder = function(node, opts) {
 					c       = 'class',
 					cnt, hash, i, h;
 				
+				ui.helper.data('droped', true);
 				if (dst.is('.'+self.res(c, 'cwd'))) {
 					hash = cwd;
 				} else if (dst.is('.'+self.res(c, 'cwdfile'))) {
@@ -645,7 +664,11 @@ window.elFinder = function(node, opts) {
 				while (cnt--) {
 					h = targets[cnt];
 					// ignore drop into itself or in own location
-					h != hash && files[h].phash != hash && result.push(h);
+					if (h != hash && files[h].phash != hash) {
+						result.push(h);
+					} else {
+						self.trigger('unlockfiles', {files : [h]});
+					}
 				}
 				
 				if (result.length) {
@@ -653,7 +676,8 @@ window.elFinder = function(node, opts) {
 					self.clipboard(result, !(e.ctrlKey||e.shiftKey||e.metaKey||ui.helper.data('locked')));
 					self.exec('paste', hash);
 					self.trigger('drop', {files : targets});
-
+				} else {
+					self.trigger('unlockfiles', {files : targets});
 				}
 			}
 		};
@@ -1440,7 +1464,11 @@ window.elFinder = function(node, opts) {
 	 * @return jQuery
 	 */
 	this.dialog = function(content, options) {
-		return $('<div/>').append(content).appendTo(node).elfinderdialog(options);
+		var dialog = $('<div/>').append(content).appendTo(node).elfinderdialog(options);
+		this.bind('resize', function(){
+			dialog.elfinderdialog('posInit');
+		});
+		return dialog;
 	}
 	
 	/**
@@ -1761,11 +1789,11 @@ window.elFinder = function(node, opts) {
 		// notification dialog window
 		notify : this.dialog('', {
 			cssClass  : 'elfinder-dialog-notify',
-			position  : {top : '12px', right : '12px'},
+			position  : this.options.notifyDialog.position,
 			resizable : false,
 			autoOpen  : false,
 			title     : '&nbsp;',
-			width     : 280
+			width     : parseInt(this.options.notifyDialog.width)
 		}),
 		statusbar : $('<div class="ui-widget-header ui-helper-clearfix ui-corner-bottom elfinder-statusbar"/>').hide().appendTo(node)
 	}
@@ -3587,7 +3615,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 97f2dbc)';
+elFinder.prototype.version = '2.1_n (Nightly: 8381ea0)';
 
 
 
@@ -4100,6 +4128,15 @@ elFinder.prototype._options = {
 	 * @default  500 (.5 sec)
 	 */
 	notifyDelay : 500,
+	
+	/**
+	 * Position CSS, Width of notifications dialogs
+	 *
+	 * @type Object
+	 * @default {position: {top : '12px', right : '12px'}, width : 280}
+	 * position: CSS object | null (null: position center & middle)
+	 */
+	notifyDialog : {position: {top : '12px', right : '12px'}, width : 280},
 	
 	/**
 	 * Allow shortcuts
@@ -4866,405 +4903,6 @@ $.fn.dialogelfinder = function(opts) {
 
 	return this;
 };
-
-
-
-/*
- * File: /js/i18n/elfinder.en.js
- */
-
-/**
- * English translation
- * @author Troex Nevelin <troex@fury.scancode.ru>
- * @version 2014-12-19
- */
-if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object') {
-	elFinder.prototype.i18.en = {
-		translator : 'Troex Nevelin &lt;troex@fury.scancode.ru&gt;',
-		language   : 'English',
-		direction  : 'ltr',
-		dateFormat : 'M d, Y h:i A', // Mar 13, 2012 05:27 PM
-		fancyDateFormat : '$1 h:i A', // will produce smth like: Today 12:25 PM
-		messages   : {
-			
-			/********************************** errors **********************************/
-			'error'                : 'Error',
-			'errUnknown'           : 'Unknown error.',
-			'errUnknownCmd'        : 'Unknown command.',
-			'errJqui'              : 'Invalid jQuery UI configuration. Selectable, draggable and droppable components must be included.',
-			'errNode'              : 'elFinder requires DOM Element to be created.',
-			'errURL'               : 'Invalid elFinder configuration! URL option is not set.',
-			'errAccess'            : 'Access denied.',
-			'errConnect'           : 'Unable to connect to backend.',
-			'errAbort'             : 'Connection aborted.',
-			'errTimeout'           : 'Connection timeout.',
-			'errNotFound'          : 'Backend not found.',
-			'errResponse'          : 'Invalid backend response.',
-			'errConf'              : 'Invalid backend configuration.',
-			'errJSON'              : 'PHP JSON module not installed.',
-			'errNoVolumes'         : 'Readable volumes not available.',
-			'errCmdParams'         : 'Invalid parameters for command "$1".',
-			'errDataNotJSON'       : 'Data is not JSON.',
-			'errDataEmpty'         : 'Data is empty.',
-			'errCmdReq'            : 'Backend request requires command name.',
-			'errOpen'              : 'Unable to open "$1".',
-			'errNotFolder'         : 'Object is not a folder.',
-			'errNotFile'           : 'Object is not a file.',
-			'errRead'              : 'Unable to read "$1".',
-			'errWrite'             : 'Unable to write into "$1".',
-			'errPerm'              : 'Permission denied.',
-			'errLocked'            : '"$1" is locked and can not be renamed, moved or removed.',
-			'errExists'            : 'File named "$1" already exists.',
-			'errInvName'           : 'Invalid file name.',
-			'errFolderNotFound'    : 'Folder not found.',
-			'errFileNotFound'      : 'File not found.',
-			'errTrgFolderNotFound' : 'Target folder "$1" not found.',
-			'errPopup'             : 'Browser prevented opening popup window. To open file enable it in browser options.',
-			'errMkdir'             : 'Unable to create folder "$1".',
-			'errMkfile'            : 'Unable to create file "$1".',
-			'errRename'            : 'Unable to rename "$1".',
-			'errCopyFrom'          : 'Copying files from volume "$1" not allowed.',
-			'errCopyTo'            : 'Copying files to volume "$1" not allowed.',
-			'errUpload'            : 'Upload error.',  // old name - errUploadCommon
-			'errUploadFile'        : 'Unable to upload "$1".', // old name - errUpload
-			'errUploadNoFiles'     : 'No files found for upload.', 
-			'errUploadTotalSize'   : 'Data exceeds the maximum allowed size.', // old name - errMaxSize
-			'errUploadFileSize'    : 'File exceeds maximum allowed size.', //  old name - errFileMaxSize
-			'errUploadMime'        : 'File type not allowed.', 
-			'errUploadTransfer'    : '"$1" transfer error.', 
-			'errNotReplace'        : 'Object "$1" already exists at this location and can not be replaced by object with another type.', // new
-			'errReplace'           : 'Unable to replace "$1".',
-			'errSave'              : 'Unable to save "$1".',
-			'errCopy'              : 'Unable to copy "$1".',
-			'errMove'              : 'Unable to move "$1".',
-			'errCopyInItself'      : 'Unable to copy "$1" into itself.',
-			'errRm'                : 'Unable to remove "$1".',
-			'errRmSrc'             : 'Unable remove source file(s).',
-			'errExtract'           : 'Unable to extract files from "$1".',
-			'errArchive'           : 'Unable to create archive.',
-			'errArcType'           : 'Unsupported archive type.',
-			'errNoArchive'         : 'File is not archive or has unsupported archive type.',
-			'errCmdNoSupport'      : 'Backend does not support this command.',
-			'errReplByChild'       : 'The folder “$1” can’t be replaced by an item it contains.',
-			'errArcSymlinks'       : 'For security reason denied to unpack archives contains symlinks or files with not allowed names.', // edited 24.06.2012
-			'errArcMaxSize'        : 'Archive files exceeds maximum allowed size.',
-			'errResize'            : 'Unable to resize "$1".',
-			'errResizeDegree'      : 'Invalid rotate degree.',  // added 7.3.2013
-			'errResizeRotate'      : 'Image dose not rotated.',  // added 7.3.2013
-			'errResizeSize'        : 'Invalid image size.',  // added 7.3.2013
-			'errResizeNoChange'    : 'Image size not changed.',  // added 7.3.2013
-			'errUsupportType'      : 'Unsupported file type.',
-			'errNotUTF8Content'    : 'File "$1" is not in UTF-8 and cannot be edited.',  // added 9.11.2011
-			'errNetMount'          : 'Unable to mount "$1".', // added 17.04.2012
-			'errNetMountNoDriver'  : 'Unsupported protocol.',     // added 17.04.2012
-			'errNetMountFailed'    : 'Mount failed.',         // added 17.04.2012
-			'errNetMountHostReq'   : 'Host required.', // added 18.04.2012
-			'errSessionExpires'    : 'Your session has expired due to inactivity.',
-			'errCreatingTempDir'   : 'Unable to create temporary directory: "$1"',
-			'errFtpDownloadFile'   : 'Unable to download file from FTP: "$1"',
-			'errFtpUploadFile'     : 'Unable to upload file to FTP: "$1"',
-			'errFtpMkdir'          : 'Unable to create remote directory on FTP: "$1"',
-			'errArchiveExec'       : 'Error while archiving files: "$1"',
-			'errExtractExec'       : 'Error while extracting files: "$1"',
-			'errNetUnMount'        : 'Unable to unmount', // added 30.04.2012
-			'errConvUTF8'          : 'Not convertible to UTF-8', // added 08.04.2014
-
-			/******************************* commands names ********************************/
-			'cmdarchive'   : 'Create archive',
-			'cmdback'      : 'Back',
-			'cmdcopy'      : 'Copy',
-			'cmdcut'       : 'Cut',
-			'cmddownload'  : 'Download',
-			'cmdduplicate' : 'Duplicate',
-			'cmdedit'      : 'Edit file',
-			'cmdextract'   : 'Extract files from archive',
-			'cmdforward'   : 'Forward',
-			'cmdgetfile'   : 'Select files',
-			'cmdhelp'      : 'About this software',
-			'cmdhome'      : 'Home',
-			'cmdinfo'      : 'Get info',
-			'cmdmkdir'     : 'New folder',
-			'cmdmkfile'    : 'New text file',
-			'cmdopen'      : 'Open',
-			'cmdpaste'     : 'Paste',
-			'cmdquicklook' : 'Preview',
-			'cmdreload'    : 'Reload',
-			'cmdrename'    : 'Rename',
-			'cmdrm'        : 'Delete',
-			'cmdsearch'    : 'Find files',
-			'cmdup'        : 'Go to parent directory',
-			'cmdupload'    : 'Upload files',
-			'cmdview'      : 'View',
-			'cmdresize'    : 'Resize & Rotate',
-			'cmdsort'      : 'Sort',
-			'cmdnetmount'  : 'Mount network volume', // added 18.04.2012
-			'cmdnetunmount': 'Unmount', // added 30.04.2012
-			'cmdplaces'    : 'To Places', // added 28.12.2014
-			
-			'cmdpixlr'     : 'Edit on Pixlr',
-			
-			/*********************************** buttons ***********************************/ 
-			'btnClose'  : 'Close',
-			'btnSave'   : 'Save',
-			'btnRm'     : 'Remove',
-			'btnApply'  : 'Apply',
-			'btnCancel' : 'Cancel',
-			'btnNo'     : 'No',
-			'btnYes'    : 'Yes',
-			'btnMount'  : 'Mount',  // added 18.04.2012
-			'btnApprove': 'Goto $1 & approve', // added 26.04.2012
-			'btnUnmount': 'Unmount', // added 30.04.2012
-			'btnConv'   : 'Convert', // added 08.04.2014
-			'btnCwd'    : 'Here',      // from v2.1 added 22.5.2015
-			'btnVolume' : 'Volume',    // from v2.1 added 22.5.2015
-			'btnAll'    : 'All',       // from v2.1 added 22.5.2015
-			'btnMime'   : 'MIME Type', // from v2.1 added 22.5.2015
-			'btnFileName':'Filename',  // from v2.1 added 22.5.2015
-			'btnSaveClose': 'Save & Close', // from v2.1 added 12.6.2015
-			
-			/******************************** notifications ********************************/
-			'ntfopen'     : 'Open folder',
-			'ntffile'     : 'Open file',
-			'ntfreload'   : 'Reload folder content',
-			'ntfmkdir'    : 'Creating directory',
-			'ntfmkfile'   : 'Creating files',
-			'ntfrm'       : 'Delete files',
-			'ntfcopy'     : 'Copy files',
-			'ntfmove'     : 'Move files',
-			'ntfprepare'  : 'Prepare to copy files',
-			'ntfrename'   : 'Rename files',
-			'ntfupload'   : 'Uploading files',
-			'ntfdownload' : 'Downloading files',
-			'ntfsave'     : 'Save files',
-			'ntfarchive'  : 'Creating archive',
-			'ntfextract'  : 'Extracting files from archive',
-			'ntfsearch'   : 'Searching files',
-			'ntfresize'   : 'Resizing images',
-			'ntfsmth'     : 'Doing something',
-			'ntfloadimg'  : 'Loading image',
-			'ntfnetmount' : 'Mounting network volume', // added 18.04.2012
-			'ntfnetunmount': 'Unmounting network volume', // added 30.04.2012
-			'ntfdim'      : 'Acquiring image dimension', // added 20.05.2013
-			'ntfreaddir'  : 'Reading folder infomation', // added 01.07.2013
-			'ntfurl'      : 'Getting URL of link', // added 11.03.2014
-			
-			/************************************ dates **********************************/
-			'dateUnknown' : 'unknown',
-			'Today'       : 'Today',
-			'Yesterday'   : 'Yesterday',
-			'msJan'       : 'Jan',
-			'msFeb'       : 'Feb',
-			'msMar'       : 'Mar',
-			'msApr'       : 'Apr',
-			'msMay'       : 'May',
-			'msJun'       : 'Jun',
-			'msJul'       : 'Jul',
-			'msAug'       : 'Aug',
-			'msSep'       : 'Sep',
-			'msOct'       : 'Oct',
-			'msNov'       : 'Nov',
-			'msDec'       : 'Dec',
-			'January'     : 'January',
-			'February'    : 'February',
-			'March'       : 'March',
-			'April'       : 'April',
-			'May'         : 'May',
-			'June'        : 'June',
-			'July'        : 'July',
-			'August'      : 'August',
-			'September'   : 'September',
-			'October'     : 'October',
-			'November'    : 'November',
-			'December'    : 'December',
-			'Sunday'      : 'Sunday',
-			'Monday'      : 'Monday',
-			'Tuesday'     : 'Tuesday',
-			'Wednesday'   : 'Wednesday',
-			'Thursday'    : 'Thursday',
-			'Friday'      : 'Friday',
-			'Saturday'    : 'Saturday',
-			'Sun'         : 'Sun', 
-			'Mon'         : 'Mon', 
-			'Tue'         : 'Tue', 
-			'Wed'         : 'Wed', 
-			'Thu'         : 'Thu', 
-			'Fri'         : 'Fri', 
-			'Sat'         : 'Sat',
-
-			/******************************** sort variants ********************************/
-			'sortname'          : 'by name', 
-			'sortkind'          : 'by kind', 
-			'sortsize'          : 'by size',
-			'sortdate'          : 'by date',
-			'sortFoldersFirst'  : 'Folders first',
-
-			/********************************** messages **********************************/
-			'confirmReq'      : 'Confirmation required',
-			'confirmRm'       : 'Are you sure you want to remove files?<br/>This cannot be undone!',
-			'confirmRepl'     : 'Replace old file with new one?',
-			'confirmConvUTF8' : 'Not in UTF-8<br/>Convert to UTF-8?<br/>Contents become UTF-8 by saving after conversion.', // added 08.04.2014
-			'apllyAll'        : 'Apply to all',
-			'name'            : 'Name',
-			'size'            : 'Size',
-			'perms'           : 'Permissions',
-			'modify'          : 'Modified',
-			'kind'            : 'Kind',
-			'read'            : 'read',
-			'write'           : 'write',
-			'noaccess'        : 'no access',
-			'and'             : 'and',
-			'unknown'         : 'unknown',
-			'selectall'       : 'Select all files',
-			'selectfiles'     : 'Select file(s)',
-			'selectffile'     : 'Select first file',
-			'selectlfile'     : 'Select last file',
-			'viewlist'        : 'List view',
-			'viewicons'       : 'Icons view',
-			'places'          : 'Places',
-			'calc'            : 'Calculate', 
-			'path'            : 'Path',
-			'aliasfor'        : 'Alias for',
-			'locked'          : 'Locked',
-			'dim'             : 'Dimensions',
-			'files'           : 'Files',
-			'folders'         : 'Folders',
-			'items'           : 'Items',
-			'yes'             : 'yes',
-			'no'              : 'no',
-			'link'            : 'Link',
-			'searcresult'     : 'Search results',  
-			'selected'        : 'selected items',
-			'about'           : 'About',
-			'shortcuts'       : 'Shortcuts',
-			'help'            : 'Help',
-			'webfm'           : 'Web file manager',
-			'ver'             : 'Version',
-			'protocolver'     : 'protocol version',
-			'homepage'        : 'Project home',
-			'docs'            : 'Documentation',
-			'github'          : 'Fork us on Github',
-			'twitter'         : 'Follow us on twitter',
-			'facebook'        : 'Join us on facebook',
-			'team'            : 'Team',
-			'chiefdev'        : 'chief developer',
-			'developer'       : 'developer',
-			'contributor'     : 'contributor',
-			'maintainer'      : 'maintainer',
-			'translator'      : 'translator',
-			'icons'           : 'Icons',
-			'dontforget'      : 'and don\'t forget to take your towel',
-			'shortcutsof'     : 'Shortcuts disabled',
-			'dropFiles'       : 'Drop files here',
-			'or'              : 'or',
-			'selectForUpload' : 'Select files to upload',
-			'moveFiles'       : 'Move files',
-			'copyFiles'       : 'Copy files',
-			'rmFromPlaces'    : 'Remove from places',
-			'aspectRatio'     : 'Aspect ratio',
-			'scale'           : 'Scale',
-			'width'           : 'Width',
-			'height'          : 'Height',
-			'resize'          : 'Resize',
-			'crop'            : 'Crop',
-			'rotate'          : 'Rotate',
-			'rotate-cw'       : 'Rotate 90 degrees CW',
-			'rotate-ccw'      : 'Rotate 90 degrees CCW',
-			'degree'          : '°',
-			'netMountDialogTitle' : 'Mount network volume', // added 18.04.2012
-			'protocol'            : 'Protocol', // added 18.04.2012
-			'host'                : 'Host', // added 18.04.2012
-			'port'                : 'Port', // added 18.04.2012
-			'user'                : 'User', // added 18.04.2012
-			'pass'                : 'Password', // added 18.04.2012
-			'confirmUnmount'      : 'Are you unmount $1?',  // added 30.04.2012
-			'dropFilesBrowser': 'Drop or Paste files from browser', // added 30.05.2012
-			'dropPasteFiles'  : 'Drop or Paste files here', // added 07.04.2014
-			'encoding'        : 'Encoding', // from v2.1 added 19.12.2014
-			'locale'          : 'Locale',   // from v2.1 added 19.12.2014
-			'searchTarget'    : 'Target: $1',                // from v2.1 added 22.5.2015
-			'searchMime'      : 'Search by input MIME Type', // from v2.1 added 22.5.2015
-
-			/********************************** mimetypes **********************************/
-			'kindUnknown'     : 'Unknown',
-			'kindFolder'      : 'Folder',
-			'kindAlias'       : 'Alias',
-			'kindAliasBroken' : 'Broken alias',
-			// applications
-			'kindApp'         : 'Application',
-			'kindPostscript'  : 'Postscript document',
-			'kindMsOffice'    : 'Microsoft Office document',
-			'kindMsWord'      : 'Microsoft Word document',
-			'kindMsExcel'     : 'Microsoft Excel document',
-			'kindMsPP'        : 'Microsoft Powerpoint presentation',
-			'kindOO'          : 'Open Office document',
-			'kindAppFlash'    : 'Flash application',
-			'kindPDF'         : 'Portable Document Format (PDF)',
-			'kindTorrent'     : 'Bittorrent file',
-			'kind7z'          : '7z archive',
-			'kindTAR'         : 'TAR archive',
-			'kindGZIP'        : 'GZIP archive',
-			'kindBZIP'        : 'BZIP archive',
-			'kindXZ'          : 'XZ archive',
-			'kindZIP'         : 'ZIP archive',
-			'kindRAR'         : 'RAR archive',
-			'kindJAR'         : 'Java JAR file',
-			'kindTTF'         : 'True Type font',
-			'kindOTF'         : 'Open Type font',
-			'kindRPM'         : 'RPM package',
-			// texts
-			'kindText'        : 'Text document',
-			'kindTextPlain'   : 'Plain text',
-			'kindPHP'         : 'PHP source',
-			'kindCSS'         : 'Cascading style sheet',
-			'kindHTML'        : 'HTML document',
-			'kindJS'          : 'Javascript source',
-			'kindRTF'         : 'Rich Text Format',
-			'kindC'           : 'C source',
-			'kindCHeader'     : 'C header source',
-			'kindCPP'         : 'C++ source',
-			'kindCPPHeader'   : 'C++ header source',
-			'kindShell'       : 'Unix shell script',
-			'kindPython'      : 'Python source',
-			'kindJava'        : 'Java source',
-			'kindRuby'        : 'Ruby source',
-			'kindPerl'        : 'Perl script',
-			'kindSQL'         : 'SQL source',
-			'kindXML'         : 'XML document',
-			'kindAWK'         : 'AWK source',
-			'kindCSV'         : 'Comma separated values',
-			'kindDOCBOOK'     : 'Docbook XML document',
-			// images
-			'kindImage'       : 'Image',
-			'kindBMP'         : 'BMP image',
-			'kindJPEG'        : 'JPEG image',
-			'kindGIF'         : 'GIF Image',
-			'kindPNG'         : 'PNG Image',
-			'kindTIFF'        : 'TIFF image',
-			'kindTGA'         : 'TGA image',
-			'kindPSD'         : 'Adobe Photoshop image',
-			'kindXBITMAP'     : 'X bitmap image',
-			'kindPXM'         : 'Pixelmator image',
-			// media
-			'kindAudio'       : 'Audio media',
-			'kindAudioMPEG'   : 'MPEG audio',
-			'kindAudioMPEG4'  : 'MPEG-4 audio',
-			'kindAudioMIDI'   : 'MIDI audio',
-			'kindAudioOGG'    : 'Ogg Vorbis audio',
-			'kindAudioWAV'    : 'WAV audio',
-			'AudioPlaylist'   : 'MP3 playlist',
-			'kindVideo'       : 'Video media',
-			'kindVideoDV'     : 'DV movie',
-			'kindVideoMPEG'   : 'MPEG movie',
-			'kindVideoMPEG4'  : 'MPEG-4 movie',
-			'kindVideoAVI'    : 'AVI movie',
-			'kindVideoMOV'    : 'Quick Time movie',
-			'kindVideoWM'     : 'Windows Media movie',
-			'kindVideoFlash'  : 'Flash movie',
-			'kindVideoMKV'    : 'Matroska movie',
-			'kindVideoOGG'    : 'Ogg movie'
-		}
-	};
-}
 
 
 
@@ -6717,6 +6355,8 @@ $.fn.elfinderdialog = function(opts) {
 			dialog.hide().remove();
 		} else if (opts == 'toTop') {
 			dialog.trigger('totop');
+		} else if (opts == 'posInit') {
+			dialog.trigger('posinit');
 		}
 	}
 	
@@ -6740,8 +6380,13 @@ $.fn.elfinderdialog = function(opts) {
 				.hide()
 				.append(self)
 				.appendTo(parent)
-				.draggable({ handle : '.ui-dialog-titlebar',
-					     containment : 'document' })
+				.draggable({
+					handle : '.ui-dialog-titlebar',
+					containment : 'document',
+					stop : function(e, ui){
+						dialog.css({height : opts.height});
+					}
+				})
 				.css({
 					width  : opts.width,
 					height : opts.height//,
@@ -6821,6 +6466,16 @@ $.fn.elfinderdialog = function(opts) {
 					$(this).data('modal') && overlay.is(':hidden') && overlay.elfinderoverlay('show');
 					overlay.zIndex($(this).zIndex());
 				})
+				.bind('posinit', function() {
+					var css = opts.position;
+					if (!css) {
+						css = {
+							top  : Math.max(0, parseInt((parent.height() - dialog.outerHeight())/2 - 42))+'px',
+							left : Math.max(0, parseInt((parent.width() - dialog.outerWidth())/2))+'px'
+						};
+					}
+					dialog.css(css);
+				})
 				.data({modal: opts.modal}),
 				maxZIndex = function() {
 					var z = parent.zIndex() + 10;
@@ -6838,14 +6493,7 @@ $.fn.elfinderdialog = function(opts) {
 				top
 			;
 		
-		if (!opts.position) {
-			opts.position = {
-				top  : Math.max(0, parseInt((parent.height() - dialog.outerHeight())/2 - 42))+'px',
-				left : Math.max(0, parseInt((parent.width() - dialog.outerWidth())/2))+'px'
-			};
-		} 
-			
-		dialog.css(opts.position);
+		dialog.trigger('posinit');
 
 		if (opts.closeOnEscape) {
 			$(document).bind('keyup.'+id, function(e) {
@@ -8530,7 +8178,8 @@ $.fn.elfinderworkzone = function(fm) {
 elFinder.prototype.commands.archive = function() {
 	var self  = this,
 		fm    = self.fm,
-		mimes = [];
+		mimes = [],
+		dfrd;
 		
 	this.variants = [];
 	
@@ -8550,7 +8199,7 @@ elFinder.prototype.commands.archive = function() {
 	});
 	
 	this.getstate = function() {
-		return !this._disabled && mimes.length && (fm.selected().length || dfrd.state() == 'pending') && fm.cwd().write ? 0 : -1;
+		return !this._disabled && mimes.length && (fm.selected().length || (dfrd && dfrd.state() == 'pending')) && fm.cwd().write ? 0 : -1;
 	}
 	
 	this.exec = function(hashes, type) {
@@ -8559,10 +8208,11 @@ elFinder.prototype.commands.archive = function() {
 			mime  = type || mimes[0],
 			cwd   = fm.cwd(),
 			error = ['errArchive', 'errPerm', 'errCreatingTempDir', 'errFtpDownloadFile', 'errFtpUploadFile', 'errFtpMkdir', 'errArchiveExec', 'errExtractExec', 'errRm'],
-			dfrd  = $.Deferred().fail(function(error) {
-				error && fm.error(error);
-			}), 
-			i;
+			i, makeDfrd;
+
+		dfrd = $.Deferred().fail(function(error) {
+			error && fm.error(error);
+		});
 
 		if (!(this.enabled() && cnt && mimes.length && $.inArray(mime, mimes) !== -1)) {
 			return dfrd.reject();
@@ -8581,7 +8231,9 @@ elFinder.prototype.commands.archive = function() {
 		self.mime   = mime;
 		self.prefix = ((cnt > 1)? 'Archive' : files[0].name) + '.' + fm.option('archivers')['createext'][mime];
 		self.data   = {targets : self.hashes(hashes), type : mime};
-		return $.proxy(fm.res('mixin', 'make'), self)();
+		makeDfrd = $.proxy(fm.res('mixin', 'make'), self)();
+		dfrd.reject();
+		return makeDfrd;
 	}
 
 }
@@ -9960,7 +9612,8 @@ elFinder.prototype.commands.netmount = function() {
 						buttons        : {}
 					},
 					content = $('<table class="elfinder-info-tb elfinder-netmount-tb"/>'),
-					hidden  = $('<div/>');
+					hidden  = $('<div/>'),
+					dialog;
 
 				content.append($('<tr/>').append($('<td>'+fm.i18n('protocol')+'</td>')).append($('<td/>').append(inputs.protocol)));
 
@@ -9998,11 +9651,14 @@ elFinder.prototype.commands.netmount = function() {
 					});
 
 					if (!data.host) {
-						return self.fm.trigger('error', {error : 'errNetMountHostReq'});
+						return fm.trigger('error', {error : 'errNetMountHostReq'});
 					}
 
-					self.fm.request({data : data, notify : {type : 'netmount', cnt : 1, hideCnt : true}})
-						.done(function() { dfrd.resolve(); })
+					fm.request({data : data, notify : {type : 'netmount', cnt : 1, hideCnt : true}})
+						.done(function(data) {
+							data.added && data.added.length && fm.exec('open', data.added[0].hash);
+							dfrd.resolve();
+						})
 						.fail(function(error) { dfrd.reject(error); });
 
 					self.dialog.elfinderdialog('close');	
@@ -10012,7 +9668,12 @@ elFinder.prototype.commands.netmount = function() {
 					self.dialog.elfinderdialog('close');
 				};
 				
-				return fm.dialog(content, opts).ready(function(){inputs.protocol.change();});
+				dialog = fm.dialog(content, opts);
+				dialog.ready(function(){
+					inputs.protocol.change();
+					dialog.elfinderdialog('posInit');
+				});
+				return dialog;
 			}
 			;
 		
@@ -12459,13 +12120,13 @@ elFinder.prototype.commands.rm = function() {
 		if (dfrd.state() == 'pending') {
 			files = this.hashes(hashes);
 			
+			fm.lockfiles({files : files});
 			fm.confirm({
 				title  : self.title,
 				text   : 'confirmRm',
 				accept : {
 					label    : 'btnRm',
 					callback : function() {  
-						fm.lockfiles({files : files});
 						fm.request({
 							data   : {cmd  : 'rm', targets : files}, 
 							notify : {type : 'rm', cnt : cnt},
@@ -12477,15 +12138,18 @@ elFinder.prototype.commands.rm = function() {
 						.done(function(data) {
 							dfrd.done(data);
 							goroot && fm.exec('open', goroot)
-						}
-						).always(function() {
+						})
+						.always(function() {
 							fm.unlockfiles({files : files});
 						});
 					}
 				},
 				cancel : {
 					label    : 'btnCancel',
-					callback : function() { dfrd.reject(); }
+					callback : function() {
+						fm.unlockfiles({files : files});
+						dfrd.reject();
+					}
 				}
 			});
 		}
