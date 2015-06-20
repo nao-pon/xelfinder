@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 8381ea0) (2015-06-18)
+ * Version 2.1_n (Nightly: 0425b0a) (2015-06-20)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -212,7 +212,51 @@ window.elFinder = function(node, opts) {
 			
 		syncInterval,
 		
+		uiCmdMapPrev = null,
 		open = function(data) {
+			var repCmds = [], volumeid;
+			
+			// support volume driver option `uiCmdMap`
+			if (data && data.options && uiCmdMapPrev !== (data.options.uiCmdMap || {})) {
+				uiCmdMapPrev = (data.options.uiCmdMap || {});
+				if (Object.keys(uiCmdMapPrev).length) {
+					// for contextmenu
+					volumeid = data.cwd? data.cwd.volumeid : null;
+					if (volumeid && !self.options.contextmenu.cmdMaps[volumeid]) {
+						self.options.contextmenu.cmdMaps[volumeid] = uiCmdMapPrev;
+					}
+					// for toolbar
+					$.each(uiCmdMapPrev, function(from, to){
+						var cmd = self._commands[to],
+						button = cmd? 'elfinder'+cmd.options.ui : null;
+						if (button && $.fn[button]) {
+							repCmds.push(from);
+							var btn = $('div.elfinder-buttonset div.elfinder-button').has('span.elfinder-button-icon-'+from);
+							if (btn.length && !btn.next().has('span.elfinder-button-icon-'+to).length) {
+								btn.after($('<div/>')[button](self._commands[to]).data('origin', from));
+								btn.hide();
+							}
+						}
+					});
+				}
+				// reset toolbar
+				$.each($('div.elfinder-button'), function(){
+					var origin = $(this).data('origin');
+					if (origin && $.inArray(origin, repCmds) == -1) {
+						$('span.elfinder-button-icon-'+$(this).data('origin')).parent().show();
+						$(this).remove();
+					}
+				});
+			}
+			// non cwd volume's contextmenu
+			if (data.files) {
+				$.each(data.files, function(k, v){
+					if (v.volumeid && v.uiCmdMap && !self.options.contextmenu.cmdMaps[v.volumeid]) {
+						self.options.contextmenu.cmdMaps[v.volumeid] = v.uiCmdMap;
+					}
+				});
+			}
+			
 			if (data.init) {
 				// init - reset cache
 				files = {};
@@ -386,7 +430,6 @@ window.elFinder = function(node, opts) {
 	}
 
 	$.extend(this.options.contextmenu, opts.contextmenu);
-
 	
 	/**
 	 * Ajax request type
@@ -3615,7 +3658,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 8381ea0)';
+elFinder.prototype.version = '2.1_n (Nightly: 0425b0a)';
 
 
 
@@ -3804,7 +3847,7 @@ elFinder.prototype._options = {
 		'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook', 
 		'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy', 
 		'cut', 'paste', 'edit', 'extract', 'archive', 'search', 'info', 'view', 'help',
-		'resize', 'sort', 'netmount', 'netunmount', 'places'
+		'resize', 'sort', 'netmount', 'netunmount', 'places', 'chmod'
 	],
 	
 	/**
@@ -3971,7 +4014,7 @@ elFinder.prototype._options = {
 			// ['home', 'up'],
 			['mkdir', 'mkfile', 'upload'],
 			['open', 'download', 'getfile'],
-			['info'],
+			['info', 'chmod'],
 			['quicklook'],
 			['copy', 'cut', 'paste'],
 			['rm'],
@@ -4000,6 +4043,9 @@ elFinder.prototype._options = {
 			// file info columns displayed
 			listView : {
 				// name is always displayed, cols are ordered
+				// ex. ['perm', 'date', 'size', 'kind', 'owner', 'group', 'mode']
+				// mode: FileMode '0755', '755', or 'rwxr-xr-x' etc...
+				// 'owner', 'group' and 'mode', It's necessary set volume driver option "statOwner" to `true`
 				columns : ['perm', 'date', 'size', 'kind'],
 				// override this if you want custom columns name
 				// example
@@ -4236,11 +4282,13 @@ elFinder.prototype._options = {
 	 */
 	contextmenu : {
 		// navbarfolder menu
-		navbar : ['open', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'places', 'info', 'netunmount'],
+		navbar : ['open', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'places', 'info', 'chmod', 'netunmount'],
 		// current directory menu
 		cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'sort', '|', 'info'],
 		// current directory file menu
-		files  : ['getfile', '|','open', 'quicklook', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', 'pixlr', '|', 'archive', 'extract', '|', 'places', 'info']
+		files  : ['getfile', '|','open', 'quicklook', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', 'pixlr', '|', 'archive', 'extract', '|', 'places', 'info', 'chmod'],
+		// system use only
+		cmdMaps: {}
 	},
 
 	/**
@@ -4907,6 +4955,413 @@ $.fn.dialogelfinder = function(opts) {
 
 
 /*
+ * File: /js/i18n/elfinder.en.js
+ */
+
+/**
+ * English translation
+ * @author Troex Nevelin <troex@fury.scancode.ru>
+ * @version 2014-12-19
+ */
+if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object') {
+	elFinder.prototype.i18.en = {
+		translator : 'Troex Nevelin &lt;troex@fury.scancode.ru&gt;',
+		language   : 'English',
+		direction  : 'ltr',
+		dateFormat : 'M d, Y h:i A', // Mar 13, 2012 05:27 PM
+		fancyDateFormat : '$1 h:i A', // will produce smth like: Today 12:25 PM
+		messages   : {
+			
+			/********************************** errors **********************************/
+			'error'                : 'Error',
+			'errUnknown'           : 'Unknown error.',
+			'errUnknownCmd'        : 'Unknown command.',
+			'errJqui'              : 'Invalid jQuery UI configuration. Selectable, draggable and droppable components must be included.',
+			'errNode'              : 'elFinder requires DOM Element to be created.',
+			'errURL'               : 'Invalid elFinder configuration! URL option is not set.',
+			'errAccess'            : 'Access denied.',
+			'errConnect'           : 'Unable to connect to backend.',
+			'errAbort'             : 'Connection aborted.',
+			'errTimeout'           : 'Connection timeout.',
+			'errNotFound'          : 'Backend not found.',
+			'errResponse'          : 'Invalid backend response.',
+			'errConf'              : 'Invalid backend configuration.',
+			'errJSON'              : 'PHP JSON module not installed.',
+			'errNoVolumes'         : 'Readable volumes not available.',
+			'errCmdParams'         : 'Invalid parameters for command "$1".',
+			'errDataNotJSON'       : 'Data is not JSON.',
+			'errDataEmpty'         : 'Data is empty.',
+			'errCmdReq'            : 'Backend request requires command name.',
+			'errOpen'              : 'Unable to open "$1".',
+			'errNotFolder'         : 'Object is not a folder.',
+			'errNotFile'           : 'Object is not a file.',
+			'errRead'              : 'Unable to read "$1".',
+			'errWrite'             : 'Unable to write into "$1".',
+			'errPerm'              : 'Permission denied.',
+			'errLocked'            : '"$1" is locked and can not be renamed, moved or removed.',
+			'errExists'            : 'File named "$1" already exists.',
+			'errInvName'           : 'Invalid file name.',
+			'errFolderNotFound'    : 'Folder not found.',
+			'errFileNotFound'      : 'File not found.',
+			'errTrgFolderNotFound' : 'Target folder "$1" not found.',
+			'errPopup'             : 'Browser prevented opening popup window. To open file enable it in browser options.',
+			'errMkdir'             : 'Unable to create folder "$1".',
+			'errMkfile'            : 'Unable to create file "$1".',
+			'errRename'            : 'Unable to rename "$1".',
+			'errCopyFrom'          : 'Copying files from volume "$1" not allowed.',
+			'errCopyTo'            : 'Copying files to volume "$1" not allowed.',
+			'errUpload'            : 'Upload error.',  // old name - errUploadCommon
+			'errUploadFile'        : 'Unable to upload "$1".', // old name - errUpload
+			'errUploadNoFiles'     : 'No files found for upload.', 
+			'errUploadTotalSize'   : 'Data exceeds the maximum allowed size.', // old name - errMaxSize
+			'errUploadFileSize'    : 'File exceeds maximum allowed size.', //  old name - errFileMaxSize
+			'errUploadMime'        : 'File type not allowed.', 
+			'errUploadTransfer'    : '"$1" transfer error.', 
+			'errNotReplace'        : 'Object "$1" already exists at this location and can not be replaced by object with another type.', // new
+			'errReplace'           : 'Unable to replace "$1".',
+			'errSave'              : 'Unable to save "$1".',
+			'errCopy'              : 'Unable to copy "$1".',
+			'errMove'              : 'Unable to move "$1".',
+			'errCopyInItself'      : 'Unable to copy "$1" into itself.',
+			'errRm'                : 'Unable to remove "$1".',
+			'errRmSrc'             : 'Unable remove source file(s).',
+			'errExtract'           : 'Unable to extract files from "$1".',
+			'errArchive'           : 'Unable to create archive.',
+			'errArcType'           : 'Unsupported archive type.',
+			'errNoArchive'         : 'File is not archive or has unsupported archive type.',
+			'errCmdNoSupport'      : 'Backend does not support this command.',
+			'errReplByChild'       : 'The folder “$1” can’t be replaced by an item it contains.',
+			'errArcSymlinks'       : 'For security reason denied to unpack archives contains symlinks or files with not allowed names.', // edited 24.06.2012
+			'errArcMaxSize'        : 'Archive files exceeds maximum allowed size.',
+			'errResize'            : 'Unable to resize "$1".',
+			'errResizeDegree'      : 'Invalid rotate degree.',  // added 7.3.2013
+			'errResizeRotate'      : 'Image dose not rotated.',  // added 7.3.2013
+			'errResizeSize'        : 'Invalid image size.',  // added 7.3.2013
+			'errResizeNoChange'    : 'Image size not changed.',  // added 7.3.2013
+			'errUsupportType'      : 'Unsupported file type.',
+			'errNotUTF8Content'    : 'File "$1" is not in UTF-8 and cannot be edited.',  // added 9.11.2011
+			'errNetMount'          : 'Unable to mount "$1".', // added 17.04.2012
+			'errNetMountNoDriver'  : 'Unsupported protocol.',     // added 17.04.2012
+			'errNetMountFailed'    : 'Mount failed.',         // added 17.04.2012
+			'errNetMountHostReq'   : 'Host required.', // added 18.04.2012
+			'errSessionExpires'    : 'Your session has expired due to inactivity.',
+			'errCreatingTempDir'   : 'Unable to create temporary directory: "$1"',
+			'errFtpDownloadFile'   : 'Unable to download file from FTP: "$1"',
+			'errFtpUploadFile'     : 'Unable to upload file to FTP: "$1"',
+			'errFtpMkdir'          : 'Unable to create remote directory on FTP: "$1"',
+			'errArchiveExec'       : 'Error while archiving files: "$1"',
+			'errExtractExec'       : 'Error while extracting files: "$1"',
+			'errNetUnMount'        : 'Unable to unmount', // added 30.04.2012
+			'errConvUTF8'          : 'Not convertible to UTF-8', // added 08.04.2014
+
+			/******************************* commands names ********************************/
+			'cmdarchive'   : 'Create archive',
+			'cmdback'      : 'Back',
+			'cmdcopy'      : 'Copy',
+			'cmdcut'       : 'Cut',
+			'cmddownload'  : 'Download',
+			'cmdduplicate' : 'Duplicate',
+			'cmdedit'      : 'Edit file',
+			'cmdextract'   : 'Extract files from archive',
+			'cmdforward'   : 'Forward',
+			'cmdgetfile'   : 'Select files',
+			'cmdhelp'      : 'About this software',
+			'cmdhome'      : 'Home',
+			'cmdinfo'      : 'Get info',
+			'cmdmkdir'     : 'New folder',
+			'cmdmkfile'    : 'New text file',
+			'cmdopen'      : 'Open',
+			'cmdpaste'     : 'Paste',
+			'cmdquicklook' : 'Preview',
+			'cmdreload'    : 'Reload',
+			'cmdrename'    : 'Rename',
+			'cmdrm'        : 'Delete',
+			'cmdsearch'    : 'Find files',
+			'cmdup'        : 'Go to parent directory',
+			'cmdupload'    : 'Upload files',
+			'cmdview'      : 'View',
+			'cmdresize'    : 'Resize & Rotate',
+			'cmdsort'      : 'Sort',
+			'cmdnetmount'  : 'Mount network volume', // added 18.04.2012
+			'cmdnetunmount': 'Unmount', // added 30.04.2012
+			'cmdplaces'    : 'To Places', // added 28.12.2014
+			'cmdchmod'     : 'Change mode', // from v2.1 added 20.6.2015
+			
+			'cmdpixlr'     : 'Edit on Pixlr',
+			
+			/*********************************** buttons ***********************************/ 
+			'btnClose'  : 'Close',
+			'btnSave'   : 'Save',
+			'btnRm'     : 'Remove',
+			'btnApply'  : 'Apply',
+			'btnCancel' : 'Cancel',
+			'btnNo'     : 'No',
+			'btnYes'    : 'Yes',
+			'btnMount'  : 'Mount',  // added 18.04.2012
+			'btnApprove': 'Goto $1 & approve', // added 26.04.2012
+			'btnUnmount': 'Unmount', // added 30.04.2012
+			'btnConv'   : 'Convert', // added 08.04.2014
+			'btnCwd'    : 'Here',      // from v2.1 added 22.5.2015
+			'btnVolume' : 'Volume',    // from v2.1 added 22.5.2015
+			'btnAll'    : 'All',       // from v2.1 added 22.5.2015
+			'btnMime'   : 'MIME Type', // from v2.1 added 22.5.2015
+			'btnFileName':'Filename',  // from v2.1 added 22.5.2015
+			'btnSaveClose': 'Save & Close', // from v2.1 added 12.6.2015
+			
+			/******************************** notifications ********************************/
+			'ntfopen'     : 'Open folder',
+			'ntffile'     : 'Open file',
+			'ntfreload'   : 'Reload folder content',
+			'ntfmkdir'    : 'Creating directory',
+			'ntfmkfile'   : 'Creating files',
+			'ntfrm'       : 'Delete files',
+			'ntfcopy'     : 'Copy files',
+			'ntfmove'     : 'Move files',
+			'ntfprepare'  : 'Prepare to copy files',
+			'ntfrename'   : 'Rename files',
+			'ntfupload'   : 'Uploading files',
+			'ntfdownload' : 'Downloading files',
+			'ntfsave'     : 'Save files',
+			'ntfarchive'  : 'Creating archive',
+			'ntfextract'  : 'Extracting files from archive',
+			'ntfsearch'   : 'Searching files',
+			'ntfresize'   : 'Resizing images',
+			'ntfsmth'     : 'Doing something',
+			'ntfloadimg'  : 'Loading image',
+			'ntfnetmount' : 'Mounting network volume', // added 18.04.2012
+			'ntfnetunmount': 'Unmounting network volume', // added 30.04.2012
+			'ntfdim'      : 'Acquiring image dimension', // added 20.05.2013
+			'ntfreaddir'  : 'Reading folder infomation', // added 01.07.2013
+			'ntfurl'      : 'Getting URL of link', // added 11.03.2014
+			'ntfchmod'    : 'Changing file mode', // from v2.1 added 20.6.2015
+			
+			/************************************ dates **********************************/
+			'dateUnknown' : 'unknown',
+			'Today'       : 'Today',
+			'Yesterday'   : 'Yesterday',
+			'msJan'       : 'Jan',
+			'msFeb'       : 'Feb',
+			'msMar'       : 'Mar',
+			'msApr'       : 'Apr',
+			'msMay'       : 'May',
+			'msJun'       : 'Jun',
+			'msJul'       : 'Jul',
+			'msAug'       : 'Aug',
+			'msSep'       : 'Sep',
+			'msOct'       : 'Oct',
+			'msNov'       : 'Nov',
+			'msDec'       : 'Dec',
+			'January'     : 'January',
+			'February'    : 'February',
+			'March'       : 'March',
+			'April'       : 'April',
+			'May'         : 'May',
+			'June'        : 'June',
+			'July'        : 'July',
+			'August'      : 'August',
+			'September'   : 'September',
+			'October'     : 'October',
+			'November'    : 'November',
+			'December'    : 'December',
+			'Sunday'      : 'Sunday',
+			'Monday'      : 'Monday',
+			'Tuesday'     : 'Tuesday',
+			'Wednesday'   : 'Wednesday',
+			'Thursday'    : 'Thursday',
+			'Friday'      : 'Friday',
+			'Saturday'    : 'Saturday',
+			'Sun'         : 'Sun', 
+			'Mon'         : 'Mon', 
+			'Tue'         : 'Tue', 
+			'Wed'         : 'Wed', 
+			'Thu'         : 'Thu', 
+			'Fri'         : 'Fri', 
+			'Sat'         : 'Sat',
+
+			/******************************** sort variants ********************************/
+			'sortname'          : 'by name', 
+			'sortkind'          : 'by kind', 
+			'sortsize'          : 'by size',
+			'sortdate'          : 'by date',
+			'sortFoldersFirst'  : 'Folders first',
+
+			/********************************** messages **********************************/
+			'confirmReq'      : 'Confirmation required',
+			'confirmRm'       : 'Are you sure you want to remove files?<br/>This cannot be undone!',
+			'confirmRepl'     : 'Replace old file with new one?',
+			'confirmConvUTF8' : 'Not in UTF-8<br/>Convert to UTF-8?<br/>Contents become UTF-8 by saving after conversion.', // added 08.04.2014
+			'apllyAll'        : 'Apply to all',
+			'name'            : 'Name',
+			'size'            : 'Size',
+			'perms'           : 'Permissions',
+			'modify'          : 'Modified',
+			'kind'            : 'Kind',
+			'read'            : 'read',
+			'write'           : 'write',
+			'noaccess'        : 'no access',
+			'and'             : 'and',
+			'unknown'         : 'unknown',
+			'selectall'       : 'Select all files',
+			'selectfiles'     : 'Select file(s)',
+			'selectffile'     : 'Select first file',
+			'selectlfile'     : 'Select last file',
+			'viewlist'        : 'List view',
+			'viewicons'       : 'Icons view',
+			'places'          : 'Places',
+			'calc'            : 'Calculate', 
+			'path'            : 'Path',
+			'aliasfor'        : 'Alias for',
+			'locked'          : 'Locked',
+			'dim'             : 'Dimensions',
+			'files'           : 'Files',
+			'folders'         : 'Folders',
+			'items'           : 'Items',
+			'yes'             : 'yes',
+			'no'              : 'no',
+			'link'            : 'Link',
+			'searcresult'     : 'Search results',  
+			'selected'        : 'selected items',
+			'about'           : 'About',
+			'shortcuts'       : 'Shortcuts',
+			'help'            : 'Help',
+			'webfm'           : 'Web file manager',
+			'ver'             : 'Version',
+			'protocolver'     : 'protocol version',
+			'homepage'        : 'Project home',
+			'docs'            : 'Documentation',
+			'github'          : 'Fork us on Github',
+			'twitter'         : 'Follow us on twitter',
+			'facebook'        : 'Join us on facebook',
+			'team'            : 'Team',
+			'chiefdev'        : 'chief developer',
+			'developer'       : 'developer',
+			'contributor'     : 'contributor',
+			'maintainer'      : 'maintainer',
+			'translator'      : 'translator',
+			'icons'           : 'Icons',
+			'dontforget'      : 'and don\'t forget to take your towel',
+			'shortcutsof'     : 'Shortcuts disabled',
+			'dropFiles'       : 'Drop files here',
+			'or'              : 'or',
+			'selectForUpload' : 'Select files to upload',
+			'moveFiles'       : 'Move files',
+			'copyFiles'       : 'Copy files',
+			'rmFromPlaces'    : 'Remove from places',
+			'aspectRatio'     : 'Aspect ratio',
+			'scale'           : 'Scale',
+			'width'           : 'Width',
+			'height'          : 'Height',
+			'resize'          : 'Resize',
+			'crop'            : 'Crop',
+			'rotate'          : 'Rotate',
+			'rotate-cw'       : 'Rotate 90 degrees CW',
+			'rotate-ccw'      : 'Rotate 90 degrees CCW',
+			'degree'          : '°',
+			'netMountDialogTitle' : 'Mount network volume', // added 18.04.2012
+			'protocol'            : 'Protocol', // added 18.04.2012
+			'host'                : 'Host', // added 18.04.2012
+			'port'                : 'Port', // added 18.04.2012
+			'user'                : 'User', // added 18.04.2012
+			'pass'                : 'Password', // added 18.04.2012
+			'confirmUnmount'      : 'Are you unmount $1?',  // added 30.04.2012
+			'dropFilesBrowser': 'Drop or Paste files from browser', // added 30.05.2012
+			'dropPasteFiles'  : 'Drop or Paste files here', // added 07.04.2014
+			'encoding'        : 'Encoding', // from v2.1 added 19.12.2014
+			'locale'          : 'Locale',   // from v2.1 added 19.12.2014
+			'searchTarget'    : 'Target: $1',                // from v2.1 added 22.5.2015
+			'searchMime'      : 'Search by input MIME Type', // from v2.1 added 22.5.2015
+			'owner'           : 'Owner', // from v2.1 added 20.6.2015
+			'group'           : 'Group', // from v2.1 added 20.6.2015
+			'other'           : 'Other', // from v2.1 added 20.6.2015
+			'execute'         : 'Execute', // from v2.1 added 20.6.2015
+			'perm'            : 'Permission', // from v2.1 added 20.6.2015
+			'mode'            : 'Mode', // from v2.1 added 20.6.2015
+
+			/********************************** mimetypes **********************************/
+			'kindUnknown'     : 'Unknown',
+			'kindFolder'      : 'Folder',
+			'kindAlias'       : 'Alias',
+			'kindAliasBroken' : 'Broken alias',
+			// applications
+			'kindApp'         : 'Application',
+			'kindPostscript'  : 'Postscript document',
+			'kindMsOffice'    : 'Microsoft Office document',
+			'kindMsWord'      : 'Microsoft Word document',
+			'kindMsExcel'     : 'Microsoft Excel document',
+			'kindMsPP'        : 'Microsoft Powerpoint presentation',
+			'kindOO'          : 'Open Office document',
+			'kindAppFlash'    : 'Flash application',
+			'kindPDF'         : 'Portable Document Format (PDF)',
+			'kindTorrent'     : 'Bittorrent file',
+			'kind7z'          : '7z archive',
+			'kindTAR'         : 'TAR archive',
+			'kindGZIP'        : 'GZIP archive',
+			'kindBZIP'        : 'BZIP archive',
+			'kindXZ'          : 'XZ archive',
+			'kindZIP'         : 'ZIP archive',
+			'kindRAR'         : 'RAR archive',
+			'kindJAR'         : 'Java JAR file',
+			'kindTTF'         : 'True Type font',
+			'kindOTF'         : 'Open Type font',
+			'kindRPM'         : 'RPM package',
+			// texts
+			'kindText'        : 'Text document',
+			'kindTextPlain'   : 'Plain text',
+			'kindPHP'         : 'PHP source',
+			'kindCSS'         : 'Cascading style sheet',
+			'kindHTML'        : 'HTML document',
+			'kindJS'          : 'Javascript source',
+			'kindRTF'         : 'Rich Text Format',
+			'kindC'           : 'C source',
+			'kindCHeader'     : 'C header source',
+			'kindCPP'         : 'C++ source',
+			'kindCPPHeader'   : 'C++ header source',
+			'kindShell'       : 'Unix shell script',
+			'kindPython'      : 'Python source',
+			'kindJava'        : 'Java source',
+			'kindRuby'        : 'Ruby source',
+			'kindPerl'        : 'Perl script',
+			'kindSQL'         : 'SQL source',
+			'kindXML'         : 'XML document',
+			'kindAWK'         : 'AWK source',
+			'kindCSV'         : 'Comma separated values',
+			'kindDOCBOOK'     : 'Docbook XML document',
+			// images
+			'kindImage'       : 'Image',
+			'kindBMP'         : 'BMP image',
+			'kindJPEG'        : 'JPEG image',
+			'kindGIF'         : 'GIF Image',
+			'kindPNG'         : 'PNG Image',
+			'kindTIFF'        : 'TIFF image',
+			'kindTGA'         : 'TGA image',
+			'kindPSD'         : 'Adobe Photoshop image',
+			'kindXBITMAP'     : 'X bitmap image',
+			'kindPXM'         : 'Pixelmator image',
+			// media
+			'kindAudio'       : 'Audio media',
+			'kindAudioMPEG'   : 'MPEG audio',
+			'kindAudioMPEG4'  : 'MPEG-4 audio',
+			'kindAudioMIDI'   : 'MIDI audio',
+			'kindAudioOGG'    : 'Ogg Vorbis audio',
+			'kindAudioWAV'    : 'WAV audio',
+			'AudioPlaylist'   : 'MP3 playlist',
+			'kindVideo'       : 'Video media',
+			'kindVideoDV'     : 'DV movie',
+			'kindVideoMPEG'   : 'MPEG movie',
+			'kindVideoMPEG4'  : 'MPEG-4 movie',
+			'kindVideoAVI'    : 'AVI movie',
+			'kindVideoMOV'    : 'Quick Time movie',
+			'kindVideoWM'     : 'Windows Media movie',
+			'kindVideoFlash'  : 'Flash movie',
+			'kindVideoMKV'    : 'Matroska movie',
+			'kindVideoOGG'    : 'Ogg movie'
+		}
+	};
+}
+
+
+
+/*
  * File: /js/ui/button.js
  */
 
@@ -5050,7 +5505,15 @@ $.fn.elfindercontextmenu = function(fm) {
 			create = function(type, targets) {
 				var sep = false;
 				
-				
+				var cmdMap = {};
+				var cmdMaps = fm.options.contextmenu.cmdMaps;
+				if (cmdMaps) {
+					$.each(cmdMaps, function(i, v){
+						if (targets[0].indexOf(i, 0) == 0) {
+							cmdMap = v;
+						}
+					});
+				}
 				
 				$.each(types[type]||[], function(i, name) {
 					var cmd, node, submenu, hover;
@@ -5061,6 +5524,9 @@ $.fn.elfindercontextmenu = function(fm) {
 						return;
 					}
 					
+					if (cmdMap[name]) {
+						name = cmdMap[name];
+					}
 					cmd = fm.command(name);
 
 					if (cmd && cmd.getstate(targets) != -1) {
@@ -5347,6 +5813,9 @@ $.fn.elfindercwd = function(fm, options) {
 				},
 				kind : function(f) {
 					return fm.mime2kind(f);
+				},
+				mode : function(f) {
+					return f.perm? f.perm : '';
 				},
 				marker : function(f) {
 					return (f.alias || f.mime == 'symlink-broken' ? symlinkTpl : '')+(!f.read || !f.write ? permsTpl : '')+(f.locked ? lockTpl : '');
@@ -8264,6 +8733,305 @@ elFinder.prototype.commands.back = function() {
 	}
 
 }
+
+/*
+ * File: /js/commands/chmod.js
+ */
+
+/**
+ * @class elFinder command "chmod".
+ * Chmod files.
+ *
+ * @type  elFinder.command
+ * @author Naoki Sawada
+ */
+elFinder.prototype.commands.chmod = function() {
+	this.updateOnSelect = false;
+	var self = this;
+	var fm  = this.fm,
+	level = {
+		0 : 'owner',
+		1 : 'group',
+		2 : 'other'
+	},
+	msg = {
+		read     : fm.i18n('read'),
+		write    : fm.i18n('write'),
+		execute  : fm.i18n('execute'),
+		perm     : fm.i18n('perm'),
+		kind     : fm.i18n('kind'),
+		files    : fm.i18n('files')
+	},
+	isPerm = function(perm){
+		return (!isNaN(parseInt(perm, 8) && parseInt(perm, 8) <= 511) || perm.match(/^([r-][w-][x-]){3}$/i));
+	};
+
+	this.tpl = {
+		main       : '<div class="ui-helper-clearfix elfinder-info-title"><span class="elfinder-cwd-icon {class} ui-corner-all"/>{title}</div>'
+					+'{dataTable}',
+		itemTitle  : '<strong>{name}</strong><span id="elfinder-info-kind">{kind}</span>',
+		groupTitle : '<strong>{items}: {num}</strong>',
+		dataTable  : '<table id="{id}-table-perm"><tr><td>{0}</td><td>{1}</td><td>{2}</td></tr></table>'
+					+'<div class="">'+msg.perm+': <input id="{id}-perm" type="text" size="4" maxlength="3" value="{value}"></div>',
+		fieldset   : '<fieldset id="{id}-fieldset-{level}"><legend>{f_title}{name}</legend>'
+					+'<input type="checkbox" value="4" id="{id}-read-{level}-perm"{checked-r}{disabled-r}> <label for="{id}-read-{level}-perm">'+msg.read+'</label><br>'
+					+'<input type="checkbox" value="6" id="{id}-write-{level}-perm"{checked-w}{disabled-w}> <label for="{id}-write-{level}-perm">'+msg.write+'</label><br>'
+					+'<input type="checkbox" value="5" id="{id}-execute-{level}-perm"{checked-x}> <label for="{id}-execute-{level}-perm">'+msg.execute+'</label><br>'
+	};
+
+	this.shortcuts = [{
+		//pattern     : 'ctrl+p'
+	}];
+
+	this.getstate = function(sel) {
+		var fm = this.fm;
+		sel = sel || fm.selected();
+		if (sel.length == 0) {
+			sel = [ fm.cwd().hash ];
+		}
+		return !this._disabled && self.checkstate(this.files(sel)) ? 0 : -1;
+	};
+	
+	this.checkstate = function(sel) {
+		var cnt = sel.length;
+		if (!cnt) return false;
+		var chk = $.map(sel, function(f) {
+			return (f.isowner && f.perm && isPerm(f.perm) && (cnt == 1 || f.mime != 'directory')) ? f : null;
+		}).length;
+		return (cnt == chk)? true : false;
+	};
+
+	this.exec = function(hashes) {
+		var files   = this.files(hashes);
+		if (! files.length) {
+			hashes = [ this.fm.cwd().hash ];
+			files   = this.files(hashes);
+		}
+		var fm  = this.fm,
+		dfrd    = $.Deferred().always(function() {
+			fm.enable();
+		}),
+		tpl     = this.tpl,
+		hashes  = this.hashes(hashes),
+		cnt     = files.length,
+		file    = files[0],
+		id = fm.namespace + '-perm-' + file.hash,
+		view    = tpl.main,
+		checked = ' checked="checked"',
+		buttons = function() {
+			var buttons = {};
+			buttons[fm.i18n('btnApply')] = save;
+			buttons[fm.i18n('btnCancel')] = function() { dialog.elfinderdialog('close'); };
+			return buttons;
+		},
+		save = function() {
+			var perm = $.trim($('#'+id+'-perm').val());
+			
+			if (!isPerm(perm) || (parseInt(perm.substr(0,1), 8) & 4) != 4 ) return false;
+			
+			dialog.elfinderdialog('close');
+			
+			fm.request({
+				data : {
+					cmd     : 'chmod',
+					targets : hashes,
+					mode    : perm
+				},
+				notify : {type : 'chmod', cnt : cnt}
+			})
+			.fail(function(error) {
+				dfrd.reject(error);
+			})
+			.done(function(data) {
+				dfrd.resolve(data);
+			});
+		},
+		setperm = function() {
+			var perm = '';
+			var _perm;
+			for (var i = 0; i < 3; i++){
+				_perm = 0;
+				if ($("#"+id+"-read-"+level[i]+'-perm').is(':checked')) {
+					_perm = (_perm | 4);
+				}
+				if ($("#"+id+"-write-"+level[i]+'-perm').is(':checked')) {
+					_perm = (_perm | 2);
+				}
+				if ($("#"+id+"-execute-"+level[i]+'-perm').is(':checked')) {
+					_perm = (_perm | 1);
+				}
+				perm += _perm.toString(8);
+			}
+			$('#'+id+'-perm').val(perm);
+		},
+		setcheck = function(perm) {
+			var _perm;
+			for (var i = 0; i < 3; i++){
+				_perm = parseInt(perm.slice(i, i+1), 8);
+				$("#"+id+"-read-"+level[i]+'-perm').prop("checked", false);
+				$("#"+id+"-write-"+level[i]+'-perm').prop("checked", false);
+				$("#"+id+"-execute-"+level[i]+'-perm').prop("checked", false);
+				if ((_perm & 4) == 4) {
+					$("#"+id+"-read-"+level[i]+'-perm').prop("checked", true);
+				}
+				if ((_perm & 2) == 2) {
+					$("#"+id+"-write-"+level[i]+'-perm').prop("checked", true);
+				}
+				if ((_perm & 1) == 1) {
+					$("#"+id+"-execute-"+level[i]+'-perm').prop("checked", true);
+				}
+			}
+			setperm();
+		},
+		makeperm = function(files) {
+			var perm = '777', ret = '', chk, _chk, _perm;
+			var len = files.length;
+			for (var i2 = 0; i2 < len; i2++) {
+				chk = getPerm(files[i2].perm);;
+				ret = '';
+				for (var i = 0; i < 3; i++){
+					_chk = parseInt(chk.slice(i, i+1), 8);
+					_perm = parseInt(perm.slice(i, i+1), 8);
+					if ((_chk & 4) != 4 && (_perm & 4) == 4) {
+						_perm -= 4;
+					}
+					if ((_chk & 2) != 2 && (_perm & 2) == 2) {
+						_perm -= 2;
+					}
+					if ((_chk & 1) != 1 && (_perm & 1) == 1) {
+						_perm -= 1;
+					}
+					ret += _perm.toString(8);
+				}
+				perm = ret;
+			}
+			return perm;
+		},
+		makeName = function(name) {
+			return name? ':'+name : '';
+		},
+		makeDataTable = function(perm, f) {
+			var _perm, fieldset;
+			var value = '';
+			var dataTable = tpl.dataTable;
+			for (var i = 0; i < 3; i++){
+				_perm = parseInt(perm.slice(i, i+1), 8);
+				value += _perm.toString(8);
+				fieldset = tpl.fieldset.replace('{f_title}', fm.i18n(level[i])).replace('{name}', makeName(f[level[i]])).replace(/\{level\}/g, level[i]);
+				dataTable = dataTable.replace('{'+i+'}', fieldset)
+				                     .replace('{checked-r}', ((_perm & 4) == 4)? checked : '')
+				                     .replace('{checked-w}', ((_perm & 2) == 2)? checked : '')
+				                     .replace('{checked-x}', ((_perm & 1) == 1)? checked : '')
+				                     .replace('{disabled-r}', (i == 0? ' disabled' : ''))
+				                     .replace('{disabled-w}', '');
+			}
+			dataTable = dataTable.replace('{value}', value).replace('{valueCaption}', msg['perm']);
+			return dataTable;
+		},
+		getPerm = function(perm){
+			if (isNaN(parseInt(perm, 8))) {
+				var mode_array = perm.split('');
+				var a = [];
+
+				for (var i = 0, l = mode_array.length; i < l; i++) {
+					if (i === 0 || i === 3 || i === 6) {
+						if (mode_array[i].match(/[r]/i)) {
+							a.push(1);
+						} else if (mode_array[i].match(/[-]/)) {
+							a.push(0);
+						}
+					} else if ( i === 1 || i === 4 || i === 7) {
+						 if (mode_array[i].match(/[w]/i)) {
+							a.push(1);
+						} else if (mode_array[i].match(/[-]/)) {
+							a.push(0);
+						}
+					} else {
+						if (mode_array[i].match(/[x]/i)) {
+							a.push(1);
+						} else if (mode_array[i].match(/[-]/)) {
+							a.push(0);
+						}
+					}
+				}
+			
+				a.splice(3, 0, ",");
+				a.splice(7, 0, ",");
+
+				var b = a.join("");
+				var b_array = b.split(",");
+				var c = [];
+			
+				for (var j = 0, m = b_array.length; j < m; j++) {
+					var p = parseInt(b_array[j], 2).toString(8);
+					c.push(p)
+				}
+
+				perm = c.join('');
+			} else {
+				perm = parseInt(perm, 8).toString(8);
+			}
+			return perm;
+		},
+		opts    = {
+			title : this.title,
+			width : 'auto',
+			buttons : buttons(),
+			close : function() { $(this).elfinderdialog('destroy'); }
+		},
+		dialog = fm.getUI().find('#'+id),
+		tmb = '', title, dataTable;
+
+		if (dialog.length) {
+			dialog.elfinderdialog('toTop');
+			return $.Deferred().resolve();
+		}
+
+		view  = view.replace('{class}', cnt > 1 ? 'elfinder-cwd-icon-group' : fm.mime2class(file.mime));
+		if (cnt > 1) {
+			title = tpl.groupTitle.replace('{items}', fm.i18n('items')).replace('{num}', cnt);
+		} else {
+			title = tpl.itemTitle.replace('{name}', file.name).replace('{kind}', fm.mime2kind(file));
+			if (file.tmb) {
+				tmb = fm.option('tmbUrl')+file.tmb;
+			}
+		}
+
+		dataTable = makeDataTable(makeperm(files), files.length == 1? files[0] : {});
+
+		view = view.replace('{title}', title).replace('{dataTable}', dataTable).replace(/{id}/g, id);
+
+		dialog = fm.dialog(view, opts);
+		dialog.attr('id', id);
+
+		// load thumbnail
+		if (tmb) {
+			$('<img/>')
+				.on('load', function() { dialog.find('.elfinder-cwd-icon').css('background', 'url("'+tmb+'") center center no-repeat'); })
+				.attr('src', tmb);
+		}
+
+		$('#' + id + '-table-perm :checkbox').on('click', function(){setperm('perm');});
+		$('#' + id + '-perm').on('keydown', function(e) {
+			var c = e.keyCode;
+			e.stopPropagation();
+			if (c == 13) {
+				save();
+				return;
+			}
+		}).on('focus', function(e){
+			$(this).select();
+		}).on('keyup', function(e) {
+			if ($(this).val().length == 3) {
+				$(this).select();
+				setcheck($(this).val());
+			}
+		});
+		
+		return dfrd;
+	};
+};
+
 
 /*
  * File: /js/commands/copy.js

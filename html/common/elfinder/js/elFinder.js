@@ -198,7 +198,51 @@ window.elFinder = function(node, opts) {
 			
 		syncInterval,
 		
+		uiCmdMapPrev = null,
 		open = function(data) {
+			var repCmds = [], volumeid;
+			
+			// support volume driver option `uiCmdMap`
+			if (data && data.options && uiCmdMapPrev !== (data.options.uiCmdMap || {})) {
+				uiCmdMapPrev = (data.options.uiCmdMap || {});
+				if (Object.keys(uiCmdMapPrev).length) {
+					// for contextmenu
+					volumeid = data.cwd? data.cwd.volumeid : null;
+					if (volumeid && !self.options.contextmenu.cmdMaps[volumeid]) {
+						self.options.contextmenu.cmdMaps[volumeid] = uiCmdMapPrev;
+					}
+					// for toolbar
+					$.each(uiCmdMapPrev, function(from, to){
+						var cmd = self._commands[to],
+						button = cmd? 'elfinder'+cmd.options.ui : null;
+						if (button && $.fn[button]) {
+							repCmds.push(from);
+							var btn = $('div.elfinder-buttonset div.elfinder-button').has('span.elfinder-button-icon-'+from);
+							if (btn.length && !btn.next().has('span.elfinder-button-icon-'+to).length) {
+								btn.after($('<div/>')[button](self._commands[to]).data('origin', from));
+								btn.hide();
+							}
+						}
+					});
+				}
+				// reset toolbar
+				$.each($('div.elfinder-button'), function(){
+					var origin = $(this).data('origin');
+					if (origin && $.inArray(origin, repCmds) == -1) {
+						$('span.elfinder-button-icon-'+$(this).data('origin')).parent().show();
+						$(this).remove();
+					}
+				});
+			}
+			// non cwd volume's contextmenu
+			if (data.files) {
+				$.each(data.files, function(k, v){
+					if (v.volumeid && v.uiCmdMap && !self.options.contextmenu.cmdMaps[v.volumeid]) {
+						self.options.contextmenu.cmdMaps[v.volumeid] = v.uiCmdMap;
+					}
+				});
+			}
+			
 			if (data.init) {
 				// init - reset cache
 				files = {};
@@ -372,7 +416,6 @@ window.elFinder = function(node, opts) {
 	}
 
 	$.extend(this.options.contextmenu, opts.contextmenu);
-
 	
 	/**
 	 * Ajax request type
