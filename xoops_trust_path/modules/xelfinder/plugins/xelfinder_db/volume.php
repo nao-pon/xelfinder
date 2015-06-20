@@ -25,6 +25,7 @@ if (is_dir(XOOPS_TRUST_PATH . $path)) {
 		// regexp or function name to validate new file name
 		'acceptedName'    => '/^[^\/\\?*:|"<>]*[^.\/\\?*:|"<>]$/',
 		'defaults' => array('read' => true, 'write' => true, 'hidden' => false, 'locked' => false),
-		'icon'          => (defined('ELFINDER_IMG_PARENT_URL')? (rtrim(ELFINDER_IMG_PARENT_URL, '/').'/') : '').'img/volume_icon_sql.png'
+		'icon'          => (defined('ELFINDER_IMG_PARENT_URL')? (rtrim(ELFINDER_IMG_PARENT_URL, '/').'/') : '').'img/volume_icon_sql.png',
+		'uiCmdMap' => array('chmod' => 'perm')
 	);
 }

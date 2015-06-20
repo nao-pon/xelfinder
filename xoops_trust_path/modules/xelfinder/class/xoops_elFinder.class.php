@@ -136,7 +136,8 @@ class xoops_elFinder {
 				'uploadmaxsize' => 'uploadMaxSize',
 				'id'            => 'id',
 				'encoding'      => 'encoding',
-				'locale'        => 'locale'
+				'locale'        => 'locale',
+				'chmod'         => array('statOwner', 'allowChmodReadOnly')
 			);
 			$defaults = null;
 			if ($options) {
@@ -212,7 +213,13 @@ class xoops_elFinder {
 						$key = trim($key);
 						$lKey = strtolower($key);
 						if (isset($extOptKeys[$lKey])) {
-							$extOptions[$extOptKeys[$lKey]] = trim($value);
+							if (is_array($extOptKeys[$lKey])) {
+								foreach($extOptKeys[$lKey] as $_key) {
+									$extOptions[$_key] = trim($value);
+								}
+							} else {
+								$extOptions[$extOptKeys[$lKey]] = trim($value);
+							}
 						}
 						if (substr($key, 0, 3) === 'ext') {
 							$extOptions[$key] = trim($value);

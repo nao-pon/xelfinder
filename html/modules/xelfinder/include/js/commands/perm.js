@@ -25,7 +25,7 @@ elFinder.prototype.commands.perm = function() {
 		main       : '<div class="ui-helper-clearfix elfinder-info-title"><span class="elfinder-cwd-icon {class} ui-corner-all"/>{title}</div>'
 					+'{filter}{dataTable}{targetGroups}',
 		filter     : '<div>'+fm.i18n('mimeserach')+': <input id="{id}-filter" type="textbox" name="filter" size="30" value="{value}"></div>',
-		itemTitle  : '<strong>{name}</strong><span id="elfinder-info-kind">{kind}</span> ('+fm.i18n('owner')+':<span id="{id}-owner-name"><span class="'+spclass+'"/></span>)',
+		itemTitle  : '<strong>{name}</strong><span id="elfinder-info-kind">{kind}</span> ('+fm.i18n('owner')+':<span id="{id}-owner-name">{owner}</span>)',
 		groupTitle : '<strong>{items}: {num}</strong>',
 		dataTable  : '<table id="{id}-table-{type}"><tr><td>{0}</td><td>{1}</td><td>{2}</td></tr></table>'
 					+'<div class="">'+msg.perm+': <input id="{id}-{type}" type="text" size="4" maxlength="3" value="{value}"></div>',
@@ -200,7 +200,7 @@ elFinder.prototype.commands.perm = function() {
 			return perm;
 		},
 		makeDataTable = function(perm, type) {
-			var _perm;
+			var _perm, fieldset;
 			var value = '';
 			var dataTable = tpl.dataTable;
 			for (var i = 0; i < 3; i++){
@@ -243,7 +243,7 @@ elFinder.prototype.commands.perm = function() {
 		if (cnt > 1) {
 			title = tpl.groupTitle.replace('{items}', fm.i18n('items')).replace('{num}', cnt);
 		} else {
-			title = tpl.itemTitle.replace('{name}', file.name).replace('{kind}', fm.mime2kind(file));
+			title = tpl.itemTitle.replace('{name}', file.name).replace('{kind}', fm.mime2kind(file)).replace('{owner}', file.owner);
 			if (file.tmb) {
 				tmb = fm.option('tmbUrl')+file.tmb;
 			}
@@ -260,8 +260,8 @@ elFinder.prototype.commands.perm = function() {
 
 		view = view.replace('{title}', title).replace('{filter}', filter).replace('{dataTable}', dataTable).replace('{targetGroups}', targetGroups).replace(/{id}/g, id);
 
-		buttons[fm.i18n('btnCancel')] = function() { dialog.elfinderdialog('close'); };
 		buttons[fm.i18n('btnApply')] = save;
+		buttons[fm.i18n('btnCancel')] = function() { dialog.elfinderdialog('close'); };
 
 		dialog = fm.dialog(view, opts);
 		dialog.attr('id', id);
@@ -273,18 +273,19 @@ elFinder.prototype.commands.perm = function() {
 				.attr('src', tmb);
 		}
 
-		$('#' + id + '-table-perm :checkbox').click(function(){setperm('perm');});
-		$('#' + id + '-perm').keydown(function(e) {
+		$('#' + id + '-table-perm :checkbox').on('click', function(){setperm('perm');});
+		$('#' + id + '-perm').on('keydown', function(e) {
 			var c = e.keyCode;
 			e.stopPropagation();
 			if (c == 13) {
 				save();
 				return;
 			}
-
-		});
-		$('#' + id + '-perm').keyup(function(e) {
+		}).on('focus', function(e){
+			$(this).select();
+		}).on('keyup', function(e) {
 			if ($(this).val().length == 3) {
+				$(this).select();
 				setcheck($(this).val(), 'perm');
 			}
 		});
@@ -293,17 +294,19 @@ elFinder.prototype.commands.perm = function() {
 		});
 		if (file.mime == 'directory') {
 			$('#' + id + '-tab').tabs();
-			$('#' + id + '-table-umask :checkbox').click(function(){setperm('umask');});
-			$('#' + id + '-umask').keydown(function(e) {
+			$('#' + id + '-table-umask :checkbox').on('click', function(){setperm('umask');});
+			$('#' + id + '-umask').on('keydown', function(e) {
 				var c = e.keyCode;
 				e.stopPropagation();
 				if (c == 13) {
 					save();
 					return;
 				}
-			});
-			$('#' + id + '-umask').keyup(function(e) {
+			}).on('focus', function(e){
+				$(this).select();
+			}).on('keyup', function(e) {
 				if ($(this).val().length == 3) {
+					$(this).select();
 					setcheck($(this).val(), 'umask');
 				}
 			});
@@ -328,7 +331,6 @@ elFinder.prototype.commands.perm = function() {
 				};
 			}
 			replSpinner(html ? html : msg.unknown, id+'-groups');
-			replSpinner(data.uname, id+'-owner-name');
 		});
 
 		return dfrd;

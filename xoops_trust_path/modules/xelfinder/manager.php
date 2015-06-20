@@ -31,7 +31,7 @@ $disabledCmds = $xoops_elFinder->getDisablesCmds();
 $cmds = array('open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook',
 			'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy',
 			'cut', 'paste', 'edit', 'extract', 'archive', 'search', 'info', 'view', 'help',
-			'resize', 'sort', 'netmount', 'netunmount', 'places', 'pixlr', 'perm');
+			'resize', 'sort', 'netmount', 'netunmount', 'places', 'pixlr', 'perm', 'chmod');
 $cmds = array_values(array_diff($cmds, $disabledCmds));
 $cmds = json_encode($cmds);
 
@@ -214,6 +214,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/commands/netmount.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/places.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/pixlr.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/chmod.js"></script>
 	
 		<!-- elfinder languages -->
 		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.en.js" charset="UTF-8"></script>

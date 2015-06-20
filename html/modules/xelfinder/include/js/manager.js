@@ -6,10 +6,7 @@ $(document).ready(function() {
 	mes_en.ntfperm = 'Changing permission';
 	mes_en.cmdperm = 'Chage permission';
 	mes_en.newitem = 'New item';
-	mes_en.owner   = 'Owner';
-	mes_en.group   = 'Group';
 	mes_en.guest   = 'Guest';
-	mes_en.perm    = 'Permission';
 	mes_en.unlock  = 'Unlock';
 	mes_en.hidden  = 'Hidden';
 	mes_en.targetgroups  = 'Target groups';
@@ -28,13 +25,10 @@ $(document).ready(function() {
 		mes_jp = elFinder.prototype.i18.jp.messages;
 		mes_jp.read    = '読取'; // over write
 		mes_jp.write   = '書込'; // over write
-		mes_jp.ntfperm = 'アイテム属性を変更';
+		mes_jp.ntfperm = 'アイテム属性を変更しています';
 		mes_jp.cmdperm = '属性変更';
 		mes_jp.newitem = '新規アイテム';
-		mes_jp.owner   = 'オーナー';
-		mes_jp.group   = 'グループ';
 		mes_jp.guest   = 'ゲスト';
-		mes_jp.perm    = 'パーミッション';
 		mes_jp.unlock  = 'ロック解除';
 		mes_jp.hidden  = '非表示';
 		mes_jp.targetgroups  = '対象グループ';
@@ -105,7 +99,7 @@ $(document).ready(function() {
 				// ['home', 'up'],
 				['mkdir', 'mkfile', 'upload'],
 				['open', 'download', 'getfile'],
-				['info', 'perm'],
+				['info', 'chmod'],
 				['quicklook'],
 				['copy', 'cut', 'paste'],
 				['rm'],
@@ -164,13 +158,13 @@ $(document).ready(function() {
 		},
 		contextmenu : {
 			// navbarfolder menu
-			navbar : ['open', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'places', 'info', 'perm', 'netunmount'],
+			navbar : ['open', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'places', 'info', 'chmod', 'netunmount'],
 			// current directory menu
-			cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'sort', '|', 'info', 'perm'],
+			cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'sort', '|', 'info'],
 			// current directory file menu
 			files  : ['getfile', '|','open', 'quicklook', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', 'pixlr',
 			          '|', 'archive', 'extract',
-			          '|', 'places', 'info', 'perm']
+			          '|', 'places', 'info', 'chmod']
 		}
 	}).elfinder('instance');
 	

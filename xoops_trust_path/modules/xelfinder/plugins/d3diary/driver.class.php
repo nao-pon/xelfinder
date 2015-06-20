@@ -728,6 +728,15 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 	}
 
 	/**
+	 * chmod implementation
+	 *
+	 * @return bool
+	 **/
+	protected function _chmod($path, $mode) {
+		return false;
+	}
+
+	/**
 	 * Unpack archive
 	 *
 	 * @param  string  $path  archive path
