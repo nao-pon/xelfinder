@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 0425b0a) (2015-06-20)
+ * Version 2.1_n (Nightly: 81eb1b6) (2015-06-21)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -2980,7 +2980,6 @@ elFinder.prototype = {
 				return file;
 			}
 			return null;
-			return file && file.hash && file.name && file.mime ? file : null; 
 		};
 		
 
@@ -3658,7 +3657,7 @@ elFinder.prototype = {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 0425b0a)';
+elFinder.prototype.version = '2.1_n (Nightly: 81eb1b6)';
 
 
 
@@ -8774,8 +8773,8 @@ elFinder.prototype.commands.chmod = function() {
 		dataTable  : '<table id="{id}-table-perm"><tr><td>{0}</td><td>{1}</td><td>{2}</td></tr></table>'
 					+'<div class="">'+msg.perm+': <input id="{id}-perm" type="text" size="4" maxlength="3" value="{value}"></div>',
 		fieldset   : '<fieldset id="{id}-fieldset-{level}"><legend>{f_title}{name}</legend>'
-					+'<input type="checkbox" value="4" id="{id}-read-{level}-perm"{checked-r}{disabled-r}> <label for="{id}-read-{level}-perm">'+msg.read+'</label><br>'
-					+'<input type="checkbox" value="6" id="{id}-write-{level}-perm"{checked-w}{disabled-w}> <label for="{id}-write-{level}-perm">'+msg.write+'</label><br>'
+					+'<input type="checkbox" value="4" id="{id}-read-{level}-perm"{checked-r}> <label for="{id}-read-{level}-perm">'+msg.read+'</label><br>'
+					+'<input type="checkbox" value="6" id="{id}-write-{level}-perm"{checked-w}> <label for="{id}-write-{level}-perm">'+msg.write+'</label><br>'
 					+'<input type="checkbox" value="5" id="{id}-execute-{level}-perm"{checked-x}> <label for="{id}-execute-{level}-perm">'+msg.execute+'</label><br>'
 	};
 
@@ -8827,7 +8826,7 @@ elFinder.prototype.commands.chmod = function() {
 		save = function() {
 			var perm = $.trim($('#'+id+'-perm').val());
 			
-			if (!isPerm(perm) || (parseInt(perm.substr(0,1), 8) & 4) != 4 ) return false;
+			if (!isPerm(perm)) return false;
 			
 			dialog.elfinderdialog('close');
 			
@@ -8921,9 +8920,7 @@ elFinder.prototype.commands.chmod = function() {
 				dataTable = dataTable.replace('{'+i+'}', fieldset)
 				                     .replace('{checked-r}', ((_perm & 4) == 4)? checked : '')
 				                     .replace('{checked-w}', ((_perm & 2) == 2)? checked : '')
-				                     .replace('{checked-x}', ((_perm & 1) == 1)? checked : '')
-				                     .replace('{disabled-r}', (i == 0? ' disabled' : ''))
-				                     .replace('{disabled-w}', '');
+				                     .replace('{checked-x}', ((_perm & 1) == 1)? checked : '');
 			}
 			dataTable = dataTable.replace('{value}', value).replace('{valueCaption}', msg['perm']);
 			return dataTable;
@@ -10071,7 +10068,10 @@ elFinder.prototype.commands.info = function() {
 			items    : fm.i18n('items'),
 			yes      : fm.i18n('yes'),
 			no       : fm.i18n('no'),
-			link     : fm.i18n('link')
+			link     : fm.i18n('link'),
+			owner    : fm.i18n('owner'),
+			group    : fm.i18n('group'),
+			perm     : fm.i18n('perm')
 		};
 		
 	this.tpl = {
@@ -10216,6 +10216,9 @@ elFinder.prototype.commands.info = function() {
 			content.push(row.replace(l, msg.modify).replace(v, fm.formatDate(file)));
 			content.push(row.replace(l, msg.perms).replace(v, fm.formatPermissions(file)));
 			content.push(row.replace(l, msg.locked).replace(v, file.locked ? msg.yes : msg.no));
+			file.owner && content.push(row.replace(l, msg.owner).replace(v, file.owner));
+			file.group && content.push(row.replace(l, msg.group).replace(v, file.group));
+			file.perm && content.push(row.replace(l, msg.perm).replace(v, file.perm));
 		} else {
 			view  = view.replace('{class}', 'elfinder-cwd-icon-group');
 			title = tpl.groupTitle.replace('{items}', msg.items).replace('{num}', cnt);
