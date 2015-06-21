@@ -23,7 +23,7 @@ define($constpref.'_ADMENU_MYPREFERENCES' , '一般設定' ) ;
 define( $constpref.'_MANAGER_TITLE' ,           'マネージャのページタイトル' );
 define( $constpref.'_MANAGER_TITLE_DESC' ,      '' );
 define( $constpref.'_VOLUME_SETTING' ,          'ボリュームドライバ' );
-define( $constpref.'_VOLUME_SETTING_DESC' ,     '[モジュールディレクトリ名]:[プラグイン名]:[ファイル格納ディレクトリ]:[表示名]:[オプション]<br />行単位で記述。先頭に # を置くと無視されます。<br />オプションは 「|」 で区切ります。<br />共通オプション:<br />gid=[有効にするグループIDをカンマ区切りで指定]<br />defaults=[read, write, hidden, lock の各パーミッションをデフォルトとして有効にするものをそれぞれの頭文字 r w h l で指定（例: defaults=rw）]<br />uploadMaxSize=[アップロードファイルサイズの上限値(例:2M)]<br />id=[任意の一意なID（固定リンクのURLハッシュに利用されます)]<br />encoding=[文字エンコーディング(iconvで有効な値)]<br />locale=[ロケール(重要: encoding に対応する適切なロケール)]' );
+define( $constpref.'_VOLUME_SETTING_DESC' ,     '[モジュールディレクトリ名]:[プラグイン名]:[ファイル格納ディレクトリ]:[表示名]:[オプション]<br />行単位で記述。先頭に # を置くと無視されます。<br />オプションは 「|」 で区切ります。<br />共通オプション:<br />gid=[有効にするグループIDをカンマ区切りで指定]<br />defaults=[read, write, hidden, lock の各パーミッションをデフォルトとして有効にするものをそれぞれの頭文字 r w h l で指定（例: defaults=rw）]<br />uploadMaxSize=[アップロードファイルサイズの上限値(例:2M)]<br />id=[任意の一意なID（固定リンクのURLハッシュに利用されます)]<br />encoding=[文字エンコーディング(iconvで有効な値)]<br />locale=[ロケール(重要: encoding に対応する適切なロケール)]<br />chmod=1(chmod が可能な場合、ファイル属性の変更を許可)' );
 define( $constpref.'_SHARE_HOLDER' ,            '共有フォルダ' );
 define( $constpref.'_DISABLED_CMDS_BY_GID' ,    'グループ毎無効コマンド' );
 define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','グループ毎(管理者を除く)に無効にするコマンドを [グループID]=[無効コマンド(カンマ区切り)] として ":" で区切って指定する。<br />コマンド名: mkdir, mkfile, rm, rename, duplicate, paste, upload, archive, extract, resize, netmount, perm, pixlr など' );
