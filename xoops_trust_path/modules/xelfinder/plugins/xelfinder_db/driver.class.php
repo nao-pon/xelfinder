@@ -885,7 +885,14 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _dirname($path) {
-		return ($stat = $this->stat($path)) ? ($stat['phash'] ? $this->decode($stat['phash']) : $this->root) : false;
+		if ($path != $this->root) {
+			$sql = 'SELECT `parent_id` FROM '.$this->tbf.' WHERE file_id="'.$path.'" LIMIT 1;';
+			if (($res = $this->query($sql)) && $this->db->getRowsNum($res) > 0) {
+				$r = $this->db->fetchRow($res);
+				return $r[0];
+			}
+		}
+		return 1;
 	}
 
 	/**
@@ -896,7 +903,12 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _basename($path) {
-		return ($stat = $this->stat($path)) ? $stat['name'] : false;
+		$sql = 'SELECT `name` FROM '.$this->tbf.' WHERE file_id="'.$path.'" LIMIT 1;';
+		if (($res = $this->query($sql)) && $this->db->getRowsNum($res) > 0) {
+			$r = $this->db->fetchRow($res);
+			return $r[0];
+		}
+		return '';
 	}
 
 	/**
@@ -910,9 +922,8 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	protected function _joinPath($dir, $name) {
 		$sql = 'SELECT `file_id` FROM '.$this->tbf.' WHERE parent_id="'.$dir.'" AND name='.$this->db->quoteString($name);
 		if (($res = $this->query($sql)) && $this->db->getRowsNum($res) > 0) {
-			$r = $this->db->fetchArray($res);
-			//$this->updateCache($r['file_id'], $this->_stat($r['file_id']));
-			return $r['file_id'];
+			$r = $this->db->fetchRow($res);
+			return $r[0];
 		}
 		return -1;
 	}
