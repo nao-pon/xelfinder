@@ -246,7 +246,7 @@ class elFinder {
 		self::$sessionCacheKey = !empty($opts['sessionCacheKey']) ? $opts['sessionCacheKey'] : 'elFinderCaches';
 		
 		// check session cache
-		$_optsMD5 = md5(serialize($opts['roots']));
+		$_optsMD5 = md5(json_encode($opts['roots']));
 		if (! isset($_SESSION[self::$sessionCacheKey]) || $_SESSION[self::$sessionCacheKey]['_optsMD5'] !== $_optsMD5) {
 			$_SESSION[self::$sessionCacheKey] = array(
 				'_optsMD5' => $_optsMD5
@@ -318,9 +318,11 @@ class elFinder {
 							$this->default = $this->volumes[$id]; 
 						}
 					} else {
+						$this->removeNetVolume($volume);
 						$this->mountErrors[] = 'Driver "'.$class.'" : '.implode(' ', $volume->error());
 					}
 				} catch (Exception $e) {
+					$this->removeNetVolume($volume);
 					$this->mountErrors[] = 'Driver "'.$class.'" : '.$e->getMessage();
 				}
 			} else {
@@ -593,6 +595,22 @@ class elFinder {
 	}
 
 	/**
+	 * Remove netmount volume
+	 * 
+	 * @param object $volume
+	 */
+	protected function removeNetVolume($volume) {
+		$netVolumes = $this->getNetVolumes();
+		if (! $key = @ $volume->netMountKey) {
+			$key = md5($protocol . '-' . join('-', $options));
+		}
+		if (isset($netVolumes[$key])) {
+			unset($netVolumes[$key]);
+			$this->saveNetVolumes($netVolumes);
+		}
+	}
+
+	/**
 	 * Get plugin instance & set to $this->plugins
 	 * 
 	 * @param  string $name   Plugin name (dirctory name)
@@ -709,13 +727,7 @@ class elFinder {
 			$rootstat['netkey'] = $key;
 			return array('added' => array($rootstat));
 		} else {
-			if (! $key = @ $volume->netMountKey) {
-				$key = md5($protocol . '-' . join('-', $options));
-			}
-			if (isset($netVolumes[$key])) {
-				unset($netVolumes[$key]);
-				$this->saveNetVolumes($netVolumes);
-			}
+			$this->removeNetVolume($volume);
 			return array('error' => $this->error(self::ERROR_NETMOUNT, $args['host'], implode(' ', $volume->error())));
 		}
 
@@ -1473,7 +1485,7 @@ class elFinder {
 		foreach($targets as $target) {
 			$file = $volume->chmod($target, $mode);
 			if ($file) {
-				$files[] = $file;
+				$files = (is_array($file))? $file : array($file);
 			} else {
 				$errors = array_merge($errors, $volume->error());
 			}
