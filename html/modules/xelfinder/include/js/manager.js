@@ -158,7 +158,7 @@ $(document).ready(function() {
 		},
 		contextmenu : {
 			// navbarfolder menu
-			navbar : ['open', '|', 'upload', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'places', 'info', 'chmod', 'netunmount'],
+			navbar : ['open', '|', 'download', 'upload', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'rename', '|', 'places', 'info', 'chmod', 'netunmount'],
 			// current directory menu
 			cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'sort', '|', 'info'],
 			// current directory file menu
@@ -225,7 +225,7 @@ $.extend({
 		}
 		if (o) {
 			o.focus();
-			if (!!document.uniqueID) { // IE
+			if (!!document.uniqueID && document.selection) { // IE
 				var r;
 				if (typeof o.caretPos == 'object') {
 					r = o.caretPos;

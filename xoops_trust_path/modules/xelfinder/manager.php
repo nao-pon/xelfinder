@@ -27,12 +27,10 @@ $xoops_elFinder = new xoops_elFinder($mydirname);
 $xoops_elFinder->setConfig($config);
 
 // make cmds array as json
-$disabledCmds = $xoops_elFinder->getDisablesCmds();
 $cmds = array('open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook',
 			'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy',
 			'cut', 'paste', 'edit', 'extract', 'archive', 'search', 'info', 'view', 'help',
 			'resize', 'sort', 'netmount', 'netunmount', 'places', 'pixlr', 'perm', 'chmod');
-$cmds = array_values(array_diff($cmds, $disabledCmds));
 $cmds = json_encode($cmds);
 
 $conector_url = $conn_is_ext = '';
@@ -87,7 +85,7 @@ $viewport = (preg_match('/Mobile|Android/i', $_SERVER['HTTP_USER_AGENT']))? '<me
 $userLang = xelfinder_detect_lang();
 
 if (empty($config['jquery'])) {
-	$jQueryVersion   = '2.1.4';
+	$jQueryVersion   = '1.11.3';
 	$jQueryCDN = '//ajax.googleapis.com/ajax/libs/jquery/%s/jquery.min.js';
 	$jQueryUrl = sprintf($jQueryCDN, $jQueryVersion);
 } else {
@@ -252,17 +250,21 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var editorTextHtml = {
 					mimes : ['text/html'],
 					load : function(textarea) {
-						CKEDITOR.replace( textarea.id, {
+						return CKEDITOR.replace( textarea.id, {
+							startupFocus : true,
 							fullPage: true,
 							allowedContent: true,
 							filebrowserBrowseUrl: '<?php echo XOOPS_MODULE_URL ?>/<?php echo $mydirname?>/manager.php?cb=ckeditor'
 						});
 					},
 					close : function(textarea, instance) {
-						CKEDITOR.instances[textarea.id].destroy();
+						instance.destroy();
 					},
-					save : function(textarea, editor) {
-						textarea.value = CKEDITOR.instances[textarea.id].getData();
+					save : function(textarea, instance) {
+						textarea.value = instance.getData();
+					},
+					focus : function(textarea, instance) {
+						instance && instance.focus();
 					}
 				};
 <?php } else {?>

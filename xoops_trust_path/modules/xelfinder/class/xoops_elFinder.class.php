@@ -38,12 +38,16 @@ class xoops_elFinder {
 	    'rm',
 	    'rename',
 	    'duplicate',
+	    'cut',
 	    'paste',
 	    'upload',
 	    'put',
+	    'edit',
 	    'archive',
+	    'extract',
 	    'resize',
 		'perm',
+		'chmod',
 	    'pixlr'
 	);
 	
@@ -246,12 +250,15 @@ class xoops_elFinder {
 				
 				require $volume;
 				if ($volumeOptions) {
+					if (!empty($volumeOptions['readonly'])) {
+						$volumeOptions['disabled'] = array_merge($this->writeCmds, is_array($volumeOptions['disabled'])? $volumeOptions['disabled'] : array());
+					}
 					$volumeOptions = array_replace_recursive($this->defaultVolumeOptions, $volumeOptions, $extra, $extOptions);
 					if ($disabledCmds) {
 						if (!isset($volumeOptions['disabled']) || !is_array($volumeOptions['disabled'])) {
 							$volumeOptions['disabled'] = array();
 						}
-						$volumeOptions['disabled'] = array_unique(array_merge($volumeOptions['disabled'], $disabledCmds));
+						$volumeOptions['disabled'] = array_merge($volumeOptions['disabled'], $disabledCmds);
 					}
 					!isset($volumeOptions['id']) && $volumeOptions['id'] = '_' . $mydirname;
 					if (isset($ids[$volumeOptions['id']])) {

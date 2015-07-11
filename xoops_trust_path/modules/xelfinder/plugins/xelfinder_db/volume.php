@@ -26,6 +26,7 @@ if (is_dir(XOOPS_TRUST_PATH . $path)) {
 		'acceptedName'    => '/^[^\/\\?*:|"<>]*[^.\/\\?*:|"<>]$/',
 		'defaults' => array('read' => true, 'write' => true, 'hidden' => false, 'locked' => false),
 		'icon'          => (defined('ELFINDER_IMG_PARENT_URL')? (rtrim(ELFINDER_IMG_PARENT_URL, '/').'/') : '').'img/volume_icon_sql.png',
-		'uiCmdMap' => array('chmod' => 'perm')
+		'uiCmdMap' => array('chmod' => 'perm'),
+		'statOwner' => true
 	);
 }
