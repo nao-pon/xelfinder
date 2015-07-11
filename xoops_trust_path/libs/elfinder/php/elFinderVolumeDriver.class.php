@@ -996,7 +996,7 @@ abstract class elFinderVolumeDriver {
 			'path'          => $this->path($this->decode($hash)),
 			'url'           => $this->URL,
 			'tmbUrl'        => $this->tmbURL,
-			'disabled'      => $this->disabled,
+			'disabled'      => array_merge(array_unique($this->disabled)), // `array_merge` for type array of JSON
 			'separator'     => $this->separator,
 			'copyOverwrite' => intval($this->options['copyOverwrite']),
 			'uploadMaxSize' => intval($this->uploadMaxSize),
@@ -1149,6 +1149,7 @@ abstract class elFinderVolumeDriver {
 		
 		if ($hash === $this->root()) {
 			$file['uiCmdMap'] = (isset($this->options['uiCmdMap']) && is_array($this->options['uiCmdMap']))? $this->options['uiCmdMap'] : array();
+			$file['disabled'] = array_merge(array_unique($this->disabled)); // `array_merge` for type array of JSON
 		}
 		
 		return ($file) ? $file : $this->setError(elFinder::ERROR_FILE_NOT_FOUND);
@@ -2790,6 +2791,10 @@ abstract class elFinderVolumeDriver {
 			if (!isset($stat['url']) && $this->URL && $this->encoding) {
 				$_path = str_replace($this->separator, '/', substr($path, strlen($this->root) + 1));
 				$stat['url'] = rtrim($this->URL, '/') . '/' . str_replace('%2F', '/', rawurlencode($this->convEncIn($_path, true)));
+			}
+		} else {
+			if ($isDir) {
+				unset($stat['dirs']);
 			}
 		}
 		

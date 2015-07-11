@@ -230,13 +230,14 @@ $.fn.elfindertree = function(fm, opts) {
 			 */
 			findSibling = function(subtree, dir) {
 				var node = subtree.children(':first'),
-					info;
+					info, compare;
 
+				compare = fm.naturalCompare;
 				while (node.length) {
 					info = fm.file(fm.navId2Hash(node.children('[id]').attr('id')));
 					
 					if ((info = fm.file(fm.navId2Hash(node.children('[id]').attr('id')))) 
-					&& dir.name.toLowerCase().localeCompare(info.name.toLowerCase()) < 0) {
+					&& compare(dir.name, info.name) < 0) {
 						return node;
 					}
 					node = node.next();
@@ -254,7 +255,7 @@ $.fn.elfindertree = function(fm, opts) {
 				var length  = dirs.length,
 					orphans = [],
 					i = dirs.length,
-					dir, html, parent, sibling;
+					dir, html, parent, sibling, init, atonce = {};
 
 				var firstVol = true; // check for netmount volume
 				while (i--) {
@@ -265,11 +266,17 @@ $.fn.elfindertree = function(fm, opts) {
 					}
 					
 					if ((parent = findSubtree(dir.phash)).length) {
-						html = itemhtml(dir);
-						if (dir.phash && (sibling = findSibling(parent, dir)).length) {
-							sibling.before(html);
+						if (dir.phash && ((init = !parent.children().length) || (sibling = findSibling(parent, dir)).length)) {
+							if (init) {
+								if (!atonce[dir.phash]) {
+									atonce[dir.phash] = [];
+								}
+								atonce[dir.phash].push(dir);
+							} else {
+								sibling.before(itemhtml(dir));
+							}
 						} else {
-							parent[firstVol || dir.phash ? 'append' : 'prepend'](html);
+							parent[firstVol || dir.phash ? 'append' : 'prepend'](itemhtml(dir));
 							firstVol = false;
 						}
 					} else {
@@ -277,6 +284,19 @@ $.fn.elfindertree = function(fm, opts) {
 					}
 				}
 
+				// When init, html append at once
+				if (Object.keys(atonce).length){
+					$.each(atonce, function(p, dirs){
+						var parent = findSubtree(p),
+						    html   = [];
+						dirs.sort(compare);
+						$.each(dirs, function(i, d){
+							html.push(itemhtml(d));
+						});
+						parent.append(html.join(''));
+					});
+				}
+				
 				if (orphans.length && orphans.length < length) {
 					return updateTree(orphans);
 				} 
@@ -289,6 +309,14 @@ $.fn.elfindertree = function(fm, opts) {
 				
 			},
 			
+			/**
+			 * sort function by dir.name
+			 * 
+			 */
+			compare = function(dir1, dir2) {
+				return fm.naturalCompare(dir1.name, dir2.name);
+			},
+
 			/**
 			 * Auto scroll to cwd
 			 *
@@ -494,7 +522,16 @@ $.fn.elfindertree = function(fm, opts) {
 
 					if (link.is('.'+loaded)) {
 						link.toggleClass(expanded);
-						stree.slideToggle()
+						stree.slideToggle('normal', function(){
+							if (!mobile) {
+								if (link.hasClass(expanded)) {
+									link.nextAll().find('span.ui-droppable-disabled:visible').droppable('enable');
+								} else {
+									link.nextAll().find('span.ui-droppable:not(.ui-droppable-disabled)').droppable('disable');
+								}
+								fm.draggingUiHelper && fm.draggingUiHelper.data('refreshPositions', 1);
+							}
+						});
 					} else {
 						spinner.insertBefore(arrow);
 						link.removeClass(collapsed);
@@ -505,7 +542,7 @@ $.fn.elfindertree = function(fm, opts) {
 								
 								if (stree.children().length) {
 									link.addClass(collapsed+' '+expanded);
-									stree.slideDown();
+									stree.slideDown('normal', function(){ fm.draggingUiHelper && fm.draggingUiHelper.data('refreshPositions', 1); });
 								} 
 								sync(true);
 							})
@@ -532,13 +569,32 @@ $.fn.elfindertree = function(fm, opts) {
 
 		fm.open(function(e) {
 			var data = e.data,
-				dirs = filter(data.files);
+				dirs = filter(data.files),
+				//opContextmenu = fm.options.contextmenu,
+				contextmenu = fm.getUI('contextmenu');
 
 			data.init && tree.empty();
 
 			if (dirs.length) {
+				if (!contextmenu.data('cmdMaps')) {
+					contextmenu.data('cmdMaps', {});
+				}
+				if (!contextmenu.data('disabledCmd')) {
+					contextmenu.data('disabledCmd', {});
+				}
 				updateTree(dirs);
 				updateArrows(dirs, loaded);
+				// support volume driver option `uiCmdMap`
+				$.each(dirs, function(k, v){
+					if (v.volumeid) {
+						if (v.uiCmdMap && Object.keys(v.uiCmdMap).length && !contextmenu.data('cmdMaps')[v.volumeid]) {
+							contextmenu.data('cmdMaps')[v.volumeid] = v.uiCmdMap;
+						}
+						if (v.disabled && !contextmenu.data('disabledCmd')[v.volumeid]) {
+							contextmenu.data('disabledCmd')[v.volumeid] = v.disabled;
+						}
+					}
+				});
 			} 
 			sync(false, dirs);
 		})
