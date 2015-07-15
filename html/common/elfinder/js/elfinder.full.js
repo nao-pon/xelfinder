@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 1f3a669) (2015-07-11)
+ * Version 2.1_n (Nightly: 24d6cdf) (2015-07-15)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -220,7 +220,7 @@ window.elFinder = function(node, opts) {
 			self.commandMap = (data.options.uiCmdMap && Object.keys(data.options.uiCmdMap).length)? data.options.uiCmdMap : {};
 			
 			// support volume driver option `uiCmdMap`
-			if (uiCmdMapPrev !== JSON.stringify(self.commandMap)) {;
+			if (uiCmdMapPrev !== JSON.stringify(self.commandMap)) {
 				uiCmdMapPrev = JSON.stringify(self.commandMap);
 				if (Object.keys(self.commandMap).length) {
 					// for contextmenu
@@ -3940,7 +3940,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 1f3a669)';
+elFinder.prototype.version = '2.1_n (Nightly: 24d6cdf)';
 
 
 
@@ -5489,6 +5489,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'confirmRm'       : 'Are you sure you want to remove files?<br/>This cannot be undone!',
 			'confirmRepl'     : 'Replace old file with new one?',
 			'confirmConvUTF8' : 'Not in UTF-8<br/>Convert to UTF-8?<br/>Contents become UTF-8 by saving after conversion.', // added 08.04.2014
+			'confirmNotSave'  : 'It has been modified.<br/>Losing work if you do not save changes.', // from v2.1 added 15.7.2015
 			'apllyAll'        : 'Apply to all',
 			'name'            : 'Name',
 			'size'            : 'Size',
@@ -9867,13 +9868,38 @@ elFinder.prototype.commands.edit = function() {
 
 			var dfrd = $.Deferred(),
 				ta   = $('<textarea class="elfinder-file-edit" rows="20" id="'+id+'-ta">'+fm.escape(content)+'</textarea>'),
+				old  = ta.val(),
 				save = function() {
 					ta.editor && ta.editor.save(ta[0], ta.editor.instance);
+					old = ta.val();
 					dfrd.notifyWith(ta);
 				},
 				cancel = function() {
-					dfrd.reject();
-					ta.elfinderdialog('close');
+					var close = function(){
+						dfrd.reject();
+						ta.elfinderdialog('close');
+					};
+					ta.editor && ta.editor.save(ta[0], ta.editor.instance);
+					if (old !== ta.val()) {
+						old = ta.val();
+						fm.confirm({
+							title  : self.title,
+							text   : 'confirmNotSave',
+							accept : {
+								label    : 'btnSaveClose',
+								callback : function() {
+									save();
+									close();
+								}
+							},
+							cancel : {
+								label    : 'btnClose',
+								callback : close
+							}
+						});
+					} else {
+						close();
+					}
 				},
 				savecl = function() {
 					save();
@@ -9884,8 +9910,31 @@ elFinder.prototype.commands.edit = function() {
 					width   : self.options.dialogWidth || 450,
 					buttons : {},
 					close   : function() { 
-						ta.editor && ta.editor.close(ta[0], ta.editor.instance);
-						$(this).elfinderdialog('destroy'); 
+						var $this = $(this),
+						close = function(){
+							ta.editor && ta.editor.close(ta[0], ta.editor.instance);
+							$this.elfinderdialog('destroy');
+						};
+						ta.editor && ta.editor.save(ta[0], ta.editor.instance);
+						if (old !== ta.val()) {
+							fm.confirm({
+								title  : self.title,
+								text   : 'confirmNotSave',
+								accept : {
+									label    : 'btnSaveClose',
+									callback : function() {
+										save();
+										close();
+									}
+								},
+								cancel : {
+									label    : 'btnClose',
+									callback : close
+								}
+							});
+						} else {
+							close();
+						}
 					},
 					open    : function() { 
 						fm.disable();
@@ -9897,6 +9946,34 @@ elFinder.prototype.commands.edit = function() {
 						}
 					}
 					
+				},
+				mimeMatch = function(fileMime, editorMimes){
+					editorMimes = editorMimes || mimes.concat('text/');
+					if ($.inArray(fileMime, editorMimes) !== -1 ) {
+						return true;
+					}
+					var i, l;
+					l = editorMimes.length;
+					for (i = 0; i < l; i++) {
+						if (fileMime.indexOf(editorMimes[i]) === 0) {
+							return true;
+						}
+					}
+					return false;
+				},
+				extMatch = function(fileName, editorExts){
+					if (!editorExts || !editorExts.length) {
+						return true;
+					}
+					var ext = fileName.replace(/^.+\.([^.]+)|(.+)$/, '$1$2').toLowerCase(),
+					i, l;
+					l = editorExts.length;
+					for (i = 0; i < l; i++) {
+						if (ext === editorExts[i].toLowerCase()) {
+							return true;
+						}
+					}
+					return false;
 				};
 				
 				ta.getContent = function() {
@@ -9904,7 +9981,8 @@ elFinder.prototype.commands.edit = function() {
 				};
 				
 				$.each(self.options.editors || [], function(i, editor) {
-					if ($.inArray(file.mime, editor.mimes || []) !== -1 
+					if (mimeMatch(file.mime, editor.mimes || null)
+					&& extMatch(file.name, editor.exts || null)
 					&& typeof editor.load == 'function'
 					&& typeof editor.save == 'function') {
 						ta.editor = {
@@ -9912,7 +9990,11 @@ elFinder.prototype.commands.edit = function() {
 							save     : editor.save,
 							close    : typeof editor.close == 'function' ? editor.close : function() {},
 							focus    : typeof editor.focus == 'function' ? editor.focus : function() {},
-							instance : null
+							instance : null,
+							doSave   : save,
+							doCancel : cancel,
+							doClose  : savecl,
+							file     : file
 						};
 						
 						return false;
