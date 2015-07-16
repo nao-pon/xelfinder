@@ -26,13 +26,6 @@ include_once dirname(__FILE__).'/class/xoops_elFinder.class.php';
 $xoops_elFinder = new xoops_elFinder($mydirname);
 $xoops_elFinder->setConfig($config);
 
-// make cmds array as json
-$cmds = array('open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook',
-			'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy',
-			'cut', 'paste', 'edit', 'extract', 'archive', 'search', 'info', 'view', 'help',
-			'resize', 'sort', 'netmount', 'netunmount', 'places', 'pixlr', 'perm', 'chmod');
-$cmds = json_encode($cmds);
-
 $conector_url = $conn_is_ext = '';
 if (!empty($config['connector_url'])) {
 	$conector_url = $config['connector_url'];
@@ -117,7 +110,7 @@ if (empty($config['jquery_ui_css'])) {
 
 $title = mb_convert_encoding($config['manager_title'], 'UTF-8', _CHARSET);
 
-$useCKEditor = (is_file(XOOPS_ROOT_PATH.'/modules/ckeditor4/ckeditor/ckeditor.js'));
+$useCKEditor = (is_file(XOOPS_ROOT_PATH.'/modules/ckeditor4/ckeditor/ckeditor.js'))? 'true' : 'false';
 
 while(ob_get_level() && @ob_end_clean()) {}
 
@@ -125,6 +118,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<meta charset="utf-8">
 		<title><?php echo $title?></title>
 		<?php echo $viewport ?>
@@ -223,9 +217,6 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/elfinder.min.js"></script>
 <?php }?>
 		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.<?php echo $userLang?>.js" charset="UTF-8"></script>
-<?php if ($useCKEditor) { ?>
-		<script src="<?php echo XOOPS_URL ?>/modules/ckeditor4/ckeditor/ckeditor.js" type="text/javascript"></script>
-<?php }?>
 		
 		<!-- elFinder initialization (REQUIRED) -->
 		<link rel="stylesheet" href="<?php echo $myurl ?>/include/css/manager.css" type="text/css">
@@ -246,31 +237,8 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var xoopsUid = '<?php echo $xoops_elFinder->getUid()?>';
 			var adminMode = <?php echo $admin?>;
 			var cToken = '<?php echo $cToken?>';
-<?php if ($useCKEditor) {?>
-			var editorTextHtml = {
-					mimes : ['text/html'],
-					load : function(textarea) {
-						return CKEDITOR.replace( textarea.id, {
-							startupFocus : true,
-							fullPage: true,
-							allowedContent: true,
-							filebrowserBrowseUrl: '<?php echo XOOPS_MODULE_URL ?>/<?php echo $mydirname?>/manager.php?cb=ckeditor'
-						});
-					},
-					close : function(textarea, instance) {
-						instance.destroy();
-					},
-					save : function(textarea, instance) {
-						textarea.value = instance.getData();
-					},
-					focus : function(textarea, instance) {
-						instance && instance.focus();
-					}
-				};
-<?php } else {?>
-			var editorTextHtml = {};
-<?php }?>
-			var elfinderCmds = <?php echo $cmds?>;
+			var editorsConfig = [];
+			var useCKEditor = <?php echo $useCKEditor ?>;
 		</script>
 		<script src="<?php echo $myurl ?>/include/js/commands/perm.js"></script>
 		<script src="<?php echo $myurl ?>/include/js/manager.js" charset="UTF-8"></script>
