@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 50865f6) (2015-07-16)
+ * Version 2.1_n (Nightly: a00e63c) (2015-07-22)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -1676,7 +1676,7 @@ window.elFinder = function(node, opts) {
 		.enable(function() {
 			if (!enabled && self.visible() && self.ui.overlay.is(':hidden')) {
 				enabled = true;
-				$('texarea:focus,input:focus,button').blur();
+				document.activeElement && document.activeElement.blur();
 				node.removeClass('elfinder-disabled');
 			}
 		})
@@ -2121,6 +2121,7 @@ elFinder.prototype = {
 			'text/x-sql'                    : 'SQL',
 			'text/xml'                      : 'XML',
 			'text/x-comma-separated-values' : 'CSV',
+			'text/x-markdown'               : 'Markdown',
 			'image/x-ms-bmp'                : 'BMP',
 			'image/jpeg'                    : 'JPEG',
 			'image/gif'                     : 'GIF',
@@ -3950,7 +3951,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 50865f6)';
+elFinder.prototype.version = '2.1_n (Nightly: a00e63c)';
 
 
 
@@ -5636,6 +5637,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'kindAWK'         : 'AWK source',
 			'kindCSV'         : 'Comma separated values',
 			'kindDOCBOOK'     : 'Docbook XML document',
+			'kindMarkdown'    : 'Markdown text', // added 20.7.2015
 			// images
 			'kindImage'       : 'Image',
 			'kindBMP'         : 'BMP image',
@@ -7407,7 +7409,13 @@ $.fn.elfinderdialog = function(opts) {
 		$.each(opts.buttons, function(name, cb) {
 			var button = $('<button type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class="ui-button-text">'+name+'</span></button>')
 				.click($.proxy(cb, self[0]))
-				.hover(function(e) { $(this)[e.type == 'mouseenter' ? 'focus' : 'blur']() })
+				.hover(function(e) { 
+					if (opts.btnHoverFocus) {
+						$(this)[e.type == 'mouseenter' ? 'focus' : 'blur']();
+					} else {
+						$(this).toggleClass(clhover, e.type == 'mouseenter');
+					}
+				})
 				.focus(function() { $(this).addClass(clhover) })
 				.blur(function() { $(this).removeClass(clhover) })
 				.keydown(function(e) { 
@@ -7459,6 +7467,7 @@ $.fn.elfinderdialog.defaults = {
 	closeOnEscape : true,
 	destroyOnClose : false,
 	buttons   : {},
+	btnHoverFocus : true,
 	position  : null,
 	width     : 320,
 	height    : 'auto',
@@ -9850,7 +9859,10 @@ elFinder.prototype.commands.edit = function() {
 	var self  = this,
 		fm    = this.fm,
 		mimes = fm.res('mimes', 'text') || [],
-		
+		rtrim = function(str){
+			return str.replace(/\s+$/, '');
+		},
+	
 		/**
 		 * Return files acceptable to edit
 		 *
@@ -9890,7 +9902,7 @@ elFinder.prototype.commands.edit = function() {
 						ta.elfinderdialog('close');
 					};
 					ta.editor && ta.editor.save(ta[0], ta.editor.instance);
-					if (old !== ta.val()) {
+					if (rtrim(old) !== rtrim(ta.val())) {
 						old = ta.val();
 						fm.confirm({
 							title  : self.title,
@@ -9919,6 +9931,7 @@ elFinder.prototype.commands.edit = function() {
 					title   : file.name,
 					width   : self.options.dialogWidth || 450,
 					buttons : {},
+					btnHoverFocus : false,
 					closeOnEscape : false,
 					close   : function() { 
 						var $this = $(this),
@@ -9927,7 +9940,7 @@ elFinder.prototype.commands.edit = function() {
 							$this.elfinderdialog('destroy');
 						};
 						ta.editor && ta.editor.save(ta[0], ta.editor.instance);
-						if (old !== ta.val()) {
+						if (rtrim(old) !== rtrim(ta.val())) {
 							fm.confirm({
 								title  : self.title,
 								text   : 'confirmNotSave',
