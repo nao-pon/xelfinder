@@ -118,7 +118,6 @@ $(document).ready(function() {
 			taBase = ta.parent(),
 			dialog = taBase.parent(),
 			id = textarea.id + '_ace',
-			ext = this.file.name.replace(/^.+\.([^.]+)|(.+)$/, '$1$2').toLowerCase(),
 			mimeMode = {
 				'text/x-php'              : 'php',
 				'application/x-php'       : 'php',
@@ -144,14 +143,15 @@ $(document).ready(function() {
 				'text/x-sql'              : 'sql',
 				'text/xml'                : 'xml',
 				'application/docbook+xml' : 'xml',
-				'application/xml'         : 'xml'
+				'application/xml'         : 'xml',
+				'text/x-markdown'         : 'markdown'
 			},
 			resize = function(){
 				dialog.height($(window).height() * 0.9).trigger('posinit');
 				taBase.height(dialog.height() - taBase.prev().outerHeight(true) - taBase.next().outerHeight(true) - 8);
 			};
 			
-			mode = ace.require('ace/ext/modelist').getModeForPath('/' + self.file.name).name;
+			mode = ace.require('ace/ext/modelist').getModeForPath(self.file.name).name;
 			if (mode === 'text') {
 				if (mimeMode[self.file.mime]) {
 					mode = mimeMode[self.file.mime];
