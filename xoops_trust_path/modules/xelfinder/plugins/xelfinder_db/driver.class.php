@@ -185,7 +185,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		if ($this->query($sql)) {
 			unset($this->cache[(int)$dir]);
 		}
-		if ($recursive && $dir !== $this->root) {
+		if ($recursive && $dir != $this->root) {
 			if ($parent = $this->_dirname($dir)) {
 				$this->updateDirTimestamp($parent, $mtime, true);
 			}
