@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: ef45ca4) (2015-07-22)
+ * Version 2.1_n (Nightly: 944280a) (2015-07-25)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -3951,7 +3951,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: ef45ca4)';
+elFinder.prototype.version = '2.1_n (Nightly: 944280a)';
 
 
 
@@ -4222,7 +4222,64 @@ elFinder.prototype._options = {
 			]
 		},
 		// "info" command options.
-		info : {nullUrlDirLinkSelf : true},
+		info : {
+			nullUrlDirLinkSelf : true,
+			custom : {
+				// /**
+				//  * Example of custom info `desc`
+				//  */
+				// desc : {
+				// 	/**
+				// 	 * Lable (require)
+				// 	 * It is filtered by the `fm.i18n()`
+				// 	 * 
+				// 	 * @type String
+				// 	 */
+				// 	label : 'Description',
+				// 	
+				// 	/**
+				// 	 * Template (require)
+				// 	 * `{id}` is replaced in dialog.id
+				// 	 * 
+				// 	 * @type String
+				// 	 */
+				// 	tpl : '<div class="elfinder-info-desc"><span class="elfinder-info-spinner"></span></div>',
+				// 	
+				// 	/**
+				// 	 * Restricts to mimetypes (optional)
+				// 	 * Exact match or category match
+				// 	 * 
+				// 	 * @type Array
+				// 	 */
+				// 	mimes : ['text', 'image/jpeg', 'directory'],
+				// 	
+				// 	/**
+				// 	 * Restricts to file.hash (optional)
+				// 	 * 
+				// 	 * @ type Regex
+				// 	 */
+				// 	hashRegex : /^l\d+_/,
+				// 
+				// 	/**
+				// 	 * Request that asks for the description and sets the field (optional)
+				// 	 * 
+				// 	 * @type Function
+				// 	 */
+				// 	action : function(file, fm, dialog) {
+				// 		fm.request({
+				// 		data : { cmd : 'desc', target: file.hash },
+				// 			preventDefault: true,
+				// 		})
+				// 		.fail(function() {
+				// 			dialog.find('div.elfinder-info-desc').html(fm.i18n('unknown'));
+				// 		})
+				// 		.done(function(data) {
+				// 			dialog.find('div.elfinder-info-desc').html(data.desc);
+				// 		});
+				// 	}
+				// }
+			}
+		},
 		
 		netmount: {
 			ftp: {
@@ -10807,7 +10864,8 @@ elFinder.prototype.commands.info = function() {
 			count = [],
 			replSpinner = function(msg, name) { dialog.find('.'+spclass+'-'+name).parent().html(msg); },
 			id = fm.namespace+'-info-'+$.map(files, function(f) { return f.hash; }).join('-'),
-			dialog = fm.getUI().find('#'+id), 
+			dialog = fm.getUI().find('#'+id),
+			customActions = [],
 			size, tmb, file, title, dcnt;
 			
 		if (!cnt) {
@@ -10905,6 +10963,24 @@ elFinder.prototype.commands.info = function() {
 			file.owner && content.push(row.replace(l, msg.owner).replace(v, file.owner));
 			file.group && content.push(row.replace(l, msg.group).replace(v, file.group));
 			file.perm && content.push(row.replace(l, msg.perm).replace(v, fm.formatFileMode(file.perm)));
+			
+			// Add custom info fields
+			if (o.custom) {
+				$.each(o.custom, function(name, details) {
+					if (
+					  (!details.mimes || $.map(details.mimes, function(m){return (file.mime === m || file.mime.indexOf(m+'/') === 0)? true : null;}).length)
+					    &&
+					  (!details.hashRegex || file.hash.match(details.hashRegex))
+					) {
+						// Add to the content
+						content.push(row.replace(l, fm.i18n(details.label)).replace(v , details.tpl.replace('{id}', id)));
+						// Register the action
+						if (details.action && (typeof details.action == 'function')) {
+							customActions.push(details.action);
+						}
+					}
+				});
+			}
 		} else {
 			view  = view.replace('{class}', 'elfinder-cwd-icon-group');
 			title = tpl.groupTitle.replace('{items}', msg.items).replace('{num}', cnt);
@@ -10957,6 +11033,17 @@ elFinder.prototype.commands.info = function() {
 				});
 		}
 		
+		// call custom actions
+		if (customActions.length) {
+			$.each(customActions, function(i, action) {
+				try {
+					action(file, fm, dialog);
+				} catch(e) {
+					fm.debug('error', e);
+				}
+			});
+		}
+
 	};
 	
 };
