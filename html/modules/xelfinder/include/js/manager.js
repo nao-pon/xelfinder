@@ -47,6 +47,9 @@ $(document).ready(function() {
 		elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
 	}
 	
+	// add custom command
+	elFinder.prototype._options.commands.push('perm');
+	
 	// keep alive
 	var extCheck = connectorUrl;
 	setInterval(function(){
