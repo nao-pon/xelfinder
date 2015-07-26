@@ -18,6 +18,7 @@ $modules_basename = trim(str_replace(XOOPS_URL, '', XOOPS_MODULE_URL), '/');
 
 $module_handler =& xoops_gethandler('module');
 $xelfinderModule = $module_handler->getByDirname($mydirname);
+$xelfVer = $xelfinderModule->getVar('version');
 $config_handler =& xoops_gethandler('config');
 $config = $config_handler->getConfigsByCat(0, $xelfinderModule->getVar('mid'));
 
@@ -64,7 +65,7 @@ if ($_js_cache_path) {
 		}
 		file_put_contents($_js_cacahe, $_src);
 	}
-	$managerJs = '<script src="'.$myurl.$_managerJs.'" charset="UTF-8"></script>' . "\n";
+	$managerJs = '<script src="'.$myurl.$_managerJs.'?v='.$xelfVer.'" charset="UTF-8"></script>' . "\n";
 }
 
 $default_tmbsize = isset($config['thumbnail_size'])? (int)$config['thumbnail_size'] : '160';
@@ -137,10 +138,10 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/commands.css"    type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/fonts.css"       type="text/css" >
 <?php } else {?>
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/elfinder.min.css" type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/elfinder.min.css?v=<?php echo $xelfVer?>" type="text/css" >
 <?php }?>
 
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/theme.css"       type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/theme.css?v=<?php echo $xelfVer?>" type="text/css" >
 
 		<script src="<?php echo $jQueryUrl?>"></script>
 		<script src="<?php echo $jQueryUIUrl?>"></script>
@@ -214,12 +215,12 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<!-- elfinder dialog -->
 		<script src="<?php echo $elfurl ?>/js/jquery.dialogelfinder.js"></script>
 <?php } else {?>
-		<script src="<?php echo $elfurl ?>/js/elfinder.min.js"></script>
+		<script src="<?php echo $elfurl ?>/js/elfinder.min.js?v=<?php echo $xelfVer?>"></script>
 <?php }?>
-		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.<?php echo $userLang?>.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.<?php echo $userLang?>.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>
 		
 		<!-- elFinder initialization (REQUIRED) -->
-		<link rel="stylesheet" href="<?php echo $myurl ?>/include/css/manager.css" type="text/css">
+		<link rel="stylesheet" href="<?php echo $myurl ?>/include/css/manager.css?v=<?php echo $xelfVer?>" type="text/css">
 		<script type="text/javascript">
 			var target = '<?php echo $target ?>';
 			var rootUrl = '<?php echo XOOPS_URL ?>';
@@ -240,8 +241,8 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var editorsConfig = [];
 			var useCKEditor = <?php echo $useCKEditor ?>;
 		</script>
-		<script src="<?php echo $myurl ?>/include/js/commands/perm.js"></script>
-		<script src="<?php echo $myurl ?>/include/js/manager.js" charset="UTF-8"></script>
+		<script src="<?php echo $myurl ?>/include/js/commands/perm.js?v=<?php echo $xelfVer?>"></script>
+		<script src="<?php echo $myurl ?>/include/js/manager.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>
 		<script type="text/javascript" charset="UTF-8">
 			var callbackFunc = <?php echo $callback ?>;
 		</script>
