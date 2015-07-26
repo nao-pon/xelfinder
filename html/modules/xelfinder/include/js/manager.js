@@ -269,7 +269,6 @@ $(document).ready(function() {
 		getFileCallback : callbackFunc,
 		ui : ['toolbar', 'places', 'tree', 'path', 'stat'],
 		uiOptions : {
-			// toolbar configuration
 			toolbar : [
 				['back', 'forward'],
 				['netmount'],
@@ -287,41 +286,25 @@ $(document).ready(function() {
 				['view', 'sort'],
 				['help']
 			],
-			// directories tree options
 			tree : {
-				// expand current root on init
 				openRootOnLoad : true,
-				// auto load current dir parents
 				syncTree : true
 			},
-			// navbar options
 			navbar : {
 				minWidth : 150,
 				maxWidth : 500
 			},
 			cwd : {
-				// display parent folder with ".." name :)
 				oldSchool : false,
-				
-				// file info columns displayed
 				listView : {
-					// name is always displayed, cols are ordered
 					columns : ['perm', 'date', 'size', 'kind', 'owner'],
-					// override this if you want custom columns name
-					// example
-					// columnsCustomName : {
-					//		date : 'Last modification',
-					// 		kind : 'Mime type'
-					// }
 					columnsCustomName : {}
-										
 				}
 			},
 			places : {
 				suffix : xoopsUid
 			}
 		},
-		//commands : elfinderCmds,
 		commandsOptions : {
 			  getfile : {
 			    onlyURL : false,
@@ -334,11 +317,8 @@ $(document).ready(function() {
 			  }
 		},
 		contextmenu : {
-			// navbarfolder menu
 			navbar : ['open', '|', 'download', 'upload', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'rename', '|', 'places', 'info', 'chmod', 'netunmount'],
-			// current directory menu
 			cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'sort', '|', 'info'],
-			// current directory file menu
 			files  : ['getfile', '|','open', 'quicklook', '|', 'download', 'upload', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', 'pixlr',
 			          '|', 'archive', 'extract',
 			          '|', 'places', 'info', 'chmod']
