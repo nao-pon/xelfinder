@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 8e8f543) (2015-07-25)
+ * Version 2.1_n (Nightly: 905d1ea) (2015-07-28)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -3951,7 +3951,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 8e8f543)';
+elFinder.prototype.version = '2.1_n (Nightly: 905d1ea)';
 
 
 
@@ -6689,13 +6689,19 @@ $.fn.elfindercwd = function(fm, options) {
 					hash = files[l];
 					if ((n = cwd.find('#'+hash)).length) {
 						try {
-							n.detach();
+							n.remove();
 						} catch(e) {
 							fm.debug('error', e);
 						}
 					} else if ((ndx = index(hash)) != -1) {
 						buffer.splice(ndx, 1);
 					}
+				}
+				
+				// refresh cwd if empty for a bug of browser (ex. Android Chrome 43.0.2357.93)
+				if (cwd.children().length < 1) {
+					cwd.hide();
+					setTimeout(function(){ cwd.show(); }, 0);
 				}
 			},
 			
@@ -6860,12 +6866,12 @@ $.fn.elfindercwd = function(fm, options) {
 							if (e.target.nodeName != 'TD' || fm.selected().length > 0) {
 								p.trigger(evtSelect);
 								trigger();
-								p.trigger(fm.trigger('contextmenu', {
+								fm.trigger('contextmenu', {
 									'type'    : 'files',
 									'targets' : fm.selected(),
 									'x'       : e.originalEvent.touches[0].clientX,
 									'y'       : e.originalEvent.touches[0].clientY
-								}));
+								});
 							}
 						}
 					}, 500));
@@ -6919,16 +6925,14 @@ $.fn.elfindercwd = function(fm, options) {
 				})
 				// disable files wich removing or moving
 				.delegate(fileSelector, evtDisable, function() {
-					var $this  = $(this).removeClass(clSelected).addClass(clDisabled), 
-						target = (list ? $this : $this.children()).removeClass(clHover);
+					var $this  = $(this).removeClass(clHover+' '+clSelected).addClass(clDisabled), 
+						child  = $this.children(),
+						target = (list ? $this : child);
+					
+					child.removeClass(clHover+' '+clSelected);
 					
 					$this.is('.'+clDroppable) && $this.droppable('disable');
 					target.is('.'+clDraggable) && target.draggable('disable');
-					if (list) {
-						target.children().removeClass(clHover);
-					} else {
-						target.removeClass(clDisabled);
-					}
 				})
 				// if any files was not removed/moved - unlock its
 				.delegate(fileSelector, evtEnable, function() {
@@ -13944,7 +13948,7 @@ elFinder.prototype.commands.upload = function() {
 		
 		dropUpload = function(e) {
 			e.stopPropagation();
-		  	e.preventDefault();
+			e.preventDefault();
 			var file = false;
 			var type = '';
 			var data = null;
@@ -14008,7 +14012,7 @@ elFinder.prototype.commands.upload = function() {
 		
 		input = $('<input type="file" multiple="true"/>')
 			.change(function() {
-				upload({input : input[0]});
+				upload({input : input[0], type : 'files'});
 			});
 
 		button = $('<div class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class="ui-button-text">'+fm.i18n('selectForUpload')+'</span></div>')
