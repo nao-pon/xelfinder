@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 905d1ea) (2015-07-28)
+ * Version 2.1_n (Nightly: 316ac1b) (2015-07-30)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -3951,7 +3951,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 905d1ea)';
+elFinder.prototype.version = '2.1_n (Nightly: 316ac1b)';
 
 
 
@@ -4389,6 +4389,17 @@ elFinder.prototype._options = {
 			openRootOnLoad : true,
 			// auto load current dir parents
 			syncTree : true
+			// ,
+			// /**
+			//  * Add CSS class name to navbar directories (optional)
+			//  * see: https://github.com/Studio-42/elFinder/pull/1061
+			//  * 
+			//  * @type Function
+			//  */
+			// getClass: function(dir) {
+			// 	// ex. This adds the directory's name (lowercase) with prefix as a CSS class
+			// 	return 'elfinder-tree-' + dir.name.replace(/[ "]/g, '').toLowerCase();
+			// }
 		},
 		// navbar options
 		navbar : {
@@ -8680,7 +8691,7 @@ $.fn.elfindertree = function(fm, opts) {
 			 */
 			replace = {
 				id          : function(dir) { return fm.navHash2Id(dir.hash) },
-				cssclass    : function(dir) { return (fm.UA.Touch ? 'elfinder-touch ' : '')+(dir.phash ? '' : root)+' '+navdir+' '+fm.perms2class(dir)+' '+(dir.dirs && !dir.link ? collapsed : ''); },
+				cssclass    : function(dir) { return (fm.UA.Touch ? 'elfinder-touch ' : '')+(dir.phash ? '' : root)+' '+navdir+' '+fm.perms2class(dir)+' '+(dir.dirs && !dir.link ? collapsed : '') + (opts.getClass ? ' ' + opts.getClass(dir) : ''); },
 				permissions : function(dir) { return !dir.read || !dir.write ? ptpl : ''; },
 				symlink     : function(dir) { return dir.alias ? stpl : ''; },
 				style       : function(dir) { return dir.icon ? 'style="background-image:url(\''+dir.icon+'\')"' : ''; }
