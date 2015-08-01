@@ -301,7 +301,7 @@ $.fn.elfindercwd = function(fm, options) {
 			selectedFiles = [],
 			
 			selectFile = function(hash) {
-				cwd.find('#'+hash).trigger(evtSelect);
+				$('#'+hash).trigger(evtSelect);
 			},
 			
 			selectAll = function() {
@@ -525,7 +525,7 @@ $.fn.elfindercwd = function(fm, options) {
 					ndx;
 				
 				$.each(images, function(hash, tmb) {
-					var node = cwd.find('#'+hash);
+					var node = $('#'+hash);
 
 					if (node.length) {
 
@@ -620,7 +620,7 @@ $.fn.elfindercwd = function(fm, options) {
 					file = files[l];
 					hash = file.hash;
 					
-					if (cwd.find('#'+hash).length) {
+					if ($('#'+hash).length) {
 						continue;
 					}
 					
@@ -632,7 +632,7 @@ $.fn.elfindercwd = function(fm, options) {
 						place.append(itemhtml(file));
 					}
 					
-					if (cwd.find('#'+hash).length) {
+					if ($('#'+hash).length) {
 						if (file.mime == 'directory') {
 							dirs = true;
 						} else if (file.tmb) {
@@ -658,7 +658,7 @@ $.fn.elfindercwd = function(fm, options) {
 				
 				while (l--) {
 					hash = files[l];
-					if ((n = cwd.find('#'+hash)).length) {
+					if ((n = $('#'+hash)).length) {
 						try {
 							n.remove();
 						} catch(e) {
@@ -985,7 +985,7 @@ $.fn.elfindercwd = function(fm, options) {
 				// unselect all selected files
 				.bind('unselectall', unselectAll)
 				.bind('selectfile', function(e, id) {
-					cwd.find('#'+id).trigger(evtSelect);
+					$('#'+id).trigger(evtSelect);
 					trigger();
 				}),
 			wrapper = $('<div class="elfinder-cwd-wrapper"/>')
@@ -1025,14 +1025,30 @@ $.fn.elfindercwd = function(fm, options) {
 				.css({position: 'absolute', width: '1px', height: '1px'})
 				.hide(),
 			
-			resize = function() {
-				var h = 0;
-
-				wrapper.siblings('.elfinder-panel:visible').each(function() {
-					h += $(this).outerHeight(true);
-				});
-
-				wrapper.height(wz.height() - h - wrapper._padding);
+			restm = null,
+			resize = function(init) {
+				var initHeight = function() {
+					var h = 0;
+					wrapper.siblings('div.elfinder-panel:visible').each(function() {
+						h += $(this).outerHeight(true);
+					});
+					wrapper.height(wz.height() - h - wrapper._padding);
+				};
+				
+				init && initHeight();
+				
+				restm && clearTimeout(restm);
+				restm = setTimeout(function(){
+					!init && initHeight();
+					var wph, cwdoh;
+					// fix cwd height if it less then wrapper
+					cwd.css('height', 'auto');
+					wph = wrapper[0].clientHeight - parseInt(wrapper.css('padding-top')) - parseInt(wrapper.css('padding-bottom')),
+					cwdoh = cwd.outerHeight(true);
+					if (cwdoh < wph) {
+						cwd.height(wph);
+					}
+				}, 200);
 			},
 			
 			// elfinder node
@@ -1083,11 +1099,12 @@ $.fn.elfindercwd = function(fm, options) {
 		fm
 			.bind('open', function(e) {
 				content(e.data.files);
-				e.data.init && resize();
+				resize();
 			})
 			.bind('search', function(e) {
 				lastSearch = e.data.files;
 				content(lastSearch, true);
+				resize();
 			})
 			.bind('searchend', function() {
 				lastSearch = [];
@@ -1095,6 +1112,7 @@ $.fn.elfindercwd = function(fm, options) {
 					query = '';
 					content(fm.files());
 				}
+				resize();
 			})
 			.bind('searchstart', function(e) {
 				query = e.data.query;
@@ -1119,8 +1137,11 @@ $.fn.elfindercwd = function(fm, options) {
 			})
 			.bind('resize', function() {
 				var place = list ? cwd.find('tbody') : cwd;
-				resize();
+				resize(true);
 				bottomMarkerShow(place, place.find('[id]').length);
+			})
+			.bind('add', function() {
+				resize();
 			})
 			.add(function(e) {
 				var phash = fm.cwd().hash,
@@ -1157,16 +1178,6 @@ $.fn.elfindercwd = function(fm, options) {
 				remove(e.data.removed || []);
 				trigger();
 			})
-			// fix cwd height if it less then wrapper
-			.bind('open add search searchend viewchange', function() {
-				cwd.css('height', 'auto');
-
-				var wph = wrapper[0].clientHeight,
-				cwdoh = cwd.outerHeight(true);
-				if (cwdoh < wph) {
-					cwd.height(wph - (cwdoh - cwd.height()) - 2);
-				}
-			})
 			// select dragged file if no selected, disable selectable
 			.dragstart(function(e) {
 				var target = $(e.data.target),
@@ -1201,7 +1212,7 @@ $.fn.elfindercwd = function(fm, options) {
 					l      = files.length;
 				
 				while (l--) {
-					cwd.find('#'+files[l]).trigger(event);
+					$('#'+files[l]).trigger(event);
 				}
 				trigger();
 			})
