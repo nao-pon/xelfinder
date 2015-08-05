@@ -138,6 +138,11 @@ function xelfinder_onupdate_base( $module , $mydirname )
 		$db->queryF('UPDATE `'.$db->prefix($mydirname."_file").'` SET `home_of` = NULL WHERE `home_of` = 0 AND `mime` != \'directory\'');
 	}
 	
+	if ($lastupdate < 182) {
+		$msgs[] = 'ALTER TABLE file `home_of` Add Index (Version < 1.82)';		
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` ADD INDEX home_of( home_of )');
+	}
+	
 	// TEMPLATES (all templates have been already removed by modulesadmin)
 	$tplfile_handler =& xoops_gethandler( 'tplfile' ) ;
 	$tpl_path = dirname(__FILE__).'/templates' ;

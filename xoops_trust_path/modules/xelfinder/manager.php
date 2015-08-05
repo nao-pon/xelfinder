@@ -113,6 +113,8 @@ $title = mb_convert_encoding($config['manager_title'], 'UTF-8', _CHARSET);
 
 $useCKEditor = (is_file(XOOPS_ROOT_PATH.'/modules/ckeditor4/ckeditor/ckeditor.js'))? 'true' : 'false';
 
+$start = (!empty($_GET['start']) && preg_match('/^[a-zA-Z0-9_-]+$/', $_GET['start']))? $_GET['start'] : '';
+
 while(ob_get_level() && @ob_end_clean()) {}
 
 ?>
@@ -240,6 +242,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var cToken = '<?php echo $cToken?>';
 			var editorsConfig = [];
 			var useCKEditor = <?php echo $useCKEditor ?>;
+			var startPathHash = '<?php echo $start?>';
 		</script>
 		<script src="<?php echo $myurl ?>/include/js/commands/perm.js?v=<?php echo $xelfVer?>"></script>
 		<script src="<?php echo $myurl ?>/include/js/manager.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>

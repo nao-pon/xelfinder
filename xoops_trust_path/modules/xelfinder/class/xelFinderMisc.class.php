@@ -7,18 +7,12 @@ class xelFinderMisc {
 	var $mydirname;
 	var $mode;
 	
-	public function dbSetCharset($charset = 'utf8') {
-		if (!$this->db) return false;
-		$db = $this->db;
-		$link = (is_object($db->conn) && get_class($db->conn) === 'mysqli')? $db->conn : false;
-		if ($link) {
-			return mysqli_set_charset($link, $charset);
-		} else {
-			return mysql_set_charset($charset);
-		}
+	public function __construct($mydirname) {
+		$this->db = XoopsDatabaseFactory::getDatabaseConnection();
+		$this->mydirname = $mydirname;
 	}
 	
-	function readAuth($perm, $f_uid, $file_id = null) {
+	private function authPrepare($perm, $f_uid) {
 		global $xoopsUser, $xoopsModule;
 		if (is_object($xoopsUser)) {
 			$uid = $xoopsUser->getVar('uid');
@@ -31,13 +25,44 @@ class xelFinderMisc {
 		}
 	
 		$isOwner = ($isAdmin || ($f_uid && $f_uid == $uid));
-		$inGroup = (array_intersect($this->getGroupsByUid($f_uid), $groups));
+		$inGroup = (array_intersect($this->getGroupsByUid($f_uid), $groups))? true : false;
 	
 		$perm = strval($perm);
 		$own = intval($perm[0], 16);
 		$grp = intval($perm[1], 16);
 		$gus = intval($perm[2], 16);
 	
+		return array($isOwner, $inGroup, $own, $grp, $gus, $perm);
+	}
+	
+	private function checkAuth($auth, $perm, $f_uid) {
+		list($isOwner, $inGroup, $own, $grp, $gus, $perm) = $this->authPrepare($perm, $f_uid);
+		//exit(var_dump(array($isOwner, $inGroup, $own, $grp, $gus, $perm)));
+		$ret = false;
+		if (strpos($auth, 'r') !== false) {
+			$ret = (($isOwner && (4 & $own) === 4) || ($inGroup && (4 & $grp) === 4) || (4 & $gus) === 4);
+		}
+		if ($ret && strpos($auth, 'w') !== false) {
+			$ret = (($isOwner && (2 & $own) === 2) || ($inGroup && (2 & $grp) === 2) || (2 & $gus) === 2);
+		}
+		return $ret;
+	}
+	
+	public function dbSetCharset($charset = 'utf8') {
+		if (!$this->db) return false;
+		$db = $this->db;
+		$link = (is_object($db->conn) && get_class($db->conn) === 'mysqli')? $db->conn : false;
+		if ($link) {
+			return mysqli_set_charset($link, $charset);
+		} else {
+			return mysql_set_charset($charset);
+		}
+	}
+	
+	public function readAuth($perm, $f_uid, $file_id = null) {
+		
+		list($isOwner, $inGroup, $own, $grp, $gus, $perm) = $this->authPrepare($perm, $f_uid);
+		
 		if ($readable = (($isOwner && (4 & $own) === 4) || ($inGroup && (4 & $grp) === 4) || (4 & $gus) === 4)) {
 			if ($file_id && $this->mode === 'view' && ! empty($this->myConfig['edit_disable_linked'])) {
 				if ((2 & $own) === 2 || (2 & $grp) === 2 || (2 & $gus) === 2 || (1 & $own) === 1 || (1 & $grp) === 1 || (1 & $gus) === 1) {
@@ -56,7 +81,7 @@ class xelFinderMisc {
 	
 	}
 	
-	function getGroupsByUid($uid) {
+	public function getGroupsByUid($uid) {
 		if ($uid) {
 			$user_handler =& xoops_gethandler('user');
 			$user =& $user_handler->get( $uid );
@@ -67,7 +92,57 @@ class xelFinderMisc {
 		return $groups;
 	}
 	
-	function output($file, $mime, $size, $mtime) {
+	public function getUserHome($auth = 'rw', $uid = null) {
+		if (is_null($uid)) {
+			global $xoopsUser;
+			$uid = is_object($xoopsUser)? $xoopsUser->uid() : 0;
+		}
+		$tbf = $this->db->prefix($this->mydirname) . '_file';
+		$sql = sprintf('SELECT file_id, perm, uid from %s WHERE home_of="%s" LIMIT 1', $tbf, $uid);
+		//exit($sql);
+		$ret = false;
+		//$res = $this->db->query($sql);exit(var_dump($this->db->getRowsNum($res)));
+		if (($res = $this->db->query($sql)) && $this->db->getRowsNum($res)) {
+			list($id, $perm, $f_uid) = $this->db->fetchRow($res);
+			//exit(var_dump(array($id, $perm, $f_uid)));
+			if ($this->checkAuth($auth, $perm, $f_uid)) {
+				$ret = $id;
+			}
+		}
+		return $ret;
+	}
+	
+	public function getGroupHome($auth = 'rw', $uid = null) {
+		if (is_null($uid)) {
+			global $xoopsUser;
+			$user = $xoopsUser;
+		} else if ($uid) {
+			$user_handler = xoops_gethandler('user');
+			$user = $user_handler->get( $uid );
+		} else {
+			return false;
+		}
+		$ret = false;
+		$groups = $user->getGroups();
+		sort($groups);
+		//exit(var_dump($groups));
+		if ($groups[0] == XOOPS_GROUP_ANONYMOUS) {
+			return isset($groups[1])? $this->getUserHome($auth, '-'.$groups[1]) : false;
+		} else {
+			return $this->getUserHome($auth, '-'.$groups[0]);
+		}
+	}
+	
+	public function getHash($id, $prefix = null) {
+		if (is_null($prefix)) {
+			$prefix = 'xe_'.$this->mydirname.'_';
+		}
+		$hash = strtr(base64_encode($id), '+/=', '-_.');
+		$hash = rtrim($hash, '.');
+		return $prefix.$hash;
+	}
+	
+	public function output($file, $mime, $size, $mtime) {
 		
 		$this->check_304($mtime);
 		
@@ -86,7 +161,7 @@ class xelFinderMisc {
 		}
 	}
 	
-	function check_304($time) {
+	public function check_304($time) {
 		if ((isset($_SERVER['HTTP_IF_NONE_MATCH']) && $time == $_SERVER['HTTP_IF_NONE_MATCH'])
 		     || $time <= $this->if_modified_since()) {
 			header('HTTP/1.1 304 Not Modified');
@@ -98,7 +173,7 @@ class xelFinderMisc {
 		}
 	}
 	
-	function if_modified_since() {
+	public function if_modified_since() {
 		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
 			$str = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
 			if (($pos = strpos($str, ';')) !== false) {
@@ -117,7 +192,7 @@ class xelFinderMisc {
 		}
 	}
 	
-	function exitOut($code) {
+	public function exitOut($code) {
 		switch ($code) {
 			case 403:
 				header('HTTP/1.0 403 Forbidden');
