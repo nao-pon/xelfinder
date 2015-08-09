@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: d368d32) (2015-08-05)
+ * Version 2.1_n (Nightly: 3c363fa) (2015-08-09)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -656,7 +656,7 @@ window.elFinder = function(node, opts) {
 		},
 		stop       : function(e, ui) {
 			var files;
-			$(this).draggable('option', { refreshPositions : false });
+			$(this).draggable('instance') && $(this).draggable('option', { refreshPositions : false });
 			self.draggingUiHelper = null;
 			self.trigger('focus').trigger('dragstop');
 			if (! ui.helper.data('droped')) {
@@ -3977,7 +3977,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: d368d32)';
+elFinder.prototype.version = '2.1_n (Nightly: 3c363fa)';
 
 
 
@@ -14074,14 +14074,19 @@ elFinder.prototype.commands.upload = function() {
 		
 		paste = function(e) {
 			var e = e.originalEvent || e;
-			var files = [];
+			var files = [], items = [];
 			var file;
-			if (e.clipboardData && e.clipboardData.items && e.clipboardData.items.length){
-				for (var i=0; i < e.clipboardData.items.length; i++) {
-					if (e.clipboardData.items[i].kind == 'file') {
-						file = e.clipboardData.items[i].getAsFile();
-						files.push(file);
+			if (e.clipboardData) {
+				if (e.clipboardData.items && e.clipboardData.items.length){
+					items = e.clipboardData.items;
+					for (var i=0; i < items.length; i++) {
+						if (e.clipboardData.items[i].kind == 'file') {
+							file = e.clipboardData.items[i].getAsFile();
+							files.push(file);
+						}
 					}
+				} else if (e.clipboardData.files && e.clipboardData.files.length) {
+					files = e.clipboardData.files;
 				}
 				if (files.length) {
 					upload({files : files, type : 'files'});
@@ -14091,6 +14096,14 @@ elFinder.prototype.commands.upload = function() {
 			var my = e.target || e.srcElement;
 			setTimeout(function () {
 				if (my.innerHTML) {
+					$(my).find('img').each(function(i, v){
+						if (v.src.match(/^webkit-fake-url:\/\//)) {
+							// For Safari's bug.
+							// ref. https://bugs.webkit.org/show_bug.cgi?id=49141
+							//      https://dev.ckeditor.com/ticket/13029
+							$(v).remove();
+						}
+					});
 					var src = my.innerHTML.replace(/<br[^>]*>/gi, ' ');
 					var type = src.match(/<[^>]+>/)? 'html' : 'text';
 					my.innerHTML = '';
