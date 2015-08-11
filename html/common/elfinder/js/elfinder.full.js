@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 4e7ca99) (2015-08-11)
+ * Version 2.1_n (Nightly: c5dffb2) (2015-08-11)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -3988,7 +3988,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 4e7ca99)';
+elFinder.prototype.version = '2.1_n (Nightly: c5dffb2)';
 
 
 
@@ -6593,11 +6593,12 @@ $.fn.elfindercwd = function(fm, options) {
 			 */
 			droppable = $.extend({}, fm.droppable, {
 				over : function(e, ui) { 
-					var hash  = fm.cwd().hash,
+					var cwd   = fm.cwd(),
+						hash  = cwd.hash,
 						$this = $(this);
 					$.each(ui.helper.data('files'), function(i, h) {
 						if (h === hash || fm.file(h).phash === hash) {
-							if (h !== hash) {
+							if (h !== hash && cwd.write) {
 								$this.data('dropover', true);
 							}
 							if (!$this.data('dropover') || !ui.helper.hasClass('elfinder-drag-helper-plus')) {
