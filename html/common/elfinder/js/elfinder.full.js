@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 3c363fa) (2015-08-09)
+ * Version 2.1_n (Nightly: 07bc8f0) (2015-08-11)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -676,7 +676,7 @@ window.elFinder = function(node, opts) {
 					}
 					return i;
 				},
-				hashes, l;
+				hashes, l, ctr;
 			
 			self.draggingUiHelper && self.draggingUiHelper.stop(true, true);
 			
@@ -693,10 +693,13 @@ window.elFinder = function(node, opts) {
 			}
 			
 			$(document).bind(keydown + ' keyup.' + namespace, function(e){
-				var ctr = (e.shiftKey||e.ctrlKey||e.metaKey);
-				if (helper.is(':visible') && ! helper.data('locked')) {
-					helper.toggleClass('elfinder-drag-helper-plus', ctr);
-					self.trigger(ctr? 'unlockfiles' : 'lockfiles', {files : hashes});
+				var chk = (e.shiftKey||e.ctrlKey||e.metaKey);
+				if (ctr !== chk) {
+					ctr = chk;
+					if (helper.is(':visible') && ! helper.data('locked') && ! helper.data('droped')) {
+						helper.toggleClass('elfinder-drag-helper-plus', ctr);
+						self.trigger(ctr? 'unlockfiles' : 'lockfiles', {files : hashes});
+					}
 				}
 			});
 			
@@ -710,7 +713,7 @@ window.elFinder = function(node, opts) {
 	 * @type Object
 	 **/
 	this.droppable = {
-			// greedy     : true,
+			greedy     : true,
 			tolerance  : 'pointer',
 			accept     : '.elfinder-cwd-file-wrapper,.elfinder-navbar-dir,.elfinder-cwd-file',
 			hoverClass : this.res('class', 'adroppable'),
@@ -718,16 +721,19 @@ window.elFinder = function(node, opts) {
 				var dst     = $(this),
 					targets = $.map(ui.helper.data('files')||[], function(h) { return h || null }),
 					result  = [],
+					dups    = [],
+					unlocks = [],
+					isCopy  = (e.ctrlKey||e.shiftKey||e.metaKey||ui.helper.data('locked'))? true : false,
 					c       = 'class',
 					cnt, hash, i, h;
 				
 				ui.helper.data('droped', true);
-				if (dst.hasClass(self.res(c, 'cwd'))) {
-					hash = cwd;
-				} else if (dst.hasClass(self.res(c, 'cwdfile'))) {
+				if (dst.hasClass(self.res(c, 'cwdfile'))) {
 					hash = dst.attr('id');
 				} else if (dst.hasClass(self.res(c, 'navdir'))) {
 					hash = self.navId2Hash(dst.attr('id'));
+				} else {
+					hash = cwd;
 				}
 
 				cnt = targets.length;
@@ -738,13 +744,18 @@ window.elFinder = function(node, opts) {
 					if (h != hash && files[h].phash != hash) {
 						result.push(h);
 					} else {
-						self.trigger('unlockfiles', {files : [h]});
+						((isCopy && h !== hash && files[hash].write)? dups : unlocks).push(h);
 					}
+				}
+				unlocks.length && self.trigger('unlockfiles', {files: unlocks});
+				if (dups.length) {
+					ui.helper.hide();
+					self.exec('duplicate', dups);
 				}
 				
 				if (result.length) {
 					ui.helper.hide();
-					self.clipboard(result, !(e.ctrlKey||e.shiftKey||e.metaKey||ui.helper.data('locked')));
+					self.clipboard(result, !isCopy);
 					self.exec('paste', hash).always(function(){
 						self.trigger('unlockfiles', {files : targets});
 					});
@@ -3977,7 +3988,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 3c363fa)';
+elFinder.prototype.version = '2.1_n (Nightly: 07bc8f0)';
 
 
 
@@ -6575,19 +6586,34 @@ $.fn.elfindercwd = function(fm, options) {
 			
 			/**
 			 * Droppable options for cwd.
+			 * Drop target is `wrapper`
 			 * Do not add class on childs file over
 			 *
 			 * @type Object
 			 */
 			droppable = $.extend({}, fm.droppable, {
 				over : function(e, ui) { 
-					var hash = fm.cwd().hash;
+					var hash  = fm.cwd().hash,
+						$this = $(this);
 					$.each(ui.helper.data('files'), function(i, h) {
-						if (fm.file(h).phash == hash) {
-							cwd.removeClass(clDropActive);
+						if (h === hash || fm.file(h).phash === hash) {
+							if (h !== hash) {
+								$this.data('dropover', true);
+							}
+							if (!$this.data('dropover') || !ui.helper.hasClass('elfinder-drag-helper-plus')) {
+								$this.removeClass(clDropActive);
+							}
 							return false;
 						}
 					});
+				},
+				out : function() {
+					$(this).removeData('dropover')
+					       .removeClass(clDropActive);
+				},
+				deactivate : function() {
+					$(this).removeData('dropover')
+					       .removeClass(clDropActive);
 				}
 			}),
 			
@@ -7057,8 +7083,6 @@ $.fn.elfindercwd = function(fm, options) {
 					selected   : function(e, ui) { $(ui.selected).trigger(evtSelect); },
 					unselected : function(e, ui) { $(ui.unselected).trigger(evtUnselect); }
 				})
-				// make cwd itself droppable for folders from nav panel
-				.droppable(droppable)
 				// prepend fake file/dir
 				.bind('create.'+fm.namespace, function(e, file) {
 					var parent = list ? cwd.find('tbody') : cwd,
@@ -7082,6 +7106,8 @@ $.fn.elfindercwd = function(fm, options) {
 					trigger();
 				}),
 			wrapper = $('<div class="elfinder-cwd-wrapper"/>')
+				// make cwd itself droppable for folders from nav panel
+				.droppable(droppable)
 				.bind('contextmenu', function(e) {
 					e.preventDefault();
 					fm.trigger('contextmenu', {
@@ -7308,6 +7334,7 @@ $.fn.elfindercwd = function(fm, options) {
 					$('#'+files[l]).trigger(event);
 				}
 				trigger();
+				wrapper.data('dropover') && wrapper.toggleClass(clDropActive, e.type !== 'lockfiles');
 			})
 			// select new files after some actions
 			.bind('mkdir mkfile duplicate upload rename archive extract paste multiupload', function(e) {
@@ -7932,7 +7959,7 @@ $.fn.elfinderplaces = function(fm, opts) {
 			 * @return String  removed name
 			 **/
 			remove = function(hash) {
-				var ndx = $.inArray(hash, dirs), name, tgt;
+				var ndx = $.inArray(hash, dirs), name = null, tgt;
 
 				if (ndx !== -1) {
 					dirs.splice(ndx, 1);
@@ -8126,10 +8153,11 @@ $.fn.elfinderplaces = function(fm, opts) {
 				var names = [];
 				if (e.data.removed) {
 					$.each(e.data.removed, function(i, hash) {
-						names.push(remove(hash));
+						var name = remove(hash);
+						name && names.push(name);
 					});
 				}
-				if (e.data.added) {
+				if (e.data.added && names.length) {
 					$.each(e.data.added, function(i, file) {
 						if ($.inArray(file.name, names) !== 1) {
 							file.mime == 'directory' && add(file);
@@ -8712,17 +8740,21 @@ $.fn.elfindertree = function(fm, opts) {
 						cl   = hover+' '+dropover;
 
 					if (insideNavbar(e.clientX)) {
-						link.addClass(cl)
+						link.addClass(hover)
 						if (link.is('.'+collapsed+':not(.'+expanded+')')) {
-							setTimeout(function() {
-								link.hasClass(dropover) && link.children('.'+arrow).click();
-							}, 500);
+							link.data('expandTimer', setTimeout(function() {
+								link.children('.'+arrow).click();
+							}, 500));
 						}
 					} else {
 						link.removeClass(cl);
 					}
 				},
-				out : function() { $(this).removeClass(hover+' '+dropover); },
+				out : function() {
+					var link = $(this);
+					link.data('expandTimer') && clearTimeout(link.data('expandTimer'));
+					link.removeClass(hover);
+				},
 				drop : function(e, ui) { insideNavbar(e.clientX) && drop.call(this, e, ui); }
 			}),
 			
@@ -13748,7 +13780,7 @@ elFinder.prototype.commands.rm = function() {
 			files  = this.files(hashes),
 			cnt    = files.length,
 			cwd    = fm.cwd().hash,
-			goroot = false;
+			goup   = false;
 
 		if (!cnt || this._disabled) {
 			return dfrd.reject();
@@ -13762,7 +13794,7 @@ elFinder.prototype.commands.rm = function() {
 				return !dfrd.reject(['errLocked', file.name]);
 			}
 			if (file.hash == cwd) {
-				goroot = fm.root(file.hash);
+				goup = (file.phash && fm.file(file.phash).read)? file.phash : fm.root(file.hash);
 			}
 		});
 
@@ -13786,7 +13818,7 @@ elFinder.prototype.commands.rm = function() {
 						})
 						.done(function(data) {
 							dfrd.done(data);
-							goroot && fm.exec('open', goroot)
+							goup && fm.exec('open', goup)
 						})
 						.always(function() {
 							fm.unlockfiles({files : files});
