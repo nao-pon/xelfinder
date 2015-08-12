@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: c5dffb2) (2015-08-11)
+ * Version 2.1_n (Nightly: 0e4e590) (2015-08-12)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -335,6 +335,11 @@ window.elFinder = function(node, opts) {
 				// prevent tab out of elfinder
 				if (code == 9 && !$(e.target).is(':input')) {
 					e.preventDefault();
+				}
+				
+				// cancel copy or cut by [Esc] key
+				if (code == 27 && self.clipboard().length) {
+					self.clipboard([]);
 				}
 
 			}
@@ -3988,7 +3993,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: c5dffb2)';
+elFinder.prototype.version = '2.1_n (Nightly: 0e4e590)';
 
 
 
@@ -4451,6 +4456,8 @@ elFinder.prototype._options = {
 		tree : {
 			// expand current root on init
 			openRootOnLoad : true,
+			// expand current work directory on open
+			openCwdOnOpen  : true,
 			// auto load current dir parents
 			syncTree : true
 			// ,
@@ -6306,6 +6313,9 @@ $.fn.elfindercwd = function(fm, options) {
 			 **/
 			itemhtml = function(f) {
 				f.name = fm.escape(f.name);
+				if (!list) {
+					f.name = f.name.replace(/([_.])/g, '&#8203;$1');
+				}
 				return templates[list ? 'row' : 'icon']
 						.replace(/\{([a-z]+)\}/g, function(s, e) { 
 							return replacement[e] ? replacement[e](f) : (f[e] ? f[e] : ''); 
@@ -8639,6 +8649,13 @@ $.fn.elfindertree = function(fm, opts) {
 			openRoot  = opts.openRootOnLoad,
 
 			/**
+			 * Open current work dir if not opened yet
+			 *
+			 * @type Boolean
+			 */
+			openCwd   = opts.openCwdOnOpen,
+
+			/**
 			 * Subtree class name
 			 *
 			 * @type String
@@ -8919,9 +8936,7 @@ $.fn.elfindertree = function(fm, opts) {
 				} 
 				
 				if (!mobile) {
-					setTimeout(function() {
-						updateDroppable();
-					}, 10);
+					updateDroppable();
 				}
 				
 			},
@@ -8984,7 +8999,12 @@ $.fn.elfindertree = function(fm, opts) {
 
 				if (opts.syncTree || !current.length) {
 					if (current.length) {
-						!noCwd && current.addClass(loaded);
+						if (!noCwd) {
+							current.addClass(loaded);
+							if (openCwd && !current.hasClass(expanded)) {
+								current.addClass(expanded).next('.'+subtree).slideDown();
+							}
+						}
 						subs = current.parentsUntil('.'+root).filter('.'+subtree);
 						subsLen = subs.length;
 						cnt = 1;
@@ -9035,16 +9055,22 @@ $.fn.elfindertree = function(fm, opts) {
 			 *
 			 * @return void
 			 */
-			updateDroppable = function() {
-				tree.find('.'+navdir+':not(.'+droppable+',.elfinder-ro,.elfinder-na)').droppable(droppableopts).each(function(){
+			updateDroppable = function(target) {
+				var limit = 100,
+					next;
+				target = target || tree.find('.'+navdir+':not(.'+droppable+',.elfinder-ro,.elfinder-na)');
+				if (target.length > limit) {
+					next = target.slice(limit);
+					target = target.slice(0, limit);
+				}
+				target.droppable(droppableopts).each(function(){
 					fm.makeDirectDropUpload(this, fm.navId2Hash(this.id));
 				});
-				//tree.find('.'+navdir+':not(.'+droppable+',.elfinder-ro,.elfinder-na)').on('mouseenter', function(){
-				//	var $this = $(this);
-				//	$this.droppable(droppableopts);
-				//}).each(function(){
-				//	fm.makeDirectDropUpload(this, fm.navId2Hash(this.id));
-				//});
+				if (next) {
+					setTimeout(function(){
+						updateDroppable(next);
+					}, 20);
+				}
 			},
 			
 			/**
