@@ -24,7 +24,11 @@ class elFinderVolumeXoopsMailbbs extends elFinderVolumeLocalFileSystem {
 		foreach ($logs as $log) {
 			$data = array_pad(explode('<>', $log), 8, '');
 			if (intval($data[7]) || ! $data[5]) continue; // 未承認 or ファイルなし
-			$ret[$data[5]] = mb_convert_encoding($data[2], 'UTF-8', _CHARSET);
+			$ext = strtolower(substr($data[5], strrpos($data[5], '.')));
+			if ($ext === '.jpeg') {
+				$ext = '.jpg';
+			}
+			$ret[$data[5]] = mb_convert_encoding($data[2].$ext, 'UTF-8', _CHARSET);
 		}
 
 		$this->enabledFiles = $ret;
