@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 0e4e590) (2015-08-12)
+ * Version 2.1_n (Nightly: cbe1579) (2015-08-12)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -3993,7 +3993,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 0e4e590)';
+elFinder.prototype.version = '2.1_n (Nightly: cbe1579)';
 
 
 
@@ -6263,6 +6263,13 @@ $.fn.elfindercwd = function(fm, options) {
 			 * @type Object
 			 **/
 			replacement = {
+				name : function(f) {
+					name = fm.escape(f.name);
+					if (!list) {
+						name = name.replace(/([_.])/g, '&#8203;$1');
+					}
+					return name;
+				},
 				permsclass : function(f) {
 					return fm.perms2class(f);
 				},
@@ -6312,10 +6319,6 @@ $.fn.elfindercwd = function(fm, options) {
 			 * @return String
 			 **/
 			itemhtml = function(f) {
-				f.name = fm.escape(f.name);
-				if (!list) {
-					f.name = f.name.replace(/([_.])/g, '&#8203;$1');
-				}
 				return templates[list ? 'row' : 'icon']
 						.replace(/\{([a-z]+)\}/g, function(s, e) { 
 							return replacement[e] ? replacement[e](f) : (f[e] ? f[e] : ''); 
@@ -10138,7 +10141,7 @@ elFinder.prototype.commands.edit = function() {
 					cancel();
 				},
 				opts = {
-					title   : file.name,
+					title   : fm.escape(file.name),
 					width   : self.options.dialogWidth || 450,
 					buttons : {},
 					btnHoverFocus : false,
@@ -13559,7 +13562,7 @@ elFinder.prototype.commands.resize = function() {
 				buttons[fm.i18n('btnCancel')] = function() { dialog.elfinderdialog('close'); };
 				
 				fm.dialog(dialog, {
-					title          : file.name,
+					title          : fm.escape(file.name),
 					width          : 650,
 					resizable      : false,
 					destroyOnClose : true,
@@ -14263,7 +14266,7 @@ elFinder.prototype.commands.upload = function() {
 		}
 		
 		fm.dialog(dialog, {
-			title          : this.title + (targets? ' - ' + fm.file(targets[0]).name : ''),
+			title          : this.title + (targets? ' - ' + fm.escape(fm.file(targets[0]).name) : ''),
 			modal          : true,
 			resizable      : false,
 			destroyOnClose : true
