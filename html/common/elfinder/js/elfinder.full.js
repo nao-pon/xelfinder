@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 8e319bd) (2015-08-14)
+ * Version 2.1_n (Nightly: 0c81ff4) (2015-08-14)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -3998,7 +3998,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 8e319bd)';
+elFinder.prototype.version = '2.1_n (Nightly: 0c81ff4)';
 
 
 
@@ -14211,13 +14211,8 @@ elFinder.prototype.commands.upload = function() {
 			.on('mousedown click', function(){
 				$(this).focus();
 			})
-			.on('focus', function(e){
-				e = e.originalEvent || e;
-				(e.target || e.srcElement).innerHTML = '';
-			})
-			.on('blur', function(e){
-				e = e.originalEvent || e;
-				(e.target || e.srcElement).innerHTML = fm.i18n('dropFilesBrowser');
+			.on('focus', function(){
+				this.innerHTML = '';
 			})
 			.on('dragenter mouseover', function(){
 				pastebox.addClass(hover);
@@ -14234,11 +14229,8 @@ elFinder.prototype.commands.upload = function() {
 				.on('mousedown click', function(){
 					$(this).focus();
 				})
-				.on('focus', function(e){
-					(e.originalEvent || e).target.innerHTML = '';
-				})
-				.on('blur', function(e){
-					(e.originalEvent || e).target.innerHTML = fm.i18n('dropPasteFiles');
+				.on('focus', function(){
+					this.innerHTML = '';
 				})
 				.on('mouseover', function(){
 					$(this).addClass(hover);
