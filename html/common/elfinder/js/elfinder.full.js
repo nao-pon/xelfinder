@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 0e38ac2) (2015-08-13)
+ * Version 2.1_n (Nightly: 8e319bd) (2015-08-14)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -300,6 +300,11 @@ window.elFinder = function(node, opts) {
 
 						if (name != i18) {
 							f.i18 = i18;
+						}
+						
+						// set disabledCmds of each volume
+						if (f.volumeid && f.disabled) {
+							self.disabledCmds[f.volumeid] = f.disabled;
 						}
 					}
 					files[f.hash] = f;
@@ -761,7 +766,7 @@ window.elFinder = function(node, opts) {
 				if (result.length) {
 					ui.helper.hide();
 					self.clipboard(result, !isCopy);
-					self.exec('paste', hash).always(function(){
+					self.exec('paste', hash, void 0, hash).always(function(){
 						self.trigger('unlockfiles', {files : targets});
 					});
 					self.trigger('drop', {files : targets});
@@ -1530,11 +1535,24 @@ window.elFinder = function(node, opts) {
 	/**
 	 * Return true if command enabled
 	 * 
-	 * @param  String  command name
+	 * @param  String       command name
+	 * @param  String|void  hash for check of own volume's disabled cmds
 	 * @return Boolean
 	 */
-	this.isCommandEnabled = function(name) {
-		return this._commands[name] ? $.inArray(name, cwdOptions.disabled) === -1 : false;
+	this.isCommandEnabled = function(name, dstHash) {
+		var disabled;
+		if (dstHash && self.root(dstHash) !== cwd) {
+			$.each(self.disabledCmds, function(i, v){
+				if (dstHash.indexOf(i, 0) == 0) {
+					disabled = v;
+					return false;
+				}
+			});
+		}
+		if (!disabled) {
+			disabled = cwdOptions.disabled;
+		}
+		return this._commands[name] ? $.inArray(name, disabled) === -1 : false;
 	}
 	
 	/**
@@ -1543,10 +1561,11 @@ window.elFinder = function(node, opts) {
 	 * @param  String         command name
 	 * @param  String|Array   usualy files hashes
 	 * @param  String|Array   command options
+	 * @param  String|void    hash for enabled check of own volume's disabled cmds
 	 * @return $.Deferred
 	 */		
-	this.exec = function(cmd, files, opts) {
-		return this._commands[cmd] && this.isCommandEnabled(cmd) 
+	this.exec = function(cmd, files, opts, dstHash) {
+		return this._commands[cmd] && this.isCommandEnabled(cmd, dstHash) 
 			? this._commands[cmd].exec(files, opts) 
 			: $.Deferred().reject('No such command');
 	}
@@ -1862,6 +1881,13 @@ window.elFinder = function(node, opts) {
 	 * @type Object
 	 **/
 	this.commandMap = {};
+	
+	/**
+	 * Disabled commands Array of each volume
+	 * 
+	 * @type Object
+	 */
+	this.disabledCmds = {};
 	
 	// prepare node
 	node.addClass(this.cssClass)
@@ -3623,27 +3649,6 @@ elFinder.prototype = {
 		}
 		
 		return this.messages['kind'+kind] ? this.i18n('kind'+kind) : mime;
-		
-		var mime = typeof(f) == 'object' ? f.mime : f,
-			kind = this.kinds[mime]||'unknown';
-
-		if (f.alias) {
-			kind = 'Alias';
-		} else if (kind == 'unknown') {
-			if (mime.indexOf('text') === 0) {
-				kind = 'Text';
-			} else if (mime.indexOf('image') === 0) {
-				kind = 'Image';
-			} else if (mime.indexOf('audio') === 0) {
-				kind = 'Audio';
-			} else if (mime.indexOf('video') === 0) {
-				kind = 'Video';
-			} else if (mime.indexOf('application') === 0) {
-				kind = 'Application';
-			}
-		}
-		
-		return this.i18n(kind);
 	},
 	
 	/**
@@ -3993,7 +3998,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 0e38ac2)';
+elFinder.prototype.version = '2.1_n (Nightly: 8e319bd)';
 
 
 
@@ -5967,8 +5972,8 @@ $.fn.elfindercontextmenu = function(fm) {
 					});
 				}
 				if (!isCwd) {
-					if (self.data('disabledCmd')) {
-						$.each(self.data('disabledCmd'), function(i, v){
+					if (fm.disabledCmds) {
+						$.each(fm.disabledCmds, function(i, v){
 							if (targets[0].indexOf(i, 0) == 0) {
 								disabled = v;
 								return false;
@@ -6637,11 +6642,13 @@ $.fn.elfindercwd = function(fm, options) {
 			 * @return void
 			 */
 			makeDroppable = function() {
-				setTimeout(function() {
-					cwd.find('.directory:not(.'+clDroppable+',.elfinder-na,.elfinder-ro)').droppable(fm.droppable).each(function(){
-						fm.makeDirectDropUpload(this, this.id);
-					});
-				}, 20);
+				if (fm.isCommandEnabled('paste')) {
+					setTimeout(function() {
+						cwd.find('.directory:not(.'+clDroppable+',.elfinder-na,.elfinder-ro)').droppable(fm.droppable).each(function(){
+							fm.makeDirectDropUpload(this, this.id);
+						});
+					}, 20);
+				}
 			},
 			
 			/**
@@ -8742,6 +8749,13 @@ $.fn.elfindertree = function(fm, opts) {
 			 */
 			droppable = fm.res(c, 'droppable'),
 			
+			/**
+			 * Un-disabled cmd `paste` volume's root wrapper class
+			 * 
+			 * @type String
+			 */
+			pastable = 'elfinder-navbar-wrapper-pastable',
+			
 			insideNavbar = function(x) {
 				var left = navbar.offset().left;
 					
@@ -8915,6 +8929,11 @@ $.fn.elfindertree = function(fm, opts) {
 						} else {
 							parent[firstVol || dir.phash ? 'append' : 'prepend'](itemhtml(dir));
 							firstVol = false;
+							if (!dir.phash && dir.disabled) {
+								if ($.inArray('paste', dir.disabled) === -1) {
+									$('#'+fm.navHash2Id(dir.hash)).parent().addClass(pastable);
+								}
+							}
 						}
 					} else {
 						orphans.push(dir);
@@ -9061,7 +9080,7 @@ $.fn.elfindertree = function(fm, opts) {
 			updateDroppable = function(target) {
 				var limit = 100,
 					next;
-				target = target || tree.find('.'+navdir+':not(.'+droppable+',.elfinder-ro,.elfinder-na)');
+				target = target || tree.find('div.'+pastable).find('span.'+navdir+':not(.'+droppable+',.elfinder-ro,.elfinder-na)');
 				if (target.length > limit) {
 					next = target.slice(limit);
 					target = target.slice(0, limit);
@@ -9230,9 +9249,6 @@ $.fn.elfindertree = function(fm, opts) {
 				if (!contextmenu.data('cmdMaps')) {
 					contextmenu.data('cmdMaps', {});
 				}
-				if (!contextmenu.data('disabledCmd')) {
-					contextmenu.data('disabledCmd', {});
-				}
 				updateTree(dirs);
 				updateArrows(dirs, loaded);
 				// support volume driver option `uiCmdMap`
@@ -9240,9 +9256,6 @@ $.fn.elfindertree = function(fm, opts) {
 					if (v.volumeid) {
 						if (v.uiCmdMap && Object.keys(v.uiCmdMap).length && !contextmenu.data('cmdMaps')[v.volumeid]) {
 							contextmenu.data('cmdMaps')[v.volumeid] = v.uiCmdMap;
-						}
-						if (v.disabled && !contextmenu.data('disabledCmd')[v.volumeid]) {
-							contextmenu.data('disabledCmd')[v.volumeid] = v.disabled;
 						}
 					}
 				});
@@ -11761,7 +11774,7 @@ elFinder.prototype.commands.paste = function() {
 					}
 					;
 
-				if (self._disabled || !files.length) {
+				if (!fm.isCommandEnabled(self.name, dst.hash) || !files.length) {
 					return dfrd.resolve();
 				}
 				
@@ -13823,8 +13836,11 @@ elFinder.prototype.commands.rm = function() {
 			if (file.locked) {
 				return !dfrd.reject(['errLocked', file.name]);
 			}
-			if (file.hash == cwd) {
-				goup = (file.phash && fm.file(file.phash).read)? file.phash : fm.root(file.hash);
+			if (file.mime === 'directory') {
+				var parents = fm.parents(cwd);
+				if (file.hash == cwd || $.inArray(file.hash, parents)) {
+					goup = (file.phash && fm.file(file.phash).read)? file.phash : fm.root(file.hash);
+				}
 			}
 		});
 
