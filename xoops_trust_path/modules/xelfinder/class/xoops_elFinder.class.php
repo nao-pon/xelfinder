@@ -250,6 +250,8 @@ class xoops_elFinder {
 				
 				require $volume;
 				if ($volumeOptions) {
+					!isset($volumeOptions['disabled']) && ($volumeOptions['disabled'] = array());
+					!isset($volumeOptions['id']) && ($volumeOptions['id'] = '_' . $mydirname);
 					if (!empty($volumeOptions['readonly'])) {
 						$volumeOptions['disabled'] = array_merge($this->writeCmds, is_array($volumeOptions['disabled'])? $volumeOptions['disabled'] : array());
 					}
@@ -260,7 +262,6 @@ class xoops_elFinder {
 						}
 						$volumeOptions['disabled'] = array_merge($volumeOptions['disabled'], $disabledCmds);
 					}
-					!isset($volumeOptions['id']) && $volumeOptions['id'] = '_' . $mydirname;
 					if (isset($ids[$volumeOptions['id']])) {
 						$i = 1;
 						while(isset($ids[$volumeOptions['id']])){
