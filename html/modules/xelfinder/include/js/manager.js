@@ -326,6 +326,15 @@ $(document).ready(function() {
 		}
 	}).elfinder('instance');
 	
+	// Easy refer on file upload
+	if (target) {
+		elfinderInstance.bind('upload', function(e){
+			if (e.data && e.data.added && e.data.added.length) {
+				elfinderInstance.exec('getfile', [ e.data.added[0].hash ]);
+			}
+		});
+	}
+	
 	// set document.title dynamically etc.
 	var title = document.title;
 	elfinderInstance.bind('open', function(event) {
@@ -543,7 +552,7 @@ var getFileCallback_bbcode = function (file, fm) {
 	var module =getModuleName(file);
 	var thumb = '';
 	var isImg = (file.mime.match(/^image/))? true : false;
-	if (isImg && module.match(/^[a-zA-Z0-9_-]+$/)) {
+	if (isImg && file.tmb && file.tmb != 1 && module.match(/^[a-zA-Z0-9_-]+$/)) {
 		eval('if (typeof get_thumb_'+module+' == "function" ){' +
 			'thumb = get_thumb_'+module+'(basename, file);}' );
 	}
@@ -586,7 +595,7 @@ var getFileCallback_xpwiki = function (file, fm) {
 	var module =getModuleName(file);
 	var thumb = '';
 	var isImg = (file.mime.match(/^image/))? true : false;
-	if (isImg && module.match(/^[a-zA-Z0-9_-]+$/)) {
+	if (isImg && file.tmb && file.tmb != 1 && module.match(/^[a-zA-Z0-9_-]+$/)) {
 		eval('if (typeof get_thumb_'+module+' == "function" ){' +
 			'thumb = get_thumb_'+module+'(basename, file);}' );
 	}
@@ -679,7 +688,7 @@ var getFileCallback_ckeditor = function (file, fm) {
 	var module = getModuleName(file);
 	var thumb = '';
 	var isImg = (file.mime.match(/^image/))? true : false;
-	if (isImg && module.match(/^[a-zA-Z0-9_-]+$/)) {
+	if (isImg && file.tmb && file.tmb != 1 && module.match(/^[a-zA-Z0-9_-]+$/)) {
 		eval('if (typeof get_thumb_'+module+' == "function" ){' +
 			'thumb = get_thumb_'+module+'(basename, file);}' );
 	}
