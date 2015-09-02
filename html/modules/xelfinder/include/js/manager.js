@@ -329,8 +329,18 @@ $(document).ready(function() {
 	// Easy refer on file upload
 	if (target || elfinderInstance.options.getFileCallback != getFileCallback_bbcode) {
 		elfinderInstance.bind('upload', function(e){
-			if (e.data && e.data.added && e.data.added.length) {
-				elfinderInstance.exec('getfile', [ e.data.added[0].hash ]);
+			var added, hash;
+			if (e.data && (added = e.data.added) && added.length === 1) {
+				hash = added[0].hash;
+				if (added[0].tmb !== 1) {
+					setTimeout(function(){
+						elfinderInstance.exec('getfile', [ hash ]);
+					}, 100);
+				} else {
+					elfinderInstance.one('tmb', function(){
+						elfinderInstance.exec('getfile', [ hash ]);
+					});
+				}
 			}
 		});
 	}
@@ -535,6 +545,14 @@ function encodeDecodeURI(str) {
 	return ret;
 }
 
+function getThumbFallback(file) {
+	if (file.tmb && file.tmb != 1) {
+		return file.tmb.replace(rootUrl+'/', '');
+	} else {
+		return '';
+	}
+}
+
 function getModuleName(file) {
 	var modules_basename = moduleUrl.replace(rootUrl, '').replace(/\//g, '');
 	var reg = new RegExp('^'+rootUrl.replace(/([.*+?^=!:${}()|[\]\/\\])/g, "\\$1")+'\/(?:(?:'+modules_basename+'|uploads)\/)?([^\/]+)\/.*$');
@@ -552,9 +570,14 @@ var getFileCallback_bbcode = function (file, fm) {
 	var module =getModuleName(file);
 	var thumb = '';
 	var isImg = (file.mime.match(/^image/))? true : false;
-	if (isImg && file.tmb && file.tmb != 1 && module.match(/^[a-zA-Z0-9_-]+$/)) {
-		eval('if (typeof get_thumb_'+module+' == "function" ){' +
-			'thumb = get_thumb_'+module+'(basename, file);}' );
+	if (isImg && file.tmb && file.tmb != 1) {
+		if (module.match(/^[a-zA-Z0-9_-]+$/)) {
+			eval('if (typeof get_thumb_'+module+' == "function" ){' +
+				'thumb = get_thumb_'+module+'(basename, file);}' );
+		}
+		if (!thumb) {
+			thumb = getThumbFallback(file);
+		}
 	}
 	imgThumb = encodeDecodeURI(thumb);
 	itemPath = encodeDecodeURI(path);
@@ -595,9 +618,14 @@ var getFileCallback_xpwiki = function (file, fm) {
 	var module =getModuleName(file);
 	var thumb = '';
 	var isImg = (file.mime.match(/^image/))? true : false;
-	if (isImg && file.tmb && file.tmb != 1 && module.match(/^[a-zA-Z0-9_-]+$/)) {
-		eval('if (typeof get_thumb_'+module+' == "function" ){' +
-			'thumb = get_thumb_'+module+'(basename, file);}' );
+	if (isImg && file.tmb && file.tmb != 1) {
+		if (module.match(/^[a-zA-Z0-9_-]+$/)) {
+			eval('if (typeof get_thumb_'+module+' == "function" ){' +
+				'thumb = get_thumb_'+module+'(basename, file);}' );
+		}
+		if (!thumb) {
+			thumb = getThumbFallback(file);
+		}
 	}
 	imgThumb = encodeDecodeURI(thumb);
 	itemPath = encodeDecodeURI(path);
@@ -650,18 +678,22 @@ var getFileCallback_xpwikifck = function (file, fm) {
 		}
 		x.FCKrefInsert(path);
 	}
-	try {
-		pa.jQuery.modal.close();
-	} catch(e) {
-		window.close();
-	}
+	setTimeout(function(){
+		try {
+			pa.jQuery.modal.close();
+		} catch(e) {
+			window.close();
+		}
+	}, 100);
 };
 
 // for FCKEditor
 // Url: '[XOOPS_URL]/modules/xelfinder/manager.php?cb=fckeditor'
 var getFileCallback_fckeditor = function (file, fm) {
-	window.opener.SetUrl(file.url) ;
-	window.close();
+	setTimeout(function(){
+		window.opener.SetUrl(file.url) ;
+		window.close();
+	}, 100);
 };
 
 // for CKEditor
@@ -688,9 +720,14 @@ var getFileCallback_ckeditor = function (file, fm) {
 	var module = getModuleName(file);
 	var thumb = '';
 	var isImg = (file.mime.match(/^image/))? true : false;
-	if (isImg && file.tmb && file.tmb != 1 && module.match(/^[a-zA-Z0-9_-]+$/)) {
-		eval('if (typeof get_thumb_'+module+' == "function" ){' +
-			'thumb = get_thumb_'+module+'(basename, file);}' );
+	if (isImg && file.tmb && file.tmb != 1) {
+		if (module.match(/^[a-zA-Z0-9_-]+$/)) {
+			eval('if (typeof get_thumb_'+module+' == "function" ){' +
+				'thumb = get_thumb_'+module+'(basename, file);}' );
+		}
+		if (!thumb) {
+			thumb = getThumbFallback(file);
+		}
 	}
 	var funcNum = window.location.search.replace(/^.*CKEditorFuncNum=(\d+).*$/, "$1");
 	var localHostReg = new RegExp('^' + window.location.protocol + '//' + window.location.host);
@@ -713,15 +750,19 @@ var getFileCallback_ckeditor = function (file, fm) {
 		$.openImgInsertDialog(buttons, path, fm);
 		
 	} else {
-		window.opener.CKEDITOR.tools.callFunction(funcNum, path);
-		window.close();
+		setTimeout(function(){
+			window.opener.CKEDITOR.tools.callFunction(funcNum, path);
+			window.close();
+		}, 100);
 	}
 };
 
 // for tinyMCE
 // Url: '[XOOPS_URL]/modules/xelfinder/manager.php?cb=tinymce'
 var getFileCallback_tinymce = function (file, fm) {
-	window.tinymceFileWin.document.forms[0].elements[window.tinymceFileField].value = file.url;
-	window.tinymceFileWin.focus();
-	window.close();
+	setTimeout(function(){
+		window.tinymceFileWin.document.forms[0].elements[window.tinymceFileField].value = file.url;
+		window.tinymceFileWin.focus();
+		window.close();
+	}, 100);
 };
