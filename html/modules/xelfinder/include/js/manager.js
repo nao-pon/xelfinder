@@ -266,6 +266,7 @@ $(document).ready(function() {
 		xhrFields: cors? {withCredentials: true} : {},
 		requestType : 'POST',
 		height: $(window).height() - 20,
+		resizable: false,
 		getFileCallback : callbackFunc,
 		startPathHash : startPathHash,
 		ui : ['toolbar', 'places', 'tree', 'path', 'stat'],
