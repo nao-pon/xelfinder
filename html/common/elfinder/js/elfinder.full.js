@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: d6134e4) (2015-09-09)
+ * Version 2.1_n (Nightly: e4c0582) (2015-09-11)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -4076,7 +4076,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: d6134e4)';
+elFinder.prototype.version = '2.1_n (Nightly: e4c0582)';
 
 
 
@@ -12267,7 +12267,11 @@ elFinder.prototype.commands.quicklook = function() {
 				navbar.attr('style', '').draggable(full ? 'destroy' : {});
 				win.toggleClass(fullscreen);
 				$(this).toggleClass(navicon+'-fullscreen-off');
-				$.fn.resizable && parent.add(win).resizable(full ? 'enable' : 'disable').removeClass('ui-state-disabled');
+				var collection = win;
+				if(parent.is('.ui-resizable')) {
+					collection = collection.add(parent);
+				};
+				$.fn.resizable && collection.resizable(full ? 'enable' : 'disable').removeClass('ui-state-disabled');
 			}),
 			
 		navbar  = $('<div class="elfinder-quicklook-navbar"/>')
