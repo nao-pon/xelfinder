@@ -20,6 +20,7 @@ $(document).ready(function() {
 	mes_en.imageinsert   = 'Image insert options';
 	mes_en.CannotUploadOldIE = '<p>Your browser "IE" cannot upload by this manager.</p><p>Please use the newest browser, when you upload files.</p>';
 	mes_en.errPleaseReload = 'Not found access token.<br />Please reload on browser, or re-open popup window.';
+	mes_en.errAccessReload = 'There are no token necessary to a connection, so reload this file manager.';
 
 	if (typeof elFinder.prototype.i18.jp != "undefined") {
 		mes_jp = elFinder.prototype.i18.jp.messages;
@@ -41,8 +42,8 @@ $(document).ready(function() {
 		mes_jp.continues     = 'さらに続ける';
 		mes_jp.imageinsert   = '画像挿入オプション';
 		mes_jp.CannotUploadOldIE = '<p>あなたがお使いの IE ブラウザでは、このマネージャーではファイルをアップロードすることができません。</p><p>ファイルをアップロードする場合は、最新のブラウザをご利用下さい。</p>';
-		mes_jp.errPleaseReload = '接続に必要なトークンが見つかりません。<br />ブラウザでリロードするかポップアップウィンドウを開きなおしてください。';
-		mes_jp.errAccessPleaseReload = '接続に必要なトークンが見つかりません。<br />ブラウザでリロードするかポップアップウィンドウを開きなおしてください。';
+		mes_jp.errPleaseReload = '接続に必要なトークンがありません。<br />ブラウザでリロードするかポップアップウィンドウを開きなおしてください。';
+		mes_jp.errAccessReload = '接続に必要なトークンがないので、ファイルマネージャーを再読込します。';
 
 		elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
 	}
@@ -371,6 +372,23 @@ $(document).ready(function() {
 				path = elfinderInstance.path(data.cwd.hash) || null;
 			}
 			document.title =  path? path + ':' + title : title;
+		}
+	});
+	
+	// on error callback
+	elfinderInstance.bind('error', function(e) {
+		if (e.data && e.data.error && e.data.error == 'errPleaseReload') {
+			var loc = window.location;
+			if (!loc._reload) {
+				if (confirm(elfinderInstance.i18n('errAccessReload'))) {
+					loc._reload = true;
+					setTimeout(function(){
+						loc.reload(false);
+					}, 100);
+				} else {
+					delete loc._reload;
+				}
+			}
 		}
 	});
 
