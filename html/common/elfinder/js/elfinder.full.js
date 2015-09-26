@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 2176129) (2015-09-26)
+ * Version 2.1_n (Nightly: 576de11) (2015-09-26)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -2464,6 +2464,7 @@ elFinder.prototype = {
 							isDataType = false;
 							send(files);
 						}
+						files = null;
 						error && self.error(error);
 					})
 					.done(function(data) {
@@ -2600,7 +2601,24 @@ elFinder.prototype = {
 				}
 				
 				res._multiupload = data.multiupload? true : false;
-				res.error ? dfrd.reject(res.error) : dfrd.resolve(res);
+				if (res.error) {
+					if (res._chunkfailure) {
+						abort = true;
+						self.uploads.xhrUploading = false;
+						notifyto && clearTimeout(notifyto);
+						if (self.ui.notify.children('.elfinder-notify-upload').length) {
+							self.notify({type : 'upload', cnt : -cnt, progress : 0, size : 0});
+							dfrd.reject(res.error);
+						} else {
+							// for multi connection
+							dfrd.reject();
+						}
+					} else {
+						dfrd.reject(res.error);
+					}
+				} else {
+					dfrd.resolve(res);
+				}
 			}, false);
 			
 			xhr.upload.addEventListener('loadstart', function(e) {
@@ -2692,7 +2710,7 @@ elFinder.prototype = {
 								if (cid) {	
 									failChunk[cid] = true;
 								}
-								error && self.error(error);
+								//error && self.error(error);
 							})
 							.always(function(e) {
 								if (e && e.added) added = $.merge(added, e.added);
@@ -4078,7 +4096,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 2176129)';
+elFinder.prototype.version = '2.1_n (Nightly: 576de11)';
 
 
 
@@ -5502,7 +5520,7 @@ $.fn.dialogelfinder = function(opts) {
 /**
  * English translation
  * @author Troex Nevelin <troex@fury.scancode.ru>
- * @version 2014-12-19
+ * @version 2015-09-26
  */
 if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object') {
 	elFinder.prototype.i18.en = {
@@ -5558,6 +5576,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'errUploadFileSize'    : 'File exceeds maximum allowed size.', //  old name - errFileMaxSize
 			'errUploadMime'        : 'File type not allowed.', 
 			'errUploadTransfer'    : '"$1" transfer error.', 
+			'errUploadTemp'        : 'Unable to make temporary file for upload.', // from v2.1 added 26.09.2015
 			'errNotReplace'        : 'Object "$1" already exists at this location and can not be replaced by object with another type.', // new
 			'errReplace'           : 'Unable to replace "$1".',
 			'errSave'              : 'Unable to save "$1".',
