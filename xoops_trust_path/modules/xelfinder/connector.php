@@ -306,6 +306,7 @@ $opts = array(
 	),
 	'debug' => $debug,
 	'netVolumesSessionKey' => _MD_XELFINDER_NETVOLUME_SESSION_KEY,
+	'uploadTempPath' => XOOPS_TRUST_PATH . '/cache',
 	'roots' => $rootVolumes,
 	'callbackWindowURL' => !empty($_REQUEST['myUrl'])? ($_REQUEST['myUrl'] . 'connector.php?cmd=callback') : ''
 );
