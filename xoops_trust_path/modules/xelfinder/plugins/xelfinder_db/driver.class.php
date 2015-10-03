@@ -867,7 +867,9 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 				}
 				$this->setAuthByPerm($stat);
 				if (empty($stat['hidden'])) {
-					$result[] = $this->stat($stat['file_id']);
+					$stat = $this->stat($stat['file_id']);
+					$stat['path'] = $this->path($stat['hash']);
+					$result[] = $stat;
 				}
 			}
 		}

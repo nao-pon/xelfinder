@@ -398,10 +398,17 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _path($path) {
- 		if (($file = $this->stat('_')) == false) {
- 			return '';
- 		}
- 		return $file['name'];
+		if (($file = $this->stat($path)) == false) {
+			return '';
+		}
+
+		$parentsIds = $this->getParents($path);
+		$path = '';
+		foreach ($parentsIds as $id) {
+			$dir = $this->stat($id);
+			$path .= $dir['name'].$this->separator;
+		}
+		return $path.$file['name'];
 	}
 
 	/**
