@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 8789517) (2015-10-03)
+ * Version 2.1_n (Nightly: 2d4dd9b) (2015-10-04)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -4096,7 +4096,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 8789517)';
+elFinder.prototype.version = '2.1_n (Nightly: 2d4dd9b)';
 
 
 
@@ -5520,7 +5520,7 @@ $.fn.dialogelfinder = function(opts) {
 /**
  * English translation
  * @author Troex Nevelin <troex@fury.scancode.ru>
- * @version 2015-09-26
+ * @version 2015-10-03
  */
 if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object') {
 	elFinder.prototype.i18.en = {
@@ -5569,6 +5569,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'errRename'            : 'Unable to rename "$1".',
 			'errCopyFrom'          : 'Copying files from volume "$1" not allowed.',
 			'errCopyTo'            : 'Copying files to volume "$1" not allowed.',
+			'errMkOutLink'         : 'Unable to create a link to outside the volume root.', // from v2.1 added 03.10.2015
 			'errUpload'            : 'Upload error.',  // old name - errUploadCommon
 			'errUploadFile'        : 'Unable to upload "$1".', // old name - errUpload
 			'errUploadNoFiles'     : 'No files found for upload.', 
