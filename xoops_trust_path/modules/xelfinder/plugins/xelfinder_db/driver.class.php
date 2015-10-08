@@ -831,8 +831,8 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 				} else {
 					$whrs[] = sprintf('`mime` = %s', $this->db->quoteString($mime));
 				}
-				$whr = join(' OR ', $whrs);
 			}
+			$whr = join(' OR ', $whrs);
 		} else {
 			$q = $this->db->quoteString($q);
 			$q = '%'.substr($q, 1, strlen($q)-2).'%';
