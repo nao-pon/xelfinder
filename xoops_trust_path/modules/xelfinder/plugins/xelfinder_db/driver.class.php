@@ -1433,24 +1433,6 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	}
 
 	/**
-	 * Unpack archive
-	 *
-	 * @param  string  $path  archive path
-	 * @param  array   $arc   archiver command and arguments (same as in $this->archivers)
-	 * @return void
-	 * @author Dmitry (dio) Levashov
-	 * @author Alexey Sukhotin
-	 **/
-	protected function _unpack($realpath, $arc) {
-		$cwd = getcwd();
-		$dir = dirname($realpath);
-		chdir($dir);
-		$cmd = $arc['cmd'].' '.$arc['argc'].' '.escapeshellarg(basename($realpath));
-		$this->procExec($cmd, $o, $c);
-		chdir($cwd);
-	}
-
-	/**
 	 * Recursive symlinks search
 	 *
 	 * @param  string  $path  file/dir path
@@ -1514,8 +1496,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		}
 		
 		// extract in quarantine
-		$this->_unpack($archive, $arc);
-		@unlink($archive);
+		$this->unpackArchive($archive, $arc);
 		
 		// get files list
 		$ls = array();
@@ -1617,8 +1598,6 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	* @author Alexey Sukhotin
 	**/
 	protected function _archive($dir, $files, $name, $arc) {
-		$cwd = getcwd();
-		
 		if (! chdir($this->options['tempPath'])) return false;
 
 		$mkdir = md5(microtime() . join('_', $files));
@@ -1626,13 +1605,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		
 		$_dir = rtrim($this->options['tempPath'].DIRECTORY_SEPARATOR.$mkdir, DIRECTORY_SEPARATOR);
 		
-		$_files = array_map('escapeshellarg', $_files);
-		chdir($_dir);
-		
-		$cmd = $arc['cmd'].' '.$arc['argc'].' '.escapeshellarg($name).' '.implode(' ', $_files).'';
-		$this->procExec($cmd, $o, $c);
-
-		chdir($cwd);
+		$this->makeArchive($_dir, $_tmpfiles, $name, $arc);
 		
 		$ret = $this->localFileSave($_dir.DIRECTORY_SEPARATOR.$name, $dir);
 
