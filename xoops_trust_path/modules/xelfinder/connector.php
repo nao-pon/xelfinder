@@ -330,10 +330,13 @@ $connector = new elFinderConnector(new xelFinder($opts), $debug);
 $connector->run();
 
 
-function debug($str) {
+function debug() {
+	$args = func_get_args();
 	ob_start();
-	//debug_print_backtrace();
-	var_dump($str);
+	foreach($args as $arg) {
+		//debug_print_backtrace();
+		var_dump($arg);
+	}
 	$str = ob_get_clean();
 	file_put_contents(dirname(__FILE__) . '/debug.txt', $str . "\n", FILE_APPEND);
 }
