@@ -278,9 +278,13 @@ foreach($rootVolumes as $rootVolume) {
 
 $opts = array(
 	'locale' => 'ja_JP.UTF-8',
+	'base64encodeSessionData' => $xoops_elFinder->base64encodeSessionData,
 	'sessionCacheKey' => 'xel_'.$mydirname.'_Caches',
 	'bind'   => array(
-		'*'              => array($xoops_elFinder, 'log'),
+		//'*' => array($xoops_elFinder, 'log'),
+		'netmount' => array($xoops_elFinder, 'netmountCallback'),
+		'mkdir mkfile put upload extract' => array($xoops_elFinder, 'notifyMail'),
+		'mkdir mkfile put paste upload extract resize' => array($xoops_elFinder, 'changeAddParent'),
 		'mkdir.pre mkfile.pre rename.pre archive.pre' => array(
 			'Plugin.Sanitizer.cmdPreprocess',
 			'Plugin.Normalizer.cmdPreprocess'

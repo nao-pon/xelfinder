@@ -17,6 +17,8 @@ class xoops_elFinder {
 	protected $mygids;
 	protected $uid;
 	
+	public $base64encodeSessionData;
+	
 	/**
 	* Log file path
 	*
@@ -69,6 +71,7 @@ class xoops_elFinder {
 		$this->defaultVolumeOptions = array_merge($this->defaultVolumeOptions, $opt);
 		$this->mygids = is_object($this->xoopsUser)? $this->xoopsUser->getGroups() : array(XOOPS_GROUP_ANONYMOUS);
 		$this->uid = is_object($this->xoopsUser)? intval($this->xoopsUser->getVar('uid')) : 0;
+		$this->base64encodeSessionData = ((!defined('_CHARSET') || _CHARSET !== 'UTF-8') && $this->getSessionTableType() !== 'blob');
 		
 		if (defined('_MD_XELFINDER_NETVOLUME_SESSION_KEY') && !isset($_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY]) && $this->uid) {
 			$table = $this->db->prefix($this->mydirname.'_userdat');
@@ -78,10 +81,15 @@ class xoops_elFinder {
 					list($data) = $this->db->fetchRow($res);
 					if ($data = @unserialize($data)) {
 						$_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY] = $data;
-						foreach($data as $volume) {
-							if ($volume['host'] === 'dropbox' && !empty($volume['dropboxUid']) && !empty($volume['accessToken']) && !empty($volume['accessTokenSecret'])) {
-								$_SESSION['elFinderDropboxTokens'] = array($volume['dropboxUid'], $volume['accessToken'], $volume['accessTokenSecret']);
-								break;
+						if ($this->base64encodeSessionData) {
+							$data = @unserialize(@base64_decode($data));
+						}
+						if (is_array($data)) {
+							foreach($data as $volume) {
+								if ($volume['host'] === 'dropbox' && !empty($volume['dropboxUid']) && !empty($volume['accessToken']) && !empty($volume['accessTokenSecret'])) {
+									$_SESSION['elFinderDropboxTokens'] = array($volume['dropboxUid'], $volume['accessToken'], $volume['accessTokenSecret']);
+									break;
+								}
 							}
 						}
 					}
@@ -308,20 +316,8 @@ class xoops_elFinder {
 		}
 	}
 	
-	/**
-	 * Create log record
-	 *
-	 * @param  string   $cmd       command name
-	 * @param  array    $result    command result
-	 * @param  array    $args      command arguments from client
-	 * @param  elFinder $elfinder  elFinder instance
-	 * @return void|true
-	 * @author Dmitry (dio) Levashov
-	 **/
-	public function log($cmd, &$result, $args, $elfinder) {
-		$log = $cmd.' ['.date('d.m H:s')."]\n";
-		
-		if ($cmd === 'netmount' && is_object($this->xoopsUser) && (!empty($result['sync']) || !empty($result['added']))) {
+	public function netmountCallback($cmd, &$result, $args, $elfinder) {
+		if (is_object($this->xoopsUser) && (!empty($result['sync']) || !empty($result['added']))) {
 			if ($uid = $this->xoopsUser->getVar('uid')) {
 				$uid = intval($uid);
 				$table = $this->db->prefix($this->mydirname.'_userdat');
@@ -337,35 +333,10 @@ class xoops_elFinder {
 				}
 			}
 		}
+	}
 	
-		if (!empty($result['error'])) {
-			$log .= "\tERROR: ".implode(' ', $result['error'])."\n";
-		}
-	
-		if (!empty($result['warning'])) {
-			$log .= "\tWARNING: ".implode(' ', $result['warning'])."\n";
-		}
-	
-		if (!empty($result['removed'])) {
-			foreach ($result['removed'] as $file) {
-				// removed file contain additional field "realpath"
-				$log .= "\tREMOVED: ".$elfinder->realpath($file['hash'])."\n";
-			}
-		}
-	
+	public function notifyMail($cmd, &$result, $args, $elfinder) {
 		if (!empty($result['added'])) {
-			foreach ($result['added'] as $file) {
-				$log .= "\tADDED: ".$elfinder->realpath($file['hash'])."\n";
-			}
-		}
-	
-		if (!empty($result['changed'])) {
-			foreach ($result['changed'] as $file) {
-				$log .= "\tCHANGED: ".$elfinder->realpath($file['hash'])."\n";
-			}
-		}
-	
-		if (!empty($result['added']) && in_array($cmd, array('mkdir', 'mkfile', 'put', 'upload', 'extract'))) {
 			$mail = false;
 			if (is_object($this->xoopsUser)) {
 				if ($this->isAdmin) {
@@ -376,7 +347,6 @@ class xoops_elFinder {
 			} else {
 				$mail = ($this->config['mail_notify_guest']);
 			}
-			//$log .= "\n\$mail=".($mail? 'On' : 'Off')."\n";
 			
 			if ($mail) {
 				$config_handler = xoops_gethandler('config');
@@ -401,9 +371,9 @@ CMD: $cmd
 DATE: $date
 EOD;
 				$msg = array();
-			
+				
 				foreach ($result['added'] as $file) {
-	
+					
 					$url = 'unknown';
 					if (!empty($file['url'])) {
 						$url = ($file['url'] !=  1)? $file['url'] : 'ondemand';
@@ -454,19 +424,60 @@ EOD;
 				}
 			}
 		}
-		
-		$this->write($log);
-		
-		if (in_array($cmd, array('mkdir', 'mkfile', 'put', 'paste', 'upload', 'extract', 'resize'))) {
-			if (! empty($result['changed'])) {
-				if (($target = $result['changed'][0]['phash'])
-				&& ($volume = $elfinder->getVolume($target))){
-					if ($parents = $volume->parents($target, true)) {
-						$result['changed'] = array_merge($result['changed'], $parents);
-					}
+	}
+	
+	public function changeAddParent($cmd, &$result, $args, $elfinder) {
+		if (! empty($result['changed'])) {
+			if (($target = $result['changed'][0]['phash'])
+					&& ($volume = $elfinder->getVolume($target))){
+				if ($parents = $volume->parents($target, true)) {
+					$result['changed'] = array_merge($result['changed'], $parents);
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Create log record
+	 *
+	 * @param  string   $cmd       command name
+	 * @param  array    $result    command result
+	 * @param  array    $args      command arguments from client
+	 * @param  elFinder $elfinder  elFinder instance
+	 * @return void|true
+	 * @author Dmitry (dio) Levashov
+	 **/
+	public function log($cmd, &$result, $args, $elfinder) {
+		$log = $cmd.' ['.date('d.m H:s')."]\n";
+		
+		if (!empty($result['error'])) {
+			$log .= "\tERROR: ".implode(' ', $result['error'])."\n";
+		}
+	
+		if (!empty($result['warning'])) {
+			$log .= "\tWARNING: ".implode(' ', $result['warning'])."\n";
+		}
+	
+		if (!empty($result['removed'])) {
+			foreach ($result['removed'] as $file) {
+				// removed file contain additional field "realpath"
+				$log .= "\tREMOVED: ".$elfinder->realpath($file['hash'])."\n";
+			}
+		}
+	
+		if (!empty($result['added'])) {
+			foreach ($result['added'] as $file) {
+				$log .= "\tADDED: ".$elfinder->realpath($file['hash'])."\n";
+			}
+		}
+	
+		if (!empty($result['changed'])) {
+			foreach ($result['changed'] as $file) {
+				$log .= "\tCHANGED: ".$elfinder->realpath($file['hash'])."\n";
+			}
+		}
+		
+		$this->write($log);
 	}
 	
 	/**
@@ -509,6 +520,22 @@ EOD;
 		// remove exif gps info
 		HypCommonFunc::removeExifGps($src, $srcImgInfo);
 		return ($ret);
+	}
+	
+	/**
+	 * Get DB session table data type
+	 * 
+	 * @return string
+	 */
+	public function getSessionTableType() {
+		$db = $this->db;
+		$sql = 'SHOW COLUMNS FROM `'. $db->prefix('session') .'` WHERE Field = \'sess_data\'';
+		if ($res = $db->query($sql)) {
+			if ($row = $db->fetchArray($res)) {
+				return strtolower($row['Type']);
+			}
+		}
+		return '';
 	}
 	
 	/**
