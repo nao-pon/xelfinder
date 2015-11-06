@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1_n (Nightly: 3bd5482) (2015-10-18)
+ * Version 2.1.0 (2.1_n Nightly: 3e7a6de) (2015-11-06)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -207,6 +207,13 @@ window.elFinder = function(node, opts) {
 		 * @default 400
 		 **/
 		height = 400,
+		
+		/**
+		 * elfinder path for sound played on remove
+		 * @type String
+		 * @default ./sounds/
+		 **/
+		soundPath = './sounds/',
 				
 		beeper = $(document.createElement('audio')).hide().appendTo('body')[0],
 			
@@ -1812,7 +1819,7 @@ window.elFinder = function(node, opts) {
 		.bind('rm', function(e) {
 			var play  = beeper.canPlayType && beeper.canPlayType('audio/wav; codecs="1"');
 		
-			play && play != '' && play != 'no' && $(beeper).html('<source src="./sounds/rm.wav" type="audio/wav">')[0].play()
+			play && play != '' && play != 'no' && $(beeper).html('<source src="' + soundPath + 'rm.wav" type="audio/wav">')[0].play()
 		})
 		
 		;
@@ -1957,6 +1964,10 @@ window.elFinder = function(node, opts) {
 	
 	if (this.options.height) {
 		height = parseInt(this.options.height);
+	}
+	
+	if (this.options.soundPath) {
+		soundPath = this.options.soundPath.replace(/\/+$/, '') + '/';
 	}
 	
 	// update size	
@@ -2771,7 +2782,7 @@ elFinder.prototype = {
 							continue;
 						}
 						
-						if (blobSlice && blobSize >= BYTES_PER_CHUNK) {
+						if (blobSlice && blobSize > BYTES_PER_CHUNK) {
 							start = 0;
 							end = BYTES_PER_CHUNK;
 							chunks = -1;
@@ -4096,7 +4107,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1_n (Nightly: 3bd5482)';
+elFinder.prototype.version = '2.1.0 (2.1_n Nightly: 3e7a6de)';
 
 
 
@@ -5520,7 +5531,7 @@ $.fn.dialogelfinder = function(opts) {
 /**
  * English translation
  * @author Troex Nevelin <troex@fury.scancode.ru>
- * @version 2015-10-03
+ * @version 2015-10-22
  */
 if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object') {
 	elFinder.prototype.i18.en = {
@@ -5572,11 +5583,11 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'errMkOutLink'         : 'Unable to create a link to outside the volume root.', // from v2.1 added 03.10.2015
 			'errUpload'            : 'Upload error.',  // old name - errUploadCommon
 			'errUploadFile'        : 'Unable to upload "$1".', // old name - errUpload
-			'errUploadNoFiles'     : 'No files found for upload.', 
+			'errUploadNoFiles'     : 'No files found for upload.',
 			'errUploadTotalSize'   : 'Data exceeds the maximum allowed size.', // old name - errMaxSize
 			'errUploadFileSize'    : 'File exceeds maximum allowed size.', //  old name - errFileMaxSize
-			'errUploadMime'        : 'File type not allowed.', 
-			'errUploadTransfer'    : '"$1" transfer error.', 
+			'errUploadMime'        : 'File type not allowed.',
+			'errUploadTransfer'    : '"$1" transfer error.',
 			'errUploadTemp'        : 'Unable to make temporary file for upload.', // from v2.1 added 26.09.2015
 			'errNotReplace'        : 'Object "$1" already exists at this location and can not be replaced by object with another type.', // new
 			'errReplace'           : 'Unable to replace "$1".',
@@ -5591,12 +5602,12 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'errArcType'           : 'Unsupported archive type.',
 			'errNoArchive'         : 'File is not archive or has unsupported archive type.',
 			'errCmdNoSupport'      : 'Backend does not support this command.',
-			'errReplByChild'       : 'The folder “$1” can’t be replaced by an item it contains.',
+			'errReplByChild'       : 'The folder "$1" can\'t be replaced by an item it contains.',
 			'errArcSymlinks'       : 'For security reason denied to unpack archives contains symlinks or files with not allowed names.', // edited 24.06.2012
 			'errArcMaxSize'        : 'Archive files exceeds maximum allowed size.',
 			'errResize'            : 'Unable to resize "$1".',
 			'errResizeDegree'      : 'Invalid rotate degree.',  // added 7.3.2013
-			'errResizeRotate'      : 'Image dose not rotated.',  // added 7.3.2013
+			'errResizeRotate'      : 'Unable to rotate image.',  // added 7.3.2013
 			'errResizeSize'        : 'Invalid image size.',  // added 7.3.2013
 			'errResizeNoChange'    : 'Image size not changed.',  // added 7.3.2013
 			'errUsupportType'      : 'Unsupported file type.',
@@ -5612,8 +5623,8 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'errFtpMkdir'          : 'Unable to create remote directory on FTP: "$1"',
 			'errArchiveExec'       : 'Error while archiving files: "$1"',
 			'errExtractExec'       : 'Error while extracting files: "$1"',
-			'errNetUnMount'        : 'Unable to unmount', // added 30.04.2012
-			'errConvUTF8'          : 'Not convertible to UTF-8', // added 08.04.2014
+			'errNetUnMount'        : 'Unable to unmount', // from v2.1 added 30.04.2012
+			'errConvUTF8'          : 'Not convertible to UTF-8', // from v2.1 added 08.04.2014
 			'errFolderUpload'      : 'Try Google Chrome, If you\'d like to upload the folder.', // from v2.1 added 26.6.2015
 
 			/******************************* commands names ********************************/
@@ -5645,7 +5656,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'cmdresize'    : 'Resize & Rotate',
 			'cmdsort'      : 'Sort',
 			'cmdnetmount'  : 'Mount network volume', // added 18.04.2012
-			'cmdnetunmount': 'Unmount', // added 30.04.2012
+			'cmdnetunmount': 'Unmount', // from v2.1 added 30.04.2012
 			'cmdplaces'    : 'To Places', // added 28.12.2014
 			'cmdchmod'     : 'Change mode', // from v2.1 added 20.6.2015
 			
@@ -5660,9 +5671,9 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'btnNo'     : 'No',
 			'btnYes'    : 'Yes',
 			'btnMount'  : 'Mount',  // added 18.04.2012
-			'btnApprove': 'Goto $1 & approve', // added 26.04.2012
-			'btnUnmount': 'Unmount', // added 30.04.2012
-			'btnConv'   : 'Convert', // added 08.04.2014
+			'btnApprove': 'Goto $1 & approve', // from v2.1 added 26.04.2012
+			'btnUnmount': 'Unmount', // from v2.1 added 30.04.2012
+			'btnConv'   : 'Convert', // from v2.1 added 08.04.2014
 			'btnCwd'    : 'Here',      // from v2.1 added 22.5.2015
 			'btnVolume' : 'Volume',    // from v2.1 added 22.5.2015
 			'btnAll'    : 'All',       // from v2.1 added 22.5.2015
@@ -5691,10 +5702,10 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'ntfsmth'     : 'Doing something',
 			'ntfloadimg'  : 'Loading image',
 			'ntfnetmount' : 'Mounting network volume', // added 18.04.2012
-			'ntfnetunmount': 'Unmounting network volume', // added 30.04.2012
+			'ntfnetunmount': 'Unmounting network volume', // from v2.1 added 30.04.2012
 			'ntfdim'      : 'Acquiring image dimension', // added 20.05.2013
-			'ntfreaddir'  : 'Reading folder infomation', // added 01.07.2013
-			'ntfurl'      : 'Getting URL of link', // added 11.03.2014
+			'ntfreaddir'  : 'Reading folder infomation', // from v2.1 added 01.07.2013
+			'ntfurl'      : 'Getting URL of link', // from v2.1 added 11.03.2014
 			'ntfchmod'    : 'Changing file mode', // from v2.1 added 20.6.2015
 			
 			/************************************ dates **********************************/
@@ -5732,17 +5743,17 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'Thursday'    : 'Thursday',
 			'Friday'      : 'Friday',
 			'Saturday'    : 'Saturday',
-			'Sun'         : 'Sun', 
-			'Mon'         : 'Mon', 
-			'Tue'         : 'Tue', 
-			'Wed'         : 'Wed', 
-			'Thu'         : 'Thu', 
-			'Fri'         : 'Fri', 
+			'Sun'         : 'Sun',
+			'Mon'         : 'Mon',
+			'Tue'         : 'Tue',
+			'Wed'         : 'Wed',
+			'Thu'         : 'Thu',
+			'Fri'         : 'Fri',
 			'Sat'         : 'Sat',
 
 			/******************************** sort variants ********************************/
-			'sortname'          : 'by name', 
-			'sortkind'          : 'by kind', 
+			'sortname'          : 'by name',
+			'sortkind'          : 'by kind',
 			'sortsize'          : 'by size',
 			'sortdate'          : 'by date',
 			'sortFoldersFirst'  : 'Folders first',
@@ -5751,7 +5762,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'confirmReq'      : 'Confirmation required',
 			'confirmRm'       : 'Are you sure you want to remove files?<br/>This cannot be undone!',
 			'confirmRepl'     : 'Replace old file with new one?',
-			'confirmConvUTF8' : 'Not in UTF-8<br/>Convert to UTF-8?<br/>Contents become UTF-8 by saving after conversion.', // added 08.04.2014
+			'confirmConvUTF8' : 'Not in UTF-8<br/>Convert to UTF-8?<br/>Contents become UTF-8 by saving after conversion.', // from v2.1 added 08.04.2014
 			'confirmNotSave'  : 'It has been modified.<br/>Losing work if you do not save changes.', // from v2.1 added 15.7.2015
 			'apllyAll'        : 'Apply to all',
 			'name'            : 'Name',
@@ -5771,7 +5782,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'viewlist'        : 'List view',
 			'viewicons'       : 'Icons view',
 			'places'          : 'Places',
-			'calc'            : 'Calculate', 
+			'calc'            : 'Calculate',
 			'path'            : 'Path',
 			'aliasfor'        : 'Alias for',
 			'locked'          : 'Locked',
@@ -5782,7 +5793,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'yes'             : 'yes',
 			'no'              : 'no',
 			'link'            : 'Link',
-			'searcresult'     : 'Search results',  
+			'searcresult'     : 'Search results',
 			'selected'        : 'selected items',
 			'about'           : 'About',
 			'shortcuts'       : 'Shortcuts',
@@ -5826,9 +5837,9 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'port'                : 'Port', // added 18.04.2012
 			'user'                : 'User', // added 18.04.2012
 			'pass'                : 'Password', // added 18.04.2012
-			'confirmUnmount'      : 'Are you unmount $1?',  // added 30.04.2012
-			'dropFilesBrowser': 'Drop or Paste files from browser', // added 30.05.2012
-			'dropPasteFiles'  : 'Drop or Paste files here', // added 07.04.2014
+			'confirmUnmount'      : 'Are you unmount $1?',  // from v2.1 added 30.04.2012
+			'dropFilesBrowser': 'Drop or Paste files from browser', // from v2.1 added 30.05.2012
+			'dropPasteFiles'  : 'Drop or Paste files here', // from v2.1 added 07.04.2014
 			'encoding'        : 'Encoding', // from v2.1 added 19.12.2014
 			'locale'          : 'Locale',   // from v2.1 added 19.12.2014
 			'searchTarget'    : 'Target: $1',                // from v2.1 added 22.5.2015
@@ -6362,7 +6373,7 @@ $.fn.elfindercwd = function(fm, options) {
 			 * @type Object
 			 **/
 			templates = {
-				icon : '<div id="{hash}" class="'+clFile+(fm.UA.Touch ? ' '+'elfinder-touch' : '')+' {permsclass} {dirclass} ui-corner-all" title="{tooltip}"><div class="elfinder-cwd-file-wrapper ui-corner-all"><div class="elfinder-cwd-icon {mime} ui-corner-all" unselectable="on" {style}/>{marker}</div><div class="elfinder-cwd-filename" title="{name}">{name}</div></div>',
+				icon : '<div id="{hash}" class="'+clFile+(fm.UA.Touch ? ' '+'elfinder-touch' : '')+' {permsclass} {dirclass} ui-corner-all" title="{tooltip}"><div class="elfinder-cwd-file-wrapper ui-corner-all"><div class="elfinder-cwd-icon {mime} ui-corner-all" unselectable="on" {style}/>{marker}</div><div class="elfinder-cwd-filename" title="{nametitle}">{name}</div></div>',
 				row  : '<tr id="{hash}" class="'+clFile+(fm.UA.Touch ? ' '+'elfinder-touch' : '')+' {permsclass} {dirclass}" title="{tooltip}"><td><div class="elfinder-cwd-file-wrapper"><span class="elfinder-cwd-icon {mime}"/>{marker}<span class="elfinder-cwd-filename">{name}</span></div></td>'+customColsBuild()+'</tr>',
 			},
 			
@@ -6380,10 +6391,11 @@ $.fn.elfindercwd = function(fm, options) {
 			replacement = {
 				name : function(f) {
 					name = fm.escape(f.name);
-					if (!list) {
-						name = name.replace(/([_.])/g, '&#8203;$1');
-					}
+					!list && (name = name.replace(/([_.])/g, '&#8203;$1'));
 					return name;
+				},
+				nametitle : function(f) {
+					return fm.escape(f.name);
 				},
 				permsclass : function(f) {
 					return fm.perms2class(f);
@@ -8948,10 +8960,16 @@ $.fn.elfindertree = function(fm, opts) {
 			 */
 			replace = {
 				id          : function(dir) { return fm.navHash2Id(dir.hash) },
-				cssclass    : function(dir) { return (fm.UA.Touch ? 'elfinder-touch ' : '')+(dir.phash ? '' : root)+' '+navdir+' '+fm.perms2class(dir)+' '+(dir.dirs && !dir.link ? collapsed : '') + (opts.getClass ? ' ' + opts.getClass(dir) : ''); },
+				cssclass    : function(dir) {
+					var cname = (fm.UA.Touch ? 'elfinder-touch ' : '')+(dir.phash ? '' : root)+' '+navdir+' '+fm.perms2class(dir);
+					dir.dirs && !dir.link && (cname += ' ' + collapsed);
+					opts.getClass && (cname += ' ' + opts.getClass(dir));
+					dir.csscls && (cname += ' ' + fm.escape(dir.csscls));
+					return cname;
+				},
 				permissions : function(dir) { return !dir.read || !dir.write ? ptpl : ''; },
 				symlink     : function(dir) { return dir.alias ? stpl : ''; },
-				style       : function(dir) { return dir.icon ? 'style="background-image:url(\''+dir.icon+'\')"' : ''; }
+				style       : function(dir) { return dir.icon ? 'style="background-image:url(\''+fm.escape(dir.icon)+'\')"' : ''; }
 			},
 			
 			/**
