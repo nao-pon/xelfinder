@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.1 (2.1_n Nightly: 4c8587f) (2015-11-11)
+ * Version 2.1.1 (2.1_n Nightly: 077a300) (2015-11-11)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -4137,7 +4137,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.1 (2.1_n Nightly: 4c8587f)';
+elFinder.prototype.version = '2.1.1 (2.1_n Nightly: 077a300)';
 
 
 
@@ -7115,7 +7115,7 @@ $.fn.elfindercwd = function(fm, options) {
 				// for touch device
 				.on('touchstart.'+fm.namespace, fileSelector, function(e) {
 					e.stopPropagation();
-					if (e.target.nodeName == 'INPUT') {
+					if (e.target.nodeName == 'INPUT' || e.target.nodeName == 'TEXTAREA') {
 						return;
 					}
 					var p = this.id ? $(this) : $(this).parents('[id]:first'),
@@ -7146,7 +7146,7 @@ $.fn.elfindercwd = function(fm, options) {
 				})
 				.on('touchmove.'+fm.namespace+' touchend.'+fm.namespace, fileSelector, function(e) {
 					e.stopPropagation();
-					if (e.target.nodeName == 'INPUT') {
+					if (e.target.nodeName == 'INPUT' || e.target.nodeName == 'TEXTAREA') {
 						return;
 					}
 					var p = this.id ? $(this) : $(this).parents('[id]:first');
@@ -13030,6 +13030,7 @@ elFinder.prototype.commands.rename = function() {
 			filename = '.elfinder-cwd-filename',
 			type     = (hashes && hashes._type)? hashes._type : (fm.selected().length? 'files' : 'navbar'),
 			incwd    = (fm.cwd().hash == file.hash),
+			list     = fm.storage('view') == 'list',
 			dfrd     = $.Deferred()
 				.done(function(data){
 					incwd && fm.exec('open', data.added[0].hash);
@@ -13057,7 +13058,7 @@ elFinder.prototype.commands.rename = function() {
 				.always(function() {
 					fm.enable();
 				}),
-			input = $('<input type="text"/>')
+			input = $((list || type == 'navbar')? '<input type="text"/>' : '<textarea/>')
 				.keydown(function(e) {
 					e.stopPropagation();
 					e.stopImmediatePropagation();
