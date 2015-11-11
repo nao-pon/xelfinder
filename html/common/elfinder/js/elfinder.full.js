@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.0 (2.1_n Nightly: e750031) (2015-11-08)
+ * Version 2.1.1 (2.1_n Nightly: 4c8587f) (2015-11-11)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -2818,7 +2818,7 @@ elFinder.prototype = {
 
 							totalSize += blobSize;
 							chunked[chunkID] = 0;
-							while(start < blobSize) {
+							while(start <= blobSize) {
 								chunk = blob[blobSlice](start, end);
 								chunk._chunk = blob.name + '.' + ++chunks + '_' + total + '.part';
 								chunk._cid   = chunkID;
@@ -4137,7 +4137,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.0 (2.1_n Nightly: e750031)';
+elFinder.prototype.version = '2.1.1 (2.1_n Nightly: 4c8587f)';
 
 
 
@@ -5561,7 +5561,7 @@ $.fn.dialogelfinder = function(opts) {
 /**
  * English translation
  * @author Troex Nevelin <troex@fury.scancode.ru>
- * @version 2015-10-22
+ * @version 2015-11-10
  */
 if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object') {
 	elFinder.prototype.i18.en = {
@@ -5787,6 +5787,11 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'sortsize'          : 'by size',
 			'sortdate'          : 'by date',
 			'sortFoldersFirst'  : 'Folders first',
+
+			/********************************** new items **********************************/
+			'untitled file.txt' : 'NewFile.txt', // added 10.11.2015
+			'untitled folder'   : 'NewFolder',   // added 10.11.2015
+			'Archive'           : 'NewArchive',  // from v2.1 added 10.11.2015
 
 			/********************************** messages **********************************/
 			'confirmReq'      : 'Confirmation required',
@@ -9351,15 +9356,22 @@ $.fn.elfindertree = function(fm, opts) {
 				.on('click', selNavdir+'.'+collapsed+' .'+arrow, function(e) {
 					var arrow = $(this),
 						link  = arrow.parent(selNavdir),
-						stree = link.next('.'+subtree);
+						stree = link.next('.'+subtree),
+						slideTH = 30, cnt;
 
 					e.stopPropagation();
 
 					if (link.hasClass(loaded)) {
 						link.toggleClass(expanded);
-						stree.slideToggle('normal', function(){
+						cnt = link.hasClass(expanded)? stree.children().length + stree.find('div.elfinder-navbar-subtree[style*=block]').children().length : stree.find('div:visible').length;
+						if (cnt > slideTH) {
+							stree.toggle();
 							fm.draggingUiHelper && fm.draggingUiHelper.data('refreshPositions', 1);
-						});
+						} else {
+							stree.stop(true, true).slideToggle('normal', function(){
+								fm.draggingUiHelper && fm.draggingUiHelper.data('refreshPositions', 1);
+							});
+						}
 					} else {
 						spinner.insertBefore(arrow);
 						link.removeClass(collapsed);
@@ -9370,9 +9382,14 @@ $.fn.elfindertree = function(fm, opts) {
 								
 								if (stree.children().length) {
 									link.addClass(collapsed+' '+expanded);
-									stree.slideDown('normal', function(){
+									if (stree.children().length > slideTH) {
+										stree.show();
 										fm.draggingUiHelper && fm.draggingUiHelper.data('refreshPositions', 1);
-									});
+									} else {
+										stree.stop(true, true).slideDown('normal', function(){
+											fm.draggingUiHelper && fm.draggingUiHelper.data('refreshPositions', 1);
+										});
+									}
 								} 
 								sync(true);
 							})
