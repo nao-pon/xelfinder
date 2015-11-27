@@ -434,6 +434,28 @@ window.elFinder = function(node, opts) {
 		this.options.uiOptions.cwd.listView.columnsCustomName = opts.uiOptions.cwd.listView.columnsCustomName;
 	}
 
+	// configure for CORS
+	(function(){
+		var parseUrl = document.createElement('a'),
+			parseUploadUrl;
+		parseUrl.href = opts.url;
+		if (opts.urlUpload && (opts.urlUpload !== opts.url)) {
+			parseUploadUrl = document.createElement('a');
+			parseUploadUrl.href = opts.urlUpload;
+		}
+		if (window.location.host !== parseUrl.host || (parseUploadUrl && (window.location.host !== parseUploadUrl.host))) {
+			if (!$.isPlainObject(self.options.customHeaders)) {
+				self.options.customHeaders = {};
+			}
+			if (!$.isPlainObject(self.options.xhrFields)) {
+				self.options.xhrFields = {};
+			}
+			self.options.requestType = 'post';
+			self.options.customHeaders['X-Requested-With'] = 'XMLHttpRequest';
+			self.options.xhrFields['withCredentials'] = true;
+		}
+	})();
+
 	$.extend(this.options.contextmenu, opts.contextmenu);
 	
 	/**
@@ -689,7 +711,7 @@ window.elFinder = function(node, opts) {
 				? self.selected() 
 				: [self.navId2Hash(element.attr('id'))];
 			
-			helper.append(icon(files[hashes[0]])).data('files', hashes).data('locked', false).data('droped', false);
+			helper.append(icon(files[hashes[0]])).data('files', hashes).data('locked', false).data('droped', false).data('namespace', self.namespace);
 
 			if ((l = hashes.length) > 1) {
 				helper.append(icon(files[hashes[l-1]]) + '<span class="elfinder-drag-num">'+l+'</span>');
@@ -730,6 +752,9 @@ window.elFinder = function(node, opts) {
 					c       = 'class',
 					cnt, hash, i, h;
 				
+				if (ui.helper.data('namespace') !== self.namespace) {
+					return false;
+				}
 				ui.helper.data('droped', true);
 				if (dst.hasClass(self.res(c, 'cwdfile'))) {
 					hash = dst.attr('id');
@@ -2071,6 +2096,9 @@ window.elFinder = function(node, opts) {
 			if (e.target.nodeName !== 'TEXTAREA' && e.target.nodeName !== 'INPUT') {
 				e.preventDefault();
 				e.stopPropagation();
+				if ($(e.target).is('[class*="elfinder"]')) {
+					e.dataTransfer.dropEffect = 'none';
+				}
 			}
 		}, false);
 		node[0].addEventListener('drop', function(e) {
