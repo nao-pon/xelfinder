@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.2 (2.1_n Nightly: b8800bc) (2015-11-27)
+ * Version 2.1.2 (2.1_n Nightly: a9e7818) (2015-11-28)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -4167,7 +4167,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.2 (2.1_n Nightly: b8800bc)';
+elFinder.prototype.version = '2.1.2 (2.1_n Nightly: a9e7818)';
 
 
 
@@ -7253,7 +7253,7 @@ $.fn.elfindercwd = function(fm, options) {
 				})
 				// attach draggable
 				.on('mouseenter.'+fm.namespace, fileSelector, function(e) {
-					var $this = $(this),
+					var $this = $(this), helper = null,
 						target = list ? $this : $this.children();
 
 					if (!mobile && !$this.hasClass(clTmp) && !target.hasClass(clDraggable+' '+clDisabled)) {
@@ -7282,7 +7282,8 @@ $.fn.elfindercwd = function(fm, options) {
 								var p = this.id ? $(this) : $(this).parents('[id]:first'),
 									elm   = $('<span>'),
 									url   = '',
-									durl  = '',
+									durl  = null,
+									murl  = null,
 									files = [],
 									icon  = function(f) {
 										var mime = f.mime, i;
@@ -7302,7 +7303,10 @@ $.fn.elfindercwd = function(fm, options) {
 										$('<a>').attr('href', furl).text(furl).appendTo(elm);
 										url += furl + "\n";
 										if (!durl) {
-											durl += file.mime + ':' + file.name + ':' + furl + "\n";
+											durl = file.mime + ':' + file.name + ':' + furl;
+										}
+										if (!murl) {
+											murl = furl + "\n" + file.name;
 										}
 									}
 								});
@@ -7312,19 +7316,21 @@ $.fn.elfindercwd = function(fm, options) {
 										helper.append(icon(fm.file(files[l-1])) + '<span class="elfinder-drag-num">'+l+'</span>');
 									}
 									dt.setDragImage(helper.get(0), 50, 47);
-									dt.effectAllowed = 'copy';
-									dt.setData('elfinderfrom', window.location.href + fm.cwd().hash);
-									dt.setData('elfinderfrom:' + dt.getData('elfinderfrom'), '');
+									dt.effectAllowed = 'copyLink';
 									dt.setData('DownloadURL', durl);
-									dt.setData('text/html', elm.html());
+									dt.setData('text/x-moz-url', murl);
 									dt.setData('text/uri-list', url);
 									dt.setData('text/plain', url);
+									dt.setData('text/html', elm.html());
+									dt.setData('elfinderfrom', window.location.href + fm.cwd().hash);
+									dt.setData('elfinderfrom:' + dt.getData('elfinderfrom'), '');
 								} else {
 									return false;
 								}
 							}
 						})
 						.on('dragend', function(e){
+							unselectAll();
 							helper && helper.remove();
 						})
 						.draggable(fm.draggable);
@@ -7541,7 +7547,7 @@ $.fn.elfindercwd = function(fm, options) {
 						}
 					});
 				} catch(e) {}
-				if (cwd && cwd.write && (!elfFrom || elfFrom !== window.location.href + cwd.hash)) {
+				if (cwd && cwd.write && (!elfFrom || elfFrom !== (window.location.href + cwd.hash).toLowerCase())) {
 					wrapper.addClass(clDropActive);
 					allow = true;
 				}
@@ -7560,7 +7566,7 @@ $.fn.elfindercwd = function(fm, options) {
 			wrapper[0].addEventListener('dragover', function(e) {
 				e.preventDefault();
 				e.stopPropagation();
-				!allow && (e.dataTransfer.dropEffect = 'none');
+				e.dataTransfer.dropEffect = allow? 'copy' : 'none';
 				ent = false;
 			}, false);
 
