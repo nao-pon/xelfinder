@@ -285,7 +285,7 @@ $opts = array(
 		'netmount' => array($xoops_elFinder, 'netmountCallback'),
 		'mkdir mkfile put upload extract' => array($xoops_elFinder, 'notifyMail'),
 		'mkdir mkfile put paste upload extract resize' => array($xoops_elFinder, 'changeAddParent'),
-		'mkdir.pre mkfile.pre rename.pre archive.pre' => array(
+		'upload.pre mkdir.pre mkfile.pre rename.pre archive.pre' => array(
 			'Plugin.Sanitizer.cmdPreprocess',
 			'Plugin.Normalizer.cmdPreprocess'
 		),
