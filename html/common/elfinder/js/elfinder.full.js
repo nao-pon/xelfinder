@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.2 (2.1_n Nightly: 07cb732) (2015-11-30)
+ * Version 2.1.2 (2.1_n Nightly: ef19cb4) (2015-12-01)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -2117,9 +2117,7 @@ window.elFinder = function(node, opts) {
 			if (e.target.nodeName !== 'TEXTAREA' && e.target.nodeName !== 'INPUT') {
 				e.preventDefault();
 				e.stopPropagation();
-				if ($(e.target).is('[class*="elfinder"]')) {
-					e.dataTransfer.dropEffect = 'none';
-				}
+				e.dataTransfer.dropEffect = 'none';
 			}
 		}, false);
 		node[0].addEventListener('drop', function(e) {
@@ -4307,6 +4305,7 @@ elFinder.prototype = {
 			elm.addEventListener('dragover', function(e) {
 				e.preventDefault();
 				e.stopPropagation();
+				e.dataTransfer.dropEffect = 'copy';
 				ent = false;
 			}, false);
 
@@ -4388,7 +4387,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.2 (2.1_n Nightly: 07cb732)';
+elFinder.prototype.version = '2.1.2 (2.1_n Nightly: ef19cb4)';
 
 
 
@@ -9974,6 +9973,9 @@ $.fn.elfinderuploadbutton = function(cmd) {
 						cmd.exec({input : _input.remove()[0]});
 						input.clone(true).appendTo(form);
 					} 
+				})
+				.on('dragover', function(e) {
+					e.originalEvent.dataTransfer.dropEffect = 'copy';
 				});
 
 		form.append(input.clone(true));
@@ -14898,6 +14900,9 @@ elFinder.prototype.commands.upload = function() {
 		input = $('<input type="file" multiple="true"/>')
 			.change(function() {
 				upload({input : input[0], type : 'files'});
+			})
+			.on('dragover', function(e) {
+				e.originalEvent.dataTransfer.dropEffect = 'copy';
 			});
 
 		button = $('<div class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class="ui-button-text">'+fm.i18n('selectForUpload')+'</span></div>')
@@ -14961,6 +14966,7 @@ elFinder.prototype.commands.upload = function() {
 			dropbox.addEventListener('dragover', function(e) {
 				e.stopPropagation();
 			  	e.preventDefault();
+				e.dataTransfer.dropEffect = 'copy';
 			  	$(dropbox).addClass(hover);
 			}, false);
 
