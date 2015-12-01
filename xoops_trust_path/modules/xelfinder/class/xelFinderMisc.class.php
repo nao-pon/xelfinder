@@ -142,12 +142,28 @@ class xelFinderMisc {
 		return $prefix.$hash;
 	}
 	
-	public function output($file, $mime, $size, $mtime) {
+	public function output($file, $mime, $size, $mtime, $name) {
 		
 		$this->check_304($mtime);
 		
+		$disp = (isset($_GET['dl']))? 'attachment' : 'inline';
+		$filenameEncoded = rawurlencode($name);
+		if (strpos($filenameEncoded, '%') === false) { // ASCII only
+			$filename = 'filename="'.$name.'"';
+		} else {
+			$ua = $_SERVER['HTTP_USER_AGENT'];
+			if (preg_match('/MSIE [4-8]/', $ua)) { // IE < 9 do not support RFC 6266 (RFC 2231/RFC 5987)
+				$filename = 'filename="'.$filenameEncoded.'"';
+			} elseif (strpos($ua, 'Chrome') === false && strpos($ua, 'Safari') !== false && preg_match('#Version/[3-5]#', $ua)) { // Safari < 6
+				$filename = 'filename="'.str_replace('"', '', $file['name']).'"';
+			} else { // RFC 6266 (RFC 2231/RFC 5987)
+				$filename = 'filename*=UTF-8\'\''.$filenameEncoded;
+			}
+		}
+		
 		header('Content-Length: '.$size);
 		header('Content-Type: '.$mime);
+		header('Content-Disposition: '.$disp.'; '.$filename);
 		header('Last-Modified: '  . gmdate( "D, d M Y H:i:s", $mtime ) . " GMT" );
 		header('Etag: '. $mtime);
 		header('Cache-Control: private, max-age=' . XELFINDER_CACHE_TTL );
