@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.2 (2.1_n Nightly: 1052479) (2015-12-04)
+ * Version 2.1.2 (2.1_n Nightly: 2507de4) (2015-12-05)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -932,7 +932,7 @@ window.elFinder = function(node, opts) {
 	/**
 	 * Return file url if set
 	 * 
-	 * @param  Object  file
+	 * @param  String  file hash
 	 * @return String
 	 */
 	this.url = function(hash) {
@@ -973,6 +973,36 @@ window.elFinder = function(node, opts) {
 			params.current = file.phash;
 		}
 		return this.options.url + (this.options.url.indexOf('?') === -1 ? '?' : '&') + $.param(params, true);
+	}
+	
+	/**
+	 * Return file url for open in elFinder
+	 * 
+	 * @param  String  file hash
+	 * @return String
+	 */
+	this.openUrl = function(hash) {
+		var file = files[hash],
+			url  = '';
+		
+		if (!file || !file.read) {
+			return '';
+		}
+		
+		if (file.url && file.url != 1) {
+			return file.url;
+		}
+		
+		url = this.options.url;
+		url = url + (url.indexOf('?') === -1 ? '?' : '&')
+			+ (this.oldAPI ? 'cmd=open&current='+file.phash : 'cmd=file')
+			+ '&target=' + file.hash;
+			
+		$.each(this.options.customData, function(key, val) {
+			url += '&' + encodeURIComponent(key) + '=' + encodeURIComponent(val);
+		});
+		
+		return url;
 	}
 	
 	/**
@@ -4444,7 +4474,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.2 (2.1_n Nightly: 1052479)';
+elFinder.prototype.version = '2.1.2 (2.1_n Nightly: 2507de4)';
 
 
 
@@ -10618,24 +10648,12 @@ elFinder.prototype.commands.download = function() {
 		if (this.disabled()) {
 			return dfrd.reject();
 		}
-			
-		if (fm.oldAPI) {
-			fm.error('errCmdNoSupport');
-			return dfrd.reject();
-		}
-		
-		cdata = $.param(fm.options.customData || {});
-		if (cdata) {
-			cdata = '&' + cdata;
-		}
-		
-		base += base.indexOf('?') === -1 ? '?' : '&';
 		
 		var url,
 			link    = $('<a>').hide().appendTo($('body')),
 			html5dl = (typeof link.get(0).download === 'string');
 		for (i = 0; i < files.length; i++) {
-			url = base + 'cmd=file&target=' + files[i].hash+'&download=1'+cdata;
+			url = fm.openUrl(files[i].hash)+'&download=1';
 			if (html5dl) {
 				link.attr('href', url)
 				.attr('download', files[i].name)
@@ -12220,14 +12238,7 @@ elFinder.prototype.commands.open = function() {
 			}
 			
 			if (fm.UA.Mobile || (reg && !(inline = file.mime.match(reg)))) {
-				url = fm.options.url;
-				url = url + (url.indexOf('?') === -1 ? '?' : '&')
-					+ (fm.oldAPI ? 'cmd=open&current='+file.phash : 'cmd=file')
-					+ '&target=' + file.hash;
-					
-				$.each(fm.options.customData, function(key, val) {
-					url += '&' + key + '=' + val;
-				});
+				url = fm.openUrl(file.hash);
 				
 				if (!inline) {
 					url += '&download=1';
@@ -13210,7 +13221,7 @@ elFinder.prototype.commands.quicklook.plugins = [
 							img.fadeIn(100);
 						}, 1)
 					})
-					.attr('src', ql.fm.url(file.hash));
+					.attr('src', ql.fm.openUrl(file.hash));
 			}
 			
 		});
@@ -13397,7 +13408,7 @@ elFinder.prototype.commands.quicklook.plugins = [
 			if (ql.support.audio[type]) {
 				e.stopImmediatePropagation();
 				
-				node = $('<audio class="elfinder-quicklook-preview-audio" controls preload="auto" autobuffer><source src="'+ql.fm.url(file.hash)+'" /></audio>')
+				node = $('<audio class="elfinder-quicklook-preview-audio" controls preload="auto" autobuffer><source src="'+ql.fm.openUrl(file.hash)+'" /></audio>')
 					.appendTo(preview);
 				autoplay && node[0].play();
 			}
@@ -13435,7 +13446,7 @@ elFinder.prototype.commands.quicklook.plugins = [
 				e.stopImmediatePropagation();
 
 				ql.hideinfo();
-				node = $('<video class="elfinder-quicklook-preview-video" controls preload="auto" autobuffer><source src="'+ql.fm.url(file.hash)+'" /></video>').appendTo(preview);
+				node = $('<video class="elfinder-quicklook-preview-video" controls preload="auto" autobuffer><source src="'+ql.fm.openUrl(file.hash)+'" /></video>').appendTo(preview);
 				autoplay && node[0].play();
 				
 			}
@@ -13472,7 +13483,7 @@ elFinder.prototype.commands.quicklook.plugins = [
 			if ($.inArray(file.mime, mimes) !== -1) {
 				e.stopImmediatePropagation();
 				(video = mime.indexOf('video/') === 0) && ql.hideinfo();
-				node = $('<embed src="'+ql.fm.url(file.hash)+'" type="'+mime+'" class="elfinder-quicklook-preview-'+(video ? 'video' : 'audio')+'"/>')
+				node = $('<embed src="'+ql.fm.openUrl(file.hash)+'" type="'+mime+'" class="elfinder-quicklook-preview-'+(video ? 'video' : 'audio')+'"/>')
 					.appendTo(preview);
 			}
 		}).bind('change', function() {
