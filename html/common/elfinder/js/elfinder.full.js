@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.2 (2.1_n Nightly: f0a800c) (2015-12-04)
+ * Version 2.1.2 (2.1_n Nightly: 0abfa70) (2015-12-04)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -4444,7 +4444,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.2 (2.1_n Nightly: f0a800c)';
+elFinder.prototype.version = '2.1.2 (2.1_n Nightly: 0abfa70)';
 
 
 
@@ -7589,18 +7589,22 @@ $.fn.elfindercwd = function(fm, options) {
 									var file = fm.file(v),
 										furl = file.url;
 									if (file && file.mime !== 'directory') {
-										if (furl === '1') {
+										if (!furl) {
+											furl = fm.url(file.hash);
+										} else if (furl === '1') {
 											geturl.push(v);
 											return true;
 										}
-										files.push(v);
-										$('<a>').attr('href', furl).text(furl).appendTo(elm);
-										url += furl + "\n";
-										if (!durl) {
-											durl = file.mime + ':' + file.name + ':' + furl;
-										}
-										if (!murl) {
-											murl = furl + "\n" + file.name;
+										if (furl) {
+											files.push(v);
+											$('<a>').attr('href', furl).text(furl).appendTo(elm);
+											url += furl + "\n";
+											if (!durl) {
+												durl = file.mime + ':' + file.name + ':' + furl;
+											}
+											if (!murl) {
+												murl = furl + "\n" + file.name;
+											}
 										}
 									}
 								});
