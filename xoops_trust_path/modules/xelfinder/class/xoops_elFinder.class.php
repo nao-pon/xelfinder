@@ -530,7 +530,7 @@ EOD;
 	public function getSessionTableType() {
 		$db = $this->db;
 		$sql = 'SHOW COLUMNS FROM `'. $db->prefix('session') .'` WHERE Field = \'sess_data\'';
-		if ($res = $db->query($sql)) {
+		if ($res = $db->queryF($sql)) {
 			if ($row = $db->fetchArray($res)) {
 				return strtolower($row['Type']);
 			}
