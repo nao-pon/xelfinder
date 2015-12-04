@@ -5,8 +5,8 @@ if (! defined('XOOPS_MODULE_URL')) define('XOOPS_MODULE_URL', XOOPS_URL . '/modu
 
 $target = isset($_GET['target'])? (preg_match('/^[a-zA-Z0-9_:.-]+$/', $_GET['target'])? $_GET['target'] : '') : '';
 
-$callback = isset($_GET['cb'])? (preg_match('/^[a-zA-Z0-9_]+$/', $_GET['cb'])? $_GET['cb'] : '') : 'bbcode';
-$callback = 'getFileCallback_' . $callback;
+$callback = isset($_GET['cb'])? (preg_match('/^[a-zA-Z0-9_]+$/', $_GET['cb'])? $_GET['cb'] : '') : '';
+$callback = $callback? 'getFileCallback_' . $callback : 'null';
 
 $siteimg = (empty($_GET['si']) && empty($use_bbcode_siteimg))? 0 : 1;
 
