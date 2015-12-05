@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.2 (2.1_n Nightly: cc1193a) (2015-12-05)
+ * Version 2.1.2 (2.1_n Nightly: 2b0c15d) (2015-12-05)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -4479,7 +4479,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.2 (2.1_n Nightly: cc1193a)';
+elFinder.prototype.version = '2.1.2 (2.1_n Nightly: 2b0c15d)';
 
 
 
@@ -6682,7 +6682,9 @@ $.fn.elfindercontextmenu = function(fm) {
 			})
 			.one('destroy', function() { menu.remove(); })
 			.bind('disable select', function(){
-				self.data('mouseEvInternal') && close();
+				// 'mouseEvInternal' for Firefox's bug (maybe)
+				!self.data('mouseEvInternal') && close();
+				self.data('mouseEvInternal', false);
 			})
 			.getUI().click(close);
 		});
@@ -10667,14 +10669,14 @@ elFinder.prototype.commands.download = function() {
 							node: $('<a/>')
 								.attr({href: link, target: '_blank', title: fm.i18n('link')})
 								.text(file.name)
-								.css({display: 'inline-block', width: '100%', height: '100%', color: 'transparent'})
 								.on('mousedown click touchstart touchmove touchend contextmenu', function(e){
 									var cm = fm.getUI('contextmenu');
 									e.stopPropagation();
+									// 'mouseEvInternal' for Firefox's bug (maybe)
 									cm.data('mouseEvInternal', true);
 									setTimeout(function(){
 										cm.data('mouseEvInternal', false);
-									}, 10);
+									}, 500);
 								})
 								.on('dragstart', function(e) {
 									var dt = e.dataTransfer || e.originalEvent.dataTransfer || null;
