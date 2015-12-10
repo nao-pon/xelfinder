@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.2 (2.1_n Nightly: 92fa7e8) (2015-12-10)
+ * Version 2.1.2 (2.1_n Nightly: 1bfe701) (2015-12-10)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -664,7 +664,7 @@ window.elFinder = function(node, opts) {
 		distance   : 8,
 		revert     : true,
 		refreshPositions : false,
-		cursor     : 'move',
+		cursor     : 'crosshair',
 		cursorAt   : {left : 50, top : 47},
 		start      : function(e, ui) {
 			var targets = $.map(ui.helper.data('files')||[], function(h) { return h || null ;}),
@@ -4484,7 +4484,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.2 (2.1_n Nightly: 92fa7e8)';
+elFinder.prototype.version = '2.1.2 (2.1_n Nightly: 1bfe701)';
 
 
 
