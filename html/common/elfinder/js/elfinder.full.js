@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.2 (2.1_n Nightly: 64c1807) (2015-12-11)
+ * Version 2.1.2 (2.1_n Nightly: 7701f7a) (2015-12-11)
  * http://elfinder.org
  * 
  * Copyright 2009-2015, Studio 42
@@ -4484,7 +4484,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.2 (2.1_n Nightly: 64c1807)';
+elFinder.prototype.version = '2.1.2 (2.1_n Nightly: 7701f7a)';
 
 
 
@@ -7659,7 +7659,7 @@ $.fn.elfindercwd = function(fm, options) {
 				// attach draggable
 				.on('mouseenter.'+fm.namespace, fileSelector, function(e) {
 					var $this = $(this), helper = null,
-						target = list ? $this : $this.children();
+						target = list ? $this : $this.children('div.elfinder-cwd-file-wrapper,div.elfinder-cwd-filename');
 
 					if (!mobile && !$this.hasClass(clTmp) && !target.hasClass(clDraggable+' '+clDisabled)) {
 						target.on('mousedown', function(e) {
@@ -7676,7 +7676,7 @@ $.fn.elfindercwd = function(fm, options) {
 								target.attr('draggable', 'true');
 							} else {
 								target.attr('draggable', 'false')
-								      .draggable('option', 'cursorAt', {left: 50 - parseInt(target.css('margin-left')), top: 47});
+								      .draggable('option', 'cursorAt', {left: 50 - parseInt($(e.currentTarget).css('margin-left')), top: 47});
 							}
 						})
 						.on('dragstart', function(e) {
