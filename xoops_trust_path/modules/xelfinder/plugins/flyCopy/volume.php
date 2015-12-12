@@ -41,6 +41,7 @@ if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
 		
 		$volumeOptions = array (
 			'driver' => 'Flysystem',
+			'autoload' => true,
 			'filesystem' => $_fly,
 			'alias' => $title,
 			'icon' => XOOPS_MODULE_URL . '/' . $mDirname . '/images/volume_icon_copy.png',
