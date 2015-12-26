@@ -79,6 +79,8 @@ $modversion['config'][] = array(
 myalbum:myalbum:uploads/photos:MyAlbum
 gnavi:gnavi:uploads/gnavi:GNAVI
 mailbbs:mailbbs:modules/mailbbs/imgs:MailBBS
+#xelfinder:xelfinder:/:html:gid=1|chmod=1
+#xelfinder:xelfinder:[trust]/:xoops_trust_path:gid=1|chmod=1
 #xelfinder:xelfinder:[trust]/cache:TrustCache:gid=1
 #xelfinder:xelfinder:preload:Preload:gid=1
 #xelfinder:ftp:preload:Preload:gid=1
