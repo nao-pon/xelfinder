@@ -160,6 +160,9 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 					'pcid'    => 0 );
 			$this->catTree[0]['subcats'][-1] = 'Another';
 		}
+		if (is_null($this->options['syncChkAsTs'])) {
+			$this->options['syncChkAsTs'] = true;
+		}
 		return true;
 	}
 

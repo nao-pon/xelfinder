@@ -232,6 +232,10 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$this->x_groups = array(XOOPS_GROUP_ANONYMOUS);
 		}
 
+		if (is_null($this->options['syncChkAsTs'])) {
+			$this->options['syncChkAsTs'] = true;
+		}
+
 		return true;
 	}
 
