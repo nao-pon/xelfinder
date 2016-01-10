@@ -153,6 +153,21 @@ define( $constpref.'_ALLOW_ORIGINS_DESC',       '当サイトのコネクタに�
 define( $constpref.'_UNZIP_LANG_VALUE' ,        'unzip 実行時のロケール' );
 define( $constpref.'_UNZIP_LANG_VALUE_DESC' ,   'アーカイブ解凍のコマンド unzip 使用時の言語ロケール設定。<br />通常は指定なしで問題ないと思われるが、解凍後のファイル名が文字化けする場合には ja_JP.Shift_JIS などとすると解消される場合がある。' );
 
+define( $constpref.'_AUTOSYNC_SEC_ADMIN',       '自動更新間隔(管理者):秒' );
+define( $constpref.'_AUTOSYNC_SEC_ADMIN_DESC',  '自動で更新チェックをする間隔を秒数で指定します。' );
+
+define( $constpref.'_AUTOSYNC_SEC_SPGROUPS',    '自動更新間隔(特定グループ):秒' );
+define( $constpref.'_AUTOSYNC_SEC_SPGROUPS_DESC', '' );
+
+define( $constpref.'_AUTOSYNC_SEC_USER',        '自動更新間隔(登録ユーザー):秒' );
+define( $constpref.'_AUTOSYNC_SEC_USER_DESC',   '' );
+
+define( $constpref.'_AUTOSYNC_SEC_GUEST',       '自動更新間隔(ゲスト):秒' );
+define( $constpref.'_AUTOSYNC_SEC_GUEST_DESC',  '' );
+
+define( $constpref.'_AUTOSYNC_START',           'すぐに自動更新を開始する' );
+define( $constpref.'_AUTOSYNC_START_DESC',      'コンテキストメニューの「リロード」で自動更新の開始・停止ができます。' );
+
 define( $constpref.'_DEBUG' ,                   'デバッグモードを有効にする' );
 define( $constpref.'_DEBUG_DESC' ,              'デバッグモードにすると elFinder の "elfinder.min.css", "elfinder.min.js" ではなく個別のファイルを読み込みます。<br />また、JavaScript のレスポンスにデバグ情報を含めます。<br />パフォーマンス向上のために、通常はデバッグモードは無効にして運用することをお勧めします。' );
 

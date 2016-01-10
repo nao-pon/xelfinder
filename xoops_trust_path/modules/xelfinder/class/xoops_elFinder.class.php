@@ -16,6 +16,7 @@ class xoops_elFinder {
 	protected $config;
 	protected $mygids;
 	protected $uid;
+	protected $inSpecialGroup;
 	
 	public $base64encodeSessionData;
 	
@@ -96,6 +97,15 @@ class xoops_elFinder {
 				}
 			}
 		}
+	}
+	
+	public function getUserRoll() {
+		return array(
+			'isAdmin'        => (bool)$this->isAdmin,
+			'uid'            => (int)$this->uid,
+			'mygids'         => (array)$this->mygids,
+			'inSpecialGroup' => (bool)$this->inSpecialGroup
+		);
 	}
 	
 	public function getUid() {
@@ -285,6 +295,21 @@ class xoops_elFinder {
 		return $roots;
 	}
 	
+	public function getAutoSyncSec() {
+		if (isset($this->config['autosync_sec_admin'])) {
+			if ($this->isAdmin) {
+				return intval($this->config['autosync_sec_admin']);
+			} else if ($this->inSpecialGroup) {
+				return intval($this->config['autosync_sec_spgroups']);
+			} else if ($this->uid > 0) {
+				return intval($this->config['autosync_sec_user']);
+			} else {
+				return intval($this->config['autosync_sec_guest']);
+			}
+		}
+		return 0;
+	}
+	
 	private function moduleCheckRight($dirname) {
 		static $module_handler = null;
 	
@@ -304,6 +329,7 @@ class xoops_elFinder {
 	
 	public function setConfig($config) {
 		$this->config = $config;
+		$this->inSpecialGroup = (array_intersect($this->mygids, ( isset($config['special_groups'])? $config['special_groups'] : array() )));
 	}
 	
 	public function setLogfile($path = '') {

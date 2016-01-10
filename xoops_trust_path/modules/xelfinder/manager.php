@@ -243,6 +243,8 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var editorsConfig = [];
 			var useCKEditor = <?php echo $useCKEditor ?>;
 			var startPathHash = '<?php echo $start?>';
+			var autoSyncSec = <?php echo $xoops_elFinder->getAutoSyncSec()?>;
+			var autoSyncStart = <?php echo (empty($config['autosync_start'])? 'false' : 'true')?>;
 		</script>
 		<script src="<?php echo $myurl ?>/include/js/commands/perm.js?v=<?php echo $xelfVer?>"></script>
 		<script src="<?php echo $myurl ?>/include/js/manager.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>

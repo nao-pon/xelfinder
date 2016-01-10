@@ -130,23 +130,17 @@ include_once dirname(__FILE__).'/class/xelFinderAccess.class.php';
 if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HASH_'.$mydirname] === $config_MD5) {
 	$rootVolumes = unserialize(base64_decode($_SESSION['XELFINDER_RV_'.$mydirname]));
 } else {
-	$isAdmin = false;
-	$memberUid = 0;
-	$memberGroups = array(XOOPS_GROUP_ANONYMOUS);
-	if (is_object($xoopsUser)) {
-		if ($xoopsUser->isAdmin($xoopsModule->getVar('mid'))) {
-			$isAdmin = true;
-		}
-		$memberUid = $xoopsUser->getVar('uid');
-		$memberGroups = $xoopsUser->getGroups();
-	}
+	$userRoll = $xoops_elFinder->getUserRoll();
+	$isAdmin = $userRoll['isAdmin'];
+	$memberUid = $userRoll['uid'];
+	$memberGroups = $userRoll['mygids'];
+	$inSpecialGroup = $userRoll['inSpecialGroup'];
+	debug($isAdmin, $memberUid, $memberGroups, $inSpecialGroup);
 	
 	// set umask
 	foreach(array('default', 'users_dir', 'guest_dir', 'group_dir') as $_key) {
 		$config[$_key.'_umask'] = strval(dechex(0xfff - intval(strval($config[$_key.'_item_perm']), 16)));
 	}
-	
-	$inSpecialGroup = (array_intersect($memberGroups, ( isset($config['special_groups'])? $config['special_groups'] : array() )));
 	
 	// set uploadAllow
 	if ($isAdmin) {

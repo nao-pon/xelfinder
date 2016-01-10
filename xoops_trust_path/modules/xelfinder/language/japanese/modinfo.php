@@ -153,6 +153,21 @@ define( $constpref.'_ALLOW_ORIGINS_DESC',       'Åö¥µ¥¤¥È¤Î¥³¥Í¥¯¥¿¤ËÀÜÂ³¤òµö²Ä¤
 define( $constpref.'_UNZIP_LANG_VALUE' ,        'unzip ¼Â¹Ô»þ¤Î¥í¥±¡¼¥ë' );
 define( $constpref.'_UNZIP_LANG_VALUE_DESC' ,   '¥¢¡¼¥«¥¤¥Ö²òÅà¤Î¥³¥Þ¥ó¥É unzip »ÈÍÑ»þ¤Î¸À¸ì¥í¥±¡¼¥ëÀßÄê¡£<br />ÄÌ¾ï¤Ï»ØÄê¤Ê¤·¤ÇÌäÂê¤Ê¤¤¤È»×¤ï¤ì¤ë¤¬¡¢²òÅà¸å¤Î¥Õ¥¡¥¤¥ëÌ¾¤¬Ê¸»ú²½¤±¤¹¤ë¾ì¹ç¤Ë¤Ï ja_JP.Shift_JIS ¤Ê¤É¤È¤¹¤ë¤È²ò¾Ã¤µ¤ì¤ë¾ì¹ç¤¬¤¢¤ë¡£' );
 
+define( $constpref.'_AUTOSYNC_SEC_ADMIN',       '¼«Æ°¹¹¿·´Ö³Ö(´ÉÍý¼Ô):ÉÃ' );
+define( $constpref.'_AUTOSYNC_SEC_ADMIN_DESC',  '¼«Æ°¤Ç¹¹¿·¥Á¥§¥Ã¥¯¤ò¤¹¤ë´Ö³Ö¤òÉÃ¿ô¤Ç»ØÄê¤·¤Þ¤¹¡£' );
+
+define( $constpref.'_AUTOSYNC_SEC_SPGROUPS',    '¼«Æ°¹¹¿·´Ö³Ö(ÆÃÄê¥°¥ë¡¼¥×):ÉÃ' );
+define( $constpref.'_AUTOSYNC_SEC_SPGROUPS_DESC', '' );
+
+define( $constpref.'_AUTOSYNC_SEC_USER',        '¼«Æ°¹¹¿·´Ö³Ö(ÅÐÏ¿¥æ¡¼¥¶¡¼):ÉÃ' );
+define( $constpref.'_AUTOSYNC_SEC_USER_DESC',   '' );
+
+define( $constpref.'_AUTOSYNC_SEC_GUEST',       '¼«Æ°¹¹¿·´Ö³Ö(¥²¥¹¥È):ÉÃ' );
+define( $constpref.'_AUTOSYNC_SEC_GUEST_DESC',  '' );
+
+define( $constpref.'_AUTOSYNC_START',           '¤¹¤°¤Ë¼«Æ°¹¹¿·¤ò³«»Ï¤¹¤ë' );
+define( $constpref.'_AUTOSYNC_START_DESC',      '¥³¥ó¥Æ¥­¥¹¥È¥á¥Ë¥å¡¼¤Î¡Ö¥ê¥í¡¼¥É¡×¤Ç¼«Æ°¹¹¿·¤Î³«»Ï¡¦Ää»ß¤¬¤Ç¤­¤Þ¤¹¡£' );
+
 define( $constpref.'_DEBUG' ,                   '¥Ç¥Ð¥Ã¥°¥â¡¼¥É¤òÍ­¸ú¤Ë¤¹¤ë' );
 define( $constpref.'_DEBUG_DESC' ,              '¥Ç¥Ð¥Ã¥°¥â¡¼¥É¤Ë¤¹¤ë¤È elFinder ¤Î "elfinder.min.css", "elfinder.min.js" ¤Ç¤Ï¤Ê¤¯¸ÄÊÌ¤Î¥Õ¥¡¥¤¥ë¤òÆÉ¤ß¹þ¤ß¤Þ¤¹¡£<br />¤Þ¤¿¡¢JavaScript ¤Î¥ì¥¹¥Ý¥ó¥¹¤Ë¥Ç¥Ð¥°¾ðÊó¤ò´Þ¤á¤Þ¤¹¡£<br />¥Ñ¥Õ¥©¡¼¥Þ¥ó¥¹¸þ¾å¤Î¤¿¤á¤Ë¡¢ÄÌ¾ï¤Ï¥Ç¥Ð¥Ã¥°¥â¡¼¥É¤ÏÌµ¸ú¤Ë¤·¤Æ±¿ÍÑ¤¹¤ë¤³¤È¤ò¤ª´«¤á¤·¤Þ¤¹¡£' );
 

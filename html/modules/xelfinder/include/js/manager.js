@@ -270,6 +270,8 @@ $(document).ready(function() {
 		resizable: false,
 		getFileCallback : callbackFunc,
 		startPathHash : startPathHash,
+		sync : autoSyncSec * 1000,
+		syncStart : autoSyncStart,
 		ui : ['toolbar', 'places', 'tree', 'path', 'stat'],
 		uiOptions : {
 			toolbar : [
