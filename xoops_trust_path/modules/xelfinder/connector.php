@@ -135,7 +135,6 @@ if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HAS
 	$memberUid = $userRoll['uid'];
 	$memberGroups = $userRoll['mygids'];
 	$inSpecialGroup = $userRoll['inSpecialGroup'];
-	debug($isAdmin, $memberUid, $memberGroups, $inSpecialGroup);
 	
 	// set umask
 	foreach(array('default', 'users_dir', 'guest_dir', 'group_dir') as $_key) {
