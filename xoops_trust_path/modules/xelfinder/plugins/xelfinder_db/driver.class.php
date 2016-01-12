@@ -804,7 +804,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		
 		$filters = $dirs = array();
 		if ($path != $this->root) {
-			$inpath = array(intval($path));
+			$dirs = $inpath = array($path);
 			while($inpath) {
 				$in = '('.join(',', $inpath).')';
 				$inpath = array();
