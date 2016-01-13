@@ -210,6 +210,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/commands/places.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/pixlr.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/chmod.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/opendir.js"></script>
 	
 		<!-- elfinder languages -->
 		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.en.js" charset="UTF-8"></script>
