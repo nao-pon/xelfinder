@@ -156,6 +156,7 @@ class elFinderVolumeXoopsMailbbs extends elFinderVolumeLocalFileSystem {
 	 **/
 	protected function doSearch($path, $q, $mimes) {
 		$result = array();
+		$encode = defined('_CHARSET')? _CHARSET : 'auto';
 	
 		foreach($this->_scandir($path) as $p) {
 			$stat = $this->stat($p);
@@ -171,19 +172,13 @@ class elFinderVolumeXoopsMailbbs extends elFinderVolumeLocalFileSystem {
 			$name = $stat['name'];
 	
 			if ($this->stripos($name, $q) !== false || $this->stripos(basename($stat['_localpath']), $q) !== false) {
-				$_path = $this->_path($p);
+				$_path = mb_convert_encoding($this->_path($p), 'UTF-8', $encode);
 				if (preg_match('//u', $_path) !== false) { // UTF-8 check for json_encode()
 					$stat['path'] = $_path;
 				}
-// 				if ($this->URL && !isset($stat['url'])) {
-// 					$stat['url'] = $this->URL . str_replace($this->separator, '/', substr($p, strlen($this->root) + 1));
-// 				}
 	
 				$result[] = $stat;
 			}
-// 			if ($stat['mime'] == 'directory' && $stat['read'] && !isset($stat['alias'])) {
-// 				$result = array_merge($result, $this->doSearch($p, $q, $mimes));
-// 			}
 		}
 	
 		return $result;
