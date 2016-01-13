@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.5 (2.1_n Nightly: 87574c2) (2016-01-12)
+ * Version 2.1.5 (2.1_n Nightly: f54069b) (2016-01-13)
  * http://elfinder.org
  * 
  * Copyright 2009-2016, Studio 42
@@ -4696,7 +4696,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.5 (2.1_n Nightly: 87574c2)';
+elFinder.prototype.version = '2.1.5 (2.1_n Nightly: f54069b)';
 
 
 
@@ -4922,7 +4922,7 @@ elFinder.prototype._options = {
 	 */
 	commands : [
 		'pixlr',
-		'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook', 
+		'open', 'opendir', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook', 
 		'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy', 
 		'cut', 'paste', 'edit', 'extract', 'archive', 'search', 'info', 'view', 'help',
 		'resize', 'sort', 'netmount', 'netunmount', 'places', 'chmod'
@@ -5495,7 +5495,7 @@ elFinder.prototype._options = {
 		// current directory menu
 		cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'sort', '|', 'info'],
 		// current directory file menu
-		files  : ['getfile', '|','open', 'quicklook', '|', 'download', 'upload', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', 'pixlr', '|', 'archive', 'extract', '|', 'places', 'info', 'chmod']
+		files  : ['getfile', '|' ,'open', 'opendir', 'quicklook', '|', 'download', 'upload', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', 'pixlr', '|', 'archive', 'extract', '|', 'places', 'info', 'chmod']
 	},
 
 	/**
@@ -6222,7 +6222,7 @@ $.fn.dialogelfinder = function(opts) {
 /**
  * English translation
  * @author Troex Nevelin <troex@fury.scancode.ru>
- * @version 2016-01-10
+ * @version 2016-01-13
  */
 if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object') {
 	elFinder.prototype.i18.en = {
@@ -6317,6 +6317,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'errNetUnMount'        : 'Unable to unmount', // from v2.1 added 30.04.2012
 			'errConvUTF8'          : 'Not convertible to UTF-8', // from v2.1 added 08.04.2014
 			'errFolderUpload'      : 'Try Google Chrome, If you\'d like to upload the folder.', // from v2.1 added 26.6.2015
+			'errSearchTimeout'     : 'Timed out while searching "$1". Search result is partial.', // from v2.1 added 12.1.2016
 
 			/******************************* commands names ********************************/
 			'cmdarchive'   : 'Create archive',
@@ -6350,6 +6351,7 @@ if (elFinder && elFinder.prototype && typeof(elFinder.prototype.i18) == 'object'
 			'cmdnetunmount': 'Unmount', // from v2.1 added 30.04.2012
 			'cmdplaces'    : 'To Places', // added 28.12.2014
 			'cmdchmod'     : 'Change mode', // from v2.1 added 20.6.2015
+			'cmdopendir'   : 'Open a folder', // from v2.1 added 13.1.2016
 			
 			'cmdpixlr'     : 'Edit on Pixlr',
 
@@ -8213,15 +8215,19 @@ $.fn.elfindercwd = function(fm, options) {
 			.bind('search', function(e) {
 				lastSearch = e.data.files;
 				content(lastSearch, true);
+				wrapper.addClass('elfinder-search-result');
 				fm.autoSync('stop');
 				resize();
 			})
-			.bind('searchend', function() {
+			.bind('searchend', function(e) {
 				lastSearch = [];
 				if (query) {
 					query = '';
-					content(fm.files());
+					if (!e.data && !e.data.noupdate) {
+						content(fm.files());
+					}
 				}
+				wrapper.removeClass('elfinder-search-result');
 				fm.autoSync();
 				resize();
 			})
@@ -8826,7 +8832,6 @@ $.fn.elfinderpath = function(fm) {
 					e.preventDefault();
 					if (hash != fm.cwd().hash) {
 						if (query) {
-							fm.log(mimes.join(' '));
 							fm.exec('search', query, { target: hash, mime: mimes.join(' ') });
 						} else {
 							fm.exec('open', hash);
@@ -9523,7 +9528,12 @@ $.fn.elfindersortbutton = function(cmd) {
 $.fn.elfinderstat = function(fm) {
 	return this.each(function() {
 		var size       = $(this).addClass('elfinder-stat-size'),
-			sel        = $('<div class="elfinder-stat-selected"/>'),
+			sel        = $('<div class="elfinder-stat-selected"/>')
+				.on('click', 'a', function(e) {
+					var hash = $(this).data('hash');
+					e.preventDefault();
+					fm.exec('opendir', [ hash ]);
+				}),
 			titlesize  = fm.i18n('size').toLowerCase(),
 			titleitems = fm.i18n('items').toLowerCase(),
 			titlesel   = fm.i18n('selected'),
@@ -9538,25 +9548,37 @@ $.fn.elfinderstat = function(fm) {
 					}
 				})
 				size.html(titleitems+': '+c+', '+titlesize+': '+fm.formatSize(s));
-			};
+			},
+			search = false;
 
 		fm.getUI('statusbar').prepend(size).append(sel).show();
 		
 		fm
 		.bind('open reload add remove change searchend', function() {
-			setstat(fm.files(), fm.cwd().hash)
+			setstat(fm.files(), fm.cwd().hash);
+		})
+		.bind('searchend', function() {
+			search = false;
 		})
 		.search(function(e) {
+			search = true;
 			setstat(e.data.files);
 		})
 		.select(function() {
 			var s = 0,
 				c = 0,
-				files = fm.selectedFiles();
+				files = fm.selectedFiles(),
+				dirs = [],
+				file;
 
 			if (files.length == 1) {
-				s = files[0].size;
-				sel.html(fm.escape(files[0].name)+(s > 0 ? ', '+fm.formatSize(s) : ''));
+				file = files[0];
+				s = file.size;
+				if (search) {
+					dirs.push('<a href="#elf_'+file.phash+'" data-hash="'+file.hash+'">'+(file.path? file.path.replace(/\/[^\/]*$/, '') : '..')+'</a>');
+				}
+				dirs.push(fm.escape(file.name));
+				sel.html(dirs.join('/') + (s > 0 ? ', '+fm.formatSize(s) : ''));
 				
 				return;
 			}
@@ -10246,7 +10268,7 @@ $.fn.elfindertree = function(fm, opts) {
 						return;
 					}
 					
-					fm.trigger('searchend');
+					fm.trigger('searchend', { noupdate: true });
 				
 					if (hash != fm.cwd().hash && !link.hasClass(disabled)) {
 						fm.exec('open', hash);
@@ -12836,6 +12858,66 @@ elFinder.prototype.commands.open = function() {
 	}
 
 }
+
+/*
+ * File: /js/commands/opendir.js
+ */
+
+/**
+ * @class  elFinder command "opendir"
+ * Enter parent folder
+ *
+ * @author Naoki Sawada
+ **/  
+elFinder.prototype.commands.opendir = function() {
+	this.alwaysEnabled = true;
+	
+	this.getstate = function() {
+		var sel = this.fm.selected(),
+			cnt = sel.length,
+			cwdWrapper;
+		if (cnt !== 1) {
+			return -1;
+		}
+		cwdWrapper = this.fm.getUI('cwd').parent();
+		return cwdWrapper.hasClass('elfinder-search-result')? 0 : -1;
+	}
+	
+	this.exec = function(hashes) {
+		var fm    = this.fm,
+			dfrd  = $.Deferred(),
+			files = this.files(hashes),
+			cnt   = files.length,
+			hash, pcheck = null;
+
+		if (!cnt || !files[0].phash) {
+			return dfrd.reject();
+		}
+
+		hash = files[0].phash;
+		if (!fm.file(hash)) {
+			// parents check
+			pcheck = fm.request({
+				data   : {cmd  : 'parents', target : hash},
+				syncOnFail : false
+			});
+		}
+		// open folder
+		$.when(pcheck)
+		.done(function(data){
+			fm.trigger('searchend', { noupdate: true });
+			fm.request({
+				data   : {cmd  : 'open', target : hash},
+				notify : {type : 'open', cnt : 1, hideCnt : true},
+				syncOnFail : false
+			});
+		});
+		
+		return dfrd;
+	}
+
+}
+
 
 /*
  * File: /js/commands/paste.js
