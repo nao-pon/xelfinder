@@ -121,6 +121,13 @@ $.fn.elfindercwd = function(fm, options) {
 
 			lastSearch = [],
 
+			/**
+			 * Parents hashes of cwd
+			 *
+			 * @type Array
+			 */
+			cwdParents = [],
+
 			customColsBuild = function() {
 				var customCols = '';
 				var columns = fm.options.uiOptions.cwd.listView.columns;
@@ -732,6 +739,19 @@ $.fn.elfindercwd = function(fm, options) {
 			 */
 			remove = function(files) {
 				var l = files.length, hash, n, ndx;
+
+				// removed cwd
+				if (!fm.cwd().hash && fm.currentReqCmd !== 'open') {
+					$.each(cwdParents.reverse(), function(i, h) {
+						if (fm.files()[h]) {
+							fm.one(fm.currentReqCmd, function() {
+								fm.exec('open', h);
+							});
+							return false;
+						}
+					});
+					return;
+				}
 				
 				while (l--) {
 					hash = files[l];
@@ -801,7 +821,9 @@ $.fn.elfindercwd = function(fm, options) {
 			 */
 			content = function(files, any) {
 				var phash = fm.cwd().hash; 
-				
+
+				cwdParents = fm.parents(phash);
+
 				unselectAll();
 				
 				try {
@@ -926,8 +948,8 @@ $.fn.elfindercwd = function(fm, options) {
 								fm.trigger('contextmenu', {
 									'type'    : 'files',
 									'targets' : fm.selected(),
-									'x'       : e.originalEvent.touches[0].clientX,
-									'y'       : e.originalEvent.touches[0].clientY
+									'x'       : e.originalEvent.touches[0].pageX,
+									'y'       : e.originalEvent.touches[0].pageY
 								});
 							}
 						}
@@ -1122,8 +1144,8 @@ $.fn.elfindercwd = function(fm, options) {
 							fm.trigger('contextmenu', {
 								'type'    : 'files',
 								'targets' : fm.selected(),
-								'x'       : e.clientX,
-								'y'       : e.clientY
+								'x'       : e.pageX,
+								'y'       : e.pageY
 							});
 
 						}
@@ -1175,8 +1197,8 @@ $.fn.elfindercwd = function(fm, options) {
 					fm.trigger('contextmenu', {
 						'type'    : 'cwd',
 						'targets' : [fm.cwd().hash],
-						'x'       : e.clientX,
-						'y'       : e.clientY
+						'x'       : e.pageX,
+						'y'       : e.pageY
 					});
 					
 				})
@@ -1191,8 +1213,8 @@ $.fn.elfindercwd = function(fm, options) {
 						fm.trigger('contextmenu', {
 							'type'    : 'cwd',
 							'targets' : [fm.cwd().hash],
-							'x'       : e.originalEvent.touches[0].clientX,
-							'y'       : e.originalEvent.touches[0].clientY
+							'x'       : e.originalEvent.touches[0].pageX,
+							'y'       : e.originalEvent.touches[0].pageY
 						});
 					}, 500));
 				})
