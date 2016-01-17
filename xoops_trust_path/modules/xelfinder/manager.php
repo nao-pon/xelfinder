@@ -137,6 +137,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/contextmenu.css" type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/cwd.css"         type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/quicklook.css"   type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/places.css"      type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/commands.css"    type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/fonts.css"       type="text/css" >
 <?php } else {?>
