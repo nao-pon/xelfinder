@@ -140,6 +140,26 @@ class Driver extends elFinderVolumeDriver {
     }
 
     /**
+     * Check if the directory exists in the parent directory. Needed because not all drives handle directories correctly.
+     *
+     * @param  string  $path  path
+     * @return boolean
+     **/
+    protected function _dirExists($path)
+    {
+        $dir = $this->_dirname($path);
+        $basename = basename($path);
+        
+        foreach ($this->fs->listContents($dir) as $meta) {
+            if ($meta['type'] !== 'file' && $meta['basename'] == $basename) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Return stat for given path.
      * Stat contains following fields:
      * - (int)    size    file size in b. required
@@ -177,7 +197,14 @@ class Driver extends elFinderVolumeDriver {
 
         // If not exists, return empty
         if ( !$this->fs->has($path)) {
-            return array();
+            
+            // Check if the parent doesn't have this path
+            if ($this->_dirExists($path)) {
+                return $stat;
+            }
+            
+            // Neither a file or directory exist, return empty
+            return array();            
         }
 
         $meta = $this->fs->getMetadata($path);
@@ -488,7 +515,7 @@ class Driver extends elFinderVolumeDriver {
      **/
     protected function _path($path)
     {
-        return $path;
+        return $this->rootName.$this->separator.$path;
     }
 
     /**
@@ -569,14 +596,17 @@ class Driver extends elFinderVolumeDriver {
      * @param  int      $height  new height
      * @param  int      $x       X start poistion for crop
      * @param  int      $y       Y start poistion for crop
-     * @param  string   $mode    action how to mainpulate image
+	 * @param  string   $mode    action how to mainpulate image
+	 * @param  string   $bg      background color
+	 * @param  int      $degree  rotete degree
+	 * @param  int      $jpgQuality  JEPG quality (1-100)
      * @return array|false
      * @author Dmitry (dio) Levashov
      * @author Alexey Sukhotin
      * @author nao-pon
      * @author Troex Nevelin
      **/
-    public function resize($hash, $width, $height, $x, $y, $mode = 'resize', $bg = '', $degree = 0) {
+    public function resize($hash, $width, $height, $x, $y, $mode = 'resize', $bg = '', $degree = 0, $jpgQuality = null) {
         if ($this->commandDisabled('resize')) {
             return $this->setError(elFinder::ERROR_PERM_DENIED);
         }
@@ -622,7 +652,11 @@ class Driver extends elFinderVolumeDriver {
                 break;
         }
 
-        $result = (string) $image->encode();
+        if ($jpgQuality && $image->mime() === 'image/jpeg') {
+        	$result = (string) $image->encode('jpg', $jpgQuality);
+        } else {
+        	$result = (string) $image->encode();
+        }
         if ($result && $this->_filePutContents($path, $result)) {
             $stat = $this->stat($path);
             $stat['width'] = $image->width();

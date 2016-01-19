@@ -4,6 +4,9 @@ namespace League\Flysystem\Util;
 
 use Finfo;
 
+/**
+ * @internal
+ */
 class MimeType
 {
     /**
@@ -15,14 +18,11 @@ class MimeType
      */
     public static function detectByContent($content)
     {
-        if (! class_exists('Finfo')) {
+        if ( ! class_exists('Finfo')) {
             return;
         }
 
-        $finfo = new Finfo(FILEINFO_MIME_TYPE);
-        $mimeType = $finfo->buffer($content);
-
-        return $mimeType ?: null;
+        return (new Finfo(FILEINFO_MIME_TYPE))->buffer($content) ?: null;
     }
 
     /**
@@ -36,7 +36,7 @@ class MimeType
     {
         static $extensionToMimeTypeMap;
 
-        if (! $extensionToMimeTypeMap) {
+        if ( ! $extensionToMimeTypeMap) {
             $extensionToMimeTypeMap = static::getExtensionToMimeTypeMap();
         }
 
@@ -121,6 +121,7 @@ class MimeType
             'bmp'   => 'image/bmp',
             'tiff'  => 'image/tiff',
             'tif'   => 'image/tiff',
+            'svg'   => 'image/svg+xml',
             'css'   => 'text/css',
             'html'  => 'text/html',
             'htm'   => 'text/html',

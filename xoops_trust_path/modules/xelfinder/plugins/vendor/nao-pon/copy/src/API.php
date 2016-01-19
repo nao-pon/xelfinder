@@ -178,7 +178,7 @@ class API
 
         // obtain each part and add it to the stream
         foreach ($file->{"revisions"}[0]->{"parts"} as $part) {
-            $data = $this->getPart($part->{"fingerprint"}, $part->{"size"});
+            $data = $this->getPart($part->{"fingerprint"}, $part->{"size"}, $file->{"share_id"});
             fwrite($stream, $data);
         }
 
@@ -677,7 +677,7 @@ class API
         
         // Check for errors
         if (isset($result->error)) {
-        	throw new \Exception("Error listing path " . $path . ": (" . $result->error . ") '" . $result->message . "'");
+               throw new \Exception("Error creating link for paths " . implode(', ', $paths) . ": (" . $result->error . ") '" . $result->message . "'");
         }
         
         return $result;

@@ -14,15 +14,13 @@
         }
     ],
     "require": {
-        "php": ">=5.4.0",
-        "ext-mbstring": "*"
+        "php": ">=5.4.0"
     },
     "require-dev": {
         "ext-fileinfo": "*",
-        "phpunit/phpunit": "~4.1",
+        "phpunit/phpunit": "~4.8 || ~5.0",
         "mockery/mockery": "~0.9",
-        "phpspec/phpspec": "~2.0",
-        "phpspec/prophecy-phpunit": "~1.0"
+        "phpspec/phpspec": "^2.2"
     },
     "autoload": {
         "psr-4": {
@@ -47,6 +45,9 @@
         "league/flysystem-cached-adapter": "Flysystem adapter decorator for metadata caching",
         "league/flysystem-sftp": "Allows you to use SFTP server storage via phpseclib",
         "league/flysystem-ziparchive": "Allows you to use ZipArchive adapter"
+    },
+    "conflict": {
+        "league/flysystem-sftp": "<1.0.6"
     },
     "config": {
         "bin-dir": "bin"

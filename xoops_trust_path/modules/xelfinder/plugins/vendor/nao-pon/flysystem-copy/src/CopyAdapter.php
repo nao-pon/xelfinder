@@ -7,6 +7,7 @@ use League\Flysystem\Adapter\AbstractAdapter;
 use League\Flysystem\Adapter\Polyfill\NotSupportingVisibilityTrait;
 use League\Flysystem\Config;
 use League\Flysystem\Util;
+use stdClass;
 
 class CopyAdapter extends AbstractAdapter
 {
@@ -48,6 +49,16 @@ class CopyAdapter extends AbstractAdapter
         $this->client = $client;
         $this->setPathPrefix($prefix);
         $this->metaCache = [];
+    }
+    
+    /**
+     * Get the Copy API instance.
+     *
+     * @return API
+     */
+    public function getClient()
+    {
+        return $this->client;
     }
 
     /**
@@ -337,7 +348,7 @@ class CopyAdapter extends AbstractAdapter
      */
     protected function normalizeObject($object, $path)
     {
-        if (is_a($object, 'stdClass') === false) {
+        if (!$object instanceof stdClass) {
             return false;
         }
 

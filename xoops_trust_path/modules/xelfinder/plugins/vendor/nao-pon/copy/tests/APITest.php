@@ -105,6 +105,17 @@ class APITest extends PHPUnit_Framework_TestCase
     /**
      * @depends testCreateFile
      */
+    public function testGetMeta()
+    {
+        $file = $this->api->getMeta('/' . basename(self::$data_filepath));
+
+
+        $this->assertEquals($file->name, basename(self::$data_filepath));
+    }
+
+    /**
+     * @depends testCreateFile
+     */
     public function testGetPart()
     {
         // Ensure the file exists
@@ -136,6 +147,16 @@ class APITest extends PHPUnit_Framework_TestCase
 
             $this->assertEquals($file->size, $part_size_sum);
         }
+    }
+
+    /**
+     * @depends testCreateFile
+     */
+    public function testCreateLink()
+    {
+        $link = $this->api->createLink('/' . basename(self::$data_filepath));
+
+        $this->assertObjectHasAttribute('url', $link);
     }
 
     /**
