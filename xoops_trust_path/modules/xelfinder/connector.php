@@ -323,8 +323,12 @@ while( ob_get_level() ) {
 	if (! @ ob_end_clean()) break;
 }
 
-$connector = new elFinderConnector(new xelFinder($opts), $debug);
-$connector->run();
+try {
+	$connector = new elFinderConnector(new xelFinder($opts), $debug);
+	$connector->run();
+} catch (Exception $e) {
+	exit(json_encode(array('error' => $e->getMessage())));
+}
 
 
 function debug() {
