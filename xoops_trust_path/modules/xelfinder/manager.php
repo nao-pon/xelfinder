@@ -79,7 +79,7 @@ $viewport = (preg_match('/Mobile|Android/i', $_SERVER['HTTP_USER_AGENT']))? '<me
 $userLang = xelfinder_detect_lang();
 
 if (empty($config['jquery'])) {
-	$jQueryVersion   = '1.11.3';
+	$jQueryVersion   = '1.12.0';
 	$jQueryCDN = '//ajax.googleapis.com/ajax/libs/jquery/%s/jquery.min.js';
 	$jQueryUrl = sprintf($jQueryCDN, $jQueryVersion);
 } else {
