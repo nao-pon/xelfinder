@@ -31,7 +31,7 @@ define('ELFINDER_DROPBOX_USE_CURL_PUT', true);
 require_once dirname(__FILE__) . '/include/compat.php';
 
 // load composer auto loader 
-if (version_compare(PHP_VERSION, '5.3.2', '>=')) {
+if (version_compare(PHP_VERSION, '5.4', '>=')) {
 	require_once __DIR__ . '/plugins/vendor/autoload.php';
 }
 
