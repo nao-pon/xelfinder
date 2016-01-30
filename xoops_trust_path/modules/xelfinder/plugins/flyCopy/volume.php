@@ -3,6 +3,7 @@ use Barracuda\Copy\API;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Adapter\Local;
 use League\Flysystem\Cached\CachedAdapter;
+use League\Flysystem\Cached\Storage\Memory as CacheStore;
 use League\Flysystem\Cached\Storage\Memcached as MCache;
 use League\Flysystem\Cached\Storage\Adapter as ACache;
 use League\Flysystem\Copy\CopyAdapter;
@@ -32,7 +33,13 @@ if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
 			$_cache = new ACache(new Local(XOOPS_TRUST_PATH.'/cache'), $_cacheKey, $_expire);
 		}
 		
-		$_copy = new CopyAdapter(new API($extOptions['ext_consumerKey'], $extOptions['ext_consumerSecret'], $extOptions['ext_accessToken'], $extOptions['ext_tokenSecret']), $path);
+		$_copy = new CachedAdapter(
+			new CopyAdapter(
+				new API($extOptions['ext_consumerKey'], $extOptions['ext_consumerSecret'], $extOptions['ext_accessToken'], $extOptions['ext_tokenSecret']),
+				$path
+			),
+			new CacheStore()
+		);
 		if ($_cache) {
 			$_fly = new Filesystem(new CachedAdapter($_copy, $_cache));
 		} else {
