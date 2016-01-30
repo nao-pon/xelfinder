@@ -32,13 +32,6 @@ class CopyAdapter extends AbstractAdapter
     protected $client;
 
     /**
-     * Object meta data cache array
-     * 
-     * @var array
-     */
-    private $metaCache = [];
-
-    /**
      * Constructor.
      *
      * @param API    $client
@@ -48,7 +41,6 @@ class CopyAdapter extends AbstractAdapter
     {
         $this->client = $client;
         $this->setPathPrefix($prefix);
-        $this->metaCache = [];
     }
     
     /**
@@ -81,8 +73,6 @@ class CopyAdapter extends AbstractAdapter
         $location = $this->applyPathPrefix($path);
         $result = $this->client->uploadFromString($location, $contents);
 
-        unset($this->metaCache[$location]);
-
         return $this->normalizeObject($result, $location);
     }
 
@@ -93,8 +83,6 @@ class CopyAdapter extends AbstractAdapter
     {
         $location = $this->applyPathPrefix($path);
         $result = $this->client->uploadFromStream($location, $resource);
-
-        unset($this->metaCache[$location]);
 
         return $this->normalizeObject($result, $location);
     }
@@ -107,8 +95,6 @@ class CopyAdapter extends AbstractAdapter
         $location = $this->applyPathPrefix($path);
         $result = $this->client->uploadFromString($location, $contents);
 
-        unset($this->metaCache[$location]);
-
         return $this->normalizeObject($result, $location);
     }
 
@@ -119,8 +105,6 @@ class CopyAdapter extends AbstractAdapter
     {
         $location = $this->applyPathPrefix($path);
         $result = $this->client->uploadFromStream($location, $resource);
-
-        unset($this->metaCache[$location]);
 
         return $this->normalizeObject($result, $location);
     }
@@ -157,8 +141,6 @@ class CopyAdapter extends AbstractAdapter
             return false;
         }
 
-        unset($this->metaCache[$location], $this->metaCache[$destination]);
-
         return true;
     }
 
@@ -176,8 +158,6 @@ class CopyAdapter extends AbstractAdapter
             return false;
         }
 
-        unset($this->metaCache[$destination]);
-
         return true;
     }
 
@@ -188,8 +168,6 @@ class CopyAdapter extends AbstractAdapter
     {
         $location = $this->applyPathPrefix($path);
 
-        unset($this->metaCache[$location]);
-
         return $this->client->removeFile($location);
     }
 
@@ -199,8 +177,6 @@ class CopyAdapter extends AbstractAdapter
     public function deleteDir($path)
     {
         $location = $this->applyPathPrefix($path);
-
-        unset($this->metaCache[$location]);
 
         return $this->client->removeDir($location);
     }
@@ -218,8 +194,6 @@ class CopyAdapter extends AbstractAdapter
             return false;
         }
 
-        unset($this->metaCache[$location]);
-
         return compact('path') + ['type' => 'dir'];
     }
 
@@ -229,24 +203,12 @@ class CopyAdapter extends AbstractAdapter
     public function getMetadata($path)
     {
         $location = $this->applyPathPrefix($path);
+        $object = $this->client->getMeta($location);
 
-        if (!empty($this->metaCache[$location])) {
-            return $this->normalizeObject($this->metaCache[$location], $location);
-        }
-        $this->metaCache[$location] = $object = $this->client->getMeta($location);
-
-        if ($object === false || empty($object)) {
+        if ($object === false) {
             return false;
         }
 
-        if (!empty($object->children)) {
-            foreach($object->children as $child) {
-                if (!isset($this->metaCache[$child->path])) {
-                    $this->metaCache[$child->path] = $child;
-                }
-            }
-        }
-        
         return $this->normalizeObject($object, $location);
     }
 
@@ -282,60 +244,22 @@ class CopyAdapter extends AbstractAdapter
         $listing = [];
         $location = $this->applyPathPrefix($dirname);
 
-        if (isset($this->metaCache[$location]) && isset($this->metaCache[$location]->children)) {
-            $object = $this->metaCache[$location];
-        } else {
-            $this->metaCache[$location] = $object = $this->client->getMeta($location);
+        if (! $result = $this->client->listPath($location)) {
+            return [];
         }
 
-        if (!empty($object->children)) {
-            foreach($object->children as $child) {
-                $listing[] = $this->normalizeObject($child, $child->path);
-                if (!isset($this->metaCache[$child->path])) {
-                    $this->metaCache[$child->path] = $child;
-                }
-                if ($recursive && $child->type == 'dir') {
-                    $listing = array_merge($listing, $this->listContents($child->path, $recursive));
+        $location = rtrim($location, '/');
+        foreach ($result as $object) {
+            if ($location !== $object->path) {
+                $listing[] = $this->normalizeObject($object, $object->path);
+
+                if ($recursive && $object->type == 'dir') {
+                    $listing = array_merge($listing, $this->listContents($object->path, $recursive));
                 }
             }
         }
 
         return $listing;
-    }
-
-    /**
-     * Get item absolute URL
-     *
-     * @param string   $path
-     *
-     * @return string item absolute URL
-     */
-    public function getUrl($path)
-    {
-        $location = $this->applyPathPrefix($path);
-
-        try {
-            $object = $this->getMetadata($path);
-            if (! isset($object->links)) {
-                $this->metaCache[$location] = $object = $this->client->getMeta($location);
-            }
-            $url = '';
-            if (! empty($object->links)) {
-                foreach($object->links as $link) {
-                    if ($link->status === 'viewed' && $link->permissions === 'read') {
-                        $url = $link->url;
-                        break;
-                    }
-                }
-            }
-            if ($url === '') {
-                $object = $this->client->createLink($location);
-                $url = $object->url;
-            }
-            return $url . '/' . rawurlencode($object->name);
-        } catch (\Exception $e) {
-            return '';
-        }
     }
 
     /**
