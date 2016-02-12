@@ -14,6 +14,10 @@ $adminmenu = array(
 	array(
 		'title' => constant( $constpref.'_ADMENU_DROPBOX' ) ,
 		'link' => 'admin/index.php?page=dropbox' ,
+	),
+	array(
+		'title' => constant( $constpref.'_ADMENU_VENDORUPDATE' ) ,
+		'link' => 'admin/index.php?page=vendorup' ,
 	)
 ) ;
 

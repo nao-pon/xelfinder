@@ -14,6 +14,7 @@ define( $constpref.'_DESC' , 'Web¥Ù¡¼¥¹¤Î¥Õ¥¡¥¤¥ë¥Þ¥Í¡¼¥¸¥ã elFinder ¤ò¥¤¥á¡¼¥¸¥
 define($constpref.'_ADMENU_GOTO_MODULE' ,   '¥â¥¸¥å¡¼¥ë²èÌÌ' ) ;
 define($constpref.'_ADMENU_GOTO_MANAGER' ,  '¥Õ¥¡¥¤¥ë¥Þ¥Í¡¼¥¸¥ã' ) ;
 define($constpref.'_ADMENU_DROPBOX' ,       'Dropbox App Token ¼èÆÀ' ) ;
+define($constpref.'_ADMENU_VENDORUPDATE' ,  'vendor ¥¢¥Ã¥×¥Ç¡¼¥È' ) ;
 define($constpref.'_ADMENU_MYLANGADMIN' ,   '¸À¸ìÄê¿ô´ÉÍý' ) ;
 define($constpref.'_ADMENU_MYTPLSADMIN' ,   '¥Æ¥ó¥×¥ì¡¼¥È´ÉÍý' ) ;
 define($constpref.'_ADMENU_MYBLOCKSADMIN' , '¥Ö¥í¥Ã¥¯´ÉÍý/¥¢¥¯¥»¥¹¸¢¸Â' ) ;
@@ -180,5 +181,11 @@ define( $constpref.'_DROPBOX_GOTO_CONFIRM' , '¼¡¤Î¥ê¥ó¥¯Àè (Dropbox.com) ¤Ø¿Ê¤ß¡
 define( $constpref.'_DROPBOX_CONFIRM_LINK' , 'Dropbox.com ¤Ø¹Ô¤­¡¢¥¢¥×¥ê¤òÇ§²Ä¤¹¤ë');
 define( $constpref.'_DROPBOX_STEP3' ,        'Step 3: ¼èÆÀ´°Î»¡£°ìÈÌÀßÄê¤ØÀßÄê');
 define( $constpref.'_DROPBOX_SET_PREF' ,     '¼¡¤ÎÃÍ¤ò°ìÈÌÀßÄê¤Î³Æ¹àÌÜ¤ËÀßÄê¤·¤Æ¤¯¤À¤µ¤¤¡£');
+
+// admin/composer_update.php
+define( $constpref.'_COMPOSER_UPDATE' ,       'plugin/vendor ¥¢¥Ã¥×¥Ç¡¼¥È(composer update)');
+define( $constpref.'_COMPOSER_DO_UPDATE' ,    '¥¢¥Ã¥×¥Ç¡¼¥È¤ò¼Â¹Ô¤¹¤ë(¤¢¤ëÄøÅÙ»þ´Ö¤¬³Ý¤«¤ê¤Þ¤¹)');
+define( $constpref.'_COMPOSER_UPDATE_STARTED','¥¢¥Ã¥×¥Ç¡¼¥È¤ò³«»Ï¤·¤Þ¤·¤¿¡£¤³¤³¤Ë·ë²Ì¤¬É½¼¨¤µ¤ì¤ë¤Þ¤Ç¤ªÂÔ¤Á²¼¤µ¤¤...');
+define( $constpref.'_COMPOSER_DONE_UPDATE' ,  '¥¢¥Ã¥×¥Ç¡¼¥È¤¬´°Î»¤·¤Þ¤·¤¿¡£');
 
 }
