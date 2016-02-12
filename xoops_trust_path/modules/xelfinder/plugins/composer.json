@@ -4,6 +4,8 @@
         "nao-pon/flysystem-copy": "dev-pilot",
         "nao-pon/copy": "@dev",
         "nao-pon/flysystem-cached-adapter": "dev-pilot",
-        "nao-pon/elfinder-flysystem-driver": "dev-pilot"
+        "nao-pon/elfinder-flysystem-driver": "dev-pilot",
+        "nao-pon/flysystem-google-drive": "@dev",
+        "google/apiclient": "2.0.x@rc"
     }
 }
