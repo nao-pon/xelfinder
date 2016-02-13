@@ -136,10 +136,10 @@ class xoops_elFinder {
 		return $disabledCmds;
 	}
 	
-	public function getRootVolumes($config, $extras = array()) {
+	public function getRootVolumeConfigs($config, $extras = array()) {
 		$pluginPath = dirname(dirname(__FILE__)) . '/plugins/';
 		$configs = explode("\n", $config);
-		$roots = array();
+		$files = array();
 
 		$disabledCmds = $this->getDisablesCmds();
 		
@@ -256,17 +256,33 @@ class xoops_elFinder {
 			if ($title === '') $title = $mydirname;
 			$path = trim($path, '/');
 			$path = ($path === '')? '/' : '/' . $path . '/';
-			$volume = $pluginPath . $plugin . '/volume.php';
-			if (is_file($volume)) {
+			$src = $pluginPath . $plugin . '/volume.php';
+			if (is_file($src)) {
 				$extra = isset($extras[$mydirname.':'.$plugin])? $extras[$mydirname.':'.$plugin] : array();
 				
 				//reset value
 				$isAdmin = $this->isAdmin;
 				$mConfig = $this->config;
 				$mDirname = $this->mydirname;
-				$volumeOptions = array();
 				
-				require $volume;
+				$files[] = compact('src', 'mydirname', 'title', 'path', 'extra', 'extOptions', 'isAdmin', 'mConfig', 'mDirname');
+			}
+		}
+		return $files;
+	}
+	
+	public function buildRootVolumes($configs) {
+		$roots = array();
+		foreach($configs as $config) {
+			$raw = null;
+			extract($config);
+			if ($raw) {
+				$roots[] = $raw;
+				continue;
+			}
+			
+			$volumeOptions = array();
+			if (@include $src) {
 				if ($volumeOptions) {
 					!isset($volumeOptions['disabled']) && ($volumeOptions['disabled'] = array());
 					!isset($volumeOptions['id']) && ($volumeOptions['id'] = '_' . $mydirname);

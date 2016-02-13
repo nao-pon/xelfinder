@@ -127,8 +127,8 @@ $xoops_elFinder->setLogfile($debug? XOOPS_TRUST_PATH . '/cache/elfinder.log.txt'
 include_once dirname(__FILE__).'/class/xelFinderAccess.class.php';
 
 // Get volumes
-if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HASH_'.$mydirname] === $config_MD5) {
-	$rootVolumes = unserialize(base64_decode($_SESSION['XELFINDER_RV_'.$mydirname]));
+if (isset($_SESSION['XELFINDER_RF_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HASH_'.$mydirname] === $config_MD5) {
+	$rootConfig = unserialize(base64_decode($_SESSION['XELFINDER_RF_'.$mydirname]));
 } else {
 	$userRoll = $xoops_elFinder->getUserRoll();
 	$isAdmin = $userRoll['isAdmin'];
@@ -195,7 +195,7 @@ if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HAS
 		);
 	}
 	
-	$rootVolumes = $xoops_elFinder->getRootVolumes($config['volume_setting'], $extras);
+	$rootConfig = $xoops_elFinder->getRootVolumeConfigs($config['volume_setting'], $extras);
 	
 	// Add net(FTP) volume
 	if ($isAdmin && !empty($config['ftp_host']) && !empty($config['ftp_port']) && !empty($config['ftp_user']) && !empty($config['ftp_pass'])) {
@@ -225,7 +225,7 @@ if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HAS
 				),
 			)
 		);
-		$rootVolumes[] = $ftp;
+		$rootConfig[] = array('raw' => $ftp);
 	}
 	if (defined('ELFINDER_DROPBOX_CONSUMERKEY') && $config['dropbox_path'] && $config['dropbox_acc_token'] && $config['dropbox_acc_seckey']) {
 		$dropbox_access = null;
@@ -254,11 +254,18 @@ if (isset($_SESSION['XELFINDER_RV_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HAS
 			'uploadAllow'       => (!$isAdmin && !empty($config['dropbox_upload_mime']))? array_map('trim', explode(',', $config['dropbox_upload_mime'])) : array(),
 			'uploadOrder'       => array('deny', 'allow'),
 		);
-		$rootVolumes[] = $dropbox;
+		$rootConfig[] = array('raw' => $dropbox);
 	}
-	$_SESSION['XELFINDER_RV_'.$mydirname] = base64_encode(serialize($rootVolumes));
-	$_SESSION['XELFINDER_CFG_HASH_'.$mydirname] = $config_MD5;
+	
+	try {
+		if ($serVar = @serialize($rootConfig)) {
+			$_SESSION['XELFINDER_RF_'.$mydirname] = base64_encode($serVar);
+			$_SESSION['XELFINDER_CFG_HASH_'.$mydirname] = $config_MD5;
+		}
+	} catch (Exception $e) {}
 }
+
+$rootVolumes = $xoops_elFinder->buildRootVolumes($rootConfig);
 foreach($rootVolumes as $rootVolume) {
 	if (isset($rootVolume['driverSrc'])) {
 		require_once $rootVolume['driverSrc'];
