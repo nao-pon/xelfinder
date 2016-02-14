@@ -16,6 +16,10 @@ $adminmenu = array(
 		'link' => 'admin/index.php?page=dropbox' ,
 	),
 	array(
+		'title' => constant( $constpref.'_ADMENU_GOOGLEDRIVE' ) ,
+		'link' => 'admin/index.php?page=googledrive' ,
+	),
+	array(
 		'title' => constant( $constpref.'_ADMENU_VENDORUPDATE' ) ,
 		'link' => 'admin/index.php?page=vendorup' ,
 	)
