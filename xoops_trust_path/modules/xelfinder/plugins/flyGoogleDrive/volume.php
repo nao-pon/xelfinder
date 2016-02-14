@@ -22,19 +22,22 @@ if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
 		$_token = @json_decode($extOptions['ext_token'], true);
 		if ($_token && !empty($_token['client_id']) && !empty($_token['client_secret']) && !empty($_token['refresh_token'])) {
 			$path = '/' . trim($path, '/');
-			$_expire = isset($extOptions['ext_cache_expire'])?: 600;
-			$_cacheKey = $mDirname.'_'.md5(XOOPS_URL . $extOptions['ext_token'].$path);
 			
-			$_cache = null;
-			if (class_exists('Memcached')) {
-				$memcached = new Memcached();
-				if ($memcached->addServer(! empty($extOptions['ext_mcache_host'])?: 'localhost', ! empty($extOptions['ext_mcache_port'])?: 11211)) {
-					$_cache = new MCache($memcached, $_cacheKey, $_expire);
+			$_expire = isset($extOptions['ext_cache_expire'])?: 0;
+			if ($_expire) {
+				$_cacheKey = $mDirname.'_'.md5(XOOPS_URL . $_token . $path);
+				
+				$_cache = null;
+				if (class_exists('Memcached')) {
+					$memcached = new Memcached();
+					if ($memcached->addServer(! empty($extOptions['ext_mcache_host'])?: 'localhost', ! empty($extOptions['ext_mcache_port'])?: 11211)) {
+						$_cache = new MCache($memcached, $_cacheKey, $_expire);
+					}
 				}
-			}
-			
-			if (! $_cache && is_writable(XOOPS_TRUST_PATH.'/cache')) {
-				$_cache = new ACache(new Local(XOOPS_TRUST_PATH.'/cache'), $_cacheKey, $_expire);
+				
+				if (! $_cache && is_writable(XOOPS_TRUST_PATH.'/cache')) {
+					$_cache = new ACache(new Local(XOOPS_TRUST_PATH.'/cache'), $_cacheKey, $_expire);
+				}
 			}
 
 			$client = new Google_Client();
@@ -43,15 +46,14 @@ if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
 			$client->refreshToken($_token['refresh_token']);
 
 			$service = new Google_Service_Drive($client);
-			$_gdrive = new CachedAdapter(
-				new GoogleDriveAdapter($service, $path),
-				new CacheStore()
-			);
-
+			$_gdrive = new GoogleDriveAdapter($service, $path, [ 'setHasDirOnGetItems' => true ]);
+			
 			if ($_cache) {
+				// use storage cache with `ext_cache_expire`
 				$_fly = new Filesystem(new CachedAdapter($_gdrive, $_cache));
 			} else {
-				$_fly = new Filesystem($_gdrive);
+				// use memory cache
+				$_fly = new Filesystem(new CachedAdapter($_gdrive, new CacheStore()));
 			}
 			
 			$volumeOptions = array (
