@@ -103,10 +103,10 @@ require dirname(__FILE__) . '/class/xelFinder.class.php';
 require dirname(__FILE__) . '/class/xelFinderVolumeFTP.class.php';
 
 $extras = array();
-$config_MD5 = md5(json_encode($config));
 if (strtoupper(_CHARSET) !== 'UTF-8') {
 	mb_convert_variables('UTF-8', _CHARSET, $config);
 }
+$config_MD5 = md5(json_encode($config));
 
 // dropbox
 if (!empty($config['dropbox_token']) && !empty($config['dropbox_seckey'])) {
