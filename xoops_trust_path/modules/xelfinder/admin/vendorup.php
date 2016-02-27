@@ -65,7 +65,18 @@ echo '<h3>' . xelfinderAdminLang ( 'COMPOSER_UPDATE' ) . '</h3>';
 	</form>
 </div>
 <hr>
-<iframe name="composer_update"
+<iframe id="ifm-xelfinder-vendorup" name="composer_update" scrolling="no"
 	style="border: none; width: 100%; height: 300px;"></iframe>
+
+<script>
+(function($){
+	var autoHeight = function() {
+		jQuery("#ifm-xelfinder-vendorup").height(jQuery("#ifm-xelfinder-vendorup").contents().find('body').outerHeight(true)+50);
+		setTimeout(autoHeight, 500);
+	};
+	autoHeight();
+})(jQuery);
+</script>
+
 <?php
 xoops_cp_footer ();
