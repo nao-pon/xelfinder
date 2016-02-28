@@ -19,52 +19,72 @@ if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
 	}
 	
 	if (! $_err) {
-		$_token = @json_decode($extOptions['ext_token'], true);
-		if ($_token && !empty($_token['client_id']) && !empty($_token['client_secret']) && !empty($_token['refresh_token'])) {
-			$path = '/' . trim($path, '/');
-			
-			$_expire = isset($extOptions['ext_cache_expire'])?: 0;
-			if ($_expire) {
-				$_cacheKey = $mDirname.'_'.md5(XOOPS_URL . $_token . $path);
-				
-				$_cache = null;
-				if (class_exists('Memcached')) {
-					$memcached = new Memcached();
-					if ($memcached->addServer(! empty($extOptions['ext_mcache_host'])?: 'localhost', ! empty($extOptions['ext_mcache_port'])?: 11211)) {
-						$_cache = new MCache($memcached, $_cacheKey, $_expire);
-					}
-				}
-				
-				if (! $_cache && is_writable(XOOPS_TRUST_PATH.'/cache')) {
-					$_cache = new ACache(new Local(XOOPS_TRUST_PATH.'/cache'), $_cacheKey, $_expire);
-				}
-			}
-
-			$client = new Google_Client();
-			$client->setClientId($_token['client_id']);
-			$client->setClientSecret($_token['client_secret']);
-			$client->refreshToken($_token['refresh_token']);
-
-			$service = new Google_Service_Drive($client);
-			$_gdrive = new GoogleDriveAdapter($service, $path, [ 'setHasDirOnGetItems' => true ]);
-			
-			if ($_cache) {
-				// use storage cache with `ext_cache_expire`
-				$_fly = new Filesystem(new CachedAdapter($_gdrive, $_cache));
-			} else {
-				// use memory cache
-				$_fly = new Filesystem(new CachedAdapter($_gdrive, new CacheStore()));
-			}
-			
-			$volumeOptions = array (
-				'driver' => 'Flysystem',
-				'filesystem' => $_fly,
-				'alias' => $title,
-				'icon' => XOOPS_MODULE_URL . '/' . $mDirname . '/images/volume_icon_googledrive.png',
-				'tmbPath' => XOOPS_MODULE_PATH . '/' . _MD_ELFINDER_MYDIRNAME . '/cache/tmb/',
-				'tmbURL' => _MD_XELFINDER_MODULE_URL . '/' . _MD_ELFINDER_MYDIRNAME . '/cache/tmb/'
-			);
+		$_sessionKey = md5('XelfinderGoogleDrive'.$extOptions['ext_token']);
+		$_client = new Google_Client();
+		$_token = @$_SESSION[$_sessionKey];
+		if (is_array($_token) && !empty($_token['access_token'])) {
+			$_client->setAccessToken($_token);
 		}
+		if ($_client->isAccessTokenExpired()) {
+			if ($_token = @json_decode($extOptions['ext_token'], true)) {
+				$_client->setClientId($_token['client_id']);
+				$_client->setClientSecret($_token['client_secret']);
+				$_creds = $_client->refreshToken($_token['refresh_token']);
+				if ($_client->getAccessToken()) {
+					$_creds = array_merge($_creds, $_token);
+					$_SESSION[$_sessionKey] = $_creds;
+				} else {
+					unset($_SESSION[$_sessionKey]);
+					throw new Exception('Root volumes setting error: [flyGoogleDrive] Invalid "refresh_token".');
+				}
+			} else {
+				unset($_SESSION[$_sessionKey]);
+				throw new Exception('Root volumes setting error: [flyGoogleDrive] "ext_token" is not a JSON.');
+			}
+		}
+		$path = trim($path, '/');
+		
+		$service = new Google_Service_Drive($_client);
+		$_gdrive = new GoogleDriveAdapter($service, $path, [ 'useHasDir' => true ]);
+		
+		$_cache = null;
+		$_expire = isset($extOptions['ext_cache_expire'])? $extOptions['ext_cache_expire'] : 300;
+		if ($_expire) {
+			$_cacheKey = md5(XOOPS_URL . $mDirname . $extOptions['ext_token'] . $path);
+			
+			if (class_exists('Memcached', false)) {
+				$memcached = new Memcached();
+				if ($memcached->addServer(
+					empty($extOptions['ext_mcache_host'])? 'localhost' : $extOptions['ext_mcache_host'],
+					empty($extOptions['ext_mcache_port'])?  11211      : $extOptions['ext_mcache_port']
+					)
+				) {
+					$_cache = new MCache($memcached, $_cacheKey, $_expire);
+				}
+			}
+			
+			if (! $_cache && is_writable(XOOPS_TRUST_PATH.'/cache')) {
+				$_cache = new ACache(new Local(XOOPS_TRUST_PATH.'/cache'), $_cacheKey, $_expire);
+			}
+		}
+		
+		if ($_cache) {
+			// use storage cache with `ext_cache_expire`
+			$_fly = new Filesystem(new CachedAdapter($_gdrive, $_cache));
+		} else {
+			// not use cache
+			$_fly = new Filesystem($_gdrive);
+		}
+		
+		$volumeOptions = array (
+			'driver' => 'Flysystem',
+			'filesystem' => $_fly,
+			'fscache' => $_cache,
+			'alias' => $title,
+			'icon' => XOOPS_MODULE_URL . '/' . $mDirname . '/images/volume_icon_googledrive.png',
+			'tmbPath' => XOOPS_MODULE_PATH . '/' . _MD_ELFINDER_MYDIRNAME . '/cache/tmb/',
+			'tmbURL' => _MD_XELFINDER_MODULE_URL . '/' . _MD_ELFINDER_MYDIRNAME . '/cache/tmb/'
+		);
 	}
 }
 
