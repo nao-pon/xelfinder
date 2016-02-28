@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.7 (2.1_n Nightly: 673fddd) (2016-02-28)
+ * Version 2.1.7 (2.1_n Nightly: 2466989) (2016-02-28)
  * http://elfinder.org
  * 
  * Copyright 2009-2016, Studio 42
@@ -4865,7 +4865,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.7 (2.1_n Nightly: 673fddd)';
+elFinder.prototype.version = '2.1.7 (2.1_n Nightly: 2466989)';
 
 
 
@@ -12196,7 +12196,11 @@ elFinder.prototype.commands.edit = function() {
 				opts.buttons[fm.i18n('btnSaveClose')] = savecl;
 				opts.buttons[fm.i18n('btnCancel')]    = cancel;
 				
-				fm.dialog(ta, opts).attr('id', id);
+				fm.dialog(ta, opts)
+					.attr('id', id)
+					.on('click dblclick mousedown mouseup contextmenu keydown keyup keypress', function(e) {
+						e.stopPropagation();
+					});
 				return dfrd.promise();
 		},
 		
