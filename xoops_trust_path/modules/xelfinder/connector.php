@@ -288,20 +288,19 @@ try {
 
 	// custom session handler
 	require dirname(__FILE__) . '/class/xelFinderSession.class.php';
-	$sessionOpts = array(
-		'base64encode' => $xoops_elFinder->base64encodeSessionData,
-		'keys' => array(
-			'default'   => 'xel_'.$mydirname.'_Caches',
-			'netvolume' => _MD_XELFINDER_NETVOLUME_SESSION_KEY
-		)
-	);
 
 	// End for XOOPS
 	//////////////////////////////////////////////////////
 
 	$opts = array(
 		'locale' => 'ja_JP.UTF-8',
-		'session' => new xelFinderSession($sessionOpts),
+		'session' => new xelFinderSession(array(
+			'base64encode' => $xoops_elFinder->base64encodeSessionData,
+			'keys' => array(
+				'default'   => 'xel_'.$mydirname.'_Caches',
+				'netvolume' => _MD_XELFINDER_NETVOLUME_SESSION_KEY
+			)
+		)),
 		'bind'   => array(
 			//'*' => array($xoops_elFinder, 'log'),
 			'netmount' => array($xoops_elFinder, 'netmountCallback'),
