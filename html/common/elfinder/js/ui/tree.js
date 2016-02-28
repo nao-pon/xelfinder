@@ -480,10 +480,13 @@ $.fn.elfindertree = function(fm, opts) {
 							preventFail : true
 						})
 						.done(function(data) {
+							if (fm.api < 2.1) {
+								data.tree = data.tree.concat([cwd]);
+							}
 							dirs = $.merge(dirs, filter(data.tree));
 							updateTree(dirs);
 							updateArrows(dirs, loaded);
-							cwdhash == fm.cwd().hash && sync(noCwd);
+							cwdhash == cwd.hash && sync(noCwd);
 						})
 						.always(function(data) {
 							if (link) {
@@ -691,6 +694,10 @@ $.fn.elfindertree = function(fm, opts) {
 				contextmenu = fm.getUI('contextmenu');
 
 			data.init && tree.empty();
+
+			if (fm.UA.iOS) {
+				navbar.removeClass('overflow-scrolling-touch').addClass('overflow-scrolling-touch');
+			}
 
 			if (dirs.length) {
 				if (!contextmenu.data('cmdMaps')) {

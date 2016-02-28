@@ -121,7 +121,7 @@ class elFinderConnector {
 	 **/
 	protected function output(array $data) {
 		// clear output buffer
-		while(@ob_get_level()){ @ob_end_clean(); }
+		while(ob_get_level() && @ob_end_clean()){}
 		
 		$header = isset($data['header']) ? $data['header'] : $this->header;
 		unset($data['header']);
@@ -138,7 +138,7 @@ class elFinderConnector {
 		if (isset($data['pointer'])) {
 			$toEnd = true;
 			$fp = $data['pointer'];
-			if (elFinder::isSeekableStream($fp)) {
+			if (elFinder::isSeekableStream($fp) && (array_search('Accept-Ranges: none', headers_list()) === false)) {
 				header('Accept-Ranges: bytes');
 				$psize = null;
 				if (!empty($_SERVER['HTTP_RANGE'])) {
@@ -174,10 +174,17 @@ class elFinderConnector {
 				}
 			} else {
 				header('Accept-Ranges: none');
+				if (isset($data['info']) && (!$data['info']['size'] && $data['info']['size'] !== 0)) {
+					if (function_exists('header_remove')) {
+						header_remove('Content-Length');
+					} else {
+						header('Content-Length:');
+					}
+				}
 			}
 
 			// unlock session data for multiple access
-			session_id() && session_write_close();
+			$this->elFinder->getSession()->close();
 			// client disconnect should abort
 			ignore_user_abort(false);
 
@@ -194,10 +201,12 @@ class elFinderConnector {
 			exit();
 		} else {
 			if (!empty($data['raw']) && !empty($data['error'])) {
-				exit($data['error']);
+				echo $data['error'];
 			} else {
-				exit(json_encode($data));
+				echo json_encode($data);
 			}
+			flush();
+			exit(0);
 		}
 		
 	}
