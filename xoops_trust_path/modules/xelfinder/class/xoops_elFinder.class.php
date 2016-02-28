@@ -140,8 +140,6 @@ class xoops_elFinder {
 		$pluginPath = dirname(dirname(__FILE__)) . '/plugins/';
 		$configs = explode("\n", $config);
 		$files = array();
-
-		$disabledCmds = $this->getDisablesCmds();
 		
 		$ids = array();
 		foreach($configs as $_conf) {
@@ -268,11 +266,14 @@ class xoops_elFinder {
 				$files[] = compact('src', 'mydirname', 'title', 'path', 'extra', 'extOptions', 'isAdmin', 'mConfig', 'mDirname');
 			}
 		}
+		$files['disabledCmds'] = $this->getDisablesCmds();
 		return $files;
 	}
 	
 	public function buildRootVolumes($configs) {
 		$roots = array();
+		$disabledCmds = $configs['disabledCmds'];
+		unset($configs['disabledCmds']);
 		foreach($configs as $config) {
 			$raw = null;
 			extract($config);
