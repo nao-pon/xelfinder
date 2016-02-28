@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "1c3bdfadc908c9ee6582556ceae95b61",
-    "content-hash": "97be6076cba5ea8d1a53ce4c7f2a5a0c",
+    "hash": "0d10ce791ee0bbbaa722b4b43162dd55",
+    "content-hash": "50af51b95437e10acf25ebd508256168",
     "packages": [
         {
             "name": "eher/oauth",
@@ -85,21 +85,21 @@
         },
         {
             "name": "google/apiclient",
-            "version": "v2.0.0-RC5",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-api-php-client.git",
-                "reference": "fb16405770d7a4e3c4c3af6ece8a2aebc549eafe"
+                "reference": "c171d8644be7d288b20ac066e51cc701327cece8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/fb16405770d7a4e3c4c3af6ece8a2aebc549eafe",
-                "reference": "fb16405770d7a4e3c4c3af6ece8a2aebc549eafe",
+                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/c171d8644be7d288b20ac066e51cc701327cece8",
+                "reference": "c171d8644be7d288b20ac066e51cc701327cece8",
                 "shasum": ""
             },
             "require": {
                 "firebase/php-jwt": "~2.0|~3.0",
-                "google/auth": "0.5",
+                "google/auth": "0.6",
                 "guzzlehttp/guzzle": "~5.2|~6.0",
                 "guzzlehttp/psr7": "1.2.*",
                 "monolog/monolog": "^1.17",
@@ -136,20 +136,20 @@
             "keywords": [
                 "google"
             ],
-            "time": "2016-02-10 23:39:47"
+            "time": "2016-02-25 18:30:27"
         },
         {
             "name": "google/auth",
-            "version": "v0.5",
+            "version": "v0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-auth-library-php.git",
-                "reference": "7ff4cce0c9d3c6bcba154e15fba76b89d1847340"
+                "reference": "45c5e62244995d4dae51aa379894401ebe992b4d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-auth-library-php/zipball/7ff4cce0c9d3c6bcba154e15fba76b89d1847340",
-                "reference": "7ff4cce0c9d3c6bcba154e15fba76b89d1847340",
+                "url": "https://api.github.com/repos/google/google-auth-library-php/zipball/45c5e62244995d4dae51aa379894401ebe992b4d",
+                "reference": "45c5e62244995d4dae51aa379894401ebe992b4d",
                 "shasum": ""
             },
             "require": {
@@ -183,7 +183,7 @@
                 "google",
                 "oauth2"
             ],
-            "time": "2015-12-17 21:16:21"
+            "time": "2016-02-24 18:00:02"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -300,16 +300,16 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "1.2.2",
+            "version": "1.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "f5d04bdd2881ac89abde1fb78cc234bce24327bb"
+                "reference": "2e89629ff057ebb49492ba08e6995d3a6a80021b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/f5d04bdd2881ac89abde1fb78cc234bce24327bb",
-                "reference": "f5d04bdd2881ac89abde1fb78cc234bce24327bb",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/2e89629ff057ebb49492ba08e6995d3a6a80021b",
+                "reference": "2e89629ff057ebb49492ba08e6995d3a6a80021b",
                 "shasum": ""
             },
             "require": {
@@ -354,7 +354,7 @@
                 "stream",
                 "uri"
             ],
-            "time": "2016-01-23 01:23:02"
+            "time": "2016-02-18 21:54:00"
         },
         {
             "name": "intervention/image",
@@ -424,12 +424,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "35b0af4532c72da9ad533c810251d2af7c32a410"
+                "reference": "8333ebc5e76c334ee0e202f2f91e1948e566a655"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/35b0af4532c72da9ad533c810251d2af7c32a410",
-                "reference": "35b0af4532c72da9ad533c810251d2af7c32a410",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/8333ebc5e76c334ee0e202f2f91e1948e566a655",
+                "reference": "8333ebc5e76c334ee0e202f2f91e1948e566a655",
                 "shasum": ""
             },
             "require": {
@@ -499,7 +499,7 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2016-02-03 22:34:28"
+            "time": "2016-02-21 11:35:18"
         },
         {
             "name": "monolog/monolog",
@@ -626,12 +626,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/nao-pon/elfinder-flysystem-driver.git",
-                "reference": "eab769b4ed52c6fc91809a5bfdf0d4bcd89869cb"
+                "reference": "3aef1adf45b773ab4c8d4c2360ce5847cb352f36"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nao-pon/elfinder-flysystem-driver/zipball/eab769b4ed52c6fc91809a5bfdf0d4bcd89869cb",
-                "reference": "eab769b4ed52c6fc91809a5bfdf0d4bcd89869cb",
+                "url": "https://api.github.com/repos/nao-pon/elfinder-flysystem-driver/zipball/3aef1adf45b773ab4c8d4c2360ce5847cb352f36",
+                "reference": "3aef1adf45b773ab4c8d4c2360ce5847cb352f36",
                 "shasum": ""
             },
             "require": {
@@ -673,7 +673,7 @@
                 "elfinder",
                 "filesystem"
             ],
-            "time": "2016-02-11 13:39:27"
+            "time": "2016-02-27 11:11:54"
         },
         {
             "name": "nao-pon/flysystem-cached-adapter",
@@ -681,16 +681,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/nao-pon/flysystem-cached-adapter.git",
-                "reference": "89ca3682fc1fa4e8b65a84b5685abbf5af0a129e"
+                "reference": "150eb2f32206f83fdf49898112135b553a379072"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nao-pon/flysystem-cached-adapter/zipball/89ca3682fc1fa4e8b65a84b5685abbf5af0a129e",
-                "reference": "89ca3682fc1fa4e8b65a84b5685abbf5af0a129e",
+                "url": "https://api.github.com/repos/nao-pon/flysystem-cached-adapter/zipball/150eb2f32206f83fdf49898112135b553a379072",
+                "reference": "150eb2f32206f83fdf49898112135b553a379072",
                 "shasum": ""
             },
             "require": {
-                "league/flysystem": "~1.0"
+                "league/flysystem": "~1.0",
+                "psr/cache": "1.0.0"
             },
             "require-dev": {
                 "henrikbjorn/phpspec-code-coverage": "~1.0@dev",
@@ -699,6 +700,9 @@
                 "phpunit/phpunit": "~4.1",
                 "predis/predis": "~1.0",
                 "tedivm/stash": "~0.12"
+            },
+            "suggest": {
+                "ext-phpredis": "Pure C implemented extension for PHP"
             },
             "type": "library",
             "autoload": {
@@ -717,7 +721,45 @@
                 }
             ],
             "description": "An adapter decorator to enable meta-data caching.",
-            "time": "2015-02-09 11:33:00"
+            "time": "2016-02-21 13:59:18"
+        },
+        {
+            "name": "nao-pon/flysystem-cached-extra",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nao-pon/flysystem-cached-extra.git",
+                "reference": "84fce41f18ecb01f1d78476f1a9f2aa008fde305"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nao-pon/flysystem-cached-extra/zipball/84fce41f18ecb01f1d78476f1a9f2aa008fde305",
+                "reference": "84fce41f18ecb01f1d78476f1a9f2aa008fde305",
+                "shasum": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Hypweb\\Flysystem\\Cached\\Extra\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Naoki Sawada",
+                    "email": "hypweb@gmail.com"
+                }
+            ],
+            "description": "Extra traits for Flysystem cached adapter",
+            "time": "2016-02-23 08:27:47"
         },
         {
             "name": "nao-pon/flysystem-copy",
@@ -768,21 +810,22 @@
         },
         {
             "name": "nao-pon/flysystem-google-drive",
-            "version": "dev-master",
+            "version": "dev-api_v3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nao-pon/flysystem-google-drive.git",
-                "reference": "1a3bce20e4035fe0d8d54c4bd99cff4dd1f2d3c4"
+                "reference": "795df00d4f56e3ffcab39944a955d4b7de79ea9c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nao-pon/flysystem-google-drive/zipball/1a3bce20e4035fe0d8d54c4bd99cff4dd1f2d3c4",
-                "reference": "1a3bce20e4035fe0d8d54c4bd99cff4dd1f2d3c4",
+                "url": "https://api.github.com/repos/nao-pon/flysystem-google-drive/zipball/795df00d4f56e3ffcab39944a955d4b7de79ea9c",
+                "reference": "795df00d4f56e3ffcab39944a955d4b7de79ea9c",
                 "shasum": ""
             },
             "require": {
-                "google/apiclient": "~1.1|^2.0.0@RC",
+                "google/apiclient": "2.x@dev",
                 "league/flysystem": "~1.0",
+                "nao-pon/flysystem-cached-extra": "1.0.x",
                 "php": ">=5.4.0"
             },
             "require-dev": {
@@ -792,7 +835,8 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0-dev"
+                    "dev-master": "1.0-dev",
+                    "dev-api_v3": "1.1-dev"
                 }
             },
             "autoload": {
@@ -811,7 +855,7 @@
                 }
             ],
             "description": "Flysystem adapter for Google Drive",
-            "time": "2016-02-11 12:07:04"
+            "time": "2016-02-27 11:16:16"
         },
         {
             "name": "phpseclib/phpseclib",
@@ -903,6 +947,52 @@
             "time": "2016-01-18 17:07:21"
         },
         {
+            "name": "psr/cache",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/cache.git",
+                "reference": "9e66031f41fbbdda45ee11e93c45d480ccba3eb3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/cache/zipball/9e66031f41fbbdda45ee11e93c45d480ccba3eb3",
+                "reference": "9e66031f41fbbdda45ee11e93c45d480ccba3eb3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Cache\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "http://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for caching libraries",
+            "keywords": [
+                "cache",
+                "psr",
+                "psr-6"
+            ],
+            "time": "2015-12-11 02:52:07"
+        },
+        {
             "name": "psr/http-message",
             "version": "1.0",
             "source": {
@@ -991,16 +1081,16 @@
         },
         {
             "name": "studio-42/elfinder",
-            "version": "2.1.6",
+            "version": "2.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Studio-42/elFinder.git",
-                "reference": "cfc5312fd4bbea7431d54c3c917dd58167bbd586"
+                "reference": "29625b877e9f042dc32774d06b1c6c48ae9623b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Studio-42/elFinder/zipball/cfc5312fd4bbea7431d54c3c917dd58167bbd586",
-                "reference": "cfc5312fd4bbea7431d54c3c917dd58167bbd586",
+                "url": "https://api.github.com/repos/Studio-42/elFinder/zipball/29625b877e9f042dc32774d06b1c6c48ae9623b7",
+                "reference": "29625b877e9f042dc32774d06b1c6c48ae9623b7",
                 "shasum": ""
             },
             "require": {
@@ -1046,7 +1136,7 @@
             ],
             "description": "File manager for web",
             "homepage": "http://elfinder.org",
-            "time": "2016-01-19 01:48:42"
+            "time": "2016-02-21 12:49:46"
         }
     ],
     "packages-dev": [],
@@ -1059,7 +1149,7 @@
         "nao-pon/flysystem-cached-adapter": 20,
         "nao-pon/elfinder-flysystem-driver": 20,
         "nao-pon/flysystem-google-drive": 20,
-        "google/apiclient": 5
+        "google/apiclient": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
