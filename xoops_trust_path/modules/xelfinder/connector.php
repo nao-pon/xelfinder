@@ -286,13 +286,22 @@ try {
 	}
 	//var_dump($rootVolumes);exit;
 
+	// custom session handler
+	require dirname(__FILE__) . '/class/xelFinderSession.class.php';
+	$sessionOpts = array(
+		'base64encode' => $xoops_elFinder->base64encodeSessionData,
+		'keys' => array(
+			'default'   => 'xel_'.$mydirname.'_Caches',
+			'netvolume' => _MD_XELFINDER_NETVOLUME_SESSION_KEY
+		)
+	);
+
 	// End for XOOPS
 	//////////////////////////////////////////////////////
 
 	$opts = array(
 		'locale' => 'ja_JP.UTF-8',
-		'base64encodeSessionData' => $xoops_elFinder->base64encodeSessionData,
-		'sessionCacheKey' => 'xel_'.$mydirname.'_Caches',
+		'session' => new xelFinderSession($sessionOpts),
 		'bind'   => array(
 			//'*' => array($xoops_elFinder, 'log'),
 			'netmount' => array($xoops_elFinder, 'netmountCallback'),
@@ -322,7 +331,6 @@ try {
 			),
 		),
 		'debug' => $debug,
-		'netVolumesSessionKey' => _MD_XELFINDER_NETVOLUME_SESSION_KEY,
 		'uploadTempPath' => XOOPS_TRUST_PATH . '/cache',
 		'roots' => $rootVolumes,
 		'callbackWindowURL' => !empty($_REQUEST['myUrl'])? ($_REQUEST['myUrl'] . 'connector.php?cmd=callback') : ''
