@@ -1,2 +1,0 @@
-php composer.phar self-update --no-ansi --no-interaction 2>&1
-php composer.phar update --no-ansi --no-interaction --prefer-dist --no-dev 2>&1

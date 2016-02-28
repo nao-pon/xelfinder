@@ -1,7 +1,8 @@
 <?php
 if (! empty ( $_POST ['doupdate'] )) {
 	global $xoopsConfig;
-	
+	while( ob_get_level() && @ ob_end_clean() );
+	header('X-Accel-Buffering: no');
 ?>
 	<!DOCTYPE html>
 	<html>
@@ -12,7 +13,7 @@ if (! empty ( $_POST ['doupdate'] )) {
 <?php
 	echo '<p>'.xelfinderAdminLang ( 'COMPOSER_UPDATE_STARTED' ).'</p>';
 	
-	while ( @ob_end_flush () );
+	while ( @ob_end_flush() );
 	flush ();
 	$pluginsDir = dirname ( dirname ( __FILE__ ) ) . '/plugins';
 	$cwd = getcwd ();
@@ -36,14 +37,21 @@ if (! empty ( $_POST ['doupdate'] )) {
 	}
 	putenv ( 'COMPOSER_HOME=' . $pluginsDir . '/.composer' );
 	
-	$handle = popen('./composer_update', 'r');
-	while (!feof($handle)) {
-		if ($res = fgets($handle, 80)) {
-			echo $res . '<br />';
-			flush ();
+	$cmds = array(
+		'php composer.phar self-update --no-ansi --no-interaction 2>&1',
+		'php composer.phar update --no-ansi --no-interaction --prefer-dist --no-dev 2>&1'
+	);
+	foreach($cmds as $cmd) {
+		$res = '';
+		$handle = popen($cmd, 'r');
+		while ($res !== false && $handle && !feof($handle)) {
+			if ($res = fgets($handle, 80)) {
+				echo $res . '<br />';
+				flush ();
+			}
 		}
+		pclose($handle);
 	}
-	pclose($handle);
 	
 	chdir ( $cwd );
 	
@@ -58,9 +66,9 @@ include dirname ( __FILE__ ) . '/mymenu.php';
 echo '<h3>' . xelfinderAdminLang ( 'COMPOSER_UPDATE' ) . '</h3>';
 ?>
 <div>
-	<form action="./index.php?page=vendorup" method="post"
+	<form action="./index.php?page=vendorup" method="post" id="xelfinder_vendorup_f"
 		target="composer_update">
-		<input type="submit" name="doupdate"
+		<input type="submit" name="doupdate" id="xelfinder_vendorup_s"
 			value="<?php echo xelfinderAdminLang('COMPOSER_DO_UPDATE'); ?>" />
 	</form>
 </div>
@@ -75,6 +83,11 @@ echo '<h3>' . xelfinderAdminLang ( 'COMPOSER_UPDATE' ) . '</h3>';
 		setTimeout(autoHeight, 500);
 	};
 	autoHeight();
+	$('#xelfinder_vendorup_f').on('submit', function(e) {
+		setTimeout(function() {
+			$('#xelfinder_vendorup_s').css('visibility', 'hidden');
+		}, 100);
+	});
 })(jQuery);
 </script>
 
