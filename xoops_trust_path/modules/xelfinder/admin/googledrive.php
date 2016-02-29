@@ -8,31 +8,33 @@ if ($php54up = version_compare(PHP_VERSION, '5.4.0', '>=')) {
 
 	$selfURL = XOOPS_MODULE_URL . '/' . $mydirname . '/admin/index.php?page=googledrive';
 	$sessTokenKey = $mydirname . 'AdminGoogledriveToken';
-	$sessCliantKey = $mydirname . 'AdminGoogledriveToken';
+	$sessClientKey = $mydirname . 'AdminGoogledriveToken';
 	$client = null;
-	if ($_SESSION [$sessClientKey]) {
-		$clientId = $_SESSION [$sessClientKey] ['ClientId'];
-		$clientSecret = $_SESSION [$sessClientKey] ['ClientSecret'];
+	$clientId = $clientSecret = '';
+	
+	if (isset($_SESSION[$sessClientKey])) {
+		$clientId = $_SESSION[$sessClientKey]['ClientId'];
+		$clientSecret = $_SESSION[$sessClientKey]['ClientSecret'];
 	}
 
-	if (! empty ( $_POST ['ClientId'] ) && ! empty ( $_POST ['ClientSecret'] )) {
-		$clientId = trim ( $_POST ['ClientId'] );
-		$clientSecret = trim ( $_POST ['ClientSecret'] );
-		$_SESSION [$sessClientKey] = array (
+	if (! empty ( $_POST['ClientId'] ) && ! empty ( $_POST['ClientSecret'] )) {
+		$clientId = trim ( $_POST['ClientId'] );
+		$clientSecret = trim ( $_POST['ClientSecret'] );
+		$_SESSION[$sessClientKey] = array (
 				'ClientId' => $clientId,
 				'ClientSecret' => $clientSecret 
 		);
 	}
 
-	if (! empty ( $_SESSION [$sessClientKey] ) && ! isset ( $_GET ['start'] )) {
+	if (! empty ( $_SESSION[$sessClientKey] ) && ! isset ( $_GET ['start'] )) {
 		
 		$client = new \Google_Client ();
 		// クライアントID
 		// $client->setClientId('439932857153-o4vqqv0c9b6cqnbamec2a0h80o9oqkbd.apps.googleusercontent.com');
-		$client->setClientId ( $_SESSION [$sessClientKey] ['ClientId'] );
+		$client->setClientId ( $_SESSION[$sessClientKey] ['ClientId'] );
 		// クライアントSecret ID
 		// $client->setClientSecret('35TbJlEANKrKI7dMVwh7t5xP');
-		$client->setClientSecret ( $_SESSION [$sessClientKey] ['ClientSecret'] );
+		$client->setClientSecret ( $_SESSION[$sessClientKey] ['ClientSecret'] );
 		// リダイレクトURL
 		$client->setRedirectUri ( $selfURL );
 		
@@ -42,15 +44,15 @@ if ($php54up = version_compare(PHP_VERSION, '5.4.0', '>=')) {
 		if (isset ( $_GET ['code'] )) {
 			// 認証
 			$client->authenticate ( $_GET ['code'] );
-			$_SESSION [$sessTokenKey] = $client->getAccessToken ();
+			$_SESSION[$sessTokenKey] = $client->getAccessToken ();
 			// header('Location: ' . $selfURL);
 			// exit;
 		}
 		
 		// セッションからアクセストークンを取得
-		if (isset ( $_SESSION [$sessTokenKey] )) {
+		if (isset ( $_SESSION[$sessTokenKey] )) {
 			// トークンセット
-			$client->setAccessToken ( $_SESSION [$sessTokenKey] );
+			$client->setAccessToken ( $_SESSION[$sessTokenKey] );
 		}
 	}
 }
@@ -86,13 +88,13 @@ if ($php54up) {
 			} catch ( Google_Exception $e ) {
 				echo $e->getMessage ();
 			}
-		} else if (! empty ( $_POST ['scopes'] )) {
-			if (! empty ( $_POST ['revoke'] )) {
+		} else if (! empty ( $_POST['scopes'] )) {
+			if (! empty ( $_POST['revoke'] )) {
 				$client->revokeToken ();
 			}
 			// 認証用URL取得
 			$scopes = array ();
-			foreach ( $_POST ['scopes'] as $scope ) {
+			foreach ( $_POST['scopes'] as $scope ) {
 				switch ($scope) {
 					case 'DRIVE' :
 					case 'DRIVE_READONLY' :
@@ -103,7 +105,7 @@ if ($php54up) {
 				}
 			}
 			$client->setScopes ( $scopes );
-			if (! empty ( $_POST ['offline'] )) {
+			if (! empty ( $_POST['offline'] )) {
 				$client->setApprovalPrompt ( 'force' );
 				$client->setAccessType ( 'offline' );
 			}
