@@ -37,9 +37,10 @@ if (! empty ( $_POST ['doupdate'] )) {
 	}
 	putenv ( 'COMPOSER_HOME=' . $pluginsDir . '/.composer' );
 	
+	$phpcli = !empty($_POST['phpcli'])? trim($_POST['phpcli']) : 'php';
 	$cmds = array(
-		'php composer.phar self-update --no-ansi --no-interaction 2>&1',
-		'php composer.phar update --no-ansi --no-interaction --prefer-dist --no-dev 2>&1'
+		$phpcli.' -d curl.cainfo=cacert.pem -d openssl.cafile=cacert.pem composer.phar self-update --no-ansi --no-interaction 2>&1',
+		$phpcli.' -d curl.cainfo=cacert.pem -d openssl.cafile=cacert.pem composer.phar update --no-ansi --no-interaction --prefer-dist --no-dev 2>&1'
 	);
 	foreach($cmds as $cmd) {
 		$res = '';
@@ -64,12 +65,32 @@ xoops_cp_header ();
 include dirname ( __FILE__ ) . '/mymenu.php';
 
 echo '<h3>' . xelfinderAdminLang ( 'COMPOSER_UPDATE' ) . '</h3>';
+
+$php54up = false;
+
+if ($php54up = version_compare(PHP_VERSION, '5.4.0', '>=')) {
 ?>
 <div>
 	<form action="./index.php?page=vendorup" method="post" id="xelfinder_vendorup_f"
 		target="composer_update">
+		<table><tr>
+			<td>
+				<p>PHP CLI Command<br /><label><input value="php" type="radio" name="cli" checked="checked">Default is "php"</label></p>
+				<p><input type="text" name="phpcli" value="php" /></p>
+			</td>
+			<td>
+				<dl>
+					<dt>Customized example</dt>
+					<dd><label><input value="/usr/local/php5.4/bin/php" type="radio" name="cli">lolipop - "/usr/local/php5.4/bin/php"</label></dd>
+					<dd><label><input value="/usr/local/bin/php56cli" type="radio" name="cli">XREA/CoreServer/ValueServer - "/usr/local/bin/php56cli"</label></dd>
+					<dd><label><input value="/usr/bin/php5.4" type="radio" name="cli">XSERVER - "/usr/bin/php5.4"</label></dd>
+				</dl>
+			</td>
+		</tr></table>
+		<p>
 		<input type="submit" name="doupdate" id="xelfinder_vendorup_s"
 			value="<?php echo xelfinderAdminLang('COMPOSER_DO_UPDATE'); ?>" />
+		</p>
 	</form>
 </div>
 <hr>
@@ -85,11 +106,19 @@ echo '<h3>' . xelfinderAdminLang ( 'COMPOSER_UPDATE' ) . '</h3>';
 	autoHeight();
 	$('#xelfinder_vendorup_f').on('submit', function(e) {
 		setTimeout(function() {
-			$('#xelfinder_vendorup_s').css('visibility', 'hidden');
+			$('#xelfinder_vendorup_s').replaceWith($('<p>').html("<?php echo xelfinderAdminLang('COMPOSER_UPDATE_STARTED'); ?>"));
 		}, 100);
+	})
+	.find('input[type=radio]').on('change', function(e) {
+		$('#xelfinder_vendorup_f').find('input[type=text]').val($(this).val());
 	});
 })(jQuery);
 </script>
 
 <?php
+} else {
+?>
+<p>vendor update needs for PHP >= 5.4 . Your PHP version is <?php echo PHP_VERSION; ?> .</p>
+<?php
+}
 xoops_cp_footer ();
