@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.7 (2.1_n Nightly: 2466989) (2016-02-28)
+ * Version 2.1.7 (2.1_n Nightly: b6d0589) (2016-03-01)
  * http://elfinder.org
  * 
  * Copyright 2009-2016, Studio 42
@@ -2426,31 +2426,36 @@ window.elFinder = function(node, opts) {
 	});
 
 	if (self.dragUpload) {
-		node[0].addEventListener('dragenter', function(e) {
-			if (e.target.nodeName !== 'TEXTAREA' && e.target.nodeName !== 'INPUT') {
-				e.preventDefault();
-				e.stopPropagation();
+		(function(){
+			var isin = function(e) {
+				return (e.target.nodeName !== 'TEXTAREA' && e.target.nodeName !== 'INPUT' && $(e.target).closest('div.ui-dialog-content').length === 0);
 			}
-		}, false);
-		node[0].addEventListener('dragleave', function(e) {
-			if (e.target.nodeName !== 'TEXTAREA' && e.target.nodeName !== 'INPUT') {
-				e.preventDefault();
-				e.stopPropagation();
-			}
-		}, false);
-		node[0].addEventListener('dragover', function(e) {
-			if (e.target.nodeName !== 'TEXTAREA' && e.target.nodeName !== 'INPUT') {
-				e.preventDefault();
-				e.stopPropagation();
-				e.dataTransfer.dropEffect = 'none';
-			}
-		}, false);
-		node[0].addEventListener('drop', function(e) {
-			if (e.target.nodeName !== 'TEXTAREA' && e.target.nodeName !== 'INPUT') {
-				e.stopPropagation();
-				e.preventDefault();
-			}
-		}, false);
+			node[0].addEventListener('dragenter', function(e) {
+				if (isin(e)) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
+			}, false);
+			node[0].addEventListener('dragleave', function(e) {
+				if (isin(e)) {
+					e.preventDefault();
+					e.stopPropagation();
+				}
+			}, false);
+			node[0].addEventListener('dragover', function(e) {
+				if (isin(e)) {
+					e.preventDefault();
+					e.stopPropagation();
+					e.dataTransfer.dropEffect = 'none';
+				}
+			}, false);
+			node[0].addEventListener('drop', function(e) {
+				if (isin(e)) {
+					e.stopPropagation();
+					e.preventDefault();
+				}
+			}, false);
+		})();
 
 		// add event listener for HTML5 DnD upload
 		(function() {
@@ -4865,7 +4870,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.7 (2.1_n Nightly: 2466989)';
+elFinder.prototype.version = '2.1.7 (2.1_n Nightly: b6d0589)';
 
 
 
@@ -12198,7 +12203,7 @@ elFinder.prototype.commands.edit = function() {
 				
 				fm.dialog(ta, opts)
 					.attr('id', id)
-					.on('click dblclick mousedown mouseup contextmenu keydown keyup keypress', function(e) {
+					.on('keydown keyup keypress', function(e) {
 						e.stopPropagation();
 					});
 				return dfrd.promise();
