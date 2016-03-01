@@ -69,6 +69,11 @@ echo '<h3>' . xelfinderAdminLang ( 'COMPOSER_UPDATE' ) . '</h3>';
 $php54up = false;
 
 if ($php54up = version_compare(PHP_VERSION, '5.4.0', '>=')) {
+	if (preg_match('/^(\d\.\d)/', PHP_VERSION, $m)) {
+		$curver = $m[1];
+	} else {
+		$curver = '5.4';
+	}
 ?>
 <div>
 	<form action="./index.php?page=vendorup" method="post" id="xelfinder_vendorup_f"
@@ -81,9 +86,9 @@ if ($php54up = version_compare(PHP_VERSION, '5.4.0', '>=')) {
 			<td>
 				<dl>
 					<dt>Customized example</dt>
-					<dd><label><input value="/usr/local/php5.4/bin/php" type="radio" name="cli">lolipop - "/usr/local/php5.4/bin/php"</label></dd>
+					<dd><label><input value="/usr/local/php<?php echo $curver; ?>/bin/php" type="radio" name="cli">lolipop - "/usr/local/php<?php echo $curver; ?>/bin/php"</label></dd>
 					<dd><label><input value="/usr/local/bin/php56cli" type="radio" name="cli">XREA/CoreServer/ValueServer - "/usr/local/bin/php56cli"</label></dd>
-					<dd><label><input value="/usr/bin/php5.4" type="radio" name="cli">XSERVER - "/usr/bin/php5.4"</label></dd>
+					<dd><label><input value="/usr/bin/php<?php echo $curver; ?>" type="radio" name="cli">XSERVER - "/usr/bin/php<?php echo $curver; ?>"</label></dd>
 				</dl>
 			</td>
 		</tr></table>
