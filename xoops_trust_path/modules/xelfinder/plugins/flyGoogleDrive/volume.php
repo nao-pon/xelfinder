@@ -1,14 +1,15 @@
 <?php
+namespace Hypweb\Xelfinder\Plugins\Flygoogledrive;
 
-use League\Flysystem\Filesystem;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Cached\CachedAdapter;
-use League\Flysystem\Cached\Storage\Memory as CacheStore;
-use League\Flysystem\Cached\Storage\Memcached as MCache;
-use League\Flysystem\Cached\Storage\Adapter as ACache;
-use Hypweb\Flysystem\GoogleDrive\GoogleDriveAdapter;
-use Google_Client;
-use Google_Service_Drive;
+use \League\Flysystem\Filesystem;
+use \League\Flysystem\Adapter\Local;
+use \League\Flysystem\Cached\CachedAdapter;
+use \League\Flysystem\Cached\Storage\Memcached as MCache;
+use \League\Flysystem\Cached\Storage\Adapter as ACache;
+use \Hypweb\Flysystem\GoogleDrive\GoogleDriveAdapter;
+use \Hypweb\Flysystem\Cached\Extra\Hasdir;
+use \Google_Client;
+use \Google_Service_Drive;
 
 if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
 	$_err = false;
@@ -53,18 +54,24 @@ if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
 			$_cacheKey = md5(XOOPS_URL . $mDirname . $extOptions['ext_token'] . $path);
 			
 			if (class_exists('Memcached', false)) {
-				$memcached = new Memcached();
+				if (! class_exists('MyMCache', false)) {
+					class MyMCache extends MCache { use Hasdir; }
+				}
+				$memcached = new \Memcached();
 				if ($memcached->addServer(
 					empty($extOptions['ext_mcache_host'])? 'localhost' : $extOptions['ext_mcache_host'],
 					empty($extOptions['ext_mcache_port'])?  11211      : $extOptions['ext_mcache_port']
 					)
 				) {
-					$_cache = new MCache($memcached, $_cacheKey, $_expire);
+					$_cache = new MyMCache($memcached, $_cacheKey, $_expire);
 				}
 			}
 			
 			if (! $_cache && is_writable(XOOPS_TRUST_PATH.'/cache')) {
-				$_cache = new ACache(new Local(XOOPS_TRUST_PATH.'/cache'), $_cacheKey, $_expire);
+				if (! class_exists('MyACache', false)) {
+					class MyACache extends ACache { use Hasdir; }
+				}
+				$_cache = new MyACache(new Local(XOOPS_TRUST_PATH.'/cache'), $_cacheKey, $_expire);
 			}
 		}
 		
