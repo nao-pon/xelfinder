@@ -12,11 +12,6 @@ error_reporting(-1);
 	$client = null;
 	$clientId = $clientSecret = '';
 	
-	if (isset($_SESSION[$sessClientKey])) {
-		$clientId = $_SESSION[$sessClientKey]['ClientId'];
-		$clientSecret = $_SESSION[$sessClientKey]['ClientSecret'];
-	}
-
 	if (! empty($_POST['json'])) {
 		$json = @json_decode($_POST['json'], true);
 		if ($json && isset($json['web'])) {
@@ -27,10 +22,16 @@ error_reporting(-1);
 	if (! empty($_POST['ClientId']) && ! empty($_POST['ClientSecret'])) {
 		$clientId = trim($_POST['ClientId']);
 		$clientSecret = trim($_POST['ClientSecret']);
+	}
+
+	if ($clientId && $clientSecret) {
 		$_SESSION[$sessClientKey] = array (
 			'ClientId' => $clientId,
-			'ClientSecret' => $clientSecret 
+			'ClientSecret' => $clientSecret
 		);
+	} elseif (isset($_SESSION[$sessClientKey])) {
+		$clientId = $_SESSION[$sessClientKey]['ClientId'];
+		$clientSecret = $_SESSION[$sessClientKey]['ClientSecret'];
 	}
 
 	if (! empty($_SESSION[$sessClientKey]) && !isset($_GET ['start'])) {
