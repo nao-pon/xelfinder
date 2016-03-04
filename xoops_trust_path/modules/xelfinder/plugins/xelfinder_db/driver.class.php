@@ -91,7 +91,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$this->options['autoResize'] = false;
 	}
 
-	public function savePerm($target, $perm, $umask, $gids, $mime_filter) {
+	public function savePerm($target, $perm, $umask, $gids, $mime_filter, $uid = null) {
 		if (!preg_match('/^[0-9a-f]{3}$/', $perm) || ($umask && !preg_match('/^[0-9a-f]{3}$/', $umask))) {
 			return $this->setError(elFinder::ERROR_INV_PARAMS);
 		}
@@ -108,13 +108,18 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		} else {
 			$gids = join(',', $gids);
 		}
+		if (is_numeric($uid)) {
+			$uid = intval($uid);
+		} else {
+			$uid = intval($stat['uid']);
+		}
 		
 		$mime_filter = $this->db->quoteString($mime_filter);
 		
 		if ($umask) {
-			$sql = sprintf('UPDATE %s SET `perm`="%s", `gids`="%s", `umask`="%s", `mime_filter`=%s WHERE `file_id` = "%d" LIMIT 1', $this->tbf, $perm, $gids, $umask, $mime_filter, $path);
+			$sql = sprintf('UPDATE %s SET `perm`="%s", `uid`=%d, `gids`="%s", `umask`="%s", `mime_filter`=%s WHERE `file_id` = "%d" LIMIT 1', $this->tbf, $perm, $uid, $gids, $umask, $mime_filter, $path);
 		} else {
-			$sql = sprintf('UPDATE %s SET `perm`="%s", `gids`="%s", `mime_filter`=%s WHERE `file_id` = "%d" LIMIT 1', $this->tbf, $perm, $gids, $mime_filter, $path);
+			$sql = sprintf('UPDATE %s SET `perm`="%s", `uid`=%d, `gids`="%s", `mime_filter`=%s WHERE `file_id` = "%d" LIMIT 1', $this->tbf, $perm, $uid, $gids, $mime_filter, $path);
 		}
 		if ($this->query($sql) && $this->db->getAffectedRows() > 0) {
 			unset($this->cache[(int)$path]);

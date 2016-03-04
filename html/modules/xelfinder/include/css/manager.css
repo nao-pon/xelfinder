@@ -5,6 +5,11 @@
 	height: 320px;
 }
 
+div.elfinder-perm-dialog input.perm-uid {
+	width: 2.7em;
+	text-align: right;
+}
+
 .elfinder-button-icon-perm      { background-position: 0 -48px; }
 
 .file_info {

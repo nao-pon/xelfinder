@@ -1,6 +1,8 @@
 <?php
 class xelFinder extends elFinder {
 
+	private $isAdmin = false;
+	
 	/**
 	 * Constructor
 	 *
@@ -10,9 +12,12 @@ class xelFinder extends elFinder {
 	 **/
 	public function __construct($opts) {
 		parent::__construct($opts);
-		$this->commands['perm'] = array('target' => true, 'perm' => true, 'umask' => false, 'gids' => false, 'filter' => false);
+		$this->isAdmin = $opts['isAdmin'];
+		$this->commands['perm'] = array('target' => true, 'perm' => true, 'umask' => false, 'gids' => false, 'filter' => false, 'uid' => false);
 	}
 
+	
+	
 	/**
 	* Set perm
 	*
@@ -33,6 +38,9 @@ class xelFinder extends elFinder {
 					return array('error' => $this->error(self::ERROR_PERM_DENIED));
 				}
 
+				$uid = ($this->isAdmin && is_numeric($args['uid']))? intval($args['uid']) : null;
+				// @todo uid ‘¶Ý‚·‚é‚©H‘Ã“–«ŒŸ¸
+				
 				if ($args['perm'] === 'getgroups') {
 					$groups = $volume->getGroups($targets[0]);
 					return $groups? $groups : array('error' => $this->error($volume->error()));
@@ -41,7 +49,7 @@ class xelFinder extends elFinder {
 					$errors = array();
 					foreach($targets as $target) {
 						if (!isset($args['filter'])) $args['filter'] = '';
-						$file = $volume->savePerm($target, $args['perm'], $args['umask'], $args['gids'], $args['filter']);
+						$file = $volume->savePerm($target, $args['perm'], $args['umask'], $args['gids'], $args['filter'], $uid);
 						if ($file) {
 							$files[] = $file;
 						} else {

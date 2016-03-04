@@ -139,12 +139,14 @@ try {
 	// Access control
 	include_once dirname(__FILE__).'/class/xelFinderAccess.class.php';
 
+	// get user roll
+	$userRoll = $xoops_elFinder->getUserRoll();
+	$isAdmin = $userRoll['isAdmin'];
+
 	// Get volumes
 	if (isset($_SESSION['XELFINDER_RF_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HASH_'.$mydirname] === $config_MD5) {
 		$rootConfig = unserialize(base64_decode($_SESSION['XELFINDER_RF_'.$mydirname]));
 	} else {
-		$userRoll = $xoops_elFinder->getUserRoll();
-		$isAdmin = $userRoll['isAdmin'];
 		$memberUid = $userRoll['uid'];
 		$memberGroups = $userRoll['mygids'];
 		$inSpecialGroup = $userRoll['inSpecialGroup'];
@@ -293,6 +295,7 @@ try {
 	//////////////////////////////////////////////////////
 
 	$opts = array(
+		'isAdmin' => $isAdmin, // for class xelFinder
 		'locale' => 'ja_JP.UTF-8',
 		'session' => new xelFinderSession(array(
 			'base64encode' => $xoops_elFinder->base64encodeSessionData,
