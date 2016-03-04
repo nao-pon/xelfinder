@@ -302,7 +302,7 @@ elFinder.prototype.commands.perm = function() {
 				setcheck($(this).val(), 'perm');
 			}
 		});
-		$('#' + id + '-filter').keydown(function(e) {
+		$('#' + id + '-filter,#' + id + '-uid').keydown(function(e) {
 			e.stopPropagation();
 		});
 		if (file.mime == 'directory') {
