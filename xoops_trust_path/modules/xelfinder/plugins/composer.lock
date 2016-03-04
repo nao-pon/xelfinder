@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0d10ce791ee0bbbaa722b4b43162dd55",
-    "content-hash": "50af51b95437e10acf25ebd508256168",
+    "hash": "b891cc227ece5d705ac25427ad918597",
+    "content-hash": "56b1346d4c1a1e8fbcf7c535fc98be52",
     "packages": [
         {
             "name": "eher/oauth",
@@ -85,21 +85,21 @@
         },
         {
             "name": "google/apiclient",
-            "version": "dev-master",
+            "version": "v2.0.0-RC6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-api-php-client.git",
-                "reference": "c171d8644be7d288b20ac066e51cc701327cece8"
+                "reference": "8114f78df69d8905ba2271aba2a1b70aaa15eb7b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/c171d8644be7d288b20ac066e51cc701327cece8",
-                "reference": "c171d8644be7d288b20ac066e51cc701327cece8",
+                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/8114f78df69d8905ba2271aba2a1b70aaa15eb7b",
+                "reference": "8114f78df69d8905ba2271aba2a1b70aaa15eb7b",
                 "shasum": ""
             },
             "require": {
                 "firebase/php-jwt": "~2.0|~3.0",
-                "google/auth": "0.6",
+                "google/auth": "0.7",
                 "guzzlehttp/guzzle": "~5.2|~6.0",
                 "guzzlehttp/psr7": "1.2.*",
                 "monolog/monolog": "^1.17",
@@ -136,20 +136,20 @@
             "keywords": [
                 "google"
             ],
-            "time": "2016-02-25 18:30:27"
+            "time": "2016-03-03 20:46:07"
         },
         {
             "name": "google/auth",
-            "version": "v0.6",
+            "version": "v0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-auth-library-php.git",
-                "reference": "45c5e62244995d4dae51aa379894401ebe992b4d"
+                "reference": "f3288860ce7b3076a6768e4ff7b85e0f6100e221"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-auth-library-php/zipball/45c5e62244995d4dae51aa379894401ebe992b4d",
-                "reference": "45c5e62244995d4dae51aa379894401ebe992b4d",
+                "url": "https://api.github.com/repos/google/google-auth-library-php/zipball/f3288860ce7b3076a6768e4ff7b85e0f6100e221",
+                "reference": "f3288860ce7b3076a6768e4ff7b85e0f6100e221",
                 "shasum": ""
             },
             "require": {
@@ -183,7 +183,7 @@
                 "google",
                 "oauth2"
             ],
-            "time": "2016-02-24 18:00:02"
+            "time": "2016-03-03 02:03:58"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -358,16 +358,16 @@
         },
         {
             "name": "intervention/image",
-            "version": "2.3.5",
+            "version": "2.3.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Intervention/image.git",
-                "reference": "9f29360b8ab94585cb9e80cf9045abd5b85feb89"
+                "reference": "e368d262887dbb2fdfaf710880571ede51e9c0e6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/image/zipball/9f29360b8ab94585cb9e80cf9045abd5b85feb89",
-                "reference": "9f29360b8ab94585cb9e80cf9045abd5b85feb89",
+                "url": "https://api.github.com/repos/Intervention/image/zipball/e368d262887dbb2fdfaf710880571ede51e9c0e6",
+                "reference": "e368d262887dbb2fdfaf710880571ede51e9c0e6",
                 "shasum": ""
             },
             "require": {
@@ -416,7 +416,7 @@
                 "thumbnail",
                 "watermark"
             ],
-            "time": "2016-01-02 19:15:13"
+            "time": "2016-02-26 18:18:19"
         },
         {
             "name": "league/flysystem",
@@ -503,16 +503,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "1.17.2",
+            "version": "1.18.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "bee7f0dc9c3e0b69a6039697533dca1e845c8c24"
+                "reference": "e19b764b5c855580e8ffa7e615f72c10fd2f99cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/bee7f0dc9c3e0b69a6039697533dca1e845c8c24",
-                "reference": "bee7f0dc9c3e0b69a6039697533dca1e845c8c24",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/e19b764b5c855580e8ffa7e615f72c10fd2f99cc",
+                "reference": "e19b764b5c855580e8ffa7e615f72c10fd2f99cc",
                 "shasum": ""
             },
             "require": {
@@ -541,6 +541,7 @@
                 "ext-amqp": "Allow sending log messages to an AMQP server (1.0+ required)",
                 "ext-mongo": "Allow sending log messages to a MongoDB server",
                 "graylog2/gelf-php": "Allow sending log messages to a GrayLog2 server",
+                "mongodb/mongodb": "Allow sending log messages to a MongoDB server via PHP Driver",
                 "php-console/php-console": "Allow sending log messages to Google Chrome",
                 "raven/raven": "Allow sending log messages to a Sentry server",
                 "rollbar/rollbar": "Allow sending log messages to Rollbar",
@@ -550,7 +551,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.16.x-dev"
+                    "dev-master": "2.0.x-dev"
                 }
             },
             "autoload": {
@@ -576,7 +577,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2015-10-14 12:51:02"
+            "time": "2016-03-01 18:00:40"
         },
         {
             "name": "nao-pon/copy",
@@ -1149,7 +1150,7 @@
         "nao-pon/flysystem-cached-adapter": 20,
         "nao-pon/elfinder-flysystem-driver": 20,
         "nao-pon/flysystem-google-drive": 20,
-        "google/apiclient": 20
+        "google/apiclient": 5
     },
     "prefer-stable": false,
     "prefer-lowest": false,
