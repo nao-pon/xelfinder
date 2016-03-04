@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.7 (2.1_n Nightly: b6d0589) (2016-03-01)
+ * Version 2.1.7 (2.1_n Nightly: 25cc10c) (2016-03-04)
  * http://elfinder.org
  * 
  * Copyright 2009-2016, Studio 42
@@ -4870,7 +4870,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.7 (2.1_n Nightly: b6d0589)';
+elFinder.prototype.version = '2.1.7 (2.1_n Nightly: 25cc10c)';
 
 
 
@@ -7380,7 +7380,7 @@ $.fn.elfindercwd = function(fm, options) {
 					return fm.cwdHash2Id(f.hash);
 				},
 				name : function(f) {
-					name = fm.escape(f.name);
+					var name = fm.escape(f.name);
 					!list && (name = name.replace(/([_.])/g, '&#8203;$1'));
 					return name;
 				},
@@ -12980,7 +12980,7 @@ elFinder.prototype.commands.info = function() {
 			file  = files[0];
 			
 			view  = view.replace('{class}', fm.mime2class(file.mime));
-			title = tpl.itemTitle.replace('{name}', fm.escape(file.i18 || file.name)).replace('{kind}', fm.mime2kind(file));
+			title = tpl.itemTitle.replace('{name}', fm.escape(file.i18 || file.name)).replace('{kind}', '<span title="'+fm.escape(file.mime)+'">'+fm.mime2kind(file)+'</span>');
 
 			if (file.tmb) {
 				tmb = fm.option('tmbUrl')+file.tmb;
