@@ -93,7 +93,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/8114f78df69d8905ba2271aba2a1b70aaa15eb7b",
+                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/87dff9908464b150334283cd092d7d96e0dcc5bf",
                 "reference": "8114f78df69d8905ba2271aba2a1b70aaa15eb7b",
                 "shasum": ""
             },
@@ -726,16 +726,16 @@
         },
         {
             "name": "nao-pon/flysystem-cached-extra",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nao-pon/flysystem-cached-extra.git",
-                "reference": "84fce41f18ecb01f1d78476f1a9f2aa008fde305"
+                "reference": "b585dd26d234e8b7db1bbb8a8ce53a43403774af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nao-pon/flysystem-cached-extra/zipball/84fce41f18ecb01f1d78476f1a9f2aa008fde305",
-                "reference": "84fce41f18ecb01f1d78476f1a9f2aa008fde305",
+                "url": "https://api.github.com/repos/nao-pon/flysystem-cached-extra/zipball/b585dd26d234e8b7db1bbb8a8ce53a43403774af",
+                "reference": "b585dd26d234e8b7db1bbb8a8ce53a43403774af",
                 "shasum": ""
             },
             "type": "library",
@@ -760,7 +760,7 @@
                 }
             ],
             "description": "Extra traits for Flysystem cached adapter",
-            "time": "2016-02-23 08:27:47"
+            "time": "2016-03-06 12:29:42"
         },
         {
             "name": "nao-pon/flysystem-copy",
