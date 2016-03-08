@@ -14,10 +14,17 @@ class xelFinderMisc {
 	
 	private function authPrepare($perm, $f_uid) {
 		global $xoopsUser, $xoopsModule;
+		
 		if (is_object($xoopsUser)) {
+			if (empty($xoopsModule) || ! is_object($xoopsModule)) {
+				$module_handler = xoops_gethandler('module');
+				$xModule = $module_handler->getByDirname($this->mydirname);
+			} else {
+				$xModule = $xoopsModule;
+			}
 			$uid = $xoopsUser->getVar('uid');
 			$groups = $xoopsUser->getGroups();
-			$isAdmin = $xoopsUser->isAdmin($xoopsModule->getVar('mid'));
+			$isAdmin = $xoopsUser->isAdmin($xModule->getVar('mid'));
 		} else {
 			$uid = 0;
 			$groups = array(XOOPS_GROUP_ANONYMOUS);
