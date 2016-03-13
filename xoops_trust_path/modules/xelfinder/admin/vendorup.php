@@ -88,7 +88,7 @@ if ($php54up = version_compare(PHP_VERSION, '5.4.0', '>=')) {
 					<dt>Customized example</dt>
 					<dd><label><input value="/usr/local/php<?php echo $curver; ?>/bin/php" type="radio" name="cli">lolipop - "/usr/local/php<?php echo $curver; ?>/bin/php"</label></dd>
 					<dd><label><input value="/usr/local/bin/php56cli" type="radio" name="cli">XREA/CoreServer/ValueServer - "/usr/local/bin/php56cli"</label></dd>
-					<dd><label><input value="/usr/bin/php<?php echo $curver; ?>" type="radio" name="cli">XSERVER - "/usr/bin/php<?php echo $curver; ?>"</label></dd>
+					<dd><label><input value="/opt/php-<?php echo PHP_VERSION; ?>/bin/php" type="radio" name="cli">XSERVER - "/opt/php-<?php echo PHP_VERSION; ?>/bin/php"</label></dd>
 				</dl>
 			</td>
 		</tr></table>
