@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b891cc227ece5d705ac25427ad918597",
-    "content-hash": "56b1346d4c1a1e8fbcf7c535fc98be52",
+    "hash": "3c4bc0cc4c49e1a18dd7ee1291ee2994",
+    "content-hash": "203d961cc7f4ad5d82aeed60c1633a3f",
     "packages": [
         {
             "name": "eher/oauth",
@@ -249,16 +249,16 @@
         },
         {
             "name": "guzzlehttp/promises",
-            "version": "1.0.3",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "b1e1c0d55f8083c71eda2c28c12a228d708294ea"
+                "reference": "bb9024c526b22f3fe6ae55a561fd70653d470aa8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/b1e1c0d55f8083c71eda2c28c12a228d708294ea",
-                "reference": "b1e1c0d55f8083c71eda2c28c12a228d708294ea",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/bb9024c526b22f3fe6ae55a561fd70653d470aa8",
+                "reference": "bb9024c526b22f3fe6ae55a561fd70653d470aa8",
                 "shasum": ""
             },
             "require": {
@@ -296,7 +296,7 @@
             "keywords": [
                 "promise"
             ],
-            "time": "2015-10-15 22:28:00"
+            "time": "2016-03-08 01:15:46"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -424,12 +424,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "8333ebc5e76c334ee0e202f2f91e1948e566a655"
+                "reference": "7aa3015af162e59e9f7cf971140a322727c232ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/8333ebc5e76c334ee0e202f2f91e1948e566a655",
-                "reference": "8333ebc5e76c334ee0e202f2f91e1948e566a655",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/7aa3015af162e59e9f7cf971140a322727c232ec",
+                "reference": "7aa3015af162e59e9f7cf971140a322727c232ec",
                 "shasum": ""
             },
             "require": {
@@ -499,7 +499,7 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2016-02-21 11:35:18"
+            "time": "2016-03-10 21:52:28"
         },
         {
             "name": "monolog/monolog",
@@ -627,12 +627,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/nao-pon/elfinder-flysystem-driver.git",
-                "reference": "3aef1adf45b773ab4c8d4c2360ce5847cb352f36"
+                "reference": "f683a386f780b5f4601ba8fb28a776e6c18b612a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nao-pon/elfinder-flysystem-driver/zipball/3aef1adf45b773ab4c8d4c2360ce5847cb352f36",
-                "reference": "3aef1adf45b773ab4c8d4c2360ce5847cb352f36",
+                "url": "https://api.github.com/repos/nao-pon/elfinder-flysystem-driver/zipball/f683a386f780b5f4601ba8fb28a776e6c18b612a",
+                "reference": "f683a386f780b5f4601ba8fb28a776e6c18b612a",
                 "shasum": ""
             },
             "require": {
@@ -674,7 +674,7 @@
                 "elfinder",
                 "filesystem"
             ],
-            "time": "2016-02-27 11:11:54"
+            "time": "2016-03-11 06:56:55"
         },
         {
             "name": "nao-pon/flysystem-cached-adapter",
@@ -811,22 +811,22 @@
         },
         {
             "name": "nao-pon/flysystem-google-drive",
-            "version": "dev-api_v3",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nao-pon/flysystem-google-drive.git",
-                "reference": "795df00d4f56e3ffcab39944a955d4b7de79ea9c"
+                "reference": "be45453c151775f8166ef8fdc40f0572a8cbd5f7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nao-pon/flysystem-google-drive/zipball/795df00d4f56e3ffcab39944a955d4b7de79ea9c",
-                "reference": "795df00d4f56e3ffcab39944a955d4b7de79ea9c",
+                "url": "https://api.github.com/repos/nao-pon/flysystem-google-drive/zipball/be45453c151775f8166ef8fdc40f0572a8cbd5f7",
+                "reference": "be45453c151775f8166ef8fdc40f0572a8cbd5f7",
                 "shasum": ""
             },
             "require": {
-                "google/apiclient": "2.x@dev",
+                "google/apiclient": "^2.0@dev",
                 "league/flysystem": "~1.0",
-                "nao-pon/flysystem-cached-extra": "1.0.x",
+                "nao-pon/flysystem-cached-extra": "~1.0",
                 "php": ">=5.4.0"
             },
             "require-dev": {
@@ -836,8 +836,8 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0-dev",
-                    "dev-api_v3": "1.1-dev"
+                    "dev-api_v2": "1.0.x-dev",
+                    "dev-master": "1.1.x-dev"
                 }
             },
             "autoload": {
@@ -856,7 +856,7 @@
                 }
             ],
             "description": "Flysystem adapter for Google Drive",
-            "time": "2016-02-27 11:16:16"
+            "time": "2016-03-11 09:04:33"
         },
         {
             "name": "phpseclib/phpseclib",
@@ -1082,16 +1082,16 @@
         },
         {
             "name": "studio-42/elfinder",
-            "version": "2.1.7",
+            "version": "2.1.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Studio-42/elFinder.git",
-                "reference": "29625b877e9f042dc32774d06b1c6c48ae9623b7"
+                "reference": "49742815ca1ec55fbac9463d7ece2d9e4544a194"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Studio-42/elFinder/zipball/29625b877e9f042dc32774d06b1c6c48ae9623b7",
-                "reference": "29625b877e9f042dc32774d06b1c6c48ae9623b7",
+                "url": "https://api.github.com/repos/Studio-42/elFinder/zipball/49742815ca1ec55fbac9463d7ece2d9e4544a194",
+                "reference": "49742815ca1ec55fbac9463d7ece2d9e4544a194",
                 "shasum": ""
             },
             "require": {
@@ -1137,7 +1137,7 @@
             ],
             "description": "File manager for web",
             "homepage": "http://elfinder.org",
-            "time": "2016-02-21 12:49:46"
+            "time": "2016-03-11 06:51:01"
         }
     ],
     "packages-dev": [],
@@ -1149,7 +1149,6 @@
         "nao-pon/copy": 20,
         "nao-pon/flysystem-cached-adapter": 20,
         "nao-pon/elfinder-flysystem-driver": 20,
-        "nao-pon/flysystem-google-drive": 20,
         "google/apiclient": 5
     },
     "prefer-stable": false,
