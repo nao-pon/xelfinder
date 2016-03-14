@@ -186,7 +186,7 @@ define( $constpref.'_DROPBOX_SET_PREF' ,     'Please set the following value as 
 define( $constpref.'_GOOGLEDRIVE_GET_TOKEN', 'Get "Google Drive Token"');
 
 // admin/composer_update.php
-define( $constpref.'_COMPOSER_UPDATE' ,       'Update to plugin/vendor (composer update)');
+define( $constpref.'_COMPOSER_UPDATE' ,       'Update to plugins/vendor (composer update)');
 define( $constpref.'_COMPOSER_DO_UPDATE' ,    'Do update now(It will take some time)');
 define( $constpref.'_COMPOSER_UPDATE_STARTED','It was to begin the update. Please wait until "Update was completed." is displayed ...');
 define( $constpref.'_COMPOSER_DONE_UPDATE' ,  'Update was completed.');

@@ -187,7 +187,7 @@ define( $constpref.'_DROPBOX_SET_PREF' ,     '次の値を一般設定の各項�
 define( $constpref.'_GOOGLEDRIVE_GET_TOKEN', 'Google Drive Token の取得');
 
 // admin/composer_update.php
-define( $constpref.'_COMPOSER_UPDATE' ,       'plugin/vendor アップデート(composer update)');
+define( $constpref.'_COMPOSER_UPDATE' ,       'plugins/vendor アップデート(composer update)');
 define( $constpref.'_COMPOSER_DO_UPDATE' ,    'アップデートを実行する(ある程度時間が掛かります)');
 define( $constpref.'_COMPOSER_UPDATE_STARTED','アップデートを開始しました。「アップデートが完了しました。」と表示されるまでお待ち下さい...');
 define( $constpref.'_COMPOSER_DONE_UPDATE' ,  'アップデートが完了しました。');
