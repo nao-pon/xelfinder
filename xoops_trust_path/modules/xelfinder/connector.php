@@ -33,8 +33,10 @@ try {
 	// load compat functions
 	require_once dirname(__FILE__) . '/include/compat.php';
 
-	// load composer auto loader 
-	if (version_compare(PHP_VERSION, '5.4', '>=')) {
+	$php54 = version_compare(PHP_VERSION, '5.4', '>=');
+	
+	// load composer auto loader
+	if ($php54) {
 		require_once __DIR__ . '/plugins/vendor/autoload.php';
 	}
 
@@ -45,7 +47,7 @@ try {
 	if (! isset($_SESSION['XELFINDER_CTOKEN'])
 			|| ! isset($_REQUEST['ctoken'])
 			|| $_SESSION['XELFINDER_CTOKEN'] !== $_REQUEST['ctoken']) {
-		$origin || (isset($_GET['cmd']) && $_GET['cmd'] === 'callback') || (isset($_REQUEST['cmd']) && $_REQUEST['cmd'] === 'file') || exit(json_encode(array('error' => 'errPleaseReload')));
+		$origin || (isset($_GET['cmd']) && ($_GET['cmd'] === 'callback' || $_GET['cmd'] === 'netmount')) || (isset($_REQUEST['cmd']) && $_REQUEST['cmd'] === 'file') || exit(json_encode(array('error' => 'errPleaseReload')));
 		if ($origin && $_REQUEST['ctoken']) {
 			$_SESSION['XELFINDER_CTOKEN'] = $_REQUEST['ctoken'];
 		}
@@ -122,6 +124,13 @@ try {
 		mb_convert_variables('UTF-8', _CHARSET, $config);
 	}
 	$config_MD5 = md5(json_encode($config));
+
+	// google drive
+	if ($php54 && !empty($config['googleapi_id']) && !empty($config['googleapi_secret'])) {
+		require dirname(__FILE__) . '/class/xelFinderFlysystemGoogleDriveNetmount.php';
+		define('ELFINDER_GOOGLEDRIVE_CLIENTID',     $config['googleapi_id']);
+		define('ELFINDER_GOOGLEDRIVE_CLIENTSECRET', $config['googleapi_secret']);
+	}
 
 	// dropbox
 	if (!empty($config['dropbox_token']) && !empty($config['dropbox_seckey'])) {
