@@ -344,6 +344,29 @@ class xoops_elFinder {
 		return $ret;
 	}
 	
+	private function getAdminGroups($dirname = '') {
+		$aGroups = array();
+		if ($dirname === '') {
+			$dirname = $this->mydirname;
+			$module_handler = xoops_gethandler('module');
+			$XoopsModule = $module_handler->getByDirname($dirname);
+		} else {
+			$XoopsModule = $this->xoopsModule;
+		}
+		if ($XoopsModule) {
+			$mid = $XoopsModule->getVar('mid');
+			$hGroupperm = xoops_gethandler('groupperm');
+			$hGroup = xoops_gethandler('group');
+			$groups = $hGroup->getObjects(null, true);
+			foreach($groups as $gid => $group) {
+				if ($hGroupperm->checkRight('module_admin', $mid, $gid)) {
+					$aGroups[] = $group;
+				}
+			}
+		}
+		return $aGroups;
+	}
+	
 	public function setConfig($config) {
 		$this->config = $config;
 		$this->inSpecialGroup = (array_intersect($this->mygids, ( isset($config['special_groups'])? $config['special_groups'] : array() )));
@@ -454,11 +477,10 @@ EOD;
 				
 				$xoopsMailer = getMailer();
 				$xoopsMailer->useMail();
-				$xoopsMailer->setFromEmail($xoopsConfig['adminmail']);
 				$xoopsMailer->setFromName($sitename.':'.$modname);
 				$xoopsMailer->setSubject($subject);
 				$xoopsMailer->setBody($head.$sep.$message);
-				$xoopsMailer->setToEmails($xoopsConfig['adminmail']);
+				$xoopsMailer->setToGroups($this->getAdminGroups());
 				$xoopsMailer->send();
 				$xoopsMailer->reset();
 			
