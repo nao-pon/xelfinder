@@ -72,7 +72,7 @@ class xoops_elFinder {
 		$this->defaultVolumeOptions = array_merge($this->defaultVolumeOptions, $opt);
 		$this->mygids = is_object($this->xoopsUser)? $this->xoopsUser->getGroups() : array(XOOPS_GROUP_ANONYMOUS);
 		$this->uid = is_object($this->xoopsUser)? intval($this->xoopsUser->getVar('uid')) : 0;
-		$this->base64encodeSessionData = ((!defined('_CHARSET') || _CHARSET !== 'UTF-8') && $this->getSessionTableType() !== 'blob');
+		$this->base64encodeSessionData = ((!defined('_CHARSET') || _CHARSET !== 'UTF-8') && substr($this->getSessionTableType(), -4) !== 'blob');
 		
 		if (defined('_MD_XELFINDER_NETVOLUME_SESSION_KEY') && !isset($_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY]) && $this->uid) {
 			$table = $this->db->prefix($this->mydirname.'_userdat');
@@ -378,6 +378,17 @@ class xoops_elFinder {
 			$dir = dirname($path);
 			if (!is_dir($dir)) {
 				mkdir($dir);
+			}
+		}
+	}
+	
+	public function netmountPreCallback() {
+		// check session table type
+		if (strlen(serialize($_SESSION)) > 64000) {
+			// expand session table size, change type to "MEDIUMBLOB"
+			$stype = $this->getSessionTableType();
+			if ($stype !== 'mediumblob' && $stype !== 'longblob') {
+				$this->db->queryF('ALTER TABLE `'.$this->db->prefix('session').'` CHANGE `sess_data` `sess_data` MEDIUMBLOB NOT NULL');
 			}
 		}
 	}

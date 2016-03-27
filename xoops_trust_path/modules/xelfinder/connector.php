@@ -315,6 +315,7 @@ try {
 		)),
 		'bind'   => array(
 			//'*' => array($xoops_elFinder, 'log'),
+			'netmount.pre' => array($xoops_elFinder, 'netmountPreCallback'),
 			'netmount' => array($xoops_elFinder, 'netmountCallback'),
 			'mkdir mkfile put upload extract' => array($xoops_elFinder, 'notifyMail'),
 			'mkdir mkfile put paste upload extract resize' => array($xoops_elFinder, 'changeAddParent'),
