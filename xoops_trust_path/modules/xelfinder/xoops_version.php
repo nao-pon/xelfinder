@@ -185,6 +185,22 @@ array(
 	'default'		=> '0'
 ),
 array(
+	'name'			=> 'googleapi_id' ,
+	'title'			=> $constpref.'_GOOGLEAPI_ID' ,
+	'description'	=> $constpref.'_GOOGLEAPI_ID_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> $_encrypt ,
+	'default'		=> ''
+),
+array(
+	'name'			=> 'googleapi_secret' ,
+	'title'			=> $constpref.'_GOOGLEAPI_SECRET' ,
+	'description'	=> $constpref.'_GOOGLEAPI_SECRET_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> $_encrypt ,
+	'default'		=> ''
+),
+array(
 	'name'			=> 'dropbox_token' ,
 	'title'			=> $constpref.'_DROPBOX_TOKEN' ,
 	'description'	=> $constpref.'_DROPBOX_TOKEN_DESC' ,
