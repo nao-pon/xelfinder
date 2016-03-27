@@ -3,7 +3,6 @@
 $php54up = false;
 
 if ($php54up = version_compare(PHP_VERSION, '5.4.0', '>=')) {
-error_reporting(-1);
 	require $mytrustdirpath . '/plugins/vendor/autoload.php';
 
 	$selfURL = XOOPS_MODULE_URL . '/' . $mydirname . '/admin/index.php?page=googledrive';
@@ -11,6 +10,7 @@ error_reporting(-1);
 	$sessClientKey = $mydirname . 'AdminGoogledriveClientKey';
 	$client = null;
 	$clientId = $clientSecret = '';
+	$config = $xoopsModuleConfig;
 	
 	if (! empty($_POST['json'])) {
 		$json = @json_decode($_POST['json'], true);
@@ -22,6 +22,13 @@ error_reporting(-1);
 	if (! empty($_POST['ClientId']) && ! empty($_POST['ClientSecret'])) {
 		$clientId = trim($_POST['ClientId']);
 		$clientSecret = trim($_POST['ClientSecret']);
+	} else {
+		if (isset($config['googleapi_id'])) {
+			$clientId = $config['googleapi_id'];
+		}
+		if (isset($config['googleapi_secret'])) {
+			$clientSecret = $config['googleapi_secret'];
+		}
 	}
 
 	if ($clientId && $clientSecret) {
