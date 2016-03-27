@@ -86,10 +86,17 @@ class xoops_elFinder {
 							$data = @unserialize(@base64_decode($data));
 						}
 						if (is_array($data)) {
+							$data = array_reverse($data);
+							$cacheKey = 'xel_'.$mydirname.'_Caches';
+							if (! isset($_SESSION[$cacheKey])) {
+								$_SESSION[$cacheKey] = array();
+							}
 							foreach($data as $volume) {
-								if ($volume['host'] === 'dropbox' && !empty($volume['dropboxUid']) && !empty($volume['accessToken']) && !empty($volume['accessTokenSecret'])) {
-									$_SESSION['elFinderDropboxTokens'] = array($volume['dropboxUid'], $volume['accessToken'], $volume['accessTokenSecret']);
-									break;
+								if (! isset($_SESSION[$cacheKey]['DropboxTokens']) && $volume['host'] === 'dropbox' && !empty($volume['dropboxUid']) && !empty($volume['accessToken']) && !empty($volume['accessTokenSecret'])) {
+									$_SESSION[$cacheKey]['DropboxTokens'] = array($volume['dropboxUid'], $volume['accessToken'], $volume['accessTokenSecret']);
+								}
+								if (! isset($_SESSION[$cacheKey]['GoogleDriveAuthParams']) && $volume['driver'] === 'FlysystemGoogleDriveNetmountX') {
+									$_SESSION[$cacheKey]['GoogleDriveAuthParams'] = array('access_token' => $volume['access_token']);
 								}
 							}
 						}
