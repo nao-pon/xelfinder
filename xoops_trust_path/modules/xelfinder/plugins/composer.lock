@@ -187,16 +187,16 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "6.1.1",
+            "version": "6.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "c6851d6e48f63b69357cbfa55bca116448140e0c"
+                "reference": "d094e337976dff9d8e2424e8485872194e768662"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/c6851d6e48f63b69357cbfa55bca116448140e0c",
-                "reference": "c6851d6e48f63b69357cbfa55bca116448140e0c",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/d094e337976dff9d8e2424e8485872194e768662",
+                "reference": "d094e337976dff9d8e2424e8485872194e768662",
                 "shasum": ""
             },
             "require": {
@@ -212,7 +212,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "6.1-dev"
+                    "dev-master": "6.2-dev"
                 }
             },
             "autoload": {
@@ -245,7 +245,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2015-11-23 00:47:50"
+            "time": "2016-03-21 20:02:09"
         },
         {
             "name": "guzzlehttp/promises",
@@ -424,12 +424,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "7aa3015af162e59e9f7cf971140a322727c232ec"
+                "reference": "66c17c1f421d84df01074f4a685cef074173951d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/7aa3015af162e59e9f7cf971140a322727c232ec",
-                "reference": "7aa3015af162e59e9f7cf971140a322727c232ec",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/66c17c1f421d84df01074f4a685cef074173951d",
+                "reference": "66c17c1f421d84df01074f4a685cef074173951d",
                 "shasum": ""
             },
             "require": {
@@ -499,20 +499,68 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2016-03-10 21:52:28"
+            "time": "2016-03-23 06:50:45"
         },
         {
-            "name": "monolog/monolog",
-            "version": "1.18.0",
+            "name": "league/flysystem-cached-adapter",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "e19b764b5c855580e8ffa7e615f72c10fd2f99cc"
+                "url": "https://github.com/thephpleague/flysystem-cached-adapter.git",
+                "reference": "f006cb3c355ae596c72ba8ca4cf3aa4bb545bc0c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/e19b764b5c855580e8ffa7e615f72c10fd2f99cc",
-                "reference": "e19b764b5c855580e8ffa7e615f72c10fd2f99cc",
+                "url": "https://api.github.com/repos/thephpleague/flysystem-cached-adapter/zipball/f006cb3c355ae596c72ba8ca4cf3aa4bb545bc0c",
+                "reference": "f006cb3c355ae596c72ba8ca4cf3aa4bb545bc0c",
+                "shasum": ""
+            },
+            "require": {
+                "league/flysystem": "~1.0",
+                "psr/cache": "1.0.0"
+            },
+            "require-dev": {
+                "henrikbjorn/phpspec-code-coverage": "~1.0@dev",
+                "mockery/mockery": "~0.9",
+                "phpspec/phpspec": "~2.1",
+                "phpunit/phpunit": "~4.1",
+                "predis/predis": "~1.0",
+                "tedivm/stash": "~0.12"
+            },
+            "suggest": {
+                "ext-phpredis": "Pure C implemented extension for PHP"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "League\\Flysystem\\Cached\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "frankdejonge",
+                    "email": "info@frenky.net"
+                }
+            ],
+            "description": "An adapter decorator to enable meta-data caching.",
+            "time": "2016-01-25 08:21:11"
+        },
+        {
+            "name": "monolog/monolog",
+            "version": "1.18.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Seldaek/monolog.git",
+                "reference": "a5f2734e8c16f3aa21b3da09715d10e15b4d2d45"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/a5f2734e8c16f3aa21b3da09715d10e15b4d2d45",
+                "reference": "a5f2734e8c16f3aa21b3da09715d10e15b4d2d45",
                 "shasum": ""
             },
             "require": {
@@ -577,7 +625,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2016-03-01 18:00:40"
+            "time": "2016-03-13 16:08:35"
         },
         {
             "name": "nao-pon/copy",
@@ -627,12 +675,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/nao-pon/elfinder-flysystem-driver.git",
-                "reference": "f683a386f780b5f4601ba8fb28a776e6c18b612a"
+                "reference": "716dd9d8fba93048fdd673904874766c02a6ddbd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nao-pon/elfinder-flysystem-driver/zipball/f683a386f780b5f4601ba8fb28a776e6c18b612a",
-                "reference": "f683a386f780b5f4601ba8fb28a776e6c18b612a",
+                "url": "https://api.github.com/repos/nao-pon/elfinder-flysystem-driver/zipball/716dd9d8fba93048fdd673904874766c02a6ddbd",
+                "reference": "716dd9d8fba93048fdd673904874766c02a6ddbd",
                 "shasum": ""
             },
             "require": {
@@ -674,7 +722,7 @@
                 "elfinder",
                 "filesystem"
             ],
-            "time": "2016-03-11 06:56:55"
+            "time": "2016-03-15 00:09:09"
         },
         {
             "name": "nao-pon/flysystem-cached-adapter",
@@ -726,17 +774,20 @@
         },
         {
             "name": "nao-pon/flysystem-cached-extra",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nao-pon/flysystem-cached-extra.git",
-                "reference": "b585dd26d234e8b7db1bbb8a8ce53a43403774af"
+                "reference": "7e5310984a3ec09d743467ed6d83fb63856e7d0b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nao-pon/flysystem-cached-extra/zipball/b585dd26d234e8b7db1bbb8a8ce53a43403774af",
-                "reference": "b585dd26d234e8b7db1bbb8a8ce53a43403774af",
+                "url": "https://api.github.com/repos/nao-pon/flysystem-cached-extra/zipball/7e5310984a3ec09d743467ed6d83fb63856e7d0b",
+                "reference": "7e5310984a3ec09d743467ed6d83fb63856e7d0b",
                 "shasum": ""
+            },
+            "require": {
+                "league/flysystem-cached-adapter": "~1.0"
             },
             "type": "library",
             "extra": {
@@ -760,7 +811,7 @@
                 }
             ],
             "description": "Extra traits for Flysystem cached adapter",
-            "time": "2016-03-06 12:29:42"
+            "time": "2016-03-21 08:19:52"
         },
         {
             "name": "nao-pon/flysystem-copy",
