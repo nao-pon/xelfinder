@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.9 (2.1_n Nightly: 1145e38) (2016-03-27)
+ * Version 2.1.10 (2.1_n Nightly: 09428b6) (2016-04-02)
  * http://elfinder.org
  * 
  * Copyright 2009-2016, Studio 42
@@ -4881,7 +4881,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.9 (2.1_n Nightly: 1145e38)';
+elFinder.prototype.version = '2.1.10 (2.1_n Nightly: 09428b6)';
 
 
 
@@ -5278,6 +5278,7 @@ elFinder.prototype._options = {
 		
 		netmount: {
 			ftp: {
+				name : 'FTP',
 				inputs: {
 					host     : $('<input type="text"/>'),
 					port     : $('<input type="text" placeholder="21"/>'),
@@ -5289,6 +5290,7 @@ elFinder.prototype._options = {
 				}
 			},
 			dropbox: {
+				name : 'Dropbox.com',
 				inputs: {
 					host     : $('<span><span class="elfinder-info-spinner"/></span></span><input type="hidden"/>'),
 					path     : $('<input type="text" value="/"/>'),
@@ -5323,6 +5325,7 @@ elFinder.prototype._options = {
 				}
 			},
 			googledrive: {
+				name : 'GoogleDrive',
 				inputs: {
 					offline  : $('<input type="checkbox"/>').on('change', function() {
 						$(this).parents('table.elfinder-netmount-tb').find('select:first').trigger('change', 'reset');
@@ -5376,9 +5379,9 @@ elFinder.prototype._options = {
 							}));
 						$(f.host[1]).val('googledrive');
 						if (data.folders) {
-							f.path.after(
+							f.path.next().remove().end().after(
 								$('<div/>').append(
-									$('<select style="max-width:200px;">').append(
+									$('<select class="ui-corner-all" style="max-width:200px;">').append(
 										$($.map(data.folders, function(n,i){return '<option value="'+i+'">'+fm.escape(n)+'</option>'}).join(''))
 									).on('change', function(){f.path.val($(this).val());})
 								)
@@ -7516,7 +7519,7 @@ $.fn.elfindercwd = function(fm, options) {
 					return fm.mime2class(f.mime);
 				},
 				size : function(f) {
-					return fm.formatSize(f.size);
+					return (f.mime === 'directory' && !f.size)? '-' : fm.formatSize(f.size);
 				},
 				date : function(f) {
 					return fm.formatDate(f);
@@ -12892,7 +12895,7 @@ elFinder.prototype.commands.help = function() {
 		help = function() {
 			// help tab
 			html.push('<div id="help" class="ui-tabs-panel ui-widget-content ui-corner-bottom">');
-			html.push('<a href="http://elfinder.org/forum/" target="_blank" class="elfinder-dont-panic"><span>DON\'T PANIC</span></a>');
+			html.push('<a href="https://github.com/Studio-42/elFinder/wiki" target="_blank" class="elfinder-dont-panic"><span>DON\'T PANIC</span></a>');
 			html.push('</div>');
 			// end help
 		},
@@ -13386,7 +13389,7 @@ elFinder.prototype.commands.netmount = function() {
 							if (typeof o[protocol].select == 'function') {
 								o[protocol].select(fm, e, data);
 							}
-						})
+						}).addClass('ui-corner-all')
 					},
 					opts = {
 						title          : fm.i18n('netMountDialogTitle'),
@@ -13406,7 +13409,7 @@ elFinder.prototype.commands.netmount = function() {
 				content.append($('<tr/>').append($('<td>'+fm.i18n('protocol')+'</td>')).append($('<td/>').append(inputs.protocol)));
 
 				$.each(self.drivers, function(i, protocol) {
-					inputs.protocol.append('<option value="'+protocol+'">'+fm.i18n(protocol)+'</option>');
+					inputs.protocol.append('<option value="'+protocol+'">'+fm.i18n(o[protocol].name || protocol)+'</option>');
 					$.each(o[protocol].inputs, function(name, input) {
 						input.attr('name', name);
 						if (input.attr('type') != 'hidden') {
@@ -13533,6 +13536,9 @@ elFinder.prototype.commands.netunmount = function() {
 				accept : {
 					label    : 'btnUnmount',
 					callback : function() {  
+						var chDrive = (fm.root() == drive.hash),
+							base = $('#'+fm.navHash2Id(drive.hash)).parent(),
+							navTo = (base.next().length? base.next() : base.prev()).find('.elfinder-navbar-root');
 						fm.request({
 							data   : {cmd  : 'netmount', protocol : 'netunmount', host: drive.netkey, user : drive.hash, pass : 'dum'}, 
 							notify : {type : 'netunmount', cnt : 1, hideCnt : true},
@@ -13542,17 +13548,20 @@ elFinder.prototype.commands.netunmount = function() {
 							dfrd.reject(error);
 						})
 						.done(function(data) {
-							var chDrive = (fm.root() == drive.hash);
-							data.removed = [ drive.hash ];
-							fm.remove(data);
+							var open = fm.root();
 							if (chDrive) {
-								var files = fm.files();
-								for (var i in files) {
-									if (fm.file(i).mime == 'directory') {
-										fm.exec('open', i);
-										break;
+								if (navTo.length) {
+									open = fm.navId2Hash(navTo[0].id);
+								} else {
+									var files = fm.files();
+									for (var i in files) {
+										if (fm.file(i).mime == 'directory') {
+											open = i;
+											break;
+										}
 									}
 								}
+								fm.exec('open', open);
 							}
 							dfrd.resolve();
 						});
@@ -15049,8 +15058,6 @@ elFinder.prototype.commands.quicklook.plugins = [
 							$(this).css('background-color', '#fff').show();
 						})
 						.attr('src', 'http://docs.google.com/gview?embedded=true&url=' + encodeURIComponent(fm.url(file.hash)));
-
-					var test;
 				}
 			}
 			
