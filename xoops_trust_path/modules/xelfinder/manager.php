@@ -222,6 +222,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/elfinder.min.js?v=<?php echo $xelfVer?>"></script>
 <?php }?>
 		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.<?php echo $userLang?>.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/extras/quicklook.googledocs.js?v=<?php echo $xelfVer?>"></script>
 		
 		<!-- elFinder initialization (REQUIRED) -->
 		<link rel="stylesheet" href="<?php echo $myurl ?>/include/css/manager.css?v=<?php echo $xelfVer?>" type="text/css">
