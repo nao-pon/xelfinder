@@ -4,9 +4,64 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3c4bc0cc4c49e1a18dd7ee1291ee2994",
-    "content-hash": "203d961cc7f4ad5d82aeed60c1633a3f",
+    "hash": "487846f81f1ac9b617627b376e075cb9",
+    "content-hash": "cf5ef0c2d1e31ff2d9adfc3cc1ccc620",
     "packages": [
+        {
+            "name": "barryvdh/elfinder-flysystem-driver",
+            "version": "v0.1.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/barryvdh/elfinder-flysystem-driver.git",
+                "reference": "603afb0fa4b4d42a8c998759a02f69e9dc5ce6cb"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/barryvdh/elfinder-flysystem-driver/zipball/603afb0fa4b4d42a8c998759a02f69e9dc5ce6cb",
+                "reference": "603afb0fa4b4d42a8c998759a02f69e9dc5ce6cb",
+                "shasum": ""
+            },
+            "require": {
+                "intervention/image": "~2.0",
+                "league/flysystem": "~1.0",
+                "php": ">=5.4",
+                "studio-42/elfinder": "2.1.x"
+            },
+            "suggest": {
+                "league/glide": "1.x to display images through Glide"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.1-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "elFinderVolumeFlysystem.php"
+                ],
+                "psr-4": {
+                    "Barryvdh\\elFinderFlysystemDriver\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Barry vd. Heuvel",
+                    "email": "barryvdh@gmail.com"
+                }
+            ],
+            "description": "A Flysystem Driver for elFinder",
+            "keywords": [
+                "Flysystem",
+                "elfinder",
+                "filesystem"
+            ],
+            "time": "2016-04-04 14:10:16"
+        },
         {
             "name": "eher/oauth",
             "version": "1.0.7",
@@ -424,12 +479,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "e5d2baf1a626120f9fa4b72f368dc7c201fe3541"
+                "reference": "a8294fb7d939433abfaeb0fc1a34a278acfa5b39"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/e5d2baf1a626120f9fa4b72f368dc7c201fe3541",
-                "reference": "e5d2baf1a626120f9fa4b72f368dc7c201fe3541",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/a8294fb7d939433abfaeb0fc1a34a278acfa5b39",
+                "reference": "a8294fb7d939433abfaeb0fc1a34a278acfa5b39",
                 "shasum": ""
             },
             "require": {
@@ -499,7 +554,7 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2016-03-31 19:52:47"
+            "time": "2016-04-04 14:52:20"
         },
         {
             "name": "league/flysystem-cached-adapter",
@@ -551,16 +606,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "1.18.1",
+            "version": "1.18.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "a5f2734e8c16f3aa21b3da09715d10e15b4d2d45"
+                "reference": "064b38c16790249488e7a8b987acf1c9d7383c09"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/a5f2734e8c16f3aa21b3da09715d10e15b4d2d45",
-                "reference": "a5f2734e8c16f3aa21b3da09715d10e15b4d2d45",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/064b38c16790249488e7a8b987acf1c9d7383c09",
+                "reference": "064b38c16790249488e7a8b987acf1c9d7383c09",
                 "shasum": ""
             },
             "require": {
@@ -575,13 +630,13 @@
                 "doctrine/couchdb": "~1.0@dev",
                 "graylog2/gelf-php": "~1.0",
                 "jakub-onderka/php-parallel-lint": "0.9",
+                "php-amqplib/php-amqplib": "~2.4",
                 "php-console/php-console": "^3.1.3",
                 "phpunit/phpunit": "~4.5",
                 "phpunit/phpunit-mock-objects": "2.3.0",
                 "raven/raven": "^0.13",
                 "ruflin/elastica": ">=0.90 <3.0",
-                "swiftmailer/swiftmailer": "~5.3",
-                "videlalvaro/php-amqplib": "~2.4"
+                "swiftmailer/swiftmailer": "~5.3"
             },
             "suggest": {
                 "aws/aws-sdk-php": "Allow sending log messages to AWS services like DynamoDB",
@@ -590,11 +645,11 @@
                 "ext-mongo": "Allow sending log messages to a MongoDB server",
                 "graylog2/gelf-php": "Allow sending log messages to a GrayLog2 server",
                 "mongodb/mongodb": "Allow sending log messages to a MongoDB server via PHP Driver",
+                "php-amqplib/php-amqplib": "Allow sending log messages to an AMQP server using php-amqplib",
                 "php-console/php-console": "Allow sending log messages to Google Chrome",
                 "raven/raven": "Allow sending log messages to a Sentry server",
                 "rollbar/rollbar": "Allow sending log messages to Rollbar",
-                "ruflin/elastica": "Allow sending log messages to an Elastic Search server",
-                "videlalvaro/php-amqplib": "Allow sending log messages to an AMQP server using php-amqplib"
+                "ruflin/elastica": "Allow sending log messages to an Elastic Search server"
             },
             "type": "library",
             "extra": {
@@ -625,7 +680,7 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2016-03-13 16:08:35"
+            "time": "2016-04-02 13:12:58"
         },
         {
             "name": "nao-pon/copy",
@@ -670,40 +725,30 @@
             "time": "2016-01-19 05:26:09"
         },
         {
-            "name": "nao-pon/elfinder-flysystem-driver",
-            "version": "dev-pilot",
+            "name": "nao-pon/elfinder-flysystem-driver-ext",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/nao-pon/elfinder-flysystem-driver.git",
-                "reference": "716dd9d8fba93048fdd673904874766c02a6ddbd"
+                "url": "https://github.com/nao-pon/elfinder-flysystem-driver-ext.git",
+                "reference": "ee328e4d131c1ae10e5abf5b68b531403921e0d8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nao-pon/elfinder-flysystem-driver/zipball/716dd9d8fba93048fdd673904874766c02a6ddbd",
-                "reference": "716dd9d8fba93048fdd673904874766c02a6ddbd",
+                "url": "https://api.github.com/repos/nao-pon/elfinder-flysystem-driver-ext/zipball/ee328e4d131c1ae10e5abf5b68b531403921e0d8",
+                "reference": "ee328e4d131c1ae10e5abf5b68b531403921e0d8",
                 "shasum": ""
             },
             "require": {
-                "intervention/image": "~2.0",
-                "league/flysystem": "~1.0",
-                "php": ">=5.4",
-                "studio-42/elfinder": "2.1.x"
-            },
-            "suggest": {
-                "league/glide": "1.x to display images through Glide"
+                "barryvdh/elfinder-flysystem-driver": "^0.1.5|^0.2",
+                "php": ">=5.4"
             },
             "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "0.1-dev"
-                }
-            },
             "autoload": {
                 "classmap": [
-                    "elFinderVolumeFlysystem.php"
+                    "elFinderVolumeFlysystemExt.php"
                 ],
                 "psr-4": {
-                    "Barryvdh\\elFinderFlysystemDriver\\": "src/"
+                    "Hypweb\\elFinderFlysystemDriverExt\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -712,17 +757,17 @@
             ],
             "authors": [
                 {
-                    "name": "Barry vd. Heuvel",
-                    "email": "barryvdh@gmail.com"
+                    "name": "Naoki Sawada",
+                    "email": "hypweb@gmail.com"
                 }
             ],
-            "description": "A Flysystem Driver for elFinder",
+            "description": "A Flysystem Driver for elFinder extended version",
             "keywords": [
                 "Flysystem",
                 "elfinder",
                 "filesystem"
             ],
-            "time": "2016-03-15 00:09:09"
+            "time": "2016-04-11 02:01:41"
         },
         {
             "name": "nao-pon/flysystem-cached-adapter",
@@ -1133,16 +1178,16 @@
         },
         {
             "name": "studio-42/elfinder",
-            "version": "2.1.10",
+            "version": "2.1.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Studio-42/elFinder.git",
-                "reference": "4560ed671716e88c406f7ba7473a180b366ff1b2"
+                "reference": "1fdd52a9af150884f2f8e10eca6e2edee97677e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Studio-42/elFinder/zipball/4560ed671716e88c406f7ba7473a180b366ff1b2",
-                "reference": "4560ed671716e88c406f7ba7473a180b366ff1b2",
+                "url": "https://api.github.com/repos/Studio-42/elFinder/zipball/1fdd52a9af150884f2f8e10eca6e2edee97677e5",
+                "reference": "1fdd52a9af150884f2f8e10eca6e2edee97677e5",
                 "shasum": ""
             },
             "require": {
@@ -1187,7 +1232,7 @@
             ],
             "description": "File manager for web",
             "homepage": "http://elfinder.org",
-            "time": "2016-04-02 01:49:26"
+            "time": "2016-04-11 05:58:54"
         }
     ],
     "packages-dev": [],
@@ -1198,7 +1243,6 @@
         "nao-pon/flysystem-copy": 20,
         "nao-pon/copy": 20,
         "nao-pon/flysystem-cached-adapter": 20,
-        "nao-pon/elfinder-flysystem-driver": 20,
         "google/apiclient": 5
     },
     "prefer-stable": false,
