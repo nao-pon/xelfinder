@@ -42,6 +42,9 @@ if (! empty ( $_POST ['doupdate'] )) {
 		$phpcli.' -d curl.cainfo=cacert.pem -d openssl.cafile=cacert.pem composer.phar self-update --no-ansi --no-interaction 2>&1',
 		$phpcli.' -d curl.cainfo=cacert.pem -d openssl.cafile=cacert.pem composer.phar update --no-ansi --no-interaction --prefer-dist --no-dev 2>&1'
 	);
+	//$cmds = array(
+	//	$phpcli.' composer.phar info --no-ansi --no-interaction 2>&1',
+	//);
 	foreach($cmds as $cmd) {
 		$res = '';
 		$handle = popen($cmd, 'r');
@@ -105,7 +108,11 @@ if ($php54up = version_compare(PHP_VERSION, '5.4.0', '>=')) {
 <script>
 (function($){
 	var autoHeight = function() {
-		jQuery("#ifm-xelfinder-vendorup").height(jQuery("#ifm-xelfinder-vendorup").contents().find('body').outerHeight(true)+50);
+		var innH = jQuery("#ifm-xelfinder-vendorup").contents().find('body').outerHeight(true);
+		var boxH = jQuery("#ifm-xelfinder-vendorup").height();
+		if (boxH < innH) {
+			jQuery("#ifm-xelfinder-vendorup").height(innH + 50);
+		}
 		setTimeout(autoHeight, 500);
 	};
 	autoHeight();
