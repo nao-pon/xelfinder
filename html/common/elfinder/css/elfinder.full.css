@@ -1,10 +1,10 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.11 (2.1_n Nightly: 3954b00) (2016-04-15)
+ * Version 2.1.11 (2.1_n Nightly: 9feb247) (2016-04-22)
  * http://elfinder.org
  * 
  * Copyright 2009-2016, Studio 42
- * Licensed under a 3 clauses BSD license
+ * Licensed under a 3-clauses BSD license
  */
 
 /* File: /css/commands.css */
@@ -477,7 +477,7 @@ div.elfinder-cwd-wrapper-list tr.ui-state-default td span.ui-icon {
 .elfinder .elfinder-contextmenu-rtl .elfinder-contextmenu-item .ui-icon {
 	right: 2px;;
 }
-.elfinder .elfinder-contextmenu-item.elfinder-touch {
+.elfinder-touch .elfinder-contextmenu-item {
 	padding:12px 30px;
 }
 
@@ -805,11 +805,11 @@ div.elfinder-cwd-wrapper-list tr.ui-state-default td span.ui-icon {
 	box-sizing: content-box;
 }
 
-.elfinder .elfinder-cwd tr.elfinder-touch td {
+.elfinder-touch .elfinder-cwd tr td {
 	padding: 10px 12px;
 }
 
-.elfinder .elfinder-cwd tr.elfinder-cwd-file.elfinder-touch td {
+.elfinder-touch .elfinder-cwd tr.elfinder-cwd-file td {
 	padding: 13px 12px;
 }
 
@@ -1230,7 +1230,7 @@ button.elfinder-info-button {
 	border:1px solid transparent;
 	cursor:default;
 }
-.elfinder-navbar-dir.elfinder-touch {
+.elfinder-touch .elfinder-navbar-dir {
 	padding: 12px 12px;
 }
 
@@ -1423,8 +1423,16 @@ button.elfinder-info-button {
 /* hide preview border in fullscreen mode */
 .elfinder-quicklook-fullscreen .elfinder-quicklook-preview { border:0 solid ;}
 
-.elfinder-quicklook-fullscreen iframe {
-	height: 99%;
+/*.elfinder-quicklook-fullscreen iframe {
+	height: 100%;
+}*/
+
+.elfinder-quicklook-cover {
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	position: absolute;
 }
 
 /* quicklook titlebar */
@@ -1538,6 +1546,8 @@ button.elfinder-info-button {
 	padding:5px;
 	border:1px solid #eee;
 	background:#000;
+	opacity: 0.4;
+	filter: Alpha(Opacity=40);
 }
 
 /* show close icon in fullscreen mode */
@@ -1598,6 +1608,7 @@ button.elfinder-info-button {
 	background:#fff;
 	color:#222;
 	overflow:auto;
+	-webkit-overflow-scrolling: touch;
 }
 
 /* archive files preview wrapper */
@@ -1608,6 +1619,7 @@ button.elfinder-info-button {
 	color:#222;
 	font-size: 1.5ex;
 	overflow:auto;
+	-webkit-overflow-scrolling: touch
 }
 
 /* archive files preview header */
@@ -1858,6 +1870,9 @@ embed.elfinder-quicklook-preview-audio {
 	cursor:default;
 	padding:5px 19px;
 	position:relative;
+}
+.elfinder-touch .elfinder-button-menu-item {
+	padding: 12px 19px
 }
 
 /* fix hover ui class */
