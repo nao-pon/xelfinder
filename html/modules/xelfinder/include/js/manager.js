@@ -314,7 +314,8 @@ $(document).ready(function() {
 			  getfile : {
 			    onlyURL : false,
 			    multiple : false,
-			    folders : false
+			    folders : false,
+			    getImgSize: true
 			  },
 			  edit : {
 			      editors : editorsConfig,
