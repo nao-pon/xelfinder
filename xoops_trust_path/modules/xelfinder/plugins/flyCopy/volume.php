@@ -8,7 +8,7 @@ use League\Flysystem\Cached\Storage\Memcached as MCache;
 use League\Flysystem\Cached\Storage\Adapter as ACache;
 use League\Flysystem\Copy\CopyAdapter;
 
-if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
+if (version_compare(PHP_VERSION, '5.4.0', '>=') && time() < 1462028400) { // 1462028400 = 2016/5/1 0:00:00
 	$_err = false;
 	foreach(array('ext_consumerKey', 'ext_consumerSecret', 'ext_accessToken', 'ext_tokenSecret') as $_key) {
 		if (! isset($extOptions[$_key])) {
