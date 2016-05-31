@@ -53,12 +53,9 @@ try {
 		}
 	}
 
+	// load elFinder auto loader
 	define('_MD_ELFINDER_LIB_PATH', XOOPS_TRUST_PATH . '/libs/elfinder');
-
-	require _MD_ELFINDER_LIB_PATH . '/php/elFinderConnector.class.php';
-	require _MD_ELFINDER_LIB_PATH . '/php/elFinder.class.php';
-	require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeDriver.class.php';
-	require _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeLocalFileSystem.class.php';
+	require _MD_ELFINDER_LIB_PATH . '/php/autoload.php';
 
 	//////////////////////////////////////////////////////
 	// for XOOPS
