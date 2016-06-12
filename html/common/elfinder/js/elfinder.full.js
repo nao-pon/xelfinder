@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.12 (2.1_n Nightly: ca22a4d) (2016-06-12)
+ * Version 2.1.12 (2.1_n Nightly: 952b01e) (2016-06-12)
  * http://elfinder.org
  * 
  * Copyright 2009-2016, Studio 42
@@ -5152,7 +5152,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.12 (2.1_n Nightly: ca22a4d)';
+elFinder.prototype.version = '2.1.12 (2.1_n Nightly: 952b01e)';
 
 
 
@@ -6805,6 +6805,7 @@ elFinder.prototype.resources = {
 						input.remove();
 						node.remove();
 						fm.enable();
+						fm.trigger('resMixinMake');
 					}),
 				id    = 'tmp_'+parseInt(Math.random()*100000),
 				phash = fm.cwd().hash,
@@ -8477,10 +8478,7 @@ $.fn.elfindercwd = function(fm, options) {
 				if (!bufferExt.timer) {
 					go();
 					if (list && colWidth) {
-						cwd.find('table').css('table-layout', 'fixed');
-						$.each(colWidth, function(k, w) {
-							cwd.find('td.elfinder-col-'+k+':first').width(w);
-						});
+						setColwidth();
 						fixTableHeader({fitWidth: true});
 					}
 				}
@@ -8566,6 +8564,24 @@ $.fn.elfindercwd = function(fm, options) {
 						}
 						tableHeader.css(wrapper.position()).css('width', cwd.outerWidth() + 'px');
 					}, 10));
+				}
+			},
+			
+			// Set colmun width
+			setColwidth = function() {
+				if (list && colWidth) {
+					var cl = 'elfinder-cwd-colwidth',
+					firster = cwd.find('tr[id]:first'),
+					former;
+					if (! firster.hasClass(cl)) {
+						former = cwd.find('tr.'+cl);
+						former.removeClass(cl).find('td').css('width', '');
+						firster.addClass(cl);
+						cwd.find('table:first').css('table-layout', 'fixed');
+						$.each(colWidth, function(k, w) {
+							firster.find('td.elfinder-col-'+k).width(w);
+						});
+					}
 				}
 			},
 			
@@ -8781,6 +8797,7 @@ $.fn.elfindercwd = function(fm, options) {
 					}
 				}
 				
+				setColwidth();
 				bottomMarkerShow(place);
 				attachThumbnails(atmb);
 				ltmb.length && loadThumbnails(ltmb);
@@ -8821,6 +8838,8 @@ $.fn.elfindercwd = function(fm, options) {
 						buffer.splice(ndx, 1);
 					}
 				}
+				
+				setColwidth();
 			},
 			
 			msg = {
@@ -9380,6 +9399,7 @@ $.fn.elfindercwd = function(fm, options) {
 						parent.prepend(file);
 					}
 					
+					setColwidth();
 					wrapper.scrollTop(0).scrollLeft(0);
 				})
 				// unselect all selected files
@@ -9566,6 +9586,9 @@ $.fn.elfindercwd = function(fm, options) {
 						}
 					});
 				}
+			})
+			.bind('resMixinMake', function() {
+				setColwidth();
 			})
 			.add(function(e) {
 				var phash = fm.cwd().hash,
