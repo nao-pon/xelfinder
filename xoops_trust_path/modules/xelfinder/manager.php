@@ -184,6 +184,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/commands/reload.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/up.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/home.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/colwidth.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/copy.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/cut.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/paste.js"></script>
