@@ -20,6 +20,8 @@ class xoops_elFinder {
 	
 	public $base64encodeSessionData;
 	
+	protected static $dbCharset;
+	
 	/**
 	* Log file path
 	*
@@ -652,8 +654,8 @@ EOD;
 				return self::getUnameByUid(0);
 			}
 		}
-		if (strtoupper(_CHARSET) !== 'UTF-8') {
-			$uname = mb_convert_encoding($uname, 'UTF-8', _CHARSET);
+		if (self::$dbCharset !== 'utf8' && strtoupper(_CHARSET) !== 'UTF-8') {
+			$uname = mb_convert_encoding($uname, 'UTF-8', $charset);
 		}
 		return $unames[$uid] = $uname;
 	}
@@ -670,6 +672,7 @@ EOD;
 			$db = XoopsDatabaseFactory::getDatabaseConnection();
 			$link = (is_object($db->conn) && get_class($db->conn) === 'mysqli')? $db->conn : false;
 		}
+		self::$dbCharset = $charset;
 		if ($link) {
 			return mysqli_set_charset($link, $charset);
 		} else {
