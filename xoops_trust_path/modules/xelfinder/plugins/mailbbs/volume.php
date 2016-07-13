@@ -12,6 +12,7 @@ if (is_dir(XOOPS_ROOT_PATH . $path)) {
 		'path'       => XOOPS_ROOT_PATH . $path,
 		'URL'        => _MD_XELFINDER_SITEURL . $path,
 		'alias'      => $title,
+	    'quarantine' => '',
 		'readonly'   => true,
 		'icon'       => is_file(XOOPS_MODULE_PATH . '/'.$mydirname.'/imgs/elfinder_volume_icon.png')? _MD_XELFINDER_MODULE_URL . '/'.$mydirname.'/imgs/elfinder_volume_icon.png' : '',
 		'defaults' => array('read' => true, 'write' => false, 'locked' => true)
