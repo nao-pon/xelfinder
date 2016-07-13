@@ -274,36 +274,9 @@ $(document).ready(function() {
 		syncStart : autoSyncStart,
 		ui : ['toolbar', 'places', 'tree', 'path', 'stat'],
 		uiOptions : {
-			toolbar : [
-				['back', 'forward'],
-				['netmount'],
-				// ['reload'],
-				// ['home', 'up'],
-				['mkdir', 'mkfile', 'upload'],
-				['open', 'download', 'getfile'],
-				['info', 'chmod'],
-				['quicklook'],
-				['copy', 'cut', 'paste'],
-				['rm'],
-				['duplicate', 'rename', 'edit', 'resize', 'pixlr'],
-				['extract', 'archive'],
-				['search'],
-				['view', 'sort'],
-				['help']
-			],
-			tree : {
-				openRootOnLoad : true,
-				syncTree : true
-			},
-			navbar : {
-				minWidth : 150,
-				maxWidth : 500
-			},
 			cwd : {
-				oldSchool : false,
 				listView : {
 					columns : ['perm', 'date', 'size', 'kind', 'owner'],
-					columnsCustomName : {}
 				}
 			},
 			places : {
@@ -321,13 +294,6 @@ $(document).ready(function() {
 			      editors : editorsConfig,
 			      dialogWidth: '80%'
 			  }
-		},
-		contextmenu : {
-			navbar : ['open', '|', 'download', 'upload', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'rename', '|', 'places', 'info', 'chmod', 'netunmount'],
-			cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'sort', 'colwidth', '|', 'info'],
-			files  : ['getfile', '|', 'open', 'opendir', 'quicklook', '|', 'download', 'upload', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', 'pixlr',
-			          '|', 'archive', 'extract',
-			          '|', 'places', 'info', 'chmod']
 		}
 	}).elfinder('instance');
 	
