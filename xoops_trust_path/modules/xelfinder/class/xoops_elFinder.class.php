@@ -20,7 +20,7 @@ class xoops_elFinder {
 	
 	public $base64encodeSessionData;
 	
-	protected static $dbCharset;
+	protected static $dbCharset = '';
 	
 	/**
 	* Log file path
@@ -645,6 +645,9 @@ EOD;
 			$config_handler = xoops_gethandler('config');
 			$xoopsConfig = $config_handler->getConfigsByCat(XOOPS_CONF);
 			$uname = $xoopsConfig['anonymous'];
+			if (self::$dbCharset === 'utf8' && strtoupper(_CHARSET) !== 'UTF-8') {
+				$uname = mb_convert_encoding($uname, 'UTF-8', _CHARSET);
+			}
 		} else {
 			$query = 'SELECT `uname` FROM `'.$db->prefix('users').'` WHERE uid=' . $uid . ' LIMIT 1';
 			if ($result = $db->query($query)) {
@@ -655,7 +658,7 @@ EOD;
 			}
 		}
 		if (self::$dbCharset !== 'utf8' && strtoupper(_CHARSET) !== 'UTF-8') {
-			$uname = mb_convert_encoding($uname, 'UTF-8', $charset);
+			$uname = mb_convert_encoding($uname, 'UTF-8', _CHARSET);
 		}
 		return $unames[$uid] = $uname;
 	}
