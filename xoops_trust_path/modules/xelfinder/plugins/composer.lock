@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "7e2a4a6fbc5df2284b1e72bd86c9ffd2",
-    "content-hash": "dcdc87d5e78ffcfb80ee1cb8d899e409",
+    "hash": "6e3be8c15df634739591d9ee7e89abec",
+    "content-hash": "6e126fb715c03a8ed59fc71ed535853c",
     "packages": [
         {
             "name": "barryvdh/elfinder-flysystem-driver",
@@ -108,22 +108,22 @@
         },
         {
             "name": "google/apiclient",
-            "version": "v2.0.0-RC8",
+            "version": "v2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-api-php-client.git",
-                "reference": "f872fea738b8d2deea0a41f070929a67797e5349"
+                "reference": "984f6a96297242e901bde518489374a9dec209df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/f872fea738b8d2deea0a41f070929a67797e5349",
-                "reference": "f872fea738b8d2deea0a41f070929a67797e5349",
+                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/984f6a96297242e901bde518489374a9dec209df",
+                "reference": "984f6a96297242e901bde518489374a9dec209df",
                 "shasum": ""
             },
             "require": {
                 "firebase/php-jwt": "~2.0|~3.0",
                 "google/apiclient-services": "*@dev",
-                "google/auth": "0.8",
+                "google/auth": "0.9",
                 "guzzlehttp/guzzle": "~5.2|~6.0",
                 "guzzlehttp/psr7": "^1.2",
                 "monolog/monolog": "^1.17",
@@ -163,21 +163,21 @@
             "keywords": [
                 "google"
             ],
-            "time": "2016-05-13 20:44:11"
+            "time": "2016-06-24 16:44:42"
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.2",
+            "version": "v0.4",
             "target-dir": "Google/Service",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-api-php-client-services.git",
-                "reference": "b33ee2a338e7e68cf56491da2c0690ef50f8f99b"
+                "reference": "a7f180941c60b96dcd602b9c22ce7b535387a8c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/b33ee2a338e7e68cf56491da2c0690ef50f8f99b",
-                "reference": "b33ee2a338e7e68cf56491da2c0690ef50f8f99b",
+                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/a7f180941c60b96dcd602b9c22ce7b535387a8c2",
+                "reference": "a7f180941c60b96dcd602b9c22ce7b535387a8c2",
                 "shasum": ""
             },
             "require": {
@@ -198,32 +198,32 @@
             "keywords": [
                 "google"
             ],
-            "time": "2016-05-17 15:34:22"
+            "time": "2016-07-14 00:19:51"
         },
         {
             "name": "google/auth",
-            "version": "v0.8",
+            "version": "v0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-auth-library-php.git",
-                "reference": "ec4edcb043e523267973fda308d9412d7db78e17"
+                "reference": "47c3c6bece495e58381a21fed13a735bd23a51cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-auth-library-php/zipball/ec4edcb043e523267973fda308d9412d7db78e17",
-                "reference": "ec4edcb043e523267973fda308d9412d7db78e17",
+                "url": "https://api.github.com/repos/google/google-auth-library-php/zipball/47c3c6bece495e58381a21fed13a735bd23a51cc",
+                "reference": "47c3c6bece495e58381a21fed13a735bd23a51cc",
                 "shasum": ""
             },
             "require": {
                 "firebase/php-jwt": "~2.0|~3.0",
                 "guzzlehttp/guzzle": "~5.3|~6.0",
-                "guzzlehttp/psr7": "1.2.*",
+                "guzzlehttp/psr7": "~1.2",
                 "php": ">=5.4",
                 "psr/cache": "^1.0",
                 "psr/http-message": "^1.0"
             },
             "require-dev": {
-                "fabpot/php-cs-fixer": "^1.11",
+                "friendsofphp/php-cs-fixer": "^1.11",
                 "phpunit/phpunit": "3.7.*"
             },
             "type": "library",
@@ -246,31 +246,31 @@
                 "google",
                 "oauth2"
             ],
-            "time": "2016-05-11 16:56:35"
+            "time": "2016-06-01 22:07:52"
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "6.2.0",
+            "version": "6.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "d094e337976dff9d8e2424e8485872194e768662"
+                "reference": "3f808fba627f2c5b69e2501217bf31af349c1427"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/d094e337976dff9d8e2424e8485872194e768662",
-                "reference": "d094e337976dff9d8e2424e8485872194e768662",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/3f808fba627f2c5b69e2501217bf31af349c1427",
+                "reference": "3f808fba627f2c5b69e2501217bf31af349c1427",
                 "shasum": ""
             },
             "require": {
-                "guzzlehttp/promises": "~1.0",
-                "guzzlehttp/psr7": "~1.1",
-                "php": ">=5.5.0"
+                "guzzlehttp/promises": "^1.0",
+                "guzzlehttp/psr7": "^1.3.1",
+                "php": ">=5.5"
             },
             "require-dev": {
                 "ext-curl": "*",
-                "phpunit/phpunit": "~4.0",
-                "psr/log": "~1.0"
+                "phpunit/phpunit": "^4.0",
+                "psr/log": "^1.0"
             },
             "type": "library",
             "extra": {
@@ -308,7 +308,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2016-03-21 20:02:09"
+            "time": "2016-07-15 17:22:37"
         },
         {
             "name": "guzzlehttp/promises",
@@ -363,16 +363,16 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "1.2.3",
+            "version": "1.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "2e89629ff057ebb49492ba08e6995d3a6a80021b"
+                "reference": "5c6447c9df362e8f8093bda8f5d8873fe5c7f65b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/2e89629ff057ebb49492ba08e6995d3a6a80021b",
-                "reference": "2e89629ff057ebb49492ba08e6995d3a6a80021b",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/5c6447c9df362e8f8093bda8f5d8873fe5c7f65b",
+                "reference": "5c6447c9df362e8f8093bda8f5d8873fe5c7f65b",
                 "shasum": ""
             },
             "require": {
@@ -388,7 +388,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0-dev"
+                    "dev-master": "1.4-dev"
                 }
             },
             "autoload": {
@@ -417,7 +417,7 @@
                 "stream",
                 "uri"
             ],
-            "time": "2016-02-18 21:54:00"
+            "time": "2016-06-24 23:00:38"
         },
         {
             "name": "intervention/image",
@@ -483,16 +483,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "dev-master",
+            "version": "1.0.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "9546fa1c3e8f1fe21f6f51a46c89be268a6171f1"
+                "reference": "a76afa4035931be0c78ca8efc6abf3902362f437"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/9546fa1c3e8f1fe21f6f51a46c89be268a6171f1",
-                "reference": "9546fa1c3e8f1fe21f6f51a46c89be268a6171f1",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/a76afa4035931be0c78ca8efc6abf3902362f437",
+                "reference": "a76afa4035931be0c78ca8efc6abf3902362f437",
                 "shasum": ""
             },
             "require": {
@@ -505,7 +505,7 @@
                 "ext-fileinfo": "*",
                 "mockery/mockery": "~0.9",
                 "phpspec/phpspec": "^2.2",
-                "phpunit/phpunit": "~4.8 || ~5.0"
+                "phpunit/phpunit": "~4.8"
             },
             "suggest": {
                 "ext-fileinfo": "Required for MimeType",
@@ -562,7 +562,7 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2016-05-19 07:41:07"
+            "time": "2016-07-18 12:22:57"
         },
         {
             "name": "league/flysystem-cached-adapter",
@@ -614,16 +614,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "1.19.0",
+            "version": "1.20.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "5f56ed5212dc509c8dc8caeba2715732abb32dbf"
+                "reference": "55841909e2bcde01b5318c35f2b74f8ecc86e037"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/5f56ed5212dc509c8dc8caeba2715732abb32dbf",
-                "reference": "5f56ed5212dc509c8dc8caeba2715732abb32dbf",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/55841909e2bcde01b5318c35f2b74f8ecc86e037",
+                "reference": "55841909e2bcde01b5318c35f2b74f8ecc86e037",
                 "shasum": ""
             },
             "require": {
@@ -642,8 +642,8 @@
                 "php-console/php-console": "^3.1.3",
                 "phpunit/phpunit": "~4.5",
                 "phpunit/phpunit-mock-objects": "2.3.0",
-                "raven/raven": "^0.13",
                 "ruflin/elastica": ">=0.90 <3.0",
+                "sentry/sentry": "^0.13",
                 "swiftmailer/swiftmailer": "~5.3"
             },
             "suggest": {
@@ -655,9 +655,9 @@
                 "mongodb/mongodb": "Allow sending log messages to a MongoDB server via PHP Driver",
                 "php-amqplib/php-amqplib": "Allow sending log messages to an AMQP server using php-amqplib",
                 "php-console/php-console": "Allow sending log messages to Google Chrome",
-                "raven/raven": "Allow sending log messages to a Sentry server",
                 "rollbar/rollbar": "Allow sending log messages to Rollbar",
-                "ruflin/elastica": "Allow sending log messages to an Elastic Search server"
+                "ruflin/elastica": "Allow sending log messages to an Elastic Search server",
+                "sentry/sentry": "Allow sending log messages to a Sentry server"
             },
             "type": "library",
             "extra": {
@@ -688,20 +688,20 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2016-04-12 18:29:35"
+            "time": "2016-07-02 14:02:10"
         },
         {
             "name": "nao-pon/elfinder-flysystem-driver-ext",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nao-pon/elfinder-flysystem-driver-ext.git",
-                "reference": "ee328e4d131c1ae10e5abf5b68b531403921e0d8"
+                "reference": "15bb416f6acdbf96ba8d77f6f6af12966990bec3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nao-pon/elfinder-flysystem-driver-ext/zipball/ee328e4d131c1ae10e5abf5b68b531403921e0d8",
-                "reference": "ee328e4d131c1ae10e5abf5b68b531403921e0d8",
+                "url": "https://api.github.com/repos/nao-pon/elfinder-flysystem-driver-ext/zipball/15bb416f6acdbf96ba8d77f6f6af12966990bec3",
+                "reference": "15bb416f6acdbf96ba8d77f6f6af12966990bec3",
                 "shasum": ""
             },
             "require": {
@@ -733,55 +733,7 @@
                 "elfinder",
                 "filesystem"
             ],
-            "time": "2016-04-11 02:01:41"
-        },
-        {
-            "name": "nao-pon/flysystem-cached-adapter",
-            "version": "dev-pilot",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/nao-pon/flysystem-cached-adapter.git",
-                "reference": "150eb2f32206f83fdf49898112135b553a379072"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/nao-pon/flysystem-cached-adapter/zipball/150eb2f32206f83fdf49898112135b553a379072",
-                "reference": "150eb2f32206f83fdf49898112135b553a379072",
-                "shasum": ""
-            },
-            "require": {
-                "league/flysystem": "~1.0",
-                "psr/cache": "1.0.0"
-            },
-            "require-dev": {
-                "henrikbjorn/phpspec-code-coverage": "~1.0@dev",
-                "mockery/mockery": "~0.9",
-                "phpspec/phpspec": "~2.1",
-                "phpunit/phpunit": "~4.1",
-                "predis/predis": "~1.0",
-                "tedivm/stash": "~0.12"
-            },
-            "suggest": {
-                "ext-phpredis": "Pure C implemented extension for PHP"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "League\\Flysystem\\Cached\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "frankdejonge",
-                    "email": "info@frenky.net"
-                }
-            ],
-            "description": "An adapter decorator to enable meta-data caching.",
-            "time": "2016-02-21 13:59:18"
+            "time": "2016-06-09 01:44:11"
         },
         {
             "name": "nao-pon/flysystem-cached-extra",
@@ -826,20 +778,20 @@
         },
         {
             "name": "nao-pon/flysystem-google-drive",
-            "version": "1.1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nao-pon/flysystem-google-drive.git",
-                "reference": "3a3c11f1fc2118ce86ed2656909bd3f9084dca1e"
+                "reference": "c323ce0cc4fa2248279239eca9a689fa98c5ec85"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nao-pon/flysystem-google-drive/zipball/3a3c11f1fc2118ce86ed2656909bd3f9084dca1e",
-                "reference": "3a3c11f1fc2118ce86ed2656909bd3f9084dca1e",
+                "url": "https://api.github.com/repos/nao-pon/flysystem-google-drive/zipball/c323ce0cc4fa2248279239eca9a689fa98c5ec85",
+                "reference": "c323ce0cc4fa2248279239eca9a689fa98c5ec85",
                 "shasum": ""
             },
             "require": {
-                "google/apiclient": "^2.0@dev",
+                "google/apiclient": "^2.0",
                 "league/flysystem": "~1.0",
                 "nao-pon/flysystem-cached-extra": "~1.0",
                 "php": ">=5.4.0"
@@ -871,20 +823,20 @@
                 }
             ],
             "description": "Flysystem adapter for Google Drive",
-            "time": "2016-04-01 02:10:05"
+            "time": "2016-07-19 03:50:55"
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "2.0.1",
+            "version": "2.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "ba6fb78f727cd09f2a649113b95468019e490585"
+                "reference": "3d265f7c079f5b37d33475f996d7a383c5fc8aeb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/ba6fb78f727cd09f2a649113b95468019e490585",
-                "reference": "ba6fb78f727cd09f2a649113b95468019e490585",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/3d265f7c079f5b37d33475f996d7a383c5fc8aeb",
+                "reference": "3d265f7c079f5b37d33475f996d7a383c5fc8aeb",
                 "shasum": ""
             },
             "require": {
@@ -904,6 +856,9 @@
             },
             "type": "library",
             "autoload": {
+                "files": [
+                    "phpseclib/bootstrap.php"
+                ],
                 "psr-4": {
                     "phpseclib\\": "phpseclib/"
                 }
@@ -960,7 +915,7 @@
                 "x.509",
                 "x509"
             ],
-            "time": "2016-01-18 17:07:21"
+            "time": "2016-05-13 01:15:21"
         },
         {
             "name": "psr/cache",
@@ -1097,16 +1052,16 @@
         },
         {
             "name": "studio-42/elfinder",
-            "version": "2.1.12",
+            "version": "2.1.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Studio-42/elFinder.git",
-                "reference": "249ef036eaacd1a5d31a6b1516e1c183afd5ff8e"
+                "reference": "0fdd17e79be892ba807fc38127339372cb1b7c30"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Studio-42/elFinder/zipball/249ef036eaacd1a5d31a6b1516e1c183afd5ff8e",
-                "reference": "249ef036eaacd1a5d31a6b1516e1c183afd5ff8e",
+                "url": "https://api.github.com/repos/Studio-42/elFinder/zipball/0fdd17e79be892ba807fc38127339372cb1b7c30",
+                "reference": "0fdd17e79be892ba807fc38127339372cb1b7c30",
                 "shasum": ""
             },
             "require": {
@@ -1151,17 +1106,13 @@
             ],
             "description": "File manager for web",
             "homepage": "http://elfinder.org",
-            "time": "2016-05-30 13:46:36"
+            "time": "2016-07-11 02:16:04"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "league/flysystem": 20,
-        "nao-pon/flysystem-cached-adapter": 20,
-        "google/apiclient": 5
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
