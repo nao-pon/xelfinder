@@ -89,6 +89,7 @@ if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
 			'filesystem' => $_fly,
 			'fscache' => $_cache,
 			'alias' => $title,
+			'separator' => '/',
 			'icon' => XOOPS_MODULE_URL . '/' . $mDirname . '/images/volume_icon_googledrive.png',
 			'tmbPath' => XOOPS_MODULE_PATH . '/' . _MD_ELFINDER_MYDIRNAME . '/cache/tmb/',
 			'tmbURL' => _MD_XELFINDER_MODULE_URL . '/' . _MD_ELFINDER_MYDIRNAME . '/cache/tmb/'
