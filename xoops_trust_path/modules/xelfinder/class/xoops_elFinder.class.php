@@ -516,7 +516,15 @@ EOD;
 			if (($target = $result['changed'][0]['phash'])
 					&& ($volume = $elfinder->getVolume($target))){
 				if ($parents = $volume->parents($target, true)) {
-					$result['changed'] = array_merge($result['changed'], $parents);
+					$exist = array();
+					foreach($result['changed'] as $changed) {
+						$exist[$changed['hash']] = true;
+					}
+					foreach($parents as $changed) {
+						if (! isset($exist[$changed['hash']])) {
+							$result['changed'][] = $changed;
+						}
+					}
 				}
 			}
 		}
