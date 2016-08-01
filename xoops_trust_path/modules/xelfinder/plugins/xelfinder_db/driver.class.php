@@ -1163,7 +1163,11 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _mkdir($path, $name) {
-		return $this->make($path, $name, 'directory') ? $this->_joinPath($path, $name) : false;
+		$res = $this->make($path, $name, 'directory') ? $this->_joinPath($path, $name) : false;
+		if ($res) {
+			$this->updateDirTimestamp($path, time());
+		}
+		return $res;
 	}
 
 	/**
@@ -1175,7 +1179,11 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _mkfile($path, $name) {
-		return $this->make($path, $name, 'text/plain') ? $this->_joinPath($path, $name) : false;
+		$res = $this->make($path, $name, 'text/plain') ? $this->_joinPath($path, $name) : false;
+		if ($res) {
+			$this->updateDirTimestamp($path, time());
+		}
+		return $res;
 	}
 
 	/**
@@ -1271,6 +1279,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	protected function _unlink($path) {
 		$stat = $this->stat($path);
 		if ($this->query(sprintf('DELETE FROM %s WHERE `file_id`=%d AND `mime`!="directory" LIMIT 1', $this->tbf, $path)) && $this->db->getAffectedRows()) {
+			$stat['phash'] && $this->updateDirTimestamp($this->decode($stat['phash']), time());
 			$is_localalias = ! empty($stat['_localalias']);
 			if (! $is_localalias) {
 				$file = $this->readlink($path);
@@ -1299,7 +1308,12 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _rmdir($path) {
-		return ($this->query(sprintf('DELETE FROM %s WHERE `file_id`=%d AND `mime`="directory" LIMIT 1', $this->tbf, $path)) && $this->db->getAffectedRows());
+		$stat = $this->stat($path);
+		$res = ($this->query(sprintf('DELETE FROM %s WHERE `file_id`=%d AND `mime`="directory" LIMIT 1', $this->tbf, $path)) && $this->db->getAffectedRows());
+		if ($res) {
+			$stat['phash'] && $this->updateDirTimestamp($this->decode($stat['phash']), time());
+		}
+		return $res;
 	}
 
 	/**
@@ -1412,7 +1426,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 **/
 	protected function _filePutContents($path, $content) {
 		if ($local = $this->readlink($path)) {
-			if (file_put_contents($local, $content)) {
+			if (file_put_contents($local, $content) !== false) {
 				$time = time();
 				unset($this->cache[(int)$path]);
 				$this->updateDirTimestamp($this->_dirname($path), $time, true);
