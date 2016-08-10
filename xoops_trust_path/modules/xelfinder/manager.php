@@ -79,16 +79,16 @@ $viewport = (preg_match('/Mobile|Android/i', $_SERVER['HTTP_USER_AGENT']))? '<me
 $userLang = xelfinder_detect_lang();
 
 if (empty($config['jquery'])) {
-	$jQueryVersion   = '1.12.0';
-	$jQueryCDN = '//ajax.googleapis.com/ajax/libs/jquery/%s/jquery.min.js';
+	$jQueryVersion   = '1.12.4';
+	$jQueryCDN = '//code.jquery.com/jquery-%s.min.js';
 	$jQueryUrl = sprintf($jQueryCDN, $jQueryVersion);
 } else {
 	$jQueryUrl = trim($config['jquery']);
 }
 
 if (empty($config['jquery_ui'])) {
-	$jQueryUIVersion = '1.11.4';
-	$jQueryUICDN = '//ajax.googleapis.com/ajax/libs/jqueryui/%s';
+	$jQueryUIVersion = '1.12.0';
+	$jQueryUICDN = '//code.jquery.com/ui/%s';
 	$jQueryUIUrl = sprintf($jQueryUICDN, $jQueryUIVersion).'/jquery-ui.min.js';
 } else {
 	$jQueryUIUrl = trim($config['jquery_ui']);
