@@ -34,7 +34,7 @@ function openWithSelfMain(url, name, w, h, returnwindow) {
 	var margin = $.mobile? 0 : 60;
 	w = $(window).width() - margin;
 	h = $(window).height() - margin;
-	$.modal('<iframe name="'+name+'" id="xelf_window" src="' + url + '" height="100%" width="100%" style="border:0;overflow:hidden;" allowtransparency="true" scrolling="no" frameborder="0">', {
+	$.modal('<iframe name="'+name+'" id="xelf_window" src="' + url + '" height="100%" width="100%" style="border:0;overflow:hidden;" allowtransparency="true" scrolling="no" frameborder="0" allowfullscreen="allowfullscreen">', {
 		containerCss:{
 			backgroundColor:	"transparent",
 			borderColor:		"transparent",

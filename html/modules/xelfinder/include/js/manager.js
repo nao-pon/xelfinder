@@ -48,9 +48,6 @@ $(document).ready(function() {
 		elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
 	}
 	
-	// add custom command
-	elFinder.prototype._options.commands.push('perm');
-	
 	// keep alive
 	var extCheck = connectorUrl;
 	setInterval(function(){
@@ -88,13 +85,19 @@ $(document).ready(function() {
 			mimes : ['text/html'],
 			exts  : ['htm', 'html', 'xhtml'],
 			load : function(textarea) {
+				var base = $(textarea).parent(),
+					cke;
+				base.closest('.ui-dialog').on('resize', function() {
+					cke.resize('100%', base.height());
+				});
 				$('head').append($('<script>').attr('src', rootUrl + '/modules/ckeditor4/ckeditor/ckeditor.js'));
-				return CKEDITOR.replace( textarea.id, {
+				cke = CKEDITOR.replace( textarea.id, {
 					startupFocus : true,
 					fullPage: true,
 					allowedContent: true,
 					filebrowserBrowseUrl: myUrl + '/manager.php?cb=ckeditor'
 				});
+				return cke;
 			},
 			close : function(textarea, instance) {
 				instance.destroy();
@@ -120,7 +123,7 @@ $(document).ready(function() {
 			var self = this, editor, editorBase, mode,
 			ta = $(textarea),
 			taBase = ta.parent(),
-			dialog = taBase.parent(),
+			dialog = taBase.closest('.ui-dialog'),
 			id = textarea.id + '_ace',
 			mimeMode = {
 				'text/x-php'              : 'php',
@@ -150,8 +153,9 @@ $(document).ready(function() {
 				'application/xml'         : 'xml',
 				'text/x-markdown'         : 'markdown'
 			},
-			resize = function(){
-				dialog.height($(window).height() * 0.9).trigger('posinit');
+			resize = function() {
+				full = dialog.hasClass('elfinder-maximized');
+				dialog.height($(window).height() * (full? 1 : 0.9)).trigger('posinit');
 				taBase.height(dialog.height() - taBase.prev().outerHeight(true) - taBase.next().outerHeight(true) - 8);
 			};
 			
@@ -232,7 +236,9 @@ $(document).ready(function() {
 					self.doCancel();
 				}
 			});
-			dialog.on('resize', function(){ editor.resize(); });
+			dialog.on('resize', function(){
+				editor.resize();
+			});
 			$(window).on('resize', function(e){
 				if (e.target !== this) return;
 				dialog.data('resizeTimer') && clearTimeout(dialog.data('resizeTimer'));

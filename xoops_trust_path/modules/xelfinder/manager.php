@@ -177,6 +177,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/ui/path.js"></script>
 		<script src="<?php echo $elfurl ?>/js/ui/stat.js"></script>
 		<script src="<?php echo $elfurl ?>/js/ui/places.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/fullscreenbutton.js"></script>
 	
 		<!-- elfinder commands -->
 		<script src="<?php echo $elfurl ?>/js/commands/back.js"></script>
@@ -213,6 +214,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/commands/pixlr.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/chmod.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/opendir.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/fullscreen.js"></script>
 	
 		<!-- elfinder languages -->
 		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.en.js" charset="UTF-8"></script>
