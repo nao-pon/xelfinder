@@ -129,17 +129,18 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<link rel="stylesheet" href="<?php echo $jQueryUiTheme?>" type="text/css">
 
 <?php if ($debug) {?>
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/commands.css"    type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/common.css"      type="text/css" >
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/dialog.css"      type="text/css" >
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/toolbar.css"     type="text/css" >
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/navbar.css"      type="text/css" >
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/statusbar.css"   type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/contextmenu.css" type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/cwd.css"         type="text/css" >
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/quicklook.css"   type="text/css" >
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/places.css"      type="text/css" >
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/commands.css"    type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/dialog.css"      type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/fonts.css"       type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/navbar.css"      type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/places.css"      type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/quicklook.css"   type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/statusbar.css"   type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/toast.css"       type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/toolbar.css"     type="text/css" >
 <?php } else {?>
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/elfinder.min.css?v=<?php echo $xelfVer?>" type="text/css" >
 <?php }?>
@@ -152,69 +153,71 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<?php if ($debug) {?>
 		<!-- elfinder core -->
 		<script src="<?php echo $elfurl ?>/js/elFinder.js"></script>
+		
+		<script src="<?php echo $elfurl ?>/js/elFinder.command.js"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.history.js"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.options.js"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.resources.js"></script>
 		<script src="<?php echo $elfurl ?>/js/elFinder.version.js"></script>
 		<script src="<?php echo $elfurl ?>/js/jquery.elfinder.js"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.resources.js"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.options.js"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.history.js"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.command.js"></script>
 	
 		<!-- elfinder ui -->
-		<script src="<?php echo $elfurl ?>/js/ui/overlay.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/workzone.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/navbar.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/dialog.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/tree.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/cwd.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/toolbar.js"></script>
 		<script src="<?php echo $elfurl ?>/js/ui/button.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/uploadButton.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/viewbutton.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/contextmenu.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/cwd.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/dialog.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/fullscreenbutton.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/navbar.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/overlay.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/panel.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/path.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/places.js"></script>
 		<script src="<?php echo $elfurl ?>/js/ui/searchbutton.js"></script>
 		<script src="<?php echo $elfurl ?>/js/ui/sortbutton.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/panel.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/contextmenu.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/path.js"></script>
 		<script src="<?php echo $elfurl ?>/js/ui/stat.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/places.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/fullscreenbutton.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/toast.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/toolbar.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/tree.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/uploadButton.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/viewbutton.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/workzone.js"></script>
 	
 		<!-- elfinder commands -->
+		<script src="<?php echo $elfurl ?>/js/commands/archive.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/back.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/forward.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/reload.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/up.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/home.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/chmod.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/colwidth.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/copy.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/cut.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/paste.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/open.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/rm.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/info.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/download.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/duplicate.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/rename.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/help.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/edit.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/extract.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/forward.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/fullscreen.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/getfile.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/help.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/home.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/info.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/mkdir.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/mkfile.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/upload.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/download.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/edit.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/netmount.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/open.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/opendir.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/paste.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/pixlr.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/places.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/quicklook.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/quicklook.plugins.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/extract.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/archive.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/search.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/view.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/reload.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/rename.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/resize.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/rm.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/search.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/sort.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/netmount.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/places.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/pixlr.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/chmod.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/opendir.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/fullscreen.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/up.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/upload.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/view.js"></script>
 	
 		<!-- elfinder languages -->
 		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.en.js" charset="UTF-8"></script>
