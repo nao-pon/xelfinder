@@ -37,6 +37,7 @@ class xelfinderPreloadBase extends XCube_ActionFilter {
 			if ($moduleperm_handler->checkRight('module_read', $XoopsModule->getVar('mid'), (is_object($xoopsUser)? $xoopsUser->getGroups() : XOOPS_GROUP_ANONYMOUS))) {
 				$mydirpath = $this->mydirpath;
 				$use_bbcode_siteimg = 1;
+				$_GET['cb'] = 'bbcode';
 				require dirname(__FILE__).'/manager.php';
 			}
 		}
