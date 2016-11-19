@@ -68,6 +68,8 @@ try {
 		} else {
 			error_reporting(E_ALL);
 		}
+		// set elFinder error level
+		define('ELFINDER_DEBUG_ERRORLEVEL', error_reporting());
 	} else {
 		error_reporting(0);
 	}
