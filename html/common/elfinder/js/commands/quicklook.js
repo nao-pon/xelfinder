@@ -136,6 +136,8 @@
 		navdrag = false,
 		navmove = false,
 		navtm   = null,
+		leftKey = $.ui.keyCode.LEFT,
+		rightKey = $.ui.keyCode.RIGHT,
 		coverEv = 'mousemove touchstart ' + ('onwheel' in document? 'wheel' : 'onmousewheel' in document? 'mousewheel' : 'DOMMouseScroll'),
 		title   = $('<div class="elfinder-quicklook-title"/>'),
 		icon    = $('<div/>'),
@@ -257,8 +259,8 @@
 			cover.hide();
 		},
 			
-		prev = $('<div class="'+navicon+' '+navicon+'-prev"/>').on('click touchstart', function(e) { ! navmove && navtrigger(37); return false; }),
-		next = $('<div class="'+navicon+' '+navicon+'-next"/>').on('click touchstart', function(e) { ! navmove && navtrigger(39); return false; }),
+		prev = $('<div class="'+navicon+' '+navicon+'-prev"/>').on('click touchstart', function(e) { ! navmove && navtrigger(leftKey); return false; }),
+		next = $('<div class="'+navicon+' '+navicon+'-next"/>').on('click touchstart', function(e) { ! navmove && navtrigger(rightKey); return false; }),
 		navbar  = $('<div class="elfinder-quicklook-navbar"/>')
 			.append(prev)
 			.append(fsicon)
@@ -276,10 +278,10 @@
 		
 	this.preview = $('<div class="elfinder-quicklook-preview ui-helper-clearfix"/>')
 		// clean info/icon
-		.on('change', function(e) {
+		.on('change', function() {
 			navShow();
 			navbar.attr('style', navStyle);
-			self.preview.attr('style', '')
+			self.preview.attr('style', '').removeClass('elfinder-overflow-auto');
 			self.info.attr('style', '').hide();
 			icon.removeAttr('class').attr('style', '');
 			info.html('');
@@ -292,7 +294,7 @@
 				tpl     = '<div class="elfinder-quicklook-info-data">{value}</div>',
 				tmb;
 
-			if (file && self.window.data('hash') !== file.hash) {
+			if (file && (e.forceUpdate || self.window.data('hash') !== file.hash)) {
 				!file.read && e.stopImmediatePropagation();
 				self.window.data('hash', file.hash);
 				self.preview.off('changesize').trigger('change').children().remove();
@@ -465,7 +467,7 @@
 		var o       = this.options, 
 			win     = this.window,
 			preview = this.preview,
-			i, p;
+			i, p, curCwd;
 		
 		width  = o.width  > 0 ? parseInt(o.width)  : 450;	
 		height = o.height > 0 ? parseInt(o.height) : 300;
@@ -482,7 +484,7 @@
 			
 			// close window on escape
 			$(document).keydown(function(e) {
-				e.keyCode == 27 && self.opened() && win.trigger('close')
+				e.keyCode == $.ui.keyCode.ESCAPE && self.opened() && win.trigger('close')
 			})
 			
 			if ($.fn.resizable) {
@@ -500,22 +502,47 @@
 			
 			self.change(function() {
 				if (self.opened()) {
-					self.value ? preview.trigger($.Event('update', {file : self.value})) : win.trigger('close');
+					setTimeout(function() {
+						if (self.value) {
+							preview.trigger($.Event('update', {file : self.value}))
+						} else {
+							navtrigger(rightKey);
+							setTimeout(function() {
+								! self.value && win.trigger('close');
+							}, 10);
+						}
+					}, 10);
 				}
 			});
 			
+			preview.on('update', function(data) {
+				if (fm.searchStatus.mixed && fm.searchStatus.state > 1) {
+					// set current volume dispInlineRegex
+					try {
+						self.dispInlineRegex = new RegExp(fm.option('dispInlineRegex', data.file.hash));
+					} catch(e) {
+						self.dispInlineRegex = /.*/;
+					}
+				}
+				self.info.show();
+			});
+
 			$.each(fm.commands.quicklook.plugins || [], function(i, plugin) {
 				if (typeof(plugin) == 'function') {
 					new plugin(self)
 				}
 			});
-			
-			preview.on('update', function() {
-				self.info.show();
-			});
 		});
 		
 		fm.bind('open',function() {
+			var prevCwd = curCwd;
+			
+			// change cwd
+			curCwd = fm.cwd().hash;
+			if (self.opened() && prevCwd !== curCwd) {
+				win.trigger('close');
+			}
+			
 			// set current volume dispInlineRegex
 			try {
 				self.dispInlineRegex = new RegExp(fm.option('dispInlineRegex'));

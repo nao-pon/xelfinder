@@ -11,9 +11,16 @@ $.fn.elfindernavbar = function(fm, opts) {
 			wz     = parent.children('.elfinder-workzone').append(nav),
 			delta  = nav.outerHeight() - nav.height(),
 			ltr    = fm.direction == 'ltr',
-			handle, swipeHandle, autoHide, setWidth;
+			handle, swipeHandle, autoHide, setWidth,
+			setWzRect = function() {
+				var cwd = fm.getUI('cwd'),
+					wz  = fm.getUI('workzone'),
+					wzRect = wz.data('rectangle'),
+					cwdOffset = cwd.offset();
+				wz.data('rectangle', $.extend(wzRect, { cwdEdge: (fm.direction === 'ltr')? cwdOffset.left : cwdOffset.left + cwd.width() }));
+			};
 
-		fm.bind('resize', function() {
+		fm.bind('wzresize', function() {
 			nav.height(wz.height() - delta);
 		});
 		
@@ -51,9 +58,9 @@ $.fn.elfindernavbar = function(fm, opts) {
 							fm.resources.blink(swipeHandle, 'slowonce');
 						}
 					}
-					fm.trigger('navbar'+ mode);
-					fm.getUI('cwd').trigger('resize');
+					fm.trigger('navbar'+ mode).getUI('cwd').trigger('resize');
 					data.init && fm.trigger('uiautohide');
+					setWzRect();
 				});
 				autoHide.navbar = (mode !== 'show');
 				fm.storage('autoHide', $.extend(fm.storage('autoHide'), {navbar: autoHide.navbar}));
@@ -67,9 +74,13 @@ $.fn.elfindernavbar = function(fm, opts) {
 					maxWidth : opts.maxWidth || 500,
 					stop : function(e, ui) {
 						fm.storage('navbarWidth', ui.size.width);
+						setWzRect();
 					}
 				})
 				.on('resize scroll', function(e) {
+					if (! ltr && e.type === 'resize') {
+						nav.css('left', 0);
+					}
 					clearTimeout($(this).data('posinit'));
 					$(this).data('posinit', setTimeout(function() {
 						var offset = (fm.UA.Opera && nav.scrollLeft())? 20 : 2;

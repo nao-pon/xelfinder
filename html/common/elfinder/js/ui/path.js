@@ -37,7 +37,7 @@ $.fn.elfinderpath = function(fm) {
 				raw = [];
 
 				$.each(roots, function(i, f) {
-					if (fm.root(fm.cwd().hash) !== f.hash) {
+					if (! f.phash && fm.root(fm.cwd().hash, true) !== f.hash) {
 						raw.push({
 							label    : fm.escape(f.i18 || f.name),
 							icon     : 'home',
@@ -162,7 +162,7 @@ $.fn.elfinderpath = function(fm) {
 					toWorkzone();
 					fm.bind('open', toWorkzone);
 				}
-				setTimeout(function() { fm.trigger('resize'); }, 0);
+				fm.trigger('uiresize');
 			})
 			.bind('resize', fit);
 	});

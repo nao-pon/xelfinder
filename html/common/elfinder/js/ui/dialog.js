@@ -5,51 +5,224 @@
  * @author Dmitry (dio) Levashov
  **/
 $.fn.elfinderdialog = function(opts, fm) {
-	var dialog;
+	var platformWin = (window.navigator.platform.indexOf('Win') != -1),
+		dialog, elfNode;
 	
-	if (typeof(opts) == 'string' && (dialog = this.closest('.ui-dialog')).length) {
-		if (opts == 'open') {
-			dialog.css('display') == 'none' && dialog.fadeIn(120, function() {
-				dialog.trigger('open');
-			});
-		} else if (opts == 'close') {
-			dialog.stop(true);
-			dialog.css('display') != 'none' && dialog.hide().trigger('close');
-		} else if (opts == 'destroy') {
-			dialog.hide().remove();
-		} else if (opts == 'toTop') {
-			dialog.trigger('totop');
-		} else if (opts == 'posInit') {
-			dialog.trigger('posinit');
+	if (fm && fm.ui) {
+		elfNode = fm.getUI();
+	} else {
+		elfNode = this.closest('.elfinder');
+		if (! fm) {
+			fm = elfNode.elfinder('instance');
 		}
+	}
+	
+	if (typeof opts  === 'string') {
+		if ((dialog = this.closest('.ui-dialog')).length) {
+			if (opts == 'open') {
+				dialog.css('display') == 'none' && dialog.fadeIn(120, function() {
+					dialog.trigger('open');
+				});
+			} else if (opts == 'close' || opts == 'destroy') {
+				dialog.stop(true);
+				dialog.css('display') != 'none' && dialog.hide().trigger('close');
+				opts == 'destroy' && dialog.remove();
+			} else if (opts == 'toTop') {
+				dialog.trigger('totop');
+			} else if (opts == 'posInit') {
+				dialog.trigger('posinit');
+			} else if (opts == 'tabstopsInit') {
+				dialog.trigger('tabstopsInit');
+			}
+		}
+		return this;
 	}
 	
 	opts = $.extend({}, $.fn.elfinderdialog.defaults, opts);
 	
-	if (opts.allowMaximize && ! fm) {
-		opts.allowMaximize = false;
+	if (opts.allowMinimize && opts.allowMinimize === 'auto') {
+		opts.allowMinimize = this.find('textarea,input').length? true : false; 
+	}
+	if (opts.headerBtnPos && opts.headerBtnPos === 'auto') {
+		opts.headerBtnPos = platformWin? 'right' : 'left';
+	}
+	if (opts.headerBtnOrder && opts.headerBtnOrder === 'auto') {
+		opts.headerBtnOrder = platformWin? 'close:maximize:minimize' : 'close:minimize:maximize';
+	}
+	
+	if (opts.modal && opts.allowMinimize) {
+		opts.allowMinimize = false;
 	}
 	
 	this.filter(':not(.ui-dialog-content)').each(function() {
 		var self       = $(this).addClass('ui-dialog-content ui-widget-content'),
-			parent     = self.parent(),
 			clactive   = 'elfinder-dialog-active',
 			cldialog   = 'elfinder-dialog',
 			clnotify   = 'elfinder-dialog-notify',
 			clhover    = 'ui-state-hover',
+			cltabstop  = 'elfinder-tabstop',
+			cl1stfocus = 'elfinder-focus',
 			id         = parseInt(Math.random()*1000000),
-			overlay    = parent.children('.elfinder-overlay'),
-			titlebar   = $('<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">'+opts.title+'</div>'),
+			titlebar   = $('<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix"><span class="elfinder-dialog-title">'+opts.title+'</span></div>'),
 			buttonset  = $('<div class="ui-dialog-buttonset"/>'),
 			buttonpane = $('<div class=" ui-helper-clearfix ui-dialog-buttonpane ui-widget-content"/>')
 				.append(buttonset),
 			btnWidth   = 0,
-			platformWin = (window.navigator.platform.indexOf('Win') != -1),
-			
+			btnCnt     = 0,
+			tabstops   = $(),
+			tabstopsInit = function() {
+				tabstops = dialog.find('.'+cltabstop);
+				if (tabstops.length) {
+					tabstops.attr('tabindex', '-1');
+					if (! tabstops.filter('.'+cl1stfocus).length) {
+						buttonset.children('.'+cltabstop+':'+(platformWin? 'first' : 'last')).addClass(cl1stfocus);
+					}
+				}
+			},
+			tabstopNext = function(cur) {
+				var elms = tabstops.filter(':visible'),
+					node = cur? null : elms.filter('.'+cl1stfocus+':first');
+					
+				if (! node || ! node.length) {
+					node = elms.first();
+				}
+				if (cur) {
+					$.each(elms, function(i, elm) {
+						if (elm === cur && elms[i+1]) {
+							node = elms.eq(i+1);
+							return false;
+						}
+					});
+				}
+				return node;
+			},
+			tabstopPrev = function(cur) {
+				var elms = tabstops.filter(':visible'),
+					node = elms.last();
+				$.each(elms, function(i, elm) {
+					if (elm === cur && elms[i-1]) {
+						node = elms.eq(i-1);
+						return false;
+					}
+				});
+				return node;
+			},
+			makeHeaderBtn = function() {
+				$.each(opts.headerBtnOrder.split(':').reverse(), function(i, v) {
+					headerBtns[v] && headerBtns[v]();
+				})
+				if (platformWin) {
+					titlebar.children('.elfinder-titlebar-button').addClass('elfinder-titlebar-button-right');
+				}
+			},
+			headerBtns = {
+				close: function() {
+					titlebar.prepend($('<span class="ui-widget-header ui-dialog-titlebar-close ui-corner-all elfinder-titlebar-button"><span class="ui-icon ui-icon-closethick"/></span>')
+						.on('mousedown', function(e) {
+							e.preventDefault();
+							e.stopPropagation();
+							self.elfinderdialog('close');
+						})
+					);
+				},
+				maximize: function() {
+					if (opts.allowMaximize) {
+						dialog.on('resize', function(e, data) {
+							var full, elm;
+							if (data && data.maximize) {
+								elm = titlebar.find('.elfinder-titlebar-full');
+								full = (data.maximize === 'on');
+								elm.children('span.ui-icon')
+									.toggleClass('ui-icon-plusthick', ! full)
+									.toggleClass('ui-icon-arrowreturnthick-1-s', full);
+								if (full) {
+									try {
+										dialog.hasClass('ui-draggable') && dialog.draggable('disable');
+										dialog.hasClass('ui-resizable') && dialog.resizable('disable');
+									} catch(e) {}
+									if (typeof elm.data('style') === 'undefined') {
+										elm.data('style', self.attr('style') || '');
+									}
+									self.css('width', '100%').css('height', dialog.height() - dialog.children('.ui-dialog-titlebar').outerHeight(true) - buttonpane.outerHeight(true));
+								} else {
+									self.attr('style', elm.data('style'));
+									elm.removeData('style');
+									try {
+										dialog.hasClass('ui-draggable') && dialog.draggable('enable');
+										dialog.hasClass('ui-resizable') && dialog.resizable('enable');
+									} catch(e) {}
+								}
+							}
+						});
+						titlebar.prepend($('<span class="ui-widget-header ui-corner-all elfinder-titlebar-button elfinder-titlebar-full"><span class="ui-icon ui-icon-plusthick"/></span>')
+							.on('mousedown', function(e) {
+								e.preventDefault();
+								e.stopPropagation();
+								fm.toggleMaximize(dialog);
+							})
+						);
+					}
+					
+				},
+				minimize: function() {
+					if (opts.allowMinimize) {
+						titlebar.on('dblclick', function(e) {
+								$(this).children('.elfinder-titlebar-minimize').trigger('mousedown');
+							})
+							.prepend($('<span class="ui-widget-header ui-corner-all elfinder-titlebar-button elfinder-titlebar-minimize"><span class="ui-icon ui-icon-minusthick"/></span>')
+							.on('mousedown', function(e) {
+								var $this = $(this),
+									pos, w;
+								
+								e.preventDefault();
+								e.stopPropagation();
+								if (typeof $this.data('style') !== 'undefined') {
+									elfNode.append(dialog);
+									dialog.attr('style', $this.data('style'))
+										.removeClass('elfinder-dialog-minimized')
+										.off('mousedown.minimize');
+									$this.removeData('style').show();
+									titlebar.children('.elfinder-titlebar-full').show();
+									dialog.children('.ui-widget-content').slideDown('fast', function() {
+										if (this === dialog.children('.ui-widget-content:first').get(0)) {
+											if (! dialog.hasClass('elfinder-maximized')) {
+												try {
+													dialog.hasClass('ui-draggable') && dialog.draggable('enable');
+													dialog.hasClass('ui-resizable') && dialog.resizable('enable');
+												} catch(e) {}
+											}
+											dialog.trigger('resize', { minimize: false });
+										}
+									});
+								} else {
+									try {
+										dialog.hasClass('ui-draggable') && dialog.draggable('disable');
+										dialog.hasClass('ui-resizable') && dialog.resizable('disable');
+									} catch(e) {}
+									$this.data('style', dialog.attr('style') || '').hide();
+									titlebar.children('.elfinder-titlebar-full').hide();
+									w = dialog.width();
+									dialog.children('.ui-widget-content').slideUp('fast', function() {
+										if (this === dialog.children('.ui-widget-content:first').get(0)) {
+											dialog.attr('style', '').css({ maxWidth: w})
+												.addClass('elfinder-dialog-minimized')
+												.one('mousedown.minimize', function(e) {
+													$this.trigger('mousedown');
+												})
+												.appendTo(fm.getUI('bottomtray'));
+											dialog.trigger('resize', { minimize: true });
+										}
+									});
+								}
+							})
+						);
+					}
+				}
+			},
 			dialog = $('<div class="ui-front ui-dialog ui-widget ui-widget-content ui-corner-all ui-draggable std42-dialog touch-punch '+cldialog+' '+opts.cssClass+'"/>')
 				.hide()
 				.append(self)
-				.appendTo(parent)
+				.appendTo(elfNode)
 				.draggable({
 					handle : '.ui-dialog-titlebar',
 					containment : 'document',
@@ -63,19 +236,20 @@ $.fn.elfinderdialog = function(opts, fm) {
 					height : opts.height
 				})
 				.on('mousedown', function(e) {
-					setTimeout(function() {
-						dialog.is(':visible') && dialog.trigger('totop');
-					}, 10);
+					if (! dialog.hasClass('ui-front')) {
+						setTimeout(function() {
+							dialog.is(':visible:not(.elfinder-dialog-minimized)') && dialog.trigger('totop');
+						}, 10);
+					}
 				})
 				.on('open', function() {
-					var d = $(this),
-					maxWinWidth = (d.outerWidth() > parent.width()-10)? parent.width()-10 : null;
+					var d           = $(this),
+						maxWinWidth = (d.outerWidth() > elfNode.width()-10)? elfNode.width()-10 : null;
 					
 					maxWinWidth && d.css({width: maxWinWidth, left: '5px'});
 
 					if (!dialog.hasClass(clnotify)) {
-						
-						parent.find('.'+cldialog+':visible').not('.'+clnotify).each(function() {
+						elfNode.children('.'+cldialog+':visible:not(.'+clnotify+')').each(function() {
 							var d     = $(this),
 								top   = parseInt(d.css('top')),
 								left  = parseInt(d.css('left')),
@@ -92,20 +266,34 @@ $.fn.elfinderdialog = function(opts, fm) {
 						});
 					} 
 					
+					dialog.data('modal') && fm.getUI('overlay').elfinderoverlay('show');
+					
 					dialog.trigger('totop');
 					
-					dialog.data('modal') && overlay.elfinderoverlay('show');
-					
 					typeof(opts.open) == 'function' && $.proxy(opts.open, self[0])();
+					
+					fm.UA.Mobile && tabstopNext().focus();
+					
+					if (opts.closeOnEscape) {
+						$(document).on('keyup.'+id, function(e) {
+							if (e.keyCode == $.ui.keyCode.ESCAPE && dialog.hasClass(clactive)) {
+								self.elfinderdialog('close');
+							}
+						})
+					}
 				})
 				.on('close', function() {
 					var dialogs;
+					
+					if (opts.closeOnEscape) {
+						$(document).off('keyup.'+id);
+					}
 					
 					if (opts.allowMaximize) {
 						fm.toggleMaximize(dialog, false);
 					}
 					
-					dialog.data('modal') && overlay.elfinderoverlay('hide');
+					dialog.data('modal') && fm.getUI('overlay').elfinderoverlay('hide');
 
 					if (typeof(opts.close) == 'function') {
 						$.proxy(opts.close, self[0])();
@@ -114,113 +302,110 @@ $.fn.elfinderdialog = function(opts, fm) {
 					}
 					
 					// get focus to next dialog
-					dialogs = parent.find('.elfinder-dialog:visible');
+					dialogs = elfNode.children('.'+cldialog+':visible');
 					if (dialogs.length) {
-						dialogs.find(':last').trigger('totop');
+						dialogs.filter(':last').trigger('totop');
 					} else {
 						setTimeout(function() {
-							// return focus to parent
-							parent.mousedown().click();
+							// return focus to elfNode
+							fm.enable();
 						}, 20);
 					}
 				})
 				.on('totop', function() {
-					parent.find('.'+cldialog+':visible').removeClass(clactive+' ui-front');
+					if (dialog.hasClass('elfinder-dialog-minimized')) {
+						titlebar.children('.elfinder-titlebar-minimize').trigger('mousedown');
+					}
+					
+					fm.toFront(dialog);
+					elfNode.children('.'+cldialog).removeClass(clactive+' ui-front');
 					dialog.addClass(clactive+' ui-front');
 
-					if (!dialog.find('input,textarea').length) {
-						dialog.find('.ui-button:'+(platformWin? 'first':'last')).focus().end().find(':text:first').focus();
-					}
+					! fm.UA.Mobile && tabstopNext().focus();
 				})
 				.on('posinit', function() {
 					var css = opts.position;
 					if (! css && ! dialog.data('resizing')) {
 						css = {
-							top  : Math.max(0, parseInt((parent.height() - dialog.outerHeight())/2 - 42))+'px',
-							left : Math.max(0, parseInt((parent.width() - dialog.outerWidth())/2))+'px'
+							top  : Math.max(0, parseInt((elfNode.height() - dialog.outerHeight())/2 - 42))+'px',
+							left : Math.max(0, parseInt((elfNode.width() - dialog.outerWidth())/2))+'px'
 						};
 					}
 					css && dialog.css(css);
+				})
+				.on('resize', function(e, data) {
+					if (typeof(opts.resize) === 'function') {
+						$.proxy(opts.resize, self[0])(e, data);
+					}
+				})
+				.on('tabstopsInit', tabstopsInit)
+				.on('focus', '.'+cltabstop, function() {
+					$(this).addClass(clhover).parent('label').addClass(clhover);
+					this.id && $(this).parent().find('label[for='+this.id+']').addClass(clhover);
+				})
+				.on('blur', '.'+cltabstop, function() {
+					$(this).removeClass(clhover).parent('label').removeClass(clhover);
+					this.id && $(this).parent().find('label[for='+this.id+']').removeClass(clhover);
+				})
+				.on('mouseenter mouseleave', '.'+cltabstop, function(e) {
+					var $this = $(this);
+					if (opts.btnHoverFocus) {
+						if (e.type == 'mouseenter') {
+							$this.focus();
+						}
+					} else {
+						$this.toggleClass(clhover, e.type == 'mouseenter');
+					}
+				})
+				.on('keydown', '.'+cltabstop, function(e) {
+					var $this = $(this);
+					if ($this.is(':focus')) {
+						e.stopPropagation();
+						if (e.keyCode == $.ui.keyCode.ENTER) {
+							e.preventDefault();
+							$this.click();
+						}  else if ((e.keyCode == $.ui.keyCode.TAB && e.shiftKey) || e.keyCode == $.ui.keyCode.LEFT || e.keyCode == $.ui.keyCode.UP) {
+							if ($this.is('input:text') && (!(e.ctrlKey || e.metaKey) && e.keyCode == $.ui.keyCode.LEFT)) {
+								return;
+							}
+							if ($this.is('select') && e.keyCode != $.ui.keyCode.TAB) {
+								return;
+							}
+							if ($this.is('textarea') && !(e.ctrlKey || e.metaKey)) {
+								return;
+							}
+							e.preventDefault();
+							tabstopPrev(this).focus();
+						}  else if (e.keyCode == $.ui.keyCode.TAB || e.keyCode == $.ui.keyCode.RIGHT || e.keyCode == $.ui.keyCode.DOWN) {
+							if ($this.is('input:text') && (!(e.ctrlKey || e.metaKey) && e.keyCode == $.ui.keyCode.RIGHT)) {
+								return;
+							}
+							if ($this.is('select') && e.keyCode != $.ui.keyCode.TAB) {
+								return;
+							}
+							if ($this.is('textarea') && !(e.ctrlKey || e.metaKey)) {
+								return;
+							}
+							e.preventDefault();
+							tabstopNext(this).focus();
+						}
+					}
 				})
 				.data({modal: opts.modal})
 			;
 		
 		dialog.trigger('posinit');
 
-		if (opts.closeOnEscape) {
-			$(document).on('keyup.'+id, function(e) {
-				if (e.keyCode == $.ui.keyCode.ESCAPE && dialog.hasClass(clactive)) {
-					self.elfinderdialog('close');
-					$(document).off('keyup.'+id);
-				}
-			})
-		}
-		dialog.prepend(
-			titlebar.prepend($('<span class="ui-widget-header ui-dialog-titlebar-close ui-corner-all"><span class="ui-icon ui-icon-closethick"/></span>')
-				.on('mousedown', function(e) {
-					e.preventDefault();
-					self.elfinderdialog('close');
-				}))
-		);
-		
-		if (opts.allowMaximize) {
-			dialog.on('resize', function(e, data) {
-				var full;
-				if (data && data.maximize) {
-					full = (data.maximize === 'on');
-					titlebar.find('.elfinder-titlebar-full span.ui-icon').toggleClass('ui-icon-minusthick', full);
-					if (full) {
-						try {
-							dialog.resizable('disable').draggable('disable');
-						} catch(e) {}
-						if (typeof self.data('style') === 'undefined') {
-							self.data('style', self.attr('style') || '');
-						}
-						self.css('width', '100%').css('height', dialog.height() - dialog.children('.ui-dialog-titlebar').outerHeight(true) - buttonpane.outerHeight(true));
-					} else {
-						self.attr('style', self.data('style'));
-						self.removeData('style');
-						try {
-							dialog.resizable('enable').draggable('enable');
-						} catch(e) {}
-					}
-				}
-			});
-			titlebar.prepend($('<span class="ui-widget-header ui-dialog-titlebar-close ui-corner-all elfinder-titlebar-full"><span class="ui-icon  ui-icon-arrowthick-2-se-nw"/></span>')
-				.on('mousedown', function(e) {
-					fm.toggleMaximize(dialog);
-				})
-			);
-		}
+		dialog.prepend(titlebar);
+
+		makeHeaderBtn();
 		
 		$.each(opts.buttons, function(name, cb) {
-			var button = $('<button type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><span class="ui-button-text">'+name+'</span></button>')
-				.on('click', $.proxy(cb, self[0]))
-				.on('mouseenter mouseleave', function(e) { 
-					if (opts.btnHoverFocus) {
-						$(this)[e.type == 'mouseenter' ? 'focus' : 'blur']();
-					} else {
-						$(this).toggleClass(clhover, e.type == 'mouseenter');
-					}
-				})
-				.on('focus', function() { $(this).addClass(clhover) })
-				.on('blur', function() { $(this).removeClass(clhover) })
-				.on('keydown', function(e) { 
-					var next;
-					e.stopPropagation();
-					if (e.keyCode == $.ui.keyCode.ENTER) {
-						e.preventDefault();
-						$(this).click();
-					}  else if (e.keyCode == $.ui.keyCode.TAB || e.keyCode == $.ui.keyCode.RIGHT) {
-						e.preventDefault();
-						next = $(this).next('.ui-button');
-						next.length ? next.focus() : $(this).parent().children('.ui-button:first').focus();
-					}  else if (e.keyCode == $.ui.keyCode.LEFT) {
-						e.preventDefault();
-						next = $(this).prev('.ui-button');
-						next.length ? next.focus() : $(this).parent().children('.ui-button:last').focus()
-					}
-				})
+			var button = $('<button type="button" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only '
+					+'elfinder-btncnt-'+(btnCnt++)+' '
+					+cltabstop
+					+'"><span class="ui-button-text">'+name+'</span></button>')
+				.on('click', $.proxy(cb, self[0]));
 			if (platformWin) {
 				buttonset.append(button);
 			} else {
@@ -245,25 +430,27 @@ $.fn.elfinderdialog = function(opts, fm) {
 		
 		if (opts.resizable && $.fn.resizable) {
 			dialog.resizable({
-					minWidth   : opts.minWidth,
-					minHeight  : opts.minHeight,
-					alsoResize : this,
-					start      : function() {
-						if (dialog.data('resizing') !== true && dialog.data('resizing')) {
-							clearTimeout(dialog.data('resizing'));
-						}
-						dialog.data('resizing', true);
-					},
-					stop       : function() {
-						dialog.data('resizing', setTimeout(function() {
-							dialog.data('resizing', false);
-						}, 200));
+				minWidth   : opts.minWidth,
+				minHeight  : opts.minHeight,
+				alsoResize : this,
+				start      : function() {
+					if (dialog.data('resizing') !== true && dialog.data('resizing')) {
+						clearTimeout(dialog.data('resizing'));
 					}
-				});
+					dialog.data('resizing', true);
+				},
+				stop       : function() {
+					dialog.data('resizing', setTimeout(function() {
+						dialog.data('resizing', false);
+					}, 200));
+				}
+			});
 		} 
 			
 		typeof(opts.create) == 'function' && $.proxy(opts.create, this)();
 			
+		tabstopsInit();
+		
 		opts.autoOpen && self.elfinderdialog('open');
 
 	});
@@ -285,5 +472,9 @@ $.fn.elfinderdialog.defaults = {
 	width     : 320,
 	height    : 'auto',
 	minWidth  : 200,
-	minHeight : 110
+	minHeight : 110,
+	allowMinimize : 'auto',
+	allowMaximize : false,
+	headerBtnPos : 'auto',
+	headerBtnOrder : 'auto'
 };

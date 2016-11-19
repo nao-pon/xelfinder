@@ -6,7 +6,8 @@
  * @author Dmitry (dio) Levashov
  **/
 elFinder.prototype.commands.netmount = function() {
-	var self = this;
+	var self = this,
+		content;
 
 	this.alwaysEnabled  = true;
 	this.updateOnSelect = false;
@@ -28,46 +29,61 @@ elFinder.prototype.commands.netmount = function() {
 			dfrd = $.Deferred(),
 			o = self.options,
 			create = function() {
-				var inputs = {
-						protocol : $('<select/>').change(function(e, data){
+				var winFocus = function() {
+						inputs.protocol.trigger('change', 'winfocus');
+					},
+					inputs = {
+						protocol : $('<select/>').on('change', function(e, data){
 							var protocol = this.value;
 							content.find('.elfinder-netmount-tr').hide();
 							content.find('.elfinder-netmount-tr-'+protocol).show();
+							dialogNode.children('.ui-dialog-buttonpane:first').find('button').show();
 							if (typeof o[protocol].select == 'function') {
 								o[protocol].select(fm, e, data);
 							}
-						}).addClass('ui-corner-all')
+							setTimeout(function() {
+								content.find('input:text.elfinder-tabstop:visible:first').focus();
+							}, 20);
+						})
+						.addClass('ui-corner-all')
 					},
 					opts = {
 						title          : fm.i18n('netMountDialogTitle'),
 						resizable      : false,
 						modal          : true,
 						destroyOnClose : true,
+						open           : function() {
+							$(window).on('focus.'+fm.namespace, winFocus);
+							inputs.protocol.change();
+						},
 						close          : function() { 
 							//delete self.dialog; 
 							dfrd.state() == 'pending' && dfrd.reject();
+							$(window).off('focus.'+fm.namespace, winFocus);
 						},
 						buttons        : {}
 					},
-					content = $('<table class="elfinder-info-tb elfinder-netmount-tb"/>'),
 					hidden  = $('<div/>'),
 					dialog;
 
-				content.append($('<tr/>').append($('<td>'+fm.i18n('protocol')+'</td>')).append($('<td/>').append(inputs.protocol)));
+				content = $('<table class="elfinder-info-tb elfinder-netmount-tb"/>')
+					.append($('<tr/>').append($('<td>'+fm.i18n('protocol')+'</td>')).append($('<td/>').append(inputs.protocol)));
 
 				$.each(self.drivers, function(i, protocol) {
-					inputs.protocol.append('<option value="'+protocol+'">'+fm.i18n(o[protocol].name || protocol)+'</option>');
-					$.each(o[protocol].inputs, function(name, input) {
-						input.attr('name', name);
-						if (input.attr('type') != 'hidden') {
-							input.addClass('ui-corner-all elfinder-netmount-inputs-'+protocol);
-							content.append($('<tr/>').addClass('elfinder-netmount-tr elfinder-netmount-tr-'+protocol).append($('<td>'+fm.i18n(name)+'</td>')).append($('<td/>').append(input)));
-						} else {
-							input.addClass('elfinder-netmount-inputs-'+protocol);
-							hidden.append(input);
-						}
-					});
-					o[protocol].protocol = inputs.protocol;
+					if (o[protocol]) {
+						inputs.protocol.append('<option value="'+protocol+'">'+fm.i18n(o[protocol].name || protocol)+'</option>');
+						$.each(o[protocol].inputs, function(name, input) {
+							input.attr('name', name);
+							if (input.attr('type') != 'hidden') {
+								input.addClass('ui-corner-all elfinder-netmount-inputs-'+protocol);
+								content.append($('<tr/>').addClass('elfinder-netmount-tr elfinder-netmount-tr-'+protocol).append($('<td>'+fm.i18n(name)+'</td>')).append($('<td/>').append(input)));
+							} else {
+								input.addClass('elfinder-netmount-inputs-'+protocol);
+								hidden.append(input);
+							}
+						});
+						o[protocol].protocol = inputs.protocol;
+					}
 				});
 				
 				content.append(hidden);
@@ -96,7 +112,20 @@ elFinder.prototype.commands.netmount = function() {
 
 					fm.request({data : data, notify : {type : 'netmount', cnt : 1, hideCnt : true}})
 						.done(function(data) {
-							data.added && data.added.length && fm.exec('open', data.added[0].hash);
+							var pdir;
+							if (data.added && data.added.length) {
+								if (data.added[0].phash) {
+									if (pdir = fm.file(data.added[0].phash)) {
+										if (! pdir.dirs) {
+											pdir.dirs = 1;
+											fm.change({ changed: [ pdir ] });
+										}
+									}
+								}
+								fm.one('netmountdone', function() {
+									fm.exec('open', data.added[0].hash);
+								});
+							}
 							dfrd.resolve();
 						})
 						.fail(function(error) {
@@ -114,20 +143,23 @@ elFinder.prototype.commands.netmount = function() {
 					self.dialog.elfinderdialog('close');
 				};
 				
+				content.find('select,input').addClass('elfinder-tabstop');
+				
 				dialog = fm.dialog(content, opts);
 				dialog.ready(function(){
 					inputs.protocol.change();
 					dialog.elfinderdialog('posInit');
 				});
 				return dialog;
-			}
-			;
+			},
+			dialogNode;
 		
 		if (!self.dialog) {
 			self.dialog = create();
 		} else {
 			self.dialog.elfinderdialog('open');
 		}
+		dialogNode = self.dialog.closest('.ui-dialog');
 
 		return dfrd.promise();
 	}
@@ -138,6 +170,8 @@ elFinder.prototype.commands.netmount = function() {
 		if (d && d.protocol) {
 			if (o[d.protocol] && typeof o[d.protocol].done == 'function') {
 				o[d.protocol].done(self.fm, d);
+				content.find('select,input').addClass('elfinder-tabstop');
+				self.dialog.elfinderdialog('tabstopsInit');
 			}
 		}
 	});

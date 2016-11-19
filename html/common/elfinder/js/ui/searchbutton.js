@@ -76,9 +76,9 @@ $.fn.elfindersearchbutton = function(cmd) {
 				.on('keydown', function(e) {
 					e.stopPropagation();
 					
-					e.keyCode == 13 && search();
+					e.keyCode == $.ui.keyCode.ENTER && search();
 					
-					if (e.keyCode== 27) {
+					if (e.keyCode == $.ui.keyCode.ESCAPE) {
 						e.preventDefault();
 						abort();
 					}
@@ -105,6 +105,9 @@ $.fn.elfindersearchbutton = function(cmd) {
 							if (val.length === 0 || val.length >= isopts.minlen) {
 								(incVal !== val) && fm.trigger('incsearchstart', { query: val });
 								incVal = val;
+								if (val === '' && fm.searchStatus.state > 1 && fm.searchStatus.query) {
+									input.val(fm.searchStatus.query).select();
+								} 
 							}
 						}, isopts.wait));
 					}
@@ -123,7 +126,7 @@ $.fn.elfindersearchbutton = function(cmd) {
 					.on('keyup', function(e) {
 						input.data('imetm') && clearTimeout(input.data('imetm'));
 						if (input.data('composing')) {
-							e.keyCode === 13 && input.trigger('compositionend');
+							e.keyCode === $.ui.keyCode.ENTER && input.trigger('compositionend');
 						} else {
 							input.trigger('input');
 						}
@@ -140,7 +143,7 @@ $.fn.elfindersearchbutton = function(cmd) {
 			.click(abort);
 		
 		// wait when button will be added to DOM
-		toolbar.on('load', function(){
+		fm.bind('toolbarload', function(){
 			var parent = button.parent();
 			if (parent.length) {
 				toolbar.prepend(button.show());
@@ -153,7 +156,6 @@ $.fn.elfindersearchbutton = function(cmd) {
 						left  : parseInt(button.width())-icon.outerWidth(true)
 					});
 				}
-				fm.resize();
 			}
 		});
 		
@@ -174,7 +176,6 @@ $.fn.elfindersearchbutton = function(cmd) {
 							)
 					)
 					.hide()
-					.css('overflow', 'hidden')
 					.appendTo(button);
 				if (opts) {
 					opts.find('div.buttonset').buttonset();
