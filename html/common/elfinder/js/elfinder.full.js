@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.17 (2.1_n Nightly: b3c3b9c) (2016-11-19)
+ * Version 2.1.17 (2.1_n Nightly: 85360d2) (2016-11-19)
  * http://elfinder.org
  * 
  * Copyright 2009-2016, Studio 42
@@ -6543,7 +6543,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.17 (2.1_n Nightly: b3c3b9c)';
+elFinder.prototype.version = '2.1.17 (2.1_n Nightly: 85360d2)';
 
 
 
@@ -18092,6 +18092,7 @@ elFinder.prototype.commands.netmount = function() {
 				content.find('select,input').addClass('elfinder-tabstop');
 				
 				dialog = fm.dialog(content, opts);
+				dialogNode = dialog.closest('.ui-dialog');
 				dialog.ready(function(){
 					inputs.protocol.change();
 					dialog.elfinderdialog('posInit');
@@ -18105,7 +18106,6 @@ elFinder.prototype.commands.netmount = function() {
 		} else {
 			self.dialog.elfinderdialog('open');
 		}
-		dialogNode = self.dialog.closest('.ui-dialog');
 
 		return dfrd.promise();
 	}
