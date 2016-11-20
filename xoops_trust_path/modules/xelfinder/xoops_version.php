@@ -185,6 +185,22 @@ array(
 	'default'		=> '0'
 ),
 array(
+	'name'			=> 'boxapi_id' ,
+	'title'			=> $constpref.'_BOXAPI_ID' ,
+	'description'	=> $constpref.'_BOXAPI_ID_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> $_encrypt ,
+	'default'		=> ''
+),
+array(
+	'name'			=> 'boxapi_secret' ,
+	'title'			=> $constpref.'_BOXAPI_SECRET' ,
+	'description'	=> $constpref.'_BOXAPI_SECRET_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> $_encrypt ,
+	'default'		=> ''
+),
+array(
 	'name'			=> 'googleapi_id' ,
 	'title'			=> $constpref.'_GOOGLEAPI_ID' ,
 	'description'	=> $constpref.'_GOOGLEAPI_ID_DESC' ,
@@ -196,6 +212,22 @@ array(
 	'name'			=> 'googleapi_secret' ,
 	'title'			=> $constpref.'_GOOGLEAPI_SECRET' ,
 	'description'	=> $constpref.'_GOOGLEAPI_SECRET_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> $_encrypt ,
+	'default'		=> ''
+),
+array(
+	'name'			=> 'onedriveapi_id' ,
+	'title'			=> $constpref.'_ONEDRIVEAPI_ID' ,
+	'description'	=> $constpref.'_ONEDRIVEAPI_ID_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> $_encrypt ,
+	'default'		=> ''
+),
+array(
+	'name'			=> 'onedriveapi_secret' ,
+	'title'			=> $constpref.'_ONEDRIVEAPI_SECRET' ,
+	'description'	=> $constpref.'_ONEDRIVEAPI_SECRET_DESC' ,
 	'formtype'		=> 'textbox' ,
 	'valuetype'		=> $_encrypt ,
 	'default'		=> ''

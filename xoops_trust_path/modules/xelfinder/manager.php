@@ -157,6 +157,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/elFinder.command.js"></script>
 		<script src="<?php echo $elfurl ?>/js/elFinder.history.js"></script>
 		<script src="<?php echo $elfurl ?>/js/elFinder.options.js"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.options.netmount.js"></script>
 		<script src="<?php echo $elfurl ?>/js/elFinder.resources.js"></script>
 		<script src="<?php echo $elfurl ?>/js/elFinder.version.js"></script>
 		<script src="<?php echo $elfurl ?>/js/jquery.elfinder.js"></script>

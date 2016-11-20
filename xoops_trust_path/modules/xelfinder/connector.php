@@ -43,6 +43,27 @@ try {
 	// HTTP request header origin
 	$origin = isset($_SERVER['HTTP_ORIGIN'])? $_SERVER['HTTP_ORIGIN'] : '';
 
+	// convert PATH_INFO to GET query for netmount
+	if (! empty($_SERVER['PATH_INFO'])) {
+		$_ps = explode('/', trim($_SERVER['PATH_INFO'], '/'));
+		if (! isset($_GET['cmd'])) {
+			$_cmd = $_ps[0];
+			if ($_cmd === 'netmount') {
+				$_GET['cmd'] = $_cmd;
+				$_i = 1;
+				foreach(array('protocol', 'host') as $_k) {
+					if (isset($_ps[$_i])) {
+						if (! isset($_GET[$_k])) {
+							$_GET[$_k] = $_ps[$_i];
+						}
+					} else {
+						break;
+					}
+				}
+			}
+		}
+	}
+
 	// Check cToken for protect from CSRF
 	if (! isset($_SESSION['XELFINDER_CTOKEN'])
 			|| ! isset($_REQUEST['ctoken'])
@@ -124,11 +145,11 @@ try {
 	}
 	$config_MD5 = md5(json_encode($config));
 
-	// google drive
-	if ($php54 && !empty($config['googleapi_id']) && !empty($config['googleapi_secret'])) {
-		require dirname(__FILE__) . '/class/xelFinderFlysystemGoogleDriveNetmount.php';
-		define('ELFINDER_GOOGLEDRIVE_CLIENTID',     $config['googleapi_id']);
-		define('ELFINDER_GOOGLEDRIVE_CLIENTSECRET', $config['googleapi_secret']);
+	// box
+	if (!empty($config['boxapi_id']) && !empty($config['boxapi_secret'])) {
+		elFinder::$netDrivers['box'] = 'Box';
+		define('ELFINDER_BOX_CLIENTID',     $config['boxapi_id']);
+		define('ELFINDER_BOX_CLIENTSECRET', $config['boxapi_secret']);
 	}
 
 	// dropbox
@@ -136,6 +157,21 @@ try {
 		require dirname(__FILE__) . '/class/xelFinderVolumeDropbox.class.php';
 		define('ELFINDER_DROPBOX_CONSUMERKEY',    $config['dropbox_token']);
 		define('ELFINDER_DROPBOX_CONSUMERSECRET', $config['dropbox_seckey']);
+	}
+
+	// google drive
+	if ($php54 && !empty($config['googleapi_id']) && !empty($config['googleapi_secret'])) {
+		//require dirname(__FILE__) . '/class/xelFinderFlysystemGoogleDriveNetmount.php';
+		elFinder::$netDrivers['googledrive'] = 'GoogleDrive';
+		define('ELFINDER_GOOGLEDRIVE_CLIENTID',     $config['googleapi_id']);
+		define('ELFINDER_GOOGLEDRIVE_CLIENTSECRET', $config['googleapi_secret']);
+	}
+
+	// one drive
+	if (!empty($config['onedriveapi_id']) && !empty($config['onedriveapi_secret'])) {
+		elFinder::$netDrivers['onedrive'] = 'OneDrive';
+		define('ELFINDER_ONEDRIVE_CLIENTID',     $config['onedriveapi_id']);
+		define('ELFINDER_ONEDRIVE_CLIENTSECRET', $config['onedriveapi_secret']);
 	}
 
 	// load xoops_elFinder
@@ -296,6 +332,30 @@ try {
 	}
 	//var_dump($rootVolumes);exit;
 
+	$optionsNetVolumes = array(
+		'*' => array(
+			'tmpPath' => XOOPS_MODULE_PATH.'/'._MD_ELFINDER_MYDIRNAME.'/cache',
+			'tmbPath' => XOOPS_MODULE_PATH.'/'._MD_ELFINDER_MYDIRNAME.'/cache/tmb',
+			'tmbURL'  => _MD_XELFINDER_MODULE_URL.'/'._MD_ELFINDER_MYDIRNAME.'/cache/tmb',
+			'tsPlSleep' => 15,
+			'syncMinMs' => 30000,
+			'plugin' => array(
+				'AutoResize' => array(
+					'enable' => false
+				),
+				'Watermark' => array(
+					'enable' => false
+				),
+				'Normalizer' => array(
+					'enable' => false
+				),
+				'Sanitizer' => array(
+					'enable' => false
+				)
+			)
+		)
+	);
+
 	// custom session handler
 	require dirname(__FILE__) . '/class/xelFinderSession.class.php';
 
@@ -305,6 +365,7 @@ try {
 	$opts = array(
 		'isAdmin' => $isAdmin, // for class xelFinder
 		'locale' => 'ja_JP.UTF-8',
+		'optionsNetVolumes' => $optionsNetVolumes,
 		'session' => new xelFinderSession(array(
 			'base64encode' => $xoops_elFinder->base64encodeSessionData,
 			'keys' => array(
