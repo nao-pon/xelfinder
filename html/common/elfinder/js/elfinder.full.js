@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.17 (2.1_n Nightly: 85360d2) (2016-11-19)
+ * Version 2.1.18 (2.1_n Nightly: 9ded657) (2016-11-21)
  * http://elfinder.org
  * 
  * Copyright 2009-2016, Studio 42
@@ -4857,6 +4857,7 @@ elFinder.prototype = {
 						formData.append('chunk', file._chunkmerged);
 						formData.append('upload[]', file._name);
 						formData.append('mtime[]', file._mtime);
+						xhr.timeout = 0;
 					} else {
 						if (file._chunkfail) {
 							formData.append('upload[]', 'chunkfail');
@@ -6543,7 +6544,7 @@ if (!Object.keys) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.17 (2.1_n Nightly: 85360d2)';
+elFinder.prototype.version = '2.1.18 (2.1_n Nightly: 9ded657)';
 
 
 
@@ -8364,6 +8365,7 @@ elFinder.prototype.resources = {
 										syncOnFail  : true
 									})
 									.fail(function(error) {
+										fm.unlockfiles({files : [id]});
 										inError = true;
 										input.show().prev().remove();
 										fm.error(error, {modal: true, close: select});
