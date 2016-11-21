@@ -110,8 +110,7 @@ try {
 		define('_MD_XELFINDER_SITEURL', XOOPS_URL);
 		define('_MD_XELFINDER_MODULE_URL', XOOPS_MODULE_URL);
 	} else {
-		if (!$origin
-		 || !isset($allowOrigins[$origin])
+		if (($origin && !isset($allowOrigins[$origin]))
 		 || (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])
 		 		 && !in_array(strtoupper($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']), array('POST', 'GET', 'OPTIOINS')))
 		) {
@@ -119,16 +118,18 @@ try {
 		}
 		define('_MD_XELFINDER_SITEURL', empty($_REQUEST['xoopsUrl'])? XOOPS_URL : $_REQUEST['xoopsUrl']);
 		define('_MD_XELFINDER_MODULE_URL', str_replace(XOOPS_URL, _MD_XELFINDER_SITEURL, XOOPS_MODULE_URL));
-		header('Access-Control-Allow-Origin: ' . $origin);
-		!isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])
-		 || header('Access-Control-Allow-Methods: ' . $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']);
-		header('Access-Control-Allow-Credentials: true');
-		header('Access-Control-Max-Age: 1000');
-		if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
-			header('Access-Control-Allow-Headers: '
-					. $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']);
-		} else {
-			header('Access-Control-Allow-Headers: *');
+		if ($origin) {
+			header('Access-Control-Allow-Origin: ' . $origin);
+			!isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD'])
+			 || header('Access-Control-Allow-Methods: ' . $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']);
+			header('Access-Control-Allow-Credentials: true');
+			header('Access-Control-Max-Age: 1000');
+			if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
+				header('Access-Control-Allow-Headers: '
+						. $_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']);
+			} else {
+				header('Access-Control-Allow-Headers: *');
+			}
 		}
 
 		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS' || ! empty($_GET['keepalive'])) exit(0);
