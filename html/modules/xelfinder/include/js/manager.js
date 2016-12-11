@@ -112,154 +112,186 @@ $(document).ready(function() {
 	}
 
 	editorsConfig.push({
+		// ACE Editor
 		// `mimes` is not set for support everything kind of text file
 		load : function(textarea) {
-			if (typeof ace !== 'object') {
-				$('head').append($('<script>').attr('src', 'include/js/ace-min-noconflict/ace.js'));
-				$('head').append($('<script>').attr('src', 'include/js/ace-min-noconflict/ext-modelist.js'));
-				$('head').append($('<script>').attr('src', 'include/js/ace-min-noconflict/ext-settings_menu.js'));
-				$('head').append($('<script>').attr('src', 'include/js/ace-min-noconflict/ext-language_tools.js'));
+			var self = this,
+				dfrd = $.Deferred(),
+				cdn  = '//cdnjs.cloudflare.com/ajax/libs/ace/1.2.5',
+				start = function() {
+					var editor, editorBase, mode,
+					ta = $(textarea),
+					taBase = ta.parent(),
+					dialog = taBase.parent(),
+					id = textarea.id + '_ace',
+					ext = self.file.name.replace(/^.+\.([^.]+)|(.+)$/, '$1$2').toLowerCase(),
+					// MIME/mode map
+					mimeMode = {
+						'text/x-php'			  : 'php',
+						'application/x-php'		  : 'php',
+						'text/html'				  : 'html',
+						'application/xhtml+xml'	  : 'html',
+						'text/javascript'		  : 'javascript',
+						'application/javascript'  : 'javascript',
+						'text/css'				  : 'css',
+						'text/x-c'				  : 'c_cpp',
+						'text/x-csrc'			  : 'c_cpp',
+						'text/x-chdr'			  : 'c_cpp',
+						'text/x-c++'			  : 'c_cpp',
+						'text/x-c++src'			  : 'c_cpp',
+						'text/x-c++hdr'			  : 'c_cpp',
+						'text/x-shellscript'	  : 'sh',
+						'application/x-csh'		  : 'sh',
+						'text/x-python'			  : 'python',
+						'text/x-java'			  : 'java',
+						'text/x-java-source'	  : 'java',
+						'text/x-ruby'			  : 'ruby',
+						'text/x-perl'			  : 'perl',
+						'application/x-perl'	  : 'perl',
+						'text/x-sql'			  : 'sql',
+						'text/xml'				  : 'xml',
+						'application/docbook+xml' : 'xml',
+						'application/xml'		  : 'xml'
+					};
+
+					// set base height
+					taBase.height(taBase.height());
+
+					// set basePath of ace
+					ace.config.set('basePath', cdn);
+
+					// Base node of Ace editor
+					editorBase = $('<div id="'+id+'" style="width:100%; height:100%;"/>').text(ta.val()).insertBefore(ta.hide());
+
+					// Editor flag
+					ta.data('ace', true);
+
+					// Aceeditor instance
+					editor = ace.edit(id);
+
+					// Ace editor configure
+					editor.$blockScrolling = Infinity;
+					editor.setOptions({
+						theme: 'ace/theme/monokai',
+						fontSize: '14px',
+						wrap: true,
+					});
+					ace.config.loadModule('ace/ext/modelist', function() {
+						// detect mode
+						mode = ace.require('ace/ext/modelist').getModeForPath('/' + self.file.name).name;
+						if (mode === 'text') {
+							if (mimeMode[self.file.mime]) {
+								mode = mimeMode[self.file.mime];
+							}
+						}
+						// show MIME:mode in title bar
+						taBase.prev().children('.elfinder-dialog-title').append(' (' + self.file.mime + ' : ' + mode.split(/[\/\\]/).pop() + ')');
+						editor.setOptions({
+							mode: 'ace/mode/' + mode
+						});
+					});
+					ace.config.loadModule('ace/ext/language_tools', function() {
+						ace.require('ace/ext/language_tools');
+						editor.setOptions({
+							enableBasicAutocompletion: true,
+							enableSnippets: true,
+							enableLiveAutocompletion: false
+						});
+					});
+					ace.config.loadModule('ace/ext/settings_menu', function() {
+						ace.require('ace/ext/settings_menu').init(editor);
+					});
+					
+					// Short cuts
+					editor.commands.addCommand({
+						name : "saveFile",
+						bindKey: {
+							win : 'Ctrl-s',
+							mac : 'Command-s'
+						},
+						exec: function(editor) {
+							self.doSave();
+						}
+					});
+					editor.commands.addCommand({
+						name : "closeEditor",
+						bindKey: {
+							win : 'Ctrl-w|Ctrl-q',
+							mac : 'Command-w|Command-q'
+						},
+						exec: function(editor) {
+							self.doCancel();
+						}
+					});
+
+					editor.resize();
+
+					// TextArea button and Setting button
+					$('<div class="ui-dialog-buttonset"/>').css('float', 'left')
+					.append(
+						$('<button>TextArea</button>')
+						.button()
+						.on('click', function(){
+							if (ta.data('ace')) {
+								ta.removeData('ace');
+								editorBase.hide();
+								ta.val(editor.session.getValue()).show().focus();
+								$(this).text('AceEditor');
+							} else {
+								ta.data('ace', true);
+								editorBase.show();
+								editor.setValue(ta.hide().val(), -1);
+								editor.focus();
+								$(this).text('TextArea');
+							}
+						})
+					)
+					.append(
+						$('<button>Ace editor setting</button>')
+						.button({
+							icons: {
+								primary: 'ui-icon-gear',
+								secondary: 'ui-icon-triangle-1-e'
+							},
+							text: false
+						})
+						.on('click', function(){
+							editor.showSettingsMenu();
+							$('#ace_settingsmenu')
+								.css('font-size', '80%')
+								.find('div[contains="setOptions"]').hide().end()
+								.parent().parent().appendTo($('#elfinder'));
+						})
+					)
+					.prependTo(taBase.next());
+
+					dfrd.resolve(editor);
+				};
+
+			// check ace & start
+			if (typeof ace === 'undefined') {
+				self.fm.loadScript([ cdn+'/ace.js' ], start, void 0, {obj: window, name: 'ace'});
+			} else {
+				start();
 			}
-			var self = this, editor, editorBase, mode,
-			ta = $(textarea),
-			taBase = ta.parent(),
-			dialog = taBase.closest('.ui-dialog'),
-			id = textarea.id + '_ace',
-			mimeMode = {
-				'text/x-php'              : 'php',
-				'application/x-php'       : 'php',
-				'text/html'               : 'html',
-				'application/xhtml+xml'   : 'html',
-				'text/javascript'         : 'javascript',
-				'application/javascript'  : 'javascript',
-				'text/css'                : 'css',
-				'text/x-c'                : 'c_cpp',
-				'text/x-csrc'             : 'c_cpp',
-				'text/x-chdr'             : 'c_cpp',
-				'text/x-c++'              : 'c_cpp',
-				'text/x-c++src'           : 'c_cpp',
-				'text/x-c++hdr'           : 'c_cpp',
-				'text/x-shellscript'      : 'sh',
-				'application/x-csh'       : 'sh',
-				'text/x-python'           : 'python',
-				'text/x-java'             : 'java',
-				'text/x-java-source'      : 'java',
-				'text/x-ruby'             : 'ruby',
-				'text/x-perl'             : 'perl',
-				'application/x-perl'      : 'perl',
-				'text/x-sql'              : 'sql',
-				'text/xml'                : 'xml',
-				'application/docbook+xml' : 'xml',
-				'application/xml'         : 'xml',
-				'text/x-markdown'         : 'markdown'
-			},
-			resize = function() {
-				full = dialog.hasClass('elfinder-maximized');
-				dialog.height($(window).height() * (full? 1 : 0.9)).trigger('posinit');
-				taBase.height(dialog.height() - taBase.prev().outerHeight(true) - taBase.next().outerHeight(true) - 8);
-			};
-			
-			mode = ace.require('ace/ext/modelist').getModeForPath(self.file.name).name;
-			if (mode === 'text') {
-				if (mimeMode[self.file.mime]) {
-					mode = mimeMode[self.file.mime];
-				}
-			}
-			
-			taBase.prev().append(' (' + self.file.mime + ' : ' + mode.split(/[\/\\]/).pop() + ')');
-			
-			$('<div class="ui-dialog-buttonset"/>').css('float', 'left')
-			.append(
-				$('<button>TextArea</button>')
-				.button()
-				.on('click', function(){
-					if (ta.data('ace')) {
-						ta.data('ace', false);
-						editorBase.hide();
-						ta.val(editor.session.getValue()).show().focus();
-						$(this).find('span').text('AceEditor');
-					} else {
-						ta.data('ace', true);
-						editor.setValue(ta.hide().val(), -1);
-						editorBase.show();
-						editor.focus();
-						$(this).find('span').text('TextArea');
-					}
-				})
-			)
-			.append(
-				$('<button>Ace editor setting</button>')
-				.button({
-					icons: {
-						primary: 'ui-icon-gear',
-						secondary: 'ui-icon-triangle-1-e'
-					},
-					text: false
-				})
-				.on('click', function(){
-					editor.showSettingsMenu();
-				})
-			)
-			.prependTo(taBase.next());
-			
-			editorBase = $('<div id="'+id+'" style="width:100%; height:100%;"/>').text(ta.val()).insertBefore(ta.hide());
-			
-			ta.data('ace', true);
-			editor = ace.edit(id);
-			ace.require('ace/ext/settings_menu').init(editor);
-			editor.$blockScrolling = Infinity;
-			editor.setOptions({
-				theme: 'ace/theme/monokai',
-				mode: 'ace/mode/' + mode,
-				wrap: true,
-				enableBasicAutocompletion: true,
-				enableSnippets: true,
-				enableLiveAutocompletion: false
-			});
-			editor.commands.addCommand({
-				name : "saveFile",
-				bindKey: {
-					win : 'Ctrl-s',
-					mac : 'Command-s'
-				},
-				exec: function(editor) {
-					self.doSave();
-				}
-			});
-			editor.commands.addCommand({
-				name : "closeEditor",
-				bindKey: {
-					win : 'Ctrl-w|Ctrl-q',
-					mac : 'Command-w|Command-q'
-				},
-				exec: function(editor) {
-					self.doCancel();
-				}
-			});
-			dialog.on('resize', function(){
-				editor.resize();
-			});
-			$(window).on('resize', function(e){
-				if (e.target !== this) return;
-				dialog.data('resizeTimer') && clearTimeout(dialog.data('resizeTimer'));
-				dialog.data('resizeTimer', setTimeout(function(){ resize(); }, 300));
-			});
-			resize();
-			editor.resize();
-			
-			return editor;
+
+
+			return dfrd;
 		},
 		close : function(textarea, instance) {
-			instance.destroy();
-			$(textarea).show();
-		},
-		save : function(textarea, instance) {
-			if ($(textarea).data('ace')) {
-				$(textarea).val(instance.session.getValue());
+			if (instance) {
+				instance.destroy();
+				$(textarea).show();
 			}
 		},
+		save : function(textarea, instance) {
+			instance && $(textarea).data('ace') && (textarea.value = instance.session.getValue());
+		},
 		focus : function(textarea, instance) {
-			instance.focus();
+			instance && $(textarea).data('ace') && instance.focus();
+		},
+		resize : function(textarea, instance, e, data) {
+			instance && instance.resize();
 		}
 	});
 
@@ -267,7 +299,6 @@ $(document).ready(function() {
 	var elfinderInstance = $('#elfinder').elfinder({
 		lang: lang,
 		url : connectorUrl,
-		urlUpload : (cors && connIsExt)? connectorUrl : myUrl + 'connector.php',
 		customData : customData,
 		customHeaders: cors? {'X-Requested-With' : 'XMLHttpRequest'} : {},
 		xhrFields: cors? {withCredentials: true} : {},
