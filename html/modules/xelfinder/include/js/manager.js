@@ -85,19 +85,23 @@ $(document).ready(function() {
 			mimes : ['text/html'],
 			exts  : ['htm', 'html', 'xhtml'],
 			load : function(textarea) {
-				var base = $(textarea).parent(),
-					cke;
-				base.closest('.ui-dialog').on('resize', function() {
-					cke.resize('100%', base.height());
-				});
-				$('head').append($('<script>').attr('src', rootUrl + '/modules/ckeditor4/ckeditor/ckeditor.js'));
-				cke = CKEDITOR.replace( textarea.id, {
-					startupFocus : true,
-					fullPage: true,
-					allowedContent: true,
-					filebrowserBrowseUrl: myUrl + '/manager.php?cb=ckeditor'
-				});
-				return cke;
+				var dfrd = $.Deferred();
+				this.fm.loadScript([ rootUrl + '/modules/ckeditor4/ckeditor/ckeditor.js' ], function() {
+					CKEDITOR.replace(textarea.id, {
+						baseUrl : rootUrl + '/modules/ckeditor4/ckeditor/',
+						startupFocus : true,
+						fullPage: true,
+						allowedContent: true,
+						filebrowserBrowseUrl: myUrl + '/manager.php?cb=ckeditor',
+						on: {
+							'instanceReady' : function(e) {
+								e.editor.resize('100%', $(textarea).parent().height());
+								dfrd.resolve(e.editor);
+							}
+						}
+					});
+				}, {loadType: 'tag'}, {obj: window, name: 'CKEDITOR'});
+				return dfrd;
 			},
 			close : function(textarea, instance) {
 				instance.destroy();
@@ -107,6 +111,28 @@ $(document).ready(function() {
 			},
 			focus : function(textarea, instance) {
 				instance && instance.focus();
+			},
+			resize : function(textarea, instance, e, data) {
+				var self;
+				if (instance) {
+					if (typeof data.minimize !== 'undefined') {
+						// for dialog minimize function
+						if (data.minimize === 'on') {
+							// destroy on minimized
+							instance.destroy();
+						} else {
+							// rebuild editor
+							self = this;
+							this.load(textarea).done(function(editor) {
+								self.instance = editor;
+							});
+						}
+						return;
+					}
+					if (instance.status === 'ready') {
+						instance.resize('100%', $(textarea).parent().height());
+					}
+				}
 			}
 		});
 	}
@@ -299,11 +325,12 @@ $(document).ready(function() {
 	var elfinderInstance = $('#elfinder').elfinder({
 		lang: lang,
 		url : connectorUrl,
+		cssAutoLoad : false,
 		customData : customData,
 		customHeaders: cors? {'X-Requested-With' : 'XMLHttpRequest'} : {},
 		xhrFields: cors? {withCredentials: true} : {},
 		requestType : 'POST',
-		height: $(window).height() - 20,
+		height: $(window).height(),
 		resizable: false,
 		getFileCallback : callbackFunc,
 		startPathHash : startPathHash,
@@ -403,7 +430,7 @@ $(document).ready(function() {
 	$(window).resize(function() {
 		resizeTimer && clearTimeout(resizeTimer);
 		resizeTimer = setTimeout(function() {
-			var h = parseInt($(window).height()) - 20;
+			var h = parseInt($(window).height());
 			if (h != parseInt($('#elfinder').height())) {
 				elfinderInstance.resize('100%', h);
 			}

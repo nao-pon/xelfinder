@@ -79,16 +79,16 @@ $viewport = (preg_match('/Mobile|Android/i', $_SERVER['HTTP_USER_AGENT']))? '<me
 $userLang = xelfinder_detect_lang();
 
 if (empty($config['jquery'])) {
-	$jQueryVersion   = '1.12.4';
-	$jQueryCDN = '//code.jquery.com/jquery-%s.min.js';
+	$jQueryVersion = (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/4.0') === false)? '3.1.1' : '1.12.4';
+	$jQueryCDN = '//cdnjs.cloudflare.com/ajax/libs/jquery/%s/jquery.min.js';
 	$jQueryUrl = sprintf($jQueryCDN, $jQueryVersion);
 } else {
 	$jQueryUrl = trim($config['jquery']);
 }
 
 if (empty($config['jquery_ui'])) {
-	$jQueryUIVersion = '1.12.0';
-	$jQueryUICDN = '//code.jquery.com/ui/%s';
+	$jQueryUIVersion = '1.12.1';
+	$jQueryUICDN = '//cdnjs.cloudflare.com/ajax/libs/jqueryui/%s';
 	$jQueryUIUrl = sprintf($jQueryUICDN, $jQueryUIVersion).'/jquery-ui.min.js';
 } else {
 	$jQueryUIUrl = trim($config['jquery_ui']);
@@ -263,9 +263,9 @@ while(ob_get_level() && @ob_end_clean()) {}
 		</script>
 		<?php echo $managerJs ?>
 	</head>
-	<body>
+	<body style="margin:0;padding:0;">
 		<!-- Element where elFinder will be created (REQUIRED) -->
-		<div id="elfinder"></div>
+		<div id="elfinder" style="height:100%;border:none;"></div>
 	</body>
 </html>
 <?php exit();
