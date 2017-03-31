@@ -156,6 +156,7 @@ class elFinder {
 		'url'       => array('target' => true, 'options' => false),
 		'callback'  => array('node' => true, 'json' => false, 'bind' => false, 'done' => false),
 		'chmod'     => array('targets' => true, 'mode' => true),
+		'subdirs'   => array('targets' => true),
 		'pixlr'     => array('target' => false, 'node' => false, 'image' => false, 'type' => false, 'title' => false)
 	);
 	
@@ -262,6 +263,21 @@ class elFinder {
 	 * @var string URL
 	 */
 	protected $callbackWindowURL = '';
+	
+	/**
+	 * hash of items to unlock on command completion
+	 * 
+	 * @var array hashes
+	 */
+	protected $autoUnlocks = array();
+	
+	/**
+	 * Item locking expiration (seconds)
+	 * Default: 3600 secs
+	 * 
+	 * @var integer
+	 */
+	protected $itemLockExpire = 3600;
 	
 	// Errors messages
 	const ERROR_UNKNOWN           = 'errUnknown';
@@ -423,6 +439,9 @@ class elFinder {
 		}
 		$this->maxArcFilesSize = isset($opts['maxArcFilesSize'])? intval($opts['maxArcFilesSize']) : 0;
 		$this->optionsNetVolumes = (isset($opts['optionsNetVolumes']) && is_array($opts['optionsNetVolumes']))? $opts['optionsNetVolumes'] : array();
+		if (isset($opts['itemLockExpire'])) {
+			$this->itemLockExpire = intval($opts['itemLockExpire']);
+		}
 		
 		// deprecated settings
 		$this->netVolumesSessionKey = !empty($opts['netVolumesSessionKey'])? $opts['netVolumesSessionKey'] : 'elFinderNetVolumes';
@@ -708,6 +727,9 @@ class elFinder {
 			}
 		}
 		
+		// regist shutdown function as fallback
+		register_shutdown_function(array($this, 'itemAutoUnlock'));
+		
 		// detect destination dirHash and volume
 		$dstVolume = false;
 		$dst = ! empty($args['target'])? $args['target'] : (! empty($args['dst'])? $args['dst'] : '');
@@ -861,6 +883,9 @@ class elFinder {
 			$volume->umount();
 		}
 		
+		// unlock locked items
+		$this->itemAutoUnlock();
+		
 		if (!empty($result['callback'])) {
 			$result['callback']['json'] = json_encode($result);
 			$this->callback($result['callback']);
@@ -935,6 +960,7 @@ class elFinder {
 		$res = true;
 		if (is_object($volume) && method_exists($volume, 'netunmount')) {
 			$res = $volume->netunmount($netVolumes, $key);
+			$volume->clearSessionCache();
 		}
 		if ($res) {
 			if (is_string($key) && isset($netVolumes[$key])) {
@@ -1111,7 +1137,8 @@ class elFinder {
 		// so open default dir
 		if ((!$cwd || !$cwd['read']) && $init) {
 			$volume = $this->default;
-			$cwd    = $volume->dir($volume->defaultPath());
+			$target = $volume->defaultPath();
+			$cwd    = $volume->dir($target);
 		}
 		
 		if (!$cwd) {
@@ -1123,17 +1150,22 @@ class elFinder {
 
 		$files = array();
 
+		// get current working directory files list
+		if (($ls = $volume->scandir($cwd['hash'])) === false) {
+			return array('error' => $this->error(self::ERROR_OPEN, $cwd['name'], $volume->error()));
+		}
+		
+		if (isset($cwd['dirs']) && $cwd['dirs'] != 1) {
+			$cwd = $volume->dir($target);
+		}
+		
 		// get other volume root
 		if ($tree) {
 			foreach ($this->volumes as $id => $v) {
 				$files[] = $v->file($v->root());
 			}
 		}
-
-		// get current working directory files list
-		if (($ls = $volume->scandir($cwd['hash'])) === false) {
-			return array('error' => $this->error(self::ERROR_OPEN, $cwd['name'], $volume->error()));
-		}
+		
 		// long polling mode
 		if ($args['compare']) {
 			$sleep = max(1, (int)$volume->getOption('lsPlSleep'));
@@ -1618,6 +1650,26 @@ class elFinder {
 			}
 		}
 
+		return $result;
+	}
+
+	/**
+	 * Return has subdirs
+	 *
+	 * @param  array  command arguments
+	 * @return array
+	 * @author Dmitry Naoki Sawada
+	 **/
+	protected function subdirs($args) {
+	
+		$result  = array('subdirs' => array());
+		$targets = $args['targets'];
+	
+		foreach ($targets as $target) {
+			if (($volume = $this->volume($target)) !== false) {
+				$result['subdirs'][$target] = $volume->subdirs($target)? 1 : 0;
+			}
+		}
 		return $result;
 	}
 
@@ -2671,9 +2723,16 @@ class elFinder {
 			return array('error' => $this->error(self::ERROR_EXTRACT, '#'.$target, self::ERROR_FILE_NOT_FOUND));
 		}  
 
-		return ($file = $volume->extract($target, $makedir))
-			? array('added' => isset($file['read'])? array($file) : $file)
-			: array('error' => $this->error(self::ERROR_EXTRACT, $volume->path($target), $volume->error()));
+		$res = array();
+		if ($file = $volume->extract($target, $makedir)) {
+			$res['added'] = isset($file['read'])? array($file) : $file;
+			if ($err = $volume->error()) {
+				$res['warning'] = $err;
+			}
+		} else {
+			$res['error'] = $this->error(self::ERROR_EXTRACT, $volume->path($target), $volume->error());
+		}
+		return $res;
 	}
 	
 	/**
@@ -3123,7 +3182,16 @@ class elFinder {
 		if (! elFinder::$commonTempPath) {
 			return false;
 		}
-		return file_exists(elFinder::$commonTempPath . DIRECTORY_SEPARATOR . $hash . '.lock');
+		$lock = elFinder::$commonTempPath . DIRECTORY_SEPARATOR . $hash . '.lock';
+		if (file_exists($lock)) {
+			if (filemtime($lock) + $this->itemLockExpire < time()) {
+				unlink($lock);
+				return false;
+			}
+			return true;
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -3149,7 +3217,7 @@ class elFinder {
 			}
 			if (file_put_contents($lock, $cnt, LOCK_EX)) {
 				if ($autoUnlock) {
-					register_shutdown_function(array($this, 'itemUnlock'), $hash);
+					$this->autoUnlocks[] = $hash;
 				}
 			}
 		}
@@ -3161,7 +3229,7 @@ class elFinder {
 	 * @param string $hash
 	 * @return boolean
 	 */
-	public function itemUnlock($hash) {
+	protected function itemUnlock($hash) {
 		if (! $this->itemLocked($hash)) {
 			return true;
 		}
@@ -3171,6 +3239,20 @@ class elFinder {
 			unlink($lock);
 		} else {
 			file_put_contents($lock, $cnt, LOCK_EX);
+		}
+	}
+	
+	/**
+	 * unlock locked items on command completion
+	 * 
+	 * @return void
+	 */
+	public function itemAutoUnlock() {
+		if ($this->autoUnlocks) {
+			foreach($this->autoUnlocks as $hash) {
+				$this->itemUnlock($hash);
+			}
+			$this->autoUnlocks = array();
 		}
 	}
 	
@@ -3447,6 +3529,21 @@ class elFinder {
 	
 		if ($dlurl) {
 			$url = parse_url($dlurl);
+			$ports = array(
+				'http'  => '80',
+				'ssl'   => '443',
+				'ftp'   => '21'
+			);
+			$url['scheme'] = strtolower($url['scheme']);
+			if ($url['scheme'] === 'https') {
+				$url['scheme'] = 'ssl';
+			}
+			if (! isset($url['port']) && isset($ports[$url['scheme']])) {
+				$url['port'] = $ports[$url['scheme']];
+			}
+			if (! isset($url['port'])) {
+				return false;
+			}
 			$cookies = array();
 			if ($data['cookies']) {
 				foreach ($data['cookies'] as $d => $c) {
@@ -3457,7 +3554,7 @@ class elFinder {
 			}
 
 			$query = isset($url['query']) ? '?'.$url['query'] : '';
-			$stream = stream_socket_client('ssl://'.$url['host'].':443');
+			$stream = stream_socket_client($url['scheme'].'://'.$url['host'].':'.$url['port']);
 			stream_set_timeout($stream, 300);
 			fputs($stream, "GET {$url['path']}{$query} HTTP/1.1\r\n");
 			fputs($stream, "Host: {$url['host']}\r\n");

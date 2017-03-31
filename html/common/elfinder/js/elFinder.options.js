@@ -214,7 +214,10 @@ elFinder.prototype._options = {
 			// If you set to "get" will be displayed request parameter in the browser's location field
 			// so if you want to conceal its parameters should be given "post".
 			// Nevertheless, please specify "get" if you want to enable the partial request by HTTP Range header.
-			method : 'post'
+			method : 'post',
+			// Where to open into : 'window'(default), 'tab' or 'tabs'
+			// 'tabs' opens in each tabs
+			into   : 'window'
 		},
 		// "upload" command options.
 		upload : {
@@ -372,7 +375,7 @@ elFinder.prototype._options = {
 		},
 		mkdir: {
 			// Enable automatic switching function ["New Folder" / "Into New Folder"] of toolbar buttton
-			intoNewFolderToolbtn: false,
+			intoNewFolderToolbtn: false
 		},
 		resize: {
 			// defalt status of snap to 8px grid of the jpeg image ("enable" or "disable")
@@ -474,7 +477,11 @@ elFinder.prototype._options = {
 			// expand current work directory on open
 			openCwdOnOpen  : true,
 			// auto load current dir parents
-			syncTree : true
+			syncTree : true,
+			// Numbar of max connctions of subdirs request
+			subdirsMaxConn : 3,
+			// Number of max simultaneous processing directory of subdirs
+			subdirsAtOnce : 5
 			// ,
 			// /**
 			//  * Add CSS class name to navbar directories (optional)
