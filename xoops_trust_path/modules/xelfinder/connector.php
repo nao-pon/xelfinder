@@ -34,6 +34,7 @@ try {
 	require_once dirname(__FILE__) . '/include/compat.php';
 
 	$php54 = version_compare(PHP_VERSION, '5.4', '>=');
+	$php55 = version_compare(PHP_VERSION, '5.5', '>=');
 	
 	// load composer auto loader
 	if ($php54) {
@@ -154,15 +155,13 @@ try {
 	}
 
 	// dropbox
-	if (!empty($config['dropbox_token']) && !empty($config['dropbox_seckey'])) {
-		require dirname(__FILE__) . '/class/xelFinderVolumeDropbox.class.php';
-		define('ELFINDER_DROPBOX_CONSUMERKEY',    $config['dropbox_token']);
-		define('ELFINDER_DROPBOX_CONSUMERSECRET', $config['dropbox_seckey']);
+	if ($php55 && !empty($config['dropbox_token']) && !empty($config['dropbox_seckey'])) {
+		define('ELFINDER_DROPBOX_APPKEY',    $config['dropbox_token']);
+		define('ELFINDER_DROPBOX_APPSECRET', $config['dropbox_seckey']);
 	}
 
 	// google drive
 	if ($php54 && !empty($config['googleapi_id']) && !empty($config['googleapi_secret'])) {
-		//require dirname(__FILE__) . '/class/xelFinderFlysystemGoogleDriveNetmount.php';
 		elFinder::$netDrivers['googledrive'] = 'GoogleDrive';
 		define('ELFINDER_GOOGLEDRIVE_CLIENTID',     $config['googleapi_id']);
 		define('ELFINDER_GOOGLEDRIVE_CLIENTSECRET', $config['googleapi_secret']);
@@ -287,34 +286,43 @@ try {
 			);
 			$rootConfig[] = array('raw' => $ftp);
 		}
-		if (defined('ELFINDER_DROPBOX_CONSUMERKEY') && $config['dropbox_path'] && $config['dropbox_acc_token'] && $config['dropbox_acc_seckey']) {
-			$dropbox_access = null;
-			$dropboxIsInGroup = (array_intersect($memberGroups, ( isset($config['dropbox_writable_groups'])? $config['dropbox_writable_groups'] : array() )));
-			if (!$isAdmin) {
-				$dropbox_access = new xelFinderAccess();
-				if (isset($config['dropbox_hidden_ext']))
-					$dropbox_access->setHiddenExtention($config['dropbox_hidden_ext']);
-				if (isset($config['dropbox_write_ext']))
-					$dropbox_access->setWriteExtention($dropboxIsInGroup? $config['dropbox_write_ext'] : '');
-				if (isset($config['dropbox_unlock_ext']))
-					$dropbox_access->setUnlockExtention($dropboxIsInGroup? $config['dropbox_unlock_ext'] : '');
+		if (defined('ELFINDER_DROPBOX_APPKEY') && $config['dropbox_path'] && $config['dropbox_acc_token']) {
+			if ($config['dropbox_acc_seckey']) {
+				if ($token2 = elFinderVolumeDropbox2::getTokenFromOauth1(ELFINDER_DROPBOX_APPKEY, ELFINDER_DROPBOX_APPSECRET, $config['dropbox_acc_token'], $config['dropbox_acc_seckey'])) {
+					$config['dropbox_acc_token'] = $token2;
+				}
 			}
-			$dropbox = array(
-				'driver'            => 'DropboxX',
-				'id'                => 'sh',
-				'consumerKey'       => ELFINDER_DROPBOX_CONSUMERKEY,
-				'consumerSecret'    => ELFINDER_DROPBOX_CONSUMERSECRET,
-				'alias'             => trim($config['dropbox_name']),
-				'accessToken'       => trim($config['dropbox_acc_token']),
-				'accessTokenSecret' => trim($config['dropbox_acc_seckey']),
-				'path'              => '/'.trim($config['dropbox_path'], ' /'),
-				'defaults' => array('read' => true, 'write' => ($dropboxIsInGroup? true : false), 'hidden' => false, 'locked' => false),
-				'accessControl'     => is_object($dropbox_access)? array($dropbox_access, 'access') : null,
-				'uploadDeny'        => (!$isAdmin && !empty($config['dropbox_upload_mime']))? array('all') : array(),
-				'uploadAllow'       => (!$isAdmin && !empty($config['dropbox_upload_mime']))? array_map('trim', explode(',', $config['dropbox_upload_mime'])) : array(),
-				'uploadOrder'       => array('deny', 'allow'),
-			);
-			$rootConfig[] = array('raw' => $dropbox);
+			if (empty($config['dropbox_acc_seckey']) || $token2) {
+				$dropbox_access = null;
+				$dropboxIsInGroup = (array_intersect($memberGroups, ( isset($config['dropbox_writable_groups'])? $config['dropbox_writable_groups'] : array() )));
+				if (!$isAdmin) {
+					$dropbox_access = new xelFinderAccess();
+					if (isset($config['dropbox_hidden_ext']))
+						$dropbox_access->setHiddenExtention($config['dropbox_hidden_ext']);
+					if (isset($config['dropbox_write_ext']))
+						$dropbox_access->setWriteExtention($dropboxIsInGroup? $config['dropbox_write_ext'] : '');
+					if (isset($config['dropbox_unlock_ext']))
+						$dropbox_access->setUnlockExtention($dropboxIsInGroup? $config['dropbox_unlock_ext'] : '');
+				}
+				$dropbox = array(
+					'driver'        => 'Dropbox2',
+					'id'            => 'sh',
+					'app_key'       => ELFINDER_DROPBOX_APPKEY,
+					'app_secret'    => ELFINDER_DROPBOX_APPSECRET,
+					'alias'         => trim($config['dropbox_name']),
+					'access_token'  => trim($config['dropbox_acc_token']),
+					'path'          => '/'.trim($config['dropbox_path'], ' /'),
+					'defaults'      => array('read' => true, 'write' => ($dropboxIsInGroup? true : false), 'hidden' => false, 'locked' => false),
+					'accessControl' => is_object($dropbox_access)? array($dropbox_access, 'access') : null,
+					'uploadDeny'    => (!$isAdmin && !empty($config['dropbox_upload_mime']))? array('all') : array(),
+					'uploadAllow'   => (!$isAdmin && !empty($config['dropbox_upload_mime']))? array_map('trim', explode(',', $config['dropbox_upload_mime'])) : array(),
+					'uploadOrder'   => array('deny', 'allow'),
+					'tmpPath'       => XOOPS_MODULE_PATH.'/'._MD_ELFINDER_MYDIRNAME.'/cache',
+					'tmbPath'       => XOOPS_MODULE_PATH.'/'._MD_ELFINDER_MYDIRNAME.'/cache/tmb',
+					'tmbURL'        => _MD_XELFINDER_MODULE_URL.'/'._MD_ELFINDER_MYDIRNAME.'/cache/tmb',
+				);
+				$rootConfig[] = array('raw' => $dropbox);
+			}
 		}
 		
 		try {

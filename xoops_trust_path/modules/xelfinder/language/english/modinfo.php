@@ -65,10 +65,10 @@ define( $constpref.'_ONEDRIVEAPI_SECRET_DESC' , 'When using OneDrive as a networ
 define( $constpref.'_DROPBOX_TOKEN_DESC' ,      'Developers - Dropbox [ https://www.dropbox.com/developers ]' );
 define( $constpref.'_DROPBOX_SECKEY' ,          'Dropbox.com App secret' );
 define( $constpref.'_DROPBOX_SECKEY_DESC' ,     '' );
-define( $constpref.'_DROPBOX_ACC_TOKEN' ,       'Access token key of shared Dropbox' );
-define( $constpref.'_DROPBOX_ACC_TOKEN_DESC' ,  'The access token key for using it in shared Dropbox volume and the access token secret key of Dropbox are acquirable with a "Get Dropbox App Token" menu.' );
+define( $constpref.'_DROPBOX_ACC_TOKEN' ,       'Access token of shared Dropbox' );
+define( $constpref.'_DROPBOX_ACC_TOKEN_DESC' ,  'The access token key for using it in shared Dropbox volume. You can get it at https://www.dropbox.com/developers/apps.' );
 define( $constpref.'_DROPBOX_ACC_SECKEY' ,      'Access token secret key of shared Dropbox' );
-define( $constpref.'_DROPBOX_ACC_SECKEY_DESC' , '' );
+define( $constpref.'_DROPBOX_ACC_SECKEY_DESC' , 'This is the setting for the old OAuth 1. To set a new OAuth 2 access token, you need to empty the value. If you are using OAuth 1 please move early to OAuth 2.' );
 define( $constpref.'_DROPBOX_NAME' ,            'Shared Dropbox volume display name' );
 define( $constpref.'_DROPBOX_NAME_DESC' ,       'Unlike mount of network volume, shared Dropbox volume is displayed on all the users.' );
 define( $constpref.'_DROPBOX_PATH' ,            'Root pass of shared Dropbox' );

@@ -84,22 +84,27 @@ class xoops_elFinder {
 					list($data) = $this->db->fetchRow($res);
 					if ($data = @unserialize($data)) {
 						$_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY] = $data;
+						// check old netmountdriver volume and remove it
 						if ($this->base64encodeSessionData) {
 							$data = @unserialize(@base64_decode($data));
 						}
 						if (is_array($data)) {
-							$data = array_reverse($data);
-							$cacheKey = 'xel_'.$mydirname.'_Caches';
-							if (! isset($_SESSION[$cacheKey])) {
-								$_SESSION[$cacheKey] = array();
+							$_data = array();
+							$rm = false;
+							foreach($data as $key => $volume) {
+								if (! in_array($volume['driver'], array('FlysystemGoogleDriveNetmountX', 'DropboxX'))) {
+									$_data[$key] = $volume;
+								} else {
+									$rm = true;
+								}
 							}
-							foreach($data as $volume) {
-								if (! isset($_SESSION[$cacheKey]['DropboxTokens']) && $volume['host'] === 'dropbox' && !empty($volume['dropboxUid']) && !empty($volume['accessToken']) && !empty($volume['accessTokenSecret'])) {
-									$_SESSION[$cacheKey]['DropboxTokens'] = array($volume['dropboxUid'], $volume['accessToken'], $volume['accessTokenSecret']);
+							if ($rm) {
+								if ($this->base64encodeSessionData) {
+									$_data = base64_encode(serialize($_data));
 								}
-								if (! isset($_SESSION[$cacheKey]['GoogleDriveAuthParams']) && $volume['driver'] === 'FlysystemGoogleDriveNetmountX') {
-									$_SESSION[$cacheKey]['GoogleDriveAuthParams'] = array('access_token' => $volume['access_token']);
-								}
+								$_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY] = $_data;
+								$_result = array('sync' => true); //dummy data
+								$this->netmountCallback(null, $_result, null, null);
 							}
 						}
 					}

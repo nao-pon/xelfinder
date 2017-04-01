@@ -67,10 +67,10 @@ define( $constpref.'_DROPBOX_TOKEN' ,           'Dropbox.com アプリケーション Ke
 define( $constpref.'_DROPBOX_TOKEN_DESC' ,      'Developers - Dropbox [ https://www.dropbox.com/developers ]' );
 define( $constpref.'_DROPBOX_SECKEY' ,          'Dropbox.com アプリケーション Secret key' );
 define( $constpref.'_DROPBOX_SECKEY_DESC' ,     '' );
-define( $constpref.'_DROPBOX_ACC_TOKEN' ,       '共有Dropboxのアクセストークン・キー' );
-define( $constpref.'_DROPBOX_ACC_TOKEN_DESC' ,  '共有のDropboxボリュームで使用するためのアクセストークン・キーとDropbox のアクセストークン・シークレットキーは「Dropbox App Token 取得」メニューにて取得できます。' );
+define( $constpref.'_DROPBOX_ACC_TOKEN' ,       '共有Dropboxのアクセストークン' );
+define( $constpref.'_DROPBOX_ACC_TOKEN_DESC' ,  '共有のDropboxボリュームで使用するためのアクセストークンは https://www.dropbox.com/developers/apps にて取得できます。' );
 define( $constpref.'_DROPBOX_ACC_SECKEY' ,      '共有Dropboxのアクセストークン・シークレットキー' );
-define( $constpref.'_DROPBOX_ACC_SECKEY_DESC' , '' );
+define( $constpref.'_DROPBOX_ACC_SECKEY_DESC' , '古い OAuth1 のための設定です。新しい OAuth2 のアクセストークンを設定する場合は値を空にする必要があります。OAuth1 を利用している場合は早めに OAuth2 に移行してください。' );
 define( $constpref.'_DROPBOX_NAME' ,            '共有のDropboxボリューム表示名' );
 define( $constpref.'_DROPBOX_NAME_DESC' ,       '共有のDropboxボリュームは、ネットワークボリュームのマウントと違い、すべてのユーザーに表示されます。' );
 define( $constpref.'_DROPBOX_PATH' ,            '共有Dropboxのルートパス' );

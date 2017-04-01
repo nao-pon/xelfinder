@@ -12,10 +12,6 @@ $adminmenu = array(
 		'link' => 'manager.php?admin=1' ,
 	) ,
 	array(
-		'title' => constant( $constpref.'_ADMENU_DROPBOX' ) ,
-		'link' => 'admin/index.php?page=dropbox' ,
-	),
-	array(
 		'title' => constant( $constpref.'_ADMENU_GOOGLEDRIVE' ) ,
 		'link' => 'admin/index.php?page=googledrive' ,
 	),
