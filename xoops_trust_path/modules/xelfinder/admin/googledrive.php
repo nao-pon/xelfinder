@@ -86,14 +86,14 @@ if ($php54up) {
 				echo '<h3>Example to Volume Driver Setting</h3>';
 				echo '<div><p>Folder ID as root: <input type=text id="xelfinder_googledrive_folder" value="root"></input> "root" is <a href="https://drive.google.com/drive/my-drive" target="_blank">"My Drive" of your Google Drive</a>.</p>';
 				echo '<p>You can find the folder ID to the URL(folders/[Folder ID]) of the site of <a href="https://drive.google.com/drive/">GoogleDrive</a>.</p></div>';
-				echo '<div><textarea class="allselect" style="width:70%;height:7em;" id="xelfinder_googledrive_volconf" spellcheck="false">xelfinder:flyGoogleDrive:root:GoogleDrive:gid=1|id=gd|ext_token=' . $ext_token . '</textarea></div>';
+				echo '<div><textarea class="allselect" style="width:70%;height:7em;" id="xelfinder_googledrive_volconf" spellcheck="false">xelfinder:GoogleDrive:root:GoogleDrive:gid=1|id=gd|ext_token=' . $ext_token . '</textarea></div>';
 				echo "<script>(function($){
 					$('#xelfinder_googledrive_folder').on('change keyup mouseup paste', function(e) {
 						var self = $(this);
 						setTimeout(function(){
 							var conf = $('#xelfinder_googledrive_volconf');
 								data = conf.val();
-							conf.val(data.replace(/flyGoogleDrive:[^:]*:/, 'flyGoogleDrive:' + self.val() + ':'));
+							conf.val(data.replace(/GoogleDrive:[^:]*:/, 'GoogleDrive:' + self.val() + ':'));
 						}, e.type === 'paste'? 100 : 0);
 					});
 					$('textarea.allselect').on('focus', function() { $(this).select(); });
