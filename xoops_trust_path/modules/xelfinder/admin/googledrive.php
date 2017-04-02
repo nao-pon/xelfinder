@@ -134,7 +134,7 @@ if ($php54up) {
 <hr>
 <h4>Step by step</h4>
 <ol>
-	<li>Make Project in Google Developers Console (<a href="https://console.developers.google.com/project" target="_brank">https://console.developers.google.com/project</a>)</li>
+	<li>Make Project in Google Developers Console (<a href="https://console.developers.google.com/apis/dashboard" target="_brank">console.developers.google.com/apis/dashboard</a>)</li>
 	<li>Enable Drive API</li>
 	<li>Make Authentication  infomation (Type of Web Server & User data)</li>
 	<li>Make OAuth 2.0 Client<br />(Redirect URI: <?php echo $selfURL; ?> )</li>
