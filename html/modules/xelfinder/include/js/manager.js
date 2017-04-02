@@ -362,7 +362,7 @@ $(document).ready(function() {
 	}).elfinder('instance');
 	
 	// Easy refer on file upload
-	if (target || elfinderInstance.options.getFileCallback != getFileCallback_bbcode) {
+	if (target || elfinderInstance.options.getFileCallback) {
 		elfinderInstance.bind('upload', function(e){
 			var added, hash;
 			if (e.data && (added = e.data.added) && added.length === 1) {
