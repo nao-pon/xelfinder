@@ -37,7 +37,7 @@ try {
 	$php55 = version_compare(PHP_VERSION, '5.5', '>=');
 	
 	// load composer auto loader
-	if ($php54) {
+	if ($php54 && is_file(__DIR__ . '/plugins/vendor/autoload.php')) {
 		require_once __DIR__ . '/plugins/vendor/autoload.php';
 	}
 
@@ -155,13 +155,14 @@ try {
 	}
 
 	// dropbox
-	if ($php55 && !empty($config['dropbox_token']) && !empty($config['dropbox_seckey'])) {
+	if ($php55 && !empty($config['dropbox_token']) && !empty($config['dropbox_seckey']) && class_exists('\Kunnu\Dropbox\DropboxApp')) {
+		elFinder::$netDrivers['dropbox2'] = 'Dropbox2';
 		define('ELFINDER_DROPBOX_APPKEY',    $config['dropbox_token']);
 		define('ELFINDER_DROPBOX_APPSECRET', $config['dropbox_seckey']);
 	}
 
 	// google drive
-	if ($php54 && !empty($config['googleapi_id']) && !empty($config['googleapi_secret'])) {
+	if ($php54 && !empty($config['googleapi_id']) && !empty($config['googleapi_secret']) && class_exists('\Google_Client')) {
 		elFinder::$netDrivers['googledrive'] = 'GoogleDrive';
 		define('ELFINDER_GOOGLEDRIVE_CLIENTID',     $config['googleapi_id']);
 		define('ELFINDER_GOOGLEDRIVE_CLIENTSECRET', $config['googleapi_secret']);

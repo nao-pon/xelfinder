@@ -3,7 +3,7 @@
  * Created on 2017/04/01 by nao-pon http://xoops.hypweb.net/
  */
 
-if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
+if (version_compare(PHP_VERSION, '5.4.0', '>=') && class_exists('\Google_Client')) {
 	$_token = array();
 	$_service_key_file = '';
 	if (! empty($extOptions['ext_token'])) {
