@@ -24,6 +24,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	protected $x_uname = '';
 	protected $x_groups = array();
 	protected $x_isAdmin = false;
+	protected $x_adminGroups = array();
 
 	protected $groupHomeId = -999999999;
 	protected $makeUmask = '';
@@ -237,6 +238,8 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$this->x_groups = array(XOOPS_GROUP_ANONYMOUS);
 		}
 
+		$this->x_adminGroups = xoops_elFinder::getAdminGroupIds($this->mydirname);
+
 		if (is_null($this->options['syncChkAsTs'])) {
 			$this->options['syncChkAsTs'] = true;
 		}
@@ -405,6 +408,13 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		$dat['read']   =  (($isOwner && (4 & $own) === 4) || ($inGroup && (4 & $grp) === 4) || (4 & $gus) === 4);
 		$dat['write']  =  (($isOwner && (2 & $own) === 2) || ($inGroup && (2 & $grp) === 2) || (2 & $gus) === 2);
 		$dat['locked'] = !(($isOwner && (1 & $own) === 1) || ($inGroup && (1 & $grp) === 1) || (1 & $gus) === 1);
+		
+		if ($dat['mime'] !== 'directory' && $dat['gids'] && array_intersect(explode(',', $dat['gids']), $this->x_adminGroups)) {
+			if (! isset($dat['options'])) {
+				$dat['options'] = array();
+			}
+			$dat['options']['dispInlineRegex'] = '.*';
+		}
 	}
 
 	protected function checkHomeDir() {
