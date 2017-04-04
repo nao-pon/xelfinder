@@ -35,6 +35,8 @@ define( $constpref.'_DISABLE_WRITES_USER' ,     '登録ユーザー書き込み無効' );
 define( $constpref.'_DISABLE_WRITES_USER_DESC', '登録ユーザー向けにグループ毎無効コマンドに指定した無効コマンドに合わせ、書き込み系コマンドをすべて追加します。' );
 define( $constpref.'_MAIL_NOTIFY_GUEST' ,       'メール通知(ゲスト)' );
 define( $constpref.'_MAIL_NOTIFY_GUEST_DESC',   'ゲストによるファイル追加を管理グループメンバーにメール通知します。' );
+define( $constpref.'_USE_GOOGLE_PREVIEW' ,      'Google Docs プレビュー有効' );
+define( $constpref.'_USE_GOOGLE_PREVIEW_DESC',  'Google Docs を利用しプレビュー可能なファイルタイプを拡大します。Google Docs プレビュー利用時に Google Docs へコンテンツ URL を通知します。' );
 define( $constpref.'_MAIL_NOTIFY_GROUP' ,       'メール通知(グループ)' );
 define( $constpref.'_MAIL_NOTIFY_GROUP_DESC',   '選択したグループに属するユーザーによるファイル追加を管理グループメンバーにメール通知します。' );
 define( $constpref.'_FTP_NAME' ,                'FTP ネットボリューム表示名' );

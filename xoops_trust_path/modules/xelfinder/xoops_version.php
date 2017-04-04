@@ -113,6 +113,14 @@ array(
 	'default'		=> '0'
 ),
 array(
+	'name'			=> 'use_google_preview' ,
+	'title'			=> $constpref.'_USE_GOOGLE_PREVIEW' ,
+	'description'	=> $constpref.'_USE_GOOGLE_PREVIEW_DESC' ,
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> '1'
+),
+array(
 	'name'			=> 'mail_notify_guest' ,
 	'title'			=> $constpref.'_MAIL_NOTIFY_GUEST' ,
 	'description'	=> $constpref.'_MAIL_NOTIFY_GUEST_DESC' ,

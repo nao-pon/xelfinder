@@ -32,6 +32,8 @@ define( $constpref.'_DISABLE_WRITES_GUEST' ,    'Disable writing cmds to guest' 
 define( $constpref.'_DISABLE_WRITES_GUEST_DESC','All writing commands are added to the disabled commands to guests.' );
 define( $constpref.'_DISABLE_WRITES_USER' ,     'Disable writing cmds to user' );
 define( $constpref.'_DISABLE_WRITES_USER_DESC', 'All writing commands are added to the disabled commands to registed users.' );
+define( $constpref.'_USE_GOOGLE_PREVIEW' ,      'Enable Google Docs preview' );
+define( $constpref.'_USE_GOOGLE_PREVIEW_DESC',  'Use Google Docs to expand previewable file types. When Google Docs Preview is used, it notifies the content URL to Google Docs.' );
 define( $constpref.'_MAIL_NOTIFY_GUEST' ,       'E-Mail Notify (Guest)' );
 define( $constpref.'_MAIL_NOTIFY_GUEST_DESC',   'Mailing notifies an administrator of file addition by a guest.' );
 define( $constpref.'_MAIL_NOTIFY_GROUP' ,       'E-Mail Notify (Groups)' );

@@ -357,6 +357,9 @@ $(document).ready(function() {
 			  edit : {
 			      editors : editorsConfig,
 			      dialogWidth: '80%'
+			  },
+			  quicklook : {
+				  googleDocsMimes : useGoogleDocsPreview? ['application/pdf', 'image/tiff', 'application/vnd.ms-office', 'application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'] : []
 			  }
 		}
 	}).elfinder('instance');
