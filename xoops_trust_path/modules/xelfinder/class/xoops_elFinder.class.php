@@ -408,7 +408,7 @@ class xoops_elFinder {
 	}
 	
 	public function netmountCallback($cmd, &$result, $args, $elfinder) {
-		if (is_object($this->xoopsUser) && (!empty($result['sync']) || !empty($result['added']))) {
+		if (is_object($this->xoopsUser) && (!empty($result['sync']) || !empty($result['added']) || !empty($result['removed']))) {
 			if ($uid = $this->xoopsUser->getVar('uid')) {
 				$uid = intval($uid);
 				$table = $this->db->prefix($this->mydirname.'_userdat');
@@ -694,5 +694,34 @@ EOD;
 		} else {
 			return mysql_set_charset($charset);
 		}
+	}
+	
+	/**
+	 * Get admin group ids by module directory name
+	 * 
+	 * @param string $dirname
+	 * @return  array
+	 */
+	public static function getAdminGroupIds($dirname) {
+		static $res = array();
+		if (isset($res[$dirname])) {
+			return $res[$dirname];
+		}
+		$ids = array(XOOPS_GROUP_ADMIN);
+		$module_handler = xoops_gethandler('module');
+		$XoopsModule = $module_handler->getByDirname($dirname);
+		if ($XoopsModule) {
+			$mid = $XoopsModule->getVar('mid');
+			$hGroupperm = xoops_gethandler('groupperm');
+			$hGroup = xoops_gethandler('group');
+			$groups = $hGroup->getObjects(null, true);
+			foreach($groups as $gid => $group) {
+				if ($hGroupperm->checkRight('module_admin', $mid, $gid)) {
+					$ids[] = $gid;
+				}
+			}
+		}
+		$res[$dirname] = $ids;
+		return $ids;
 	}
 }
