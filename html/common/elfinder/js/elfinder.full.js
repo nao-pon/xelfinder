@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.23 (2.1_n Nightly: 8028bb9) (2017-04-07)
+ * Version 2.1.23 (2.1_n Nightly: e8043b0) (2017-04-08)
  * http://elfinder.org
  * 
  * Copyright 2009-2017, Studio 42
@@ -759,6 +759,15 @@ var elFinder = function(node, opts) {
 	 * @default "{day} {time}"
 	 **/
 	this.fancyFormat = this.options.fancyDateFormat || i18n.fancyDateFormat;
+	
+	/**
+	 * Date format for if upload file has not original unique name
+	 * e.g. Clipboard image data, Image data taken with iOS
+	 *
+	 * @type String
+	 * @default "ymd-His"
+	 **/
+	this.nonameDateFormat = (this.options.nonameDateFormat || i18n.nonameDateFormat).replace(/[\/\\]/g, '_');
 
 	/**
 	 * Today timestamp
@@ -3821,6 +3830,9 @@ var elFinder = function(node, opts) {
 		this.trigger('cssloaded');
 	}
 	
+	// calculate elFinder node z-index
+	this.zIndexCalc();
+
 	// send initial request and start to pray >_<
 	this.trigger('init')
 		.request({
@@ -3837,19 +3849,8 @@ var elFinder = function(node, opts) {
 			self.trigger = function() { };
 		})
 		.done(function(data) {
-			// detect elFinder node z-index
-			var ni = node.css('z-index');
-			if (ni && ni !== 'auto' && ni !== 'inherit') {
-				self.zIndex = ni;
-			} else {
-				node.parents().each(function(i, n) {
-					var z = $(n).css('z-index');
-					if (z !== 'auto' && z !== 'inherit' && (z = parseInt(z))) {
-						self.zIndex = z;
-						return false;
-					}
-				});
-			}
+			// re-calculate elFinder node z-index
+			self.zIndexCalc();
 			
 			self.load().debug('api', self.api);
 			// update ui's size after init
@@ -3939,6 +3940,7 @@ elFinder.prototype = {
 			direction       : 'ltr',
 			dateFormat      : 'd.m.Y H:i',
 			fancyDateFormat : '$1 H:i',
+			nonameDateFormat : 'ymd-His',
 			messages        : {}
 		},
 		months : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
@@ -5078,11 +5080,11 @@ elFinder.prototype = {
 							formData.append('upload[]', file);
 							if (data.clipdata) {
 								data.overwrite = 0;
-								formData.append('name[]', 'clip-' + fm.date('ymd') + '.png');
+								formData.append('name[]', fm.date(fm.nonameDateFormat) + '.png');
 							}
 							if (fm.UA.iOS && file.name === 'image.jpg') {
 								data.overwrite = 0;
-								formData.append('name[]', 'pic-' + fm.date('ymd') + '.jpg');
+								formData.append('name[]', fm.date(fm.nonameDateFormat) + '.jpg');
 							}
 						}
 						if (file._chunk) {
@@ -6982,6 +6984,28 @@ elFinder.prototype = {
 	},
 	
 	/**
+	 * calculate elFinder node z-index
+	 * 
+	 * @return void
+	 */
+	zIndexCalc : function() {
+		var self = this,
+			node = this.getUI(),
+			ni = node.css('z-index');
+		if (ni && ni !== 'auto' && ni !== 'inherit') {
+			self.zIndex = ni;
+		} else {
+			node.parents().each(function(i, n) {
+				var z = $(n).css('z-index');
+				if (z !== 'auto' && z !== 'inherit' && (z = parseInt(z))) {
+					self.zIndex = z;
+					return false;
+				}
+			});
+		}
+	},
+	
+	/**
 	 * Load JavaScript files
 	 * 
 	 * @param  Array    urls      to load JavaScript file URLs
@@ -7196,7 +7220,7 @@ if (!Array.isArray) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.23 (2.1_n Nightly: 8028bb9)';
+elFinder.prototype.version = '2.1.23 (2.1_n Nightly: e8043b0)';
 
 
 
@@ -9358,7 +9382,8 @@ if (typeof elFinder === 'function' && elFinder.prototype.i18) {
 		language   : 'English',
 		direction  : 'ltr',
 		dateFormat : 'M d, Y h:i A', // Mar 13, 2012 05:27 PM
-		fancyDateFormat : '$1 h:i A', // will produce smth like: Today 12:25 PM
+		fancyDateFormat : '$1 h:i A', // will produce smth like: Today 12:25 PM,
+		nonameDateFormat : 'ymd-His', // to apply if upload file is noname: 120513172700
 		messages   : {
 
 			/********************************** errors **********************************/
@@ -12555,16 +12580,19 @@ $.fn.elfindercwd = function(fm, options) {
 		fm
 			.one('init', function(){
 				var style = document.createElement('style'),
-				sheet, node, base, resizeTm;
+				sheet, node, base, resizeTm, i = 0;
 				document.head.appendChild(style);
 				sheet = style.sheet;
-				sheet.insertRule('.elfinder-cwd-wrapper-empty .elfinder-cwd:after{ content:"'+fm.i18n('emptyFolder')+'" }', 0);
-				sheet.insertRule('.elfinder-cwd-wrapper-empty .ui-droppable .elfinder-cwd:after{ content:"'+fm.i18n('emptyFolder'+(mobile? 'LTap' : 'Drop'))+'" }', 1);
-				sheet.insertRule('.elfinder-cwd-wrapper-empty .ui-droppable-disabled .elfinder-cwd:after{ content:"'+fm.i18n('emptyFolder')+'" }', 2);
-				sheet.insertRule('.elfinder-cwd-wrapper-empty.elfinder-search-result .elfinder-cwd:after{ content:"'+fm.i18n('emptySearch')+'" }', 3);
-				sheet.insertRule('.elfinder-cwd-wrapper-empty.elfinder-search-result.elfinder-incsearch-result .elfinder-cwd:after{ content:"'+fm.i18n('emptyIncSearch')+'" }', 4);
-				sheet.insertRule('.elfinder-cwd-wrapper-empty.elfinder-search-result.elfinder-letsearch-result .elfinder-cwd:after{ content:"'+fm.i18n('emptyLetSearch')+'" }', 5);
+				sheet.insertRule('.elfinder-cwd-wrapper-empty .elfinder-cwd:after{ content:"'+fm.i18n('emptyFolder')+'" }', i++);
+				sheet.insertRule('.elfinder-cwd-wrapper-empty .ui-droppable .elfinder-cwd:after{ content:"'+fm.i18n('emptyFolder'+(mobile? 'LTap' : 'Drop'))+'" }', i++);
+				sheet.insertRule('.elfinder-cwd-wrapper-empty .ui-droppable-disabled .elfinder-cwd:after{ content:"'+fm.i18n('emptyFolder')+'" }', i++);
+				sheet.insertRule('.elfinder-cwd-wrapper-empty.elfinder-search-result .elfinder-cwd:after{ content:"'+fm.i18n('emptySearch')+'" }', i++);
+				sheet.insertRule('.elfinder-cwd-wrapper-empty.elfinder-search-result.elfinder-incsearch-result .elfinder-cwd:after{ content:"'+fm.i18n('emptyIncSearch')+'" }', i++);
+				sheet.insertRule('.elfinder-cwd-wrapper-empty.elfinder-search-result.elfinder-letsearch-result .elfinder-cwd:after{ content:"'+fm.i18n('emptyLetSearch')+'" }', i++);
 				if (! mobile) {
+					fm.one('open', function() {
+						fm.zIndex && sheet.insertRule('.ui-selectable-helper{z-index:'+fm.zIndex+';}', i++);
+					});
 					base = $('<div style="position:absolute"/>');
 					node = fm.getUI();
 					node.on('resize', function(e, data) {
@@ -12582,6 +12610,9 @@ $.fn.elfindercwd = function(fm, options) {
 						}
 					});
 				}
+			})
+			.bind('enable', function() {
+				resize();
 			})
 			.bind('open add remove searchend', function() {
 				var phash = fm.cwd().hash;
