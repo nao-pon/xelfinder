@@ -753,28 +753,56 @@ var getFileCallback_fckeditor = function (file, fm) {
 
 // for CKEditor
 // Url: '[XOOPS_URL]/modules/xelfinder/manager.php?cb=ckeditor'
-function tmbFunc_ckeditor(tmb){
+function ckeditor4_dialog_update(path, thumb, name) {
+	var dialog = window.opener.CKEDITOR.dialog.getCurrent(),
+		dName = dialog._.name,
+		tName = dialog._.currentTabId,
+		url = thumb || path,
+		tmb = thumb, size;
 	if ($('#resize_px')) {
-		var size = $('#resize_px').val();
+		size = $('#resize_px').val();
 		if (size && ! size.match(/[\d]{1,4}/)) {
 			size = '';
 		}
-		if (tmb.match(/_tmbsize_/)) {
+		if (url.match(/_tmbsize_/)) {
 			if (size) {
-				tmb = tmb.replace('_tmbsize_', size);
+				url = url.replace('_tmbsize_', size);
 			} else {
+				url = path;
 				tmb = false;
 			}
 		}
 	}
-	return tmb;
+	if (dName == 'image') {
+		var urlObj = 'txtUrl';
+	} else if (dName == 'flash') {
+		var urlObj = 'src';
+	} else if (dName == 'files' || dName == 'link') {
+		var urlObj = 'url';
+	} else {
+		return;
+	}
+	dialog.setValueOf(tName, urlObj, url);
+	if (dName == 'image' && tName == 'info' && tmb) {
+		dialog.setValueOf('Link', 'txtUrl', path);
+		dialog.setValueOf('Link', 'cmbTarget', '_blank');
+	} else if (name && dName == 'files' || dName == 'link') {
+		try {
+			dialog.setValueOf('info', 'linkDisplayText', name);
+		} catch(e) {}
+	}
+	window.close();
 }
+
 var getFileCallback_ckeditor = function (file, fm) {
-	var path = encodeDecodeURI(file.url);
-	var basename = path.replace( /^.*\//, '' );
-	var module = getModuleName(file);
-	var thumb = '';
-	var isImg = (file.mime.match(/^image/))? true : false;
+	var dialog = window.opener.CKEDITOR.dialog.getCurrent();
+		path = encodeDecodeURI(file.url),
+		basename = path.replace( /^.*\//, '' ),
+		name = file.name,
+		module = getModuleName(file),
+		thumb = '',
+		isImg = (file.mime.match(/^image/))? true : false,
+		localHostReg = new RegExp('^' + window.location.protocol + '//' + window.location.host);
 	if (isImg && file.tmb && file.tmb != 1) {
 		if (module.match(/^[a-zA-Z0-9_-]+$/)) {
 			eval('if (typeof get_thumb_'+module+' == "function" ){' +
@@ -784,17 +812,15 @@ var getFileCallback_ckeditor = function (file, fm) {
 			thumb = getThumbFallback(file);
 		}
 	}
-	var funcNum = window.location.search.replace(/^.*CKEditorFuncNum=(\d+).*$/, "$1");
-	var localHostReg = new RegExp('^' + window.location.protocol + '//' + window.location.host);
 	path = path.replace(localHostReg, '');
-	if (thumb) {
+	if (thumb && dialog._.name == 'image' && dialog._.currentTabId == 'info') {
 		thumb = rootUrl+'/'+encodeDecodeURI(thumb);
 		thumb = thumb.replace(localHostReg, '');
 		var fullsize = ' title="' + fm.i18n('fullsize') + '"';
 		var thumbnail = ' title="' + fm.i18n('thumbnail') + '"';
-		var buttons = '<span'+thumbnail+' onclick="var tmb=(tmbFunc_ckeditor(\''+thumb.replace("'", "%27")+'\')||\''+path.replace("'", "%27")+'\');window.opener.CKEDITOR.tools.callFunction(\''+funcNum+'\',tmb);var dialog=window.opener.CKEDITOR.dialog.getCurrent();dialog.setValueOf(\'Link\',\'txtUrl\',\''+path.replace("'", "%27")+'\');window.close();"><img src="'+imgUrl+'alignleft.gif" alt="" /></span>'
+		var buttons = '<span'+thumbnail+' onclick="ckeditor4_dialog_update(\''+path.replace("'", "%27")+'\',\''+thumb.replace("'", "%27")+'\',\''+name.replace("'", "%27")+'\');"><img src="'+imgUrl+'alignleft.gif" alt="" /></span>'
 		+ ' &nbsp; '
-		+ '<span'+fullsize+' onclick="window.opener.CKEDITOR.tools.callFunction(\''+funcNum+'\', \''+path.replace("'", "%27")+'\');window.close();"><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span>'
+		+ '<span'+fullsize+' onclick="ckeditor4_dialog_update(\''+path.replace("'", "%27")+'\',\'\',\''+name.replace("'", "%27")+'\');window.close();"><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span>'
 		+ '<br><span class="file_info">'+fm.i18n('size')+': ' + file.width + 'x' + file.height+'</span>';
 		if (file.url.match(/\bview\b/)) {
 			insertCode.iSize = Math.max(file.width, file.height);
@@ -803,11 +829,9 @@ var getFileCallback_ckeditor = function (file, fm) {
 					+ '<span class="file_info">'+fm.i18n('resize')+':<input id="resize_px" style="width: 2.5em" class="button_input" value="'+tsize+'">px</span>';
 		}
 		$.openImgInsertDialog(buttons, path, fm);
-		
 	} else {
 		setTimeout(function(){
-			window.opener.CKEDITOR.tools.callFunction(funcNum, path);
-			window.close();
+			ckeditor4_dialog_update(path, '', name);
 		}, 100);
 	}
 };
