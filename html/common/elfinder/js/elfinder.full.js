@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.23 (2.1_n Nightly: f63b557) (2017-04-10)
+ * Version 2.1.23 (2.1_n Nightly: 4866051) (2017-04-11)
  * http://elfinder.org
  * 
  * Copyright 2009-2017, Studio 42
@@ -7220,7 +7220,7 @@ if (!Array.isArray) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.23 (2.1_n Nightly: f63b557)';
+elFinder.prototype.version = '2.1.23 (2.1_n Nightly: 4866051)';
 
 
 
@@ -17151,11 +17151,11 @@ elFinder.prototype.commands.zipdl = function() {};
 elFinder.prototype.commands.download = function() {
 	var self   = this,
 		fm     = this.fm,
+		czipdl = null,
 		zipOn  = false,
 		mixed  = false,
 		filter = function(hashes, inExec) {
-			var czipdl = (fm.api > 2)? fm.getCommand('zipdl') : null,
-				volumeid, mixedCmd;
+			var volumeid, mixedCmd;
 			
 			if (czipdl !== null) {
 				if (fm.searchStatus.state > 1) {
@@ -17210,7 +17210,6 @@ elFinder.prototype.commands.download = function() {
 		var sel    = this.hashes(sel),
 			cnt    = sel.length,
 			maxReq = this.options.maxRequests || 10,
-			czipdl = (fm.api > 2)? fm.getCommand('zipdl') : null,
 			mixed  = false,
 			croot  = '';
 		
@@ -17311,6 +17310,10 @@ elFinder.prototype.commands.download = function() {
 					});
 				}
 			}
+		}
+	}).one('open', function() {
+		if (fm.api > 2) {
+			czipdl = fm.getCommand('zipdl');
 		}
 	});
 	
@@ -18519,7 +18522,7 @@ elFinder.prototype.commands.fullscreen = function() {
 				debugUL.after(target);
 				
 				debugDIV.tabs('refresh');
-				debugUL.find('a:first').click();
+				debugUL.find('a:first').trigger('click');
 			}
 		},
 		content = '',
@@ -18599,7 +18602,11 @@ elFinder.prototype.commands.fullscreen = function() {
 		}
 
 		content.find('#'+fm.namespace+'-help-about').find('.apiver').text(fm.api);
-		self.dialog = fm.dialog(content, {title : self.title, width : 530, autoOpen : false, destroyOnClose : false});
+		self.dialog = fm.dialog(content, {title : self.title, width : 530, autoOpen : false, destroyOnClose : false})
+			.on('click', function(e) {
+				e.preventDefault();
+				e.stopPropagation();
+			});
 		
 		self.state = 0;
 	});
