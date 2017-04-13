@@ -330,7 +330,7 @@ $(document).ready(function() {
 		customHeaders: cors? {'X-Requested-With' : 'XMLHttpRequest'} : {},
 		xhrFields: cors? {withCredentials: true} : {},
 		requestType : 'POST',
-		height: $(window).height(),
+		height: '100%',
 		resizable: false,
 		getFileCallback : callbackFunc,
 		startPathHash : startPathHash,
@@ -427,19 +427,6 @@ $(document).ready(function() {
 			}
 		}
 	});
-
-	// fit to window.height on window.resize
-	var resizeTimer = null;
-	$(window).resize(function() {
-		resizeTimer && clearTimeout(resizeTimer);
-		resizeTimer = setTimeout(function() {
-			var h = parseInt($(window).height());
-			if (h != parseInt($('#elfinder').height())) {
-				elfinderInstance.resize('100%', h);
-			}
-		}, 200);
-	});
-
 });
 
 $.extend({
