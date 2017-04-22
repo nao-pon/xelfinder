@@ -176,18 +176,36 @@ try {
 	}
 
 	// load xoops_elFinder
-	include_once dirname(__FILE__).'/class/xoops_elFinder.class.php';
+	require_once dirname(__FILE__).'/class/xoops_elFinder.class.php';
 	$xoops_elFinder = new xoops_elFinder($mydirname);
 	$xoops_elFinder->setConfig($config);
 	$xoops_elFinder->setLogfile($debug? XOOPS_TRUST_PATH . '/cache/elfinder.log.txt' : '');
 
 	// Access control
-	include_once dirname(__FILE__).'/class/xelFinderAccess.class.php';
-
+	require_once dirname(__FILE__).'/class/xelFinderAccess.class.php';
+	// custom session handler
+	require_once dirname(__FILE__) . '/class/xelFinderSession.class.php';
+	
 	// get user roll
 	$userRoll = $xoops_elFinder->getUserRoll();
 	$isAdmin = $userRoll['isAdmin'];
 
+	// make sesstion handler
+	$session = new xelFinderSession(array(
+		'base64encode' => $xoops_elFinder->base64encodeSessionData,
+		'keys' => array(
+			'default'   => 'xel_'.$mydirname.'_Caches',
+			'netvolume' => _MD_XELFINDER_NETVOLUME_SESSION_KEY
+		)
+	));
+	
+	// set netmount data to session
+	$netVolumeData = null;
+	if ($userRoll['uid'] && $session->get('netvolume') === null) {
+		$netVolumeData = $xoops_elFinder->getNetmountData();
+		$session->set('netvolume', $netVolumeData);
+	}
+	
 	// Get volumes
 	if (isset($_SESSION['XELFINDER_RF_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HASH_'.$mydirname] === $config_MD5) {
 		$rootConfig = unserialize(base64_decode($_SESSION['XELFINDER_RF_'.$mydirname]));
@@ -366,9 +384,6 @@ try {
 		)
 	);
 
-	// custom session handler
-	require dirname(__FILE__) . '/class/xelFinderSession.class.php';
-
 	// End for XOOPS
 	//////////////////////////////////////////////////////
 
@@ -376,13 +391,7 @@ try {
 		'isAdmin' => $isAdmin, // for class xelFinder
 		'locale' => 'ja_JP.UTF-8',
 		'optionsNetVolumes' => $optionsNetVolumes,
-		'session' => new xelFinderSession(array(
-			'base64encode' => $xoops_elFinder->base64encodeSessionData,
-			'keys' => array(
-				'default'   => 'xel_'.$mydirname.'_Caches',
-				'netvolume' => _MD_XELFINDER_NETVOLUME_SESSION_KEY
-			)
-		)),
+		'session' => $session,
 		'bind'   => array(
 			//'*' => array($xoops_elFinder, 'log'),
 			'netmount.pre' => array($xoops_elFinder, 'netmountPreCallback'),
@@ -423,7 +432,18 @@ try {
 		if (! @ ob_end_clean()) break;
 	}
 
-	$connector = new elFinderConnector(new xelFinder($opts), $debug);
+	$elfinder = new xelFinder($opts);
+	$connector = new elFinderConnector($elfinder, $debug);
+	
+	// check netVolumeData
+	if ($netVolumeData) {
+		if (count($netVolumeData) !== count($session->get('netvolume', array()))) {
+			// save user data if found invalid netvolume data
+			$_result = array('sync' => true); //dummy data
+			$xoops_elFinder->netmountCallback(null, $_result, null, $elfinder);
+		}
+	}
+	
 	$connector->run();
 } catch (Exception $e) {
 	exit(json_encode(array('error' => $e->getMessage())));

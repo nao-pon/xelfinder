@@ -75,42 +75,6 @@ class xoops_elFinder {
 		$this->mygids = is_object($this->xoopsUser)? $this->xoopsUser->getGroups() : array(XOOPS_GROUP_ANONYMOUS);
 		$this->uid = is_object($this->xoopsUser)? intval($this->xoopsUser->getVar('uid')) : 0;
 		$this->base64encodeSessionData = ((!defined('_CHARSET') || _CHARSET !== 'UTF-8') && substr($this->getSessionTableType(), -4) !== 'blob');
-		
-		if (defined('_MD_XELFINDER_NETVOLUME_SESSION_KEY') && !isset($_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY]) && $this->uid) {
-			$table = $this->db->prefix($this->mydirname.'_userdat');
-			$sql = 'SELECT `data` FROM `'.$table.'` WHERE `key`=\'netVolumes\' AND `uid`='.$this->uid.' LIMIT 1';
-			if ($res = $this->db->query($sql)) {
-				if ($this->db->getRowsNum($res) > 0) {
-					list($data) = $this->db->fetchRow($res);
-					if ($data = @unserialize($data)) {
-						$_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY] = $data;
-						// check old netmountdriver volume and remove it
-						if ($this->base64encodeSessionData) {
-							$data = @unserialize(@base64_decode($data));
-						}
-						if (is_array($data)) {
-							$_data = array();
-							$rm = false;
-							foreach($data as $key => $volume) {
-								if (! in_array($volume['driver'], array('FlysystemGoogleDriveNetmountX', 'DropboxX'))) {
-									$_data[$key] = $volume;
-								} else {
-									$rm = true;
-								}
-							}
-							if ($rm) {
-								if ($this->base64encodeSessionData) {
-									$_data = base64_encode(serialize($_data));
-								}
-								$_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY] = $_data;
-								$_result = array('sync' => true); //dummy data
-								$this->netmountCallback(null, $_result, null, null);
-							}
-						}
-					}
-				}
-			}
-		}
 	}
 	
 	public function getUserRoll() {
@@ -124,6 +88,26 @@ class xoops_elFinder {
 	
 	public function getUid() {
 		return $this->uid;
+	}
+	
+	public function getNetmountData() {
+		$data = array();
+		if ($this->uid) {
+			$table = $this->db->prefix($this->mydirname.'_userdat');
+			$sql = 'SELECT `data` FROM `'.$table.'` WHERE `key`=\'netVolumes\' AND `uid`='.$this->uid.' LIMIT 1';
+			if ($res = $this->db->query($sql)) {
+				if ($this->db->getRowsNum($res) > 0) {
+					list($data) = $this->db->fetchRow($res);
+					$data = @unserialize($data);
+					if (! $data && ! is_array($data)) {
+						$data = array();
+						$sql = 'DELETE FROM `'.$table.'` WHERE `key`=\'netVolumes\' AND `uid`='.$this->uid;
+						$this->db->queryF($sql);
+					}
+				}
+			}
+		}
+		return $data;
 	}
 	
 	public function getDisablesCmds($useAdmin = true) {
@@ -410,9 +394,10 @@ class xoops_elFinder {
 	public function netmountCallback($cmd, &$result, $args, $elfinder) {
 		if (is_object($this->xoopsUser) && (!empty($result['sync']) || !empty($result['added']) || !empty($result['removed']))) {
 			if ($uid = $this->xoopsUser->getVar('uid')) {
+				$session = $elfinder->getSession();
 				$uid = intval($uid);
 				$table = $this->db->prefix($this->mydirname.'_userdat');
-				$netVolumes = $this->db->quoteString(serialize($_SESSION[_MD_XELFINDER_NETVOLUME_SESSION_KEY]));
+				$netVolumes = $this->db->quoteString(serialize($session->get('netvolume', array())));
 				$sql = 'SELECT `id` FROM `'.$table.'` WHERE `key`=\'netVolumes\' AND `uid`='.$uid;
 				if ($res = $this->db->query($sql)) {
 					if ($this->db->getRowsNum($res) > 0) {
