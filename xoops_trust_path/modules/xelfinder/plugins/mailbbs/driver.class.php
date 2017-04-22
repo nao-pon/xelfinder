@@ -42,6 +42,8 @@ class elFinderVolumeXoopsMailbbs extends elFinderVolumeLocalFileSystem {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	public function __construct() {
+		parent::__construct();
+		
 		$this->options['alias']    = '';              // alias to replace root dir name
 		$this->options['dirMode']  = 0755;            // new dirs mode
 		$this->options['fileMode'] = 0644;            // new files mode
@@ -120,7 +122,7 @@ class elFinderVolumeXoopsMailbbs extends elFinderVolumeLocalFileSystem {
 	**/
 	protected function _stat($path) {
 		$stat = parent::_stat($path);
-		if ($stat) {
+		if ($stat && $path !== $this->root) {
 			$file = basename($path);
 			$file_enc = rawurlencode($file);
 			$stat['name'] = $this->enabledFiles[$file];
