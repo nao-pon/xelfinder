@@ -2,7 +2,7 @@ CREATE TABLE `file` (
   `file_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `parent_id` int(10) unsigned NOT NULL DEFAULT '0',
   `name` varchar(255) NOT NULL DEFAULT '',
-  `size` int(10) unsigned NOT NULL DEFAULT '0',
+  `size` bigint(20) unsigned NOT NULL DEFAULT '0',
   `ctime` int(10) unsigned NOT NULL DEFAULT '0',
   `mtime` int(10) unsigned NOT NULL DEFAULT '0',
   `perm` varchar(3) NOT NULL DEFAULT '',
