@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.23 (2.1_n Nightly: ed7230c) (2017-04-14)
+ * Version 2.1.23 (2.1_n Nightly: e3edf5a) (2017-04-26)
  * http://elfinder.org
  * 
  * Copyright 2009-2017, Studio 42
@@ -7287,7 +7287,7 @@ if (!Array.isArray) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.23 (2.1_n Nightly: ed7230c)';
+elFinder.prototype.version = '2.1.23 (2.1_n Nightly: e3edf5a)';
 
 
 
@@ -13398,13 +13398,13 @@ $.fn.elfinderdialog = function(opts, fm) {
 					this.id && $(this).parent().find('label[for='+this.id+']').addClass(clhover);
 				})
 				.on('blur', '.'+cltabstop, function() {
-					$(this).removeClass(clhover).parent('label').removeClass(clhover);
+					$(this).removeClass(clhover).removeData('keepFocus').parent('label').removeClass(clhover);
 					this.id && $(this).parent().find('label[for='+this.id+']').removeClass(clhover);
 				})
 				.on('mouseenter mouseleave', '.'+cltabstop, function(e) {
 					var $this = $(this);
 					if (opts.btnHoverFocus) {
-						if (e.type == 'mouseenter') {
+						if (e.type == 'mouseenter' && ! $(':focus').data('keepFocus')) {
 							$this.focus();
 						}
 					} else {
@@ -19253,7 +19253,16 @@ elFinder.prototype.commands.netmount = function() {
 						inputs.protocol.trigger('change', 'winfocus');
 					},
 					inputs = {
-						protocol : $('<select/>').on('change', function(e, data){
+						protocol : $('<select/>')
+						.on('click',function() {
+							var $this = $(this);
+							if ($this.data('keepFocus')) {
+								$this.removeData('keepFocus');
+							} else {
+								$this.data('keepFocus', true);
+							}
+						})
+						.on('change', function(e, data){
 							var protocol = this.value;
 							content.find('.elfinder-netmount-tr').hide();
 							content.find('.elfinder-netmount-tr-'+protocol).show();
@@ -23761,6 +23770,8 @@ elFinder.prototype.commands.upload = function() {
 			}
 			var my = e.target || e.srcElement;
 			setTimeout(function () {
+				var type = 'text',
+					src;
 				if (my.innerHTML) {
 					$(my).find('img').each(function(i, v){
 						if (v.src.match(/^webkit-fake-url:\/\//)) {
@@ -23770,8 +23781,11 @@ elFinder.prototype.commands.upload = function() {
 							$(v).remove();
 						}
 					});
-					var src = my.innerHTML.replace(/<br[^>]*>/gi, ' ');
-					var type = src.match(/<[^>]+>/)? 'html' : 'text';
+					
+					if ($(my).find('a,img').length) {
+						type = 'html';
+					}
+					src = my.innerHTML;
 					my.innerHTML = '';
 					upload({files : [ src ], type : type});
 				}
