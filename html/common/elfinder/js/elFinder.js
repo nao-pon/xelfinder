@@ -392,6 +392,34 @@ var elFinder = function(node, opts) {
 		},
 		
 		/**
+		 * Maximum number of concurrent connections on request
+		 * 
+		 * @type Number
+		 */
+		requestMaxConn,
+		
+		/**
+		 * Current number of connections
+		 * 
+		 * @type Number
+		 */
+		requestCnt = 0,
+		
+		/**
+		 * Queue waiting for connection
+		 * 
+		 * @type Array
+		 */
+		requestQueue = [],
+		
+		/**
+		 * Flag to cancel the `open` command waiting for connection
+		 * 
+		 * @type Boolean
+		 */
+		requestQueueSkipOpen = false,
+		
+		/**
 		 * Exec shortcut
 		 *
 		 * @param  jQuery.Event  keydown/keypress event
@@ -624,6 +652,9 @@ var elFinder = function(node, opts) {
 	 * @default "get"
 	 **/
 	this.requestType = /^(get|post)$/i.test(this.options.requestType) ? this.options.requestType.toLowerCase() : 'get';
+	
+	// set `requestMaxConn` by option
+	requestMaxConn = Math.max(parseInt(this.options.requestMaxConn), 1);
 	
 	/**
 	 * Any data to send across every ajax request
@@ -1702,9 +1733,9 @@ var elFinder = function(node, opts) {
 					return dfrd.reject(['errResponse', 'errDataNotJSON'], xhr, response);
 				} else if (response.error) {
 					return dfrd.reject(response.error, xhr, response);
-				} else if (!self.validResponse(cmd, response)) {
+				}/* else if (!self.validResponse(cmd, response)) {
 					return dfrd.reject('errResponse', xhr, response);
-				}
+				}*/
 				
 				var resolve = function() {
 					var pushLeafRoots = function(name) {
@@ -1725,7 +1756,11 @@ var elFinder = function(node, opts) {
 					}
 					
 					response = self.normalize(response);
-
+					
+					if (!self.validResponse(cmd, response)) {
+						return dfrd.reject((response.norError || 'errResponse'), xhr, response);
+					}
+					
 					if (!self.api) {
 						self.api    = response.api || 1;
 						if (self.api == '2.0' && typeof response.options.uploadMaxSize !== 'undefined') {
@@ -1784,6 +1819,15 @@ var elFinder = function(node, opts) {
 				xhrAbort(e);
 			},
 			request = function() {
+				if (isOpen) {
+					if (requestQueueSkipOpen) {
+						return dfrd.reject();
+					}
+					requestQueueSkipOpen = true;
+				}
+				
+				requestCnt++;
+				
 				dfrd.fail(function(error, xhr, response) {
 					xhrAbort();
 					self.trigger(cmd + 'fail', response);
@@ -1852,7 +1896,14 @@ var elFinder = function(node, opts) {
 
 				delete options.preventFail
 
-				dfrd.xhr = xhr = self.transport.send(options).fail(error).done(success);
+				dfrd.xhr = xhr = self.transport.send(options).always(function() {
+					--requestCnt;
+					if (requestQueue.length) {
+						requestQueue.shift()();
+					} else {
+						requestQueueSkipOpen = false;
+					} 
+				}).fail(error).done(success);
 				
 				if (isOpen || (data.compare && cmd === 'info')) {
 					// add autoSync xhr into queue
@@ -1881,6 +1932,22 @@ var elFinder = function(node, opts) {
 				
 				return dfrd;
 			},
+			queueingRequest = function() {
+				if (isOpen) {
+					requestQueueSkipOpen = false;
+				}
+				if (requestCnt < requestMaxConn) {
+					// do request
+					return request();
+				} else {
+					if (isOpen) {
+						requestQueue.unshift(request);
+					} else {
+						requestQueue.push(request);
+					}
+					return dfrd;
+				}
+			},
 			bindData = {opts: opts, result: true};
 		
 		// trigger "request.cmd" that callback be able to cancel request by substituting "false" for "event.data.result"
@@ -1891,7 +1958,7 @@ var elFinder = function(node, opts) {
 			return dfrd.reject();
 		} else if (typeof bindData.result === 'object' && bindData.result.promise) {
 			bindData.result
-				.done(request)
+				.done(queueingRequest)
 				.fail(function() {
 					self.trigger(cmd + 'done');
 					dfrd.reject();
@@ -1899,8 +1966,7 @@ var elFinder = function(node, opts) {
 			return dfrd;
 		}
 		
-		// do request
-		return request();
+		return queueingRequest();
 	};
 	
 	/**
@@ -2083,7 +2149,13 @@ var elFinder = function(node, opts) {
 			
 			// data normalize
 			odata = self.normalize(odata);
+			if (!self.validResponse('open', odata)) {
+				return dfrd.reject((odata.norError || 'errResponse'));
+			}
 			pdata = self.normalize(pdata);
+			if (!self.validResponse('tree', pdata)) {
+				return dfrd.reject((pdata.norError || 'errResponse'));
+			}
 			
 			var diff = self.diff(odata.files.concat(pdata && pdata.tree ? pdata.tree : []), onlydir);
 
@@ -3362,6 +3434,15 @@ var elFinder = function(node, opts) {
 	this.volOptions = {};
 
 	/**
+	 * Hash of trash holders
+	 * key: trash folder hash
+	 * val: source volume hash
+	 * 
+	 * @type Object
+	 */
+	this.trashes = {};
+
+	/**
 	 * cwd options of each folder/file
 	 * key: hash
 	 * val: options object
@@ -4162,10 +4243,10 @@ elFinder.prototype = {
 			return {error : ['errResponse', 'errDataNotJSON']};
 		}
 		
-		if (!this.validResponse('upload', data)) {
-			return {error : ['errResponse']};
-		}
 		data = this.normalize(data);
+		if (!this.validResponse('upload', data)) {
+			return {error : (response.norError || ['errResponse'])};
+		}
 		data.removed = $.merge((data.removed || []), $.map(data.added||[], function(f) { return f.hash; }));
 		return data;
 		
@@ -5670,7 +5751,7 @@ elFinder.prototype = {
 	normalize : function(data) {
 		var self   = this,
 			filter = function(file) { 
-				var vid, targetOptions;
+				var vid, targetOptions, isRoot;
 				
 				if (file && file.hash && file.name && file.mime) {
 					if (file.mime == 'application/x-empty') {
@@ -5681,12 +5762,28 @@ elFinder.prototype = {
 						self.optionsByHashes[file.hash] = file.options;
 					}
 					
-					if (! file.phash || file.mime === 'directory') {
+					isRoot = self.isRoot(file);
+					if (isRoot && ! file.volumeid) {
+						self.debug('warning', 'The volume root statuses requires `volumeid` property.');
+					}
+					if (isRoot || file.mime === 'directory') {
+						// Prevention of circular reference
+						if (file.phash) {
+							if (file.phash === file.hash) {
+								error = error.concat(['Parent folder of "$1" is itself.', file.name]);
+								return null;
+							}
+							if (isRoot && file.volumeid && file.phash.indexOf(file.volumeid) === 0) {
+								error = error.concat(['Parent folder of "$1" is inner itself.', file.name]);
+								return null;
+							}
+						}
+						
 						// set options, tmbUrls for each volume
 						if (file.volumeid) {
 							vid = file.volumeid;
 							
-							if (self.isRoot(file)) {
+							if (isRoot) {
 								if (! self.volOptions[vid]) {
 									self.volOptions[vid] = {
 										// set dispInlineRegex
@@ -5709,6 +5806,11 @@ elFinder.prototype = {
 									targetOptions.tmbUrl = file.tmbUrl;
 								}
 								
+								// check trash bin hash
+								if (targetOptions.trashHash) {
+									self.trashes[targetOptions.trashHash] = file.hash;
+								}
+								
 								// set immediate properties
 								$.each(self.optionProperties, function(i, k) {
 									if (targetOptions[k]) {
@@ -5725,7 +5827,7 @@ elFinder.prototype = {
 						}
 						
 						// volume root i18n name
-						if (! file.i18 && self.isRoot(file)) {
+						if (isRoot && ! file.i18) {
 							name = 'volume_' + file.name,
 							i18 = self.i18n(false, name);
 	
@@ -5757,6 +5859,11 @@ elFinder.prototype = {
 								}
 							});
 						}
+						
+						// lock trash bins holder
+						if (self.trashes[file.hash]) {
+							file.locked = true;
+						}
 					}
 					delete file.options;
 					
@@ -5764,6 +5871,7 @@ elFinder.prototype = {
 				}
 				return null;
 			},
+			error = [],
 			name, i18, i18nFolderName, prevId;
 		
 
@@ -5792,6 +5900,11 @@ elFinder.prototype = {
 		// merge options that apply only to cwd
 		if (data.cwd && data.cwd.options && data.options) {
 			$.extend(data.options, data.cwd.options);
+		}
+		
+		// check error
+		if (error.length) {
+			data.norError = ['errResponse'].concat(error);
 		}
 		
 		return data;
