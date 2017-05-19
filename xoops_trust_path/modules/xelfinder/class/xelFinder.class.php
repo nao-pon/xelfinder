@@ -13,7 +13,7 @@ class xelFinder extends elFinder {
 	public function __construct($opts) {
 		parent::__construct($opts);
 		$this->isAdmin = $opts['isAdmin'];
-		$this->commands['perm'] = array('target' => true, 'perm' => true, 'umask' => false, 'gids' => false, 'filter' => false, 'uid' => false);
+		$this->commands['perm'] = array('target' => true, 'perm' => true, 'umask' => false, 'gids' => false, 'filter' => false, 'uid' => false, 'phash' => false);
 	}
 
 	
@@ -31,6 +31,11 @@ class xelFinder extends elFinder {
 		if (!is_array($targets)) {
 			$targets = array($targets);
 		}
+		if ($args['phash'] && is_array($args['phash']) && count($args['phash']) === count($targets)) {
+			$phashes = $args['phash'];
+		} else {
+			$phashes = array();
+		}
 
 		if (($volume = $this->volume($targets[0])) != false) {
 			if (method_exists($volume, 'savePerm')) {
@@ -39,7 +44,7 @@ class xelFinder extends elFinder {
 				}
 
 				$uid = ($this->isAdmin && is_numeric($args['uid']))? intval($args['uid']) : null;
-				// @todo uid ‘¶Ý‚·‚é‚©H‘Ã“–«ŒŸ¸
+				// @todo uid ï¿½ï¿½ï¿½Ý‚ï¿½ï¿½é‚©ï¿½Hï¿½Ã“ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 				
 				if ($args['perm'] === 'getgroups') {
 					$groups = $volume->getGroups($targets[0]);
@@ -47,10 +52,15 @@ class xelFinder extends elFinder {
 				} else {
 					$files = array();
 					$errors = array();
-					foreach($targets as $target) {
+					foreach($targets as $i => $target) {
 						if (!isset($args['filter'])) $args['filter'] = '';
 						$file = $volume->savePerm($target, $args['perm'], $args['umask'], $args['gids'], $args['filter'], $uid);
 						if ($file) {
+							if (!empty($phashes[$i])) {
+								$file['alias']  = $volume->path($target);
+								$file['target'] = $volume->getPath($target);
+								$file['phash'] = $phashes[$i];
+							}
 							$files[] = $file;
 						} else {
 							$errors = array_merge($errors, $volume->error());

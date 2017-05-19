@@ -59,7 +59,7 @@ elFinder.prototype.commands.perm = function() {
 		if (!cnt) return false;
 		var loccheck = (cnt && sel[0]._localalias);
 		var chk = $.map(sel, function(f) {
-			return (f.isowner && (cnt == 1 || f.mime != 'directory') && (f._localalias || !f.alias) && !((f._localalias) ^ loccheck)) ? f : null;
+			return (f.isowner && (cnt == 1 || f.mime != 'directory') && !((f._localalias) ^ loccheck)) ? f : null;
 		}).length;
 		return (cnt == chk)? true : false;
 	};
@@ -76,6 +76,10 @@ elFinder.prototype.commands.perm = function() {
 		}),
 		tpl     = this.tpl,
 		hashes  = this.hashes(hashes),
+		phashes = $.map(hashes, function(h) {
+			var f = fm.file(h);
+			return f.thash && f.phash? f.phash : '';
+		}),
 		cnt     = files.length,
 		file    = files[0],
 		id = fm.namespace + '-perm-' + file.hash,
@@ -113,6 +117,7 @@ elFinder.prototype.commands.perm = function() {
 				data : {
 					cmd    : 'perm',
 					target : hashes,
+					phash  : phashes,
 					perm   : perm,
 					umask  : umask,
 					gids   : gids,
