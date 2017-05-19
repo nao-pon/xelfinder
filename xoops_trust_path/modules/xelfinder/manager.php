@@ -79,7 +79,7 @@ $viewport = (preg_match('/Mobile|Android/i', $_SERVER['HTTP_USER_AGENT']))? '<me
 $userLang = xelfinder_detect_lang();
 
 if (empty($config['jquery'])) {
-	$jQueryVersion = (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/4.0') === false)? '3.1.1' : '1.12.4';
+	$jQueryVersion = (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/4.0') === false)? '3.2.1' : '1.12.4';
 	$jQueryCDN = '//cdnjs.cloudflare.com/ajax/libs/jquery/%s/jquery.min.js';
 	$jQueryUrl = sprintf($jQueryCDN, $jQueryVersion);
 } else {
