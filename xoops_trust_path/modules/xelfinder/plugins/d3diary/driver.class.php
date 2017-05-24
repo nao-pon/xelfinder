@@ -51,6 +51,7 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 		$stat['size'] = filesize($realpath);
 		$stat['mime'] = $this->mimetypeInternalDetect($photo['pname']);
 		$stat['simg'] = $photo['thumbnail'];
+		$stat['owner'] = $photo['uname'];
 		$stat['tooltip'] = 'Owner: '.$photo['uname'];
 		if ($photo['info']) {
 			$stat['tooltip'] .= "\r".trim(preg_replace('/\s+/', ' ', htmlspecialchars_decode(strip_tags($photo['info']), ENT_QUOTES)));
@@ -158,6 +159,9 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 					'name'    => 'Another',
 					'pcid'    => 0 );
 			$this->catTree[0]['subcats'][-1] = 'Another';
+		}
+		if (is_null($this->options['syncChkAsTs'])) {
+			$this->options['syncChkAsTs'] = true;
 		}
 		return true;
 	}
@@ -397,10 +401,17 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _path($path) {
- 		if (($file = $this->stat('_')) == false) {
- 			return '';
- 		}
- 		return $file['name'];
+		if (($file = $this->stat($path)) == false) {
+			return '';
+		}
+
+		$parentsIds = $this->getParents($path);
+		$path = '';
+		foreach ($parentsIds as $id) {
+			$dir = $this->stat($id);
+			$path .= $dir['name'].$this->separator;
+		}
+		return $path.$file['name'];
 	}
 
 	/**
@@ -724,6 +735,15 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 	protected function _checkArchivers() {
 		// die('Not yet implemented. (_checkArchivers)');
 		return array();
+	}
+
+	/**
+	 * chmod implementation
+	 *
+	 * @return bool
+	 **/
+	protected function _chmod($path, $mode) {
+		return false;
 	}
 
 	/**

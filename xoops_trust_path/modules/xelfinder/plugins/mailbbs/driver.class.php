@@ -24,7 +24,11 @@ class elFinderVolumeXoopsMailbbs extends elFinderVolumeLocalFileSystem {
 		foreach ($logs as $log) {
 			$data = array_pad(explode('<>', $log), 8, '');
 			if (intval($data[7]) || ! $data[5]) continue; // 未承認 or ファイルなし
-			$ret[$data[5]] = mb_convert_encoding($data[2], 'UTF-8', _CHARSET);
+			$ext = strtolower(substr($data[5], strrpos($data[5], '.')));
+			if ($ext === '.jpeg') {
+				$ext = '.jpg';
+			}
+			$ret[$data[5]] = mb_convert_encoding($data[2].$ext, 'UTF-8', _CHARSET);
 		}
 
 		$this->enabledFiles = $ret;
@@ -38,6 +42,8 @@ class elFinderVolumeXoopsMailbbs extends elFinderVolumeLocalFileSystem {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	public function __construct() {
+		parent::__construct();
+		
 		$this->options['alias']    = '';              // alias to replace root dir name
 		$this->options['dirMode']  = 0755;            // new dirs mode
 		$this->options['fileMode'] = 0644;            // new files mode
@@ -116,7 +122,7 @@ class elFinderVolumeXoopsMailbbs extends elFinderVolumeLocalFileSystem {
 	**/
 	protected function _stat($path) {
 		$stat = parent::_stat($path);
-		if ($stat) {
+		if ($stat && $path !== $this->root) {
 			$file = basename($path);
 			$file_enc = rawurlencode($file);
 			$stat['name'] = $this->enabledFiles[$file];
@@ -141,4 +147,43 @@ class elFinderVolumeXoopsMailbbs extends elFinderVolumeLocalFileSystem {
 		return false;
 	}
 
+	/**
+	 * Recursive files search
+	 *
+	 * @param  string  $path   dir path
+	 * @param  string  $q      search string
+	 * @param  array   $mimes
+	 * @return array
+	 * @author Dmitry (dio) Levashov, Naoki Sawada
+	 **/
+	protected function doSearch($path, $q, $mimes) {
+		$result = array();
+		$encode = defined('_CHARSET')? _CHARSET : 'auto';
+	
+		foreach($this->_scandir($path) as $p) {
+			$stat = $this->stat($p);
+	
+			if (!$stat) { // invalid links
+				continue;
+			}
+	
+			if (!empty($stat['hidden']) || !$this->mimeAccepted($stat['mime'])) {
+				continue;
+			}
+				
+			$name = $stat['name'];
+	
+			if ($this->stripos($name, $q) !== false || $this->stripos(basename($stat['_localpath']), $q) !== false) {
+				$_path = mb_convert_encoding($this->_path($p), 'UTF-8', $encode);
+				if (preg_match('//u', $_path) !== false) { // UTF-8 check for json_encode()
+					$stat['path'] = $_path;
+				}
+	
+				$result[] = $stat;
+			}
+		}
+	
+		return $result;
+	}
+	
 } // END class

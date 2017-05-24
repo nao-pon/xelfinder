@@ -2,139 +2,431 @@ if (window.parent) {
 	$('.simplemodal-wrap', window.parent.document).css({overflow:'hidden'});
 }
 $(document).ready(function() {
-
-	elFinder.prototype.i18.en.messages.ntfperm = 'Changing permission';
-	elFinder.prototype.i18.en.messages.cmdperm = 'Chage permission';
-	elFinder.prototype.i18.en.messages.newitem = 'New item';
-	elFinder.prototype.i18.en.messages.owner   = 'Owner';
-	elFinder.prototype.i18.en.messages.group   = 'Group';
-	elFinder.prototype.i18.en.messages.guest   = 'Guest';
-	elFinder.prototype.i18.en.messages.perm    = 'Permission';
-	elFinder.prototype.i18.en.messages.unlock  = 'Unlock';
-	elFinder.prototype.i18.en.messages.hidden  = 'Hidden';
-	elFinder.prototype.i18.en.messages.targetgroups  = 'Target groups';
-	elFinder.prototype.i18.en.messages.mimeserach    = 'MIME type Serach';
-	elFinder.prototype.i18.en.messages.nowrap        = 'No wrap';
-	elFinder.prototype.i18.en.messages.wraparound    = 'Wrap around';
-	elFinder.prototype.i18.en.messages.inline        = 'Inline';
-	elFinder.prototype.i18.en.messages.fullsize      = 'Full Size';
-	elFinder.prototype.i18.en.messages.thumbnail     = 'Thumbnail';
-	elFinder.prototype.i18.en.messages.continues     = 'Continue more';
-	elFinder.prototype.i18.en.messages.imageinsert   = 'Image insert options';
+	var mes_en = elFinder.prototype.i18.en.messages;
+	mes_en.ntfperm = 'Changing permission';
+	mes_en.cmdperm = 'Chage permission';
+	mes_en.newitem = 'New item';
+	mes_en.guest   = 'Guest';
+	mes_en.unlock  = 'Unlock';
+	mes_en.hidden  = 'Hidden';
+	mes_en.targetgroups  = 'Target groups';
+	mes_en.mimeserach    = 'MIME type Serach';
+	mes_en.nowrap        = 'No wrap';
+	mes_en.wraparound    = 'Wrap around';
+	mes_en.inline        = 'Inline';
+	mes_en.fullsize      = 'Full Size';
+	mes_en.thumbnail     = 'Thumbnail';
+	mes_en.continues     = 'Continue more';
+	mes_en.imageinsert   = 'Image insert options';
+	mes_en.CannotUploadOldIE = '<p>Your browser "IE" cannot upload by this manager.</p><p>Please use the newest browser, when you upload files.</p>';
+	mes_en.errPleaseReload = 'Not found access token.<br />Please reload on browser, or re-open popup window.';
+	mes_en.errAccessReload = 'There are no token necessary to a connection, so reload this file manager.';
 
 	if (typeof elFinder.prototype.i18.jp != "undefined") {
-		elFinder.prototype.i18.jp.messages.ntfperm = 'アイテム属性を変更';
-		elFinder.prototype.i18.jp.messages.cmdperm = '属性変更';
-		elFinder.prototype.i18.jp.messages.newitem = '新規アイテム';
-		elFinder.prototype.i18.jp.messages.owner   = 'オーナー';
-		elFinder.prototype.i18.jp.messages.group   = 'グループ';
-		elFinder.prototype.i18.jp.messages.guest   = 'ゲスト';
-		elFinder.prototype.i18.jp.messages.perm    = 'パーミッション';
-		elFinder.prototype.i18.jp.messages.unlock  = 'ロック解除';
-		elFinder.prototype.i18.jp.messages.hidden  = '非表示';
-		elFinder.prototype.i18.jp.messages.targetgroups  = '対象グループ';
-		elFinder.prototype.i18.jp.messages.mimeserach    = 'MIMEタイプで検索';
-		elFinder.prototype.i18.jp.messages.nowrap        = '回り込みなし';
-		elFinder.prototype.i18.jp.messages.wraparound    = '回り込みあり';
-		elFinder.prototype.i18.jp.messages.inline        = 'インライン';
-		elFinder.prototype.i18.jp.messages.fullsize      = 'フルサイズ';
-		elFinder.prototype.i18.jp.messages.thumbnail     = 'サムネイル';
-		elFinder.prototype.i18.jp.messages.continues     = 'さらに続ける';
-		elFinder.prototype.i18.jp.messages.imageinsert   = '画像挿入オプション';
+		mes_jp = elFinder.prototype.i18.jp.messages;
+		mes_jp.read    = '読取'; // over write
+		mes_jp.write   = '書込'; // over write
+		mes_jp.ntfperm = 'アイテム属性を変更しています';
+		mes_jp.cmdperm = '属性変更';
+		mes_jp.newitem = '新規アイテム';
+		mes_jp.guest   = 'ゲスト';
+		mes_jp.unlock  = 'ロック解除';
+		mes_jp.hidden  = '非表示';
+		mes_jp.targetgroups  = '対象グループ';
+		mes_jp.mimeserach    = 'MIMEタイプで検索';
+		mes_jp.nowrap        = '回り込みなし';
+		mes_jp.wraparound    = '回り込みあり';
+		mes_jp.inline        = 'インライン';
+		mes_jp.fullsize      = 'フルサイズ';
+		mes_jp.thumbnail     = 'サムネイル';
+		mes_jp.continues     = 'さらに続ける';
+		mes_jp.imageinsert   = '画像挿入オプション';
+		mes_jp.CannotUploadOldIE = '<p>あなたがお使いの IE ブラウザでは、このマネージャーではファイルをアップロードすることができません。</p><p>ファイルをアップロードする場合は、最新のブラウザをご利用下さい。</p>';
+		mes_jp.errPleaseReload = '接続に必要なトークンがありません。<br />ブラウザでリロードするかポップアップウィンドウを開きなおしてください。';
+		mes_jp.errAccessReload = '接続に必要なトークンがないので、ファイルマネージャーを再読込します。';
 
 		elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
 	}
 	
+	// keep alive
+	var extCheck = connectorUrl;
+	setInterval(function(){
+		jQuery.ajax({url:myUrl+"/connector.php?keepalive=1",cache:false});
+		if (extCheck) {
+			jQuery.ajax({url:extCheck+"?keepalive=1",cache:false,xhrFields:{withCredentials:true}});
+		}
+	}, 300000); // keep alive interval 5min
+	
 	var customData = { admin : adminMode, ctoken : cToken };
+	var cors = false;
+	var IElt10;
 	if (! connectorUrl) {
 		connectorUrl = myUrl + 'connector.php';
 	} else {
-		customData.xoopsUrl = rootUrl;
-	}
-	if (sessionName) {
-		var reg = new RegExp(sessionName+'=([^;]+)');
-		if (document.cookie.match(reg)) {
-			customData.sessionId = RegExp.$1;
+		cors = true;
+		customData.myUrl = myUrl;
+		if (! connIsExt) {
+			customData.xoopsUrl = rootUrl;
+		}
+		if (typeof document.uniqueID != 'undefined') {
+			(function(){
+				var xhr = new XMLHttpRequest();
+				if (!('withCredentials' in xhr)) {
+					jQuery('<script>').attr('src', myUrl+'/include/js/xdr/jquery.xdr.js').appendTo('head');
+					IElt10 = true;
+				}
+				xhr = null;
+			})();
 		}
 	}
+	
+	if (useCKEditor) {
+		editorsConfig.push({
+			mimes : ['text/html'],
+			exts  : ['htm', 'html', 'xhtml'],
+			load : function(textarea) {
+				var dfrd = $.Deferred();
+				this.fm.loadScript([ rootUrl + '/modules/ckeditor4/ckeditor/ckeditor.js' ], function() {
+					CKEDITOR.replace(textarea.id, {
+						baseUrl : rootUrl + '/modules/ckeditor4/ckeditor/',
+						startupFocus : true,
+						fullPage: true,
+						allowedContent: true,
+						filebrowserBrowseUrl: myUrl + '/manager.php?cb=ckeditor',
+						on: {
+							'instanceReady' : function(e) {
+								e.editor.resize('100%', $(textarea).parent().height());
+								dfrd.resolve(e.editor);
+							}
+						}
+					});
+				}, {loadType: 'tag'}, {obj: window, name: 'CKEDITOR'});
+				return dfrd;
+			},
+			close : function(textarea, instance) {
+				instance.destroy();
+			},
+			save : function(textarea, instance) {
+				textarea.value = instance.getData();
+			},
+			focus : function(textarea, instance) {
+				instance && instance.focus();
+			},
+			resize : function(textarea, instance, e, data) {
+				var self;
+				if (instance) {
+					if (typeof data.minimize !== 'undefined') {
+						// for dialog minimize function
+						if (data.minimize === 'on') {
+							// destroy on minimized
+							instance.destroy();
+						} else {
+							// rebuild editor
+							self = this;
+							this.load(textarea).done(function(editor) {
+								self.instance = editor;
+							});
+						}
+						return;
+					}
+					if (instance.status === 'ready') {
+						instance.resize('100%', $(textarea).parent().height());
+					}
+				}
+			}
+		});
+	}
+
+	editorsConfig.push({
+		// ACE Editor
+		// `mimes` is not set for support everything kind of text file
+		load : function(textarea) {
+			var self = this,
+				dfrd = $.Deferred(),
+				cdn  = '//cdnjs.cloudflare.com/ajax/libs/ace/1.2.5',
+				start = function() {
+					var editor, editorBase, mode,
+					ta = $(textarea),
+					taBase = ta.parent(),
+					dialog = taBase.parent(),
+					id = textarea.id + '_ace',
+					ext = self.file.name.replace(/^.+\.([^.]+)|(.+)$/, '$1$2').toLowerCase(),
+					// MIME/mode map
+					mimeMode = {
+						'text/x-php'			  : 'php',
+						'application/x-php'		  : 'php',
+						'text/html'				  : 'html',
+						'application/xhtml+xml'	  : 'html',
+						'text/javascript'		  : 'javascript',
+						'application/javascript'  : 'javascript',
+						'text/css'				  : 'css',
+						'text/x-c'				  : 'c_cpp',
+						'text/x-csrc'			  : 'c_cpp',
+						'text/x-chdr'			  : 'c_cpp',
+						'text/x-c++'			  : 'c_cpp',
+						'text/x-c++src'			  : 'c_cpp',
+						'text/x-c++hdr'			  : 'c_cpp',
+						'text/x-shellscript'	  : 'sh',
+						'application/x-csh'		  : 'sh',
+						'text/x-python'			  : 'python',
+						'text/x-java'			  : 'java',
+						'text/x-java-source'	  : 'java',
+						'text/x-ruby'			  : 'ruby',
+						'text/x-perl'			  : 'perl',
+						'application/x-perl'	  : 'perl',
+						'text/x-sql'			  : 'sql',
+						'text/xml'				  : 'xml',
+						'application/docbook+xml' : 'xml',
+						'application/xml'		  : 'xml'
+					};
+
+					// set base height
+					taBase.height(taBase.height());
+
+					// set basePath of ace
+					ace.config.set('basePath', cdn);
+
+					// Base node of Ace editor
+					editorBase = $('<div id="'+id+'" style="width:100%; height:100%;"/>').text(ta.val()).insertBefore(ta.hide());
+
+					// Editor flag
+					ta.data('ace', true);
+
+					// Aceeditor instance
+					editor = ace.edit(id);
+
+					// Ace editor configure
+					editor.$blockScrolling = Infinity;
+					editor.setOptions({
+						theme: 'ace/theme/monokai',
+						fontSize: '14px',
+						wrap: true,
+					});
+					ace.config.loadModule('ace/ext/modelist', function() {
+						// detect mode
+						mode = ace.require('ace/ext/modelist').getModeForPath('/' + self.file.name).name;
+						if (mode === 'text') {
+							if (mimeMode[self.file.mime]) {
+								mode = mimeMode[self.file.mime];
+							}
+						}
+						// show MIME:mode in title bar
+						taBase.prev().children('.elfinder-dialog-title').append(' (' + self.file.mime + ' : ' + mode.split(/[\/\\]/).pop() + ')');
+						editor.setOptions({
+							mode: 'ace/mode/' + mode
+						});
+					});
+					ace.config.loadModule('ace/ext/language_tools', function() {
+						ace.require('ace/ext/language_tools');
+						editor.setOptions({
+							enableBasicAutocompletion: true,
+							enableSnippets: true,
+							enableLiveAutocompletion: false
+						});
+					});
+					ace.config.loadModule('ace/ext/settings_menu', function() {
+						ace.require('ace/ext/settings_menu').init(editor);
+					});
+					
+					// Short cuts
+					editor.commands.addCommand({
+						name : "saveFile",
+						bindKey: {
+							win : 'Ctrl-s',
+							mac : 'Command-s'
+						},
+						exec: function(editor) {
+							self.doSave();
+						}
+					});
+					editor.commands.addCommand({
+						name : "closeEditor",
+						bindKey: {
+							win : 'Ctrl-w|Ctrl-q',
+							mac : 'Command-w|Command-q'
+						},
+						exec: function(editor) {
+							self.doCancel();
+						}
+					});
+
+					editor.resize();
+
+					// TextArea button and Setting button
+					$('<div class="ui-dialog-buttonset"/>').css('float', 'left')
+					.append(
+						$('<button>TextArea</button>')
+						.button()
+						.on('click', function(){
+							if (ta.data('ace')) {
+								ta.removeData('ace');
+								editorBase.hide();
+								ta.val(editor.session.getValue()).show().focus();
+								$(this).text('AceEditor');
+							} else {
+								ta.data('ace', true);
+								editorBase.show();
+								editor.setValue(ta.hide().val(), -1);
+								editor.focus();
+								$(this).text('TextArea');
+							}
+						})
+					)
+					.append(
+						$('<button>Ace editor setting</button>')
+						.button({
+							icons: {
+								primary: 'ui-icon-gear',
+								secondary: 'ui-icon-triangle-1-e'
+							},
+							text: false
+						})
+						.on('click', function(){
+							editor.showSettingsMenu();
+							$('#ace_settingsmenu')
+								.css('font-size', '80%')
+								.find('div[contains="setOptions"]').hide().end()
+								.parent().parent().appendTo($('#elfinder'));
+						})
+					)
+					.prependTo(taBase.next());
+
+					dfrd.resolve(editor);
+				};
+
+			// check ace & start
+			if (typeof ace === 'undefined') {
+				self.fm.loadScript([ cdn+'/ace.js' ], start, void 0, {obj: window, name: 'ace'});
+			} else {
+				start();
+			}
+
+
+			return dfrd;
+		},
+		close : function(textarea, instance) {
+			if (instance) {
+				instance.destroy();
+				$(textarea).show();
+			}
+		},
+		save : function(textarea, instance) {
+			instance && $(textarea).data('ace') && (textarea.value = instance.session.getValue());
+		},
+		focus : function(textarea, instance) {
+			instance && $(textarea).data('ace') && instance.focus();
+		},
+		resize : function(textarea, instance, e, data) {
+			instance && instance.resize();
+		}
+	});
+
 	
 	var elfinderInstance = $('#elfinder').elfinder({
 		lang: lang,
 		url : connectorUrl,
-		urlUpload : myUrl + 'connector.php',
+		cssAutoLoad : false,
 		customData : customData,
+		customHeaders: cors? {'X-Requested-With' : 'XMLHttpRequest'} : {},
+		xhrFields: cors? {withCredentials: true} : {},
 		requestType : 'POST',
-		height: $(window).height() - 20,
+		height: '100%',
+		resizable: false,
 		getFileCallback : callbackFunc,
+		startPathHash : startPathHash,
+		sync : autoSyncSec * 1000,
+		syncStart : autoSyncStart,
+		ui : ['toolbar', 'places', 'tree', 'path', 'stat'],
 		uiOptions : {
-			// toolbar configuration
-			toolbar : [
-				['back', 'forward'],
-				['netmount'],
-				// ['reload'],
-				// ['home', 'up'],
-				['mkdir', 'mkfile', 'upload'],
-				['open', 'download', 'getfile'],
-				['info', 'perm'],
-				['quicklook'],
-				['copy', 'cut', 'paste'],
-				['rm'],
-				['duplicate', 'rename', 'edit', 'resize', 'pixlr'],
-				['extract', 'archive'],
-				['search'],
-				['view', 'sort'],
-				['help']
-			],
-			// directories tree options
-			tree : {
-				// expand current root on init
-				openRootOnLoad : true,
-				// auto load current dir parents
-				syncTree : true
+			cwd : {
+				listView : {
+					columns : ['perm', 'date', 'size', 'kind', 'owner'],
+				}
 			},
-			// navbar options
-			navbar : {
-				minWidth : 150,
-				maxWidth : 500
+			places : {
+				suffix : xoopsUid
 			}
 		},
-		commands : [
-    		'open', 'reload', 'home', 'up', 'back', 'forward', 'getfile', 'quicklook',
-    		'download', 'rm', 'duplicate', 'rename', 'mkdir', 'mkfile', 'upload', 'copy',
-    		'cut', 'paste', 'edit',
-    		'extract', 'archive',
-    		'search', 'info', 'view', 'help', 'resize', 'sort', 'netmount', 'netunmount', 'pixlr', 'perm'
-    	],
 		commandsOptions : {
 			  getfile : {
 			    onlyURL : false,
 			    multiple : false,
-			    folders : false
+			    folders : false,
+			    getImgSize: true
+			  },
+			  edit : {
+			      editors : editorsConfig,
+			      dialogWidth: '80%'
+			  },
+			  quicklook : {
+				  googleDocsMimes : useGoogleDocsPreview? ['application/pdf', 'image/tiff', 'application/vnd.ms-office', 'application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'] : []
 			  }
-		},
-		contextmenu : {
-			// navbarfolder menu
-			navbar : ['open', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'info', 'perm', 'netunmount'],
-			// current directory menu
-			cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'sort', '|', 'info', 'perm'],
-			// current directory file menu
-			files  : ['getfile', '|','open', 'quicklook', '|', 'download', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', '|', 'edit', 'rename', 'resize', 'pixlr',
-			          '|', 'archive', 'extract',
-			          '|', 'info', 'perm']
 		}
 	}).elfinder('instance');
 	
-	// set document.title dynamically
+	// Easy refer on file upload
+	if (target || elfinderInstance.options.getFileCallback) {
+		elfinderInstance.bind('upload', function(e){
+			var added, hash;
+			if (e.data && (added = e.data.added) && added.length === 1) {
+				hash = added[0].hash;
+				if (added[0].tmb !== 1) {
+					setTimeout(function(){
+						elfinderInstance.exec('getfile', [ hash ]);
+					}, 100);
+				} else {
+					elfinderInstance.one('tmb', function(){
+						elfinderInstance.exec('getfile', [ hash ]);
+					});
+				}
+			}
+		});
+	}
+	
+	// set document.title dynamically etc.
 	var title = document.title;
 	elfinderInstance.bind('open', function(event) {
 		var data = event.data || null;
 		var path = '';
-		if (data && data.cwd) {
-			path = elfinderInstance.path(data.cwd.hash) || null;
+		
+		if (data) {
+			if (data.init && IElt10) {
+				var dialog = $('<div class="elfinder-dialog-resize"/>');
+				dialog.append(elfinderInstance.i18n('CannotUploadOldIE'));
+				var buttons = {};
+				buttons[elfinderInstance.i18n('btnYes')] = function() { dialog.elfinderdialog('close'); };
+				elfinderInstance.dialog(dialog, {
+						title : elfinderInstance.i18n('cmdupload'),
+						width : '400px',
+						buttons: buttons,
+						destroyOnClose : true,
+						modal : true
+					});
+			}
+			
+			if (data.cwd) {
+				path = elfinderInstance.path(data.cwd.hash) || null;
+			}
+			document.title =  path? path + ':' + title : title;
 		}
-		document.title =  path? path + ':' + title : title;
 	});
-
+	
+	// on error callback
+	elfinderInstance.bind('error', function(e) {
+		if (e.data && e.data.error && e.data.error == 'errPleaseReload') {
+			var loc = window.location;
+			if (!loc._reload) {
+				if (confirm(elfinderInstance.i18n('errAccessReload'))) {
+					loc._reload = true;
+					setTimeout(function(){
+						loc.reload(false);
+					}, 100);
+				} else {
+					delete loc._reload;
+				}
+			}
+		}
+	});
 });
 
 $.extend({
@@ -152,7 +444,7 @@ $.extend({
 		}
 		if (o) {
 			o.focus();
-			if (!!document.uniqueID) { // IE
+			if (!!document.uniqueID && document.selection) { // IE
 				var r;
 				if (typeof o.caretPos == 'object') {
 					r = o.caretPos;
@@ -201,6 +493,8 @@ function insertCode(align, thumb) {
 		size = $('#resize_px').val();
 		if (size && (! size.match(/[\d]{1,4}/) || (!!insertCode.iSize && insertCode.iSize <= size))) {
 			size = '';
+		} else {
+			$.insertAtCaret.resizePx = size;
 		}
 	}
 	$.insertAtCaret.continue_finder = $("#continue_finder:checked").val()? true : false;
@@ -283,6 +577,31 @@ function insertCode(align, thumb) {
 	$.insertAtCaret(code);
 }
 
+function encodeDecodeURI(str) {
+	var ret;
+	try {
+		ret = encodeURI(decodeURI(str));
+	} catch (e) {
+		ret = str;
+	}
+	return ret;
+}
+
+function getThumbFallback(file) {
+	if (file.tmb && file.tmb != 1) {
+		return file.tmb.replace(rootUrl+'/', '');
+	} else {
+		return '';
+	}
+}
+
+function getModuleName(file) {
+	var modules_basename = moduleUrl.replace(rootUrl, '').replace(/\//g, '');
+	var reg = new RegExp('^'+rootUrl.replace(/([.*+?^=!:${}()|[\]\/\\])/g, "\\$1")+'\/(?:(?:'+modules_basename+'|uploads)\/)?([^\/]+)\/.*$');
+	var module = file.url.replace(reg, '$1');
+	return module;
+}
+
 var getFileCallback_bbcode = function (file, fm) {
 	if (!target || !file.read) {
 		fm.exec('open');
@@ -290,17 +609,20 @@ var getFileCallback_bbcode = function (file, fm) {
 	}
 	var path = file.url.replace(rootUrl+'/', '');
 	var basename = path.replace( /^.*\//, '' );
-	var modules_basename = moduleUrl.replace(rootUrl, '').replace(/\//g, '');
-	var reg = new RegExp('^.*?(?:'+modules_basename+'|uploads)\/([^\/]+)\/.*$');
-	var module = path.replace(reg, '$1');
+	var module =getModuleName(file);
 	var thumb = '';
 	var isImg = (file.mime.match(/^image/))? true : false;
-	if (isImg && module.match(/^[a-zA-Z0-9_-]+$/)) {
-		eval('if (typeof get_thumb_'+module+' == "function" ){' +
-			'thumb = get_thumb_'+module+'(basename, file);}' );
+	if (isImg && file.tmb && file.tmb != 1) {
+		if (module.match(/^[a-zA-Z0-9_-]+$/)) {
+			eval('if (typeof get_thumb_'+module+' == "function" ){' +
+				'thumb = get_thumb_'+module+'(basename, file);}' );
+		}
+		if (!thumb) {
+			thumb = getThumbFallback(file);
+		}
 	}
-	imgThumb = encodeURI(decodeURI(thumb));
-	itemPath = encodeURI(decodeURI(path));
+	imgThumb = encodeDecodeURI(thumb);
+	itemPath = encodeDecodeURI(path);
 	itemObject = file;
 
 	if (isImg) {
@@ -311,7 +633,7 @@ var getFileCallback_bbcode = function (file, fm) {
 					+ '<span class="file_info">'+fm.i18n('size')+': ' + file.width + 'x' + file.height+'</span>';
 		if (file.url.match(/\bview\b/)) {
 			insertCode.iSize = Math.max(file.width, file.height);
-			var tsize = Math.min(insertCode.iSize, defaultTmbSize);
+			var tsize = $.insertAtCaret.resizePx || Math.min(insertCode.iSize, defaultTmbSize);
 			buttons += '<br>'
 					+ '<span class="file_info">'+fm.i18n('resize')+':<input id="resize_px" style="width: 2.5em" class="button_input" value="'+tsize+'">px</span>';
 		}
@@ -335,25 +657,20 @@ var getFileCallback_xpwiki = function (file, fm) {
 		path = file.alias.replace('R/', '');
 	}
 	var basename = path.replace( /^.*\//, '' );
-	var modules_basename = moduleUrl.replace(rootUrl, '').replace(/\//g, '');
-	var reg = new RegExp('^.*?(?:'+modules_basename+'|uploads)\/([^\/]+)\/.*$');
-	var module = path.replace(reg, '$1');
+	var module =getModuleName(file);
 	var thumb = '';
 	var isImg = (file.mime.match(/^image/))? true : false;
-	if (isImg && module.match(/^[a-zA-Z0-9_-]+$/)) {
-		eval('if (typeof get_thumb_'+module+' == "function" ){' +
-			'thumb = get_thumb_'+module+'(basename, file);}' );
+	if (isImg && file.tmb && file.tmb != 1) {
+		if (module.match(/^[a-zA-Z0-9_-]+$/)) {
+			eval('if (typeof get_thumb_'+module+' == "function" ){' +
+				'thumb = get_thumb_'+module+'(basename, file);}' );
+		}
+		if (!thumb) {
+			thumb = getThumbFallback(file);
+		}
 	}
-	try {
-		imgThumb = encodeURI(decodeURI(thumb));
-	} catch(e) {
-		imgThumb = thumb;
-	}
-	try {
-		itemPath = encodeURI(decodeURI(path));
-	} catch(e) {
-		itemPath = path;
-	}
+	imgThumb = encodeDecodeURI(thumb);
+	itemPath = encodeDecodeURI(path);
 	itemObject = file;
 	
 	if (itemPath.match(/\?/) && ! itemPath.match(/\.[^.?]+$/)) {
@@ -366,7 +683,7 @@ var getFileCallback_xpwiki = function (file, fm) {
 		var wraparound = ' title="' + fm.i18n('wraparound') + '"';
 		var inline = ' title="' + fm.i18n('inline') + '"';
 		insertCode.iSize = Math.max(file.width, file.height);
-		var tsize = Math.min(insertCode.iSize, defaultTmbSize);
+		var tsize = $.insertAtCaret.resizePx || Math.min(insertCode.iSize, defaultTmbSize);
 		var buttons = '<span onclick="insertCode(\'left\',1);"'+wraparound+'><img src="'+imgUrl+'alignleft.gif" alt="" /></span> <span onclick="insertCode(\'\',1)"'+inline+'><img src="'+imgUrl+'aligncenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',1)"'+wraparound+'><img src="'+imgUrl+'alignright.gif" alt="" /></span>'
 					+ '<br>'
 					+ '<span onclick="insertCode(\'left\',0);"'+nowrap+'><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span> <span onclick="insertCode(\'center\',0)"'+nowrap+'><img src="'+imgUrl+'alignbigcenter.gif" alt="" /></span> <span onclick="insertCode(\'right\',0)"'+nowrap+'><img src="'+imgUrl+'alignbigright.gif" alt="" /></span>'
@@ -397,87 +714,121 @@ var getFileCallback_xpwikifck = function (file, fm) {
 	}
 	if (x) {
 		var path = file.url.replace(rootUrl+'/', '');
-		path = encodeURI(decodeURI(path));
+		path = encodeDecodeURI(path);
 		if (! path.match(/^http/)) {
 			path = 'site://' + path;
 		}
 		x.FCKrefInsert(path);
 	}
-	try {
-		pa.jQuery.modal.close();
-	} catch(e) {
-		window.close();
-	}
+	setTimeout(function(){
+		try {
+			pa.jQuery.modal.close();
+		} catch(e) {
+			window.close();
+		}
+	}, 100);
 };
 
 // for FCKEditor
 // Url: '[XOOPS_URL]/modules/xelfinder/manager.php?cb=fckeditor'
 var getFileCallback_fckeditor = function (file, fm) {
-	window.opener.SetUrl(file.url) ;
-	window.close();
+	setTimeout(function(){
+		window.opener.SetUrl(file.url) ;
+		window.close();
+	}, 100);
 };
 
 // for CKEditor
 // Url: '[XOOPS_URL]/modules/xelfinder/manager.php?cb=ckeditor'
-function tmbFunc_ckeditor(tmb){
+function ckeditor4_dialog_update(path, thumb, name) {
+	var dialog = window.opener.CKEDITOR.dialog.getCurrent(),
+		dName = dialog._.name,
+		tName = dialog._.currentTabId,
+		url = thumb || path,
+		tmb = thumb, size;
 	if ($('#resize_px')) {
-		var size = $('#resize_px').val();
+		size = $('#resize_px').val();
 		if (size && ! size.match(/[\d]{1,4}/)) {
 			size = '';
 		}
-		if (tmb.match(/_tmbsize_/)) {
+		if (url.match(/_tmbsize_/)) {
 			if (size) {
-				tmb = tmb.replace('_tmbsize_', size);
+				url = url.replace('_tmbsize_', size);
 			} else {
+				url = path;
 				tmb = false;
 			}
 		}
 	}
-	return tmb;
-}
-var getFileCallback_ckeditor = function (file, fm) {
-	var path = encodeURI(decodeURI(file.url));
-	var basename = path.replace( /^.*\//, '' );
-	var modules_basename = moduleUrl.replace(rootUrl, '').replace(/\//g, '');
-	var reg = new RegExp('^.*?(?:'+modules_basename+'|uploads)\/([^\/]+)\/.*$');
-	var module = path.replace(reg, '$1');
-	var thumb = '';
-	var isImg = (file.mime.match(/^image/))? true : false;
-	if (isImg && module.match(/^[a-zA-Z0-9_-]+$/)) {
-		eval('if (typeof get_thumb_'+module+' == "function" ){' +
-			'thumb = get_thumb_'+module+'(basename, file);}' );
+	if (dName == 'image') {
+		var urlObj = 'txtUrl';
+	} else if (dName == 'flash') {
+		var urlObj = 'src';
+	} else if (dName == 'files' || dName == 'link') {
+		var urlObj = 'url';
+	} else {
+		return;
 	}
-	var funcNum = window.location.search.replace(/^.*CKEditorFuncNum=(\d+).*$/, "$1");
-	var localHostReg = new RegExp('^' + window.location.protocol + '//' + window.location.host);
+	dialog.setValueOf(tName, urlObj, url);
+	if (dName == 'image' && tName == 'info' && tmb) {
+		dialog.setValueOf('Link', 'txtUrl', path);
+		dialog.setValueOf('Link', 'cmbTarget', '_blank');
+	} else if (name && dName == 'files' || dName == 'link') {
+		try {
+			dialog.setValueOf('info', 'linkDisplayText', name);
+		} catch(e) {}
+	}
+	window.close();
+}
+
+var getFileCallback_ckeditor = function (file, fm) {
+	var dialog = window.opener.CKEDITOR.dialog.getCurrent();
+		path = encodeDecodeURI(file.url),
+		basename = path.replace( /^.*\//, '' ),
+		name = file.name,
+		module = getModuleName(file),
+		thumb = '',
+		isImg = (file.mime.match(/^image/))? true : false,
+		localHostReg = new RegExp('^' + window.location.protocol + '//' + window.location.host);
+	if (isImg && file.tmb && file.tmb != 1) {
+		if (module.match(/^[a-zA-Z0-9_-]+$/)) {
+			eval('if (typeof get_thumb_'+module+' == "function" ){' +
+				'thumb = get_thumb_'+module+'(basename, file);}' );
+		}
+		if (!thumb) {
+			thumb = getThumbFallback(file);
+		}
+	}
 	path = path.replace(localHostReg, '');
-	if (thumb) {
-		thumb = encodeURI(rootUrl+'/'+decodeURI(thumb));
+	if (thumb && dialog._.name == 'image' && dialog._.currentTabId == 'info') {
+		thumb = rootUrl+'/'+encodeDecodeURI(thumb);
 		thumb = thumb.replace(localHostReg, '');
 		var fullsize = ' title="' + fm.i18n('fullsize') + '"';
 		var thumbnail = ' title="' + fm.i18n('thumbnail') + '"';
-		var buttons = '<span'+thumbnail+' onclick="var tmb=(tmbFunc_ckeditor(\''+thumb.replace("'", "%27")+'\')||\''+path.replace("'", "%27")+'\');window.opener.CKEDITOR.tools.callFunction(\''+funcNum+'\',tmb);var dialog=window.opener.CKEDITOR.dialog.getCurrent();dialog.setValueOf(\'Link\',\'txtUrl\',\''+path.replace("'", "%27")+'\');window.close();"><img src="'+imgUrl+'alignleft.gif" alt="" /></span>'
+		var buttons = '<span'+thumbnail+' onclick="ckeditor4_dialog_update(\''+path.replace("'", "%27")+'\',\''+thumb.replace("'", "%27")+'\',\''+name.replace("'", "%27")+'\');"><img src="'+imgUrl+'alignleft.gif" alt="" /></span>'
 		+ ' &nbsp; '
-		+ '<span'+fullsize+' onclick="window.opener.CKEDITOR.tools.callFunction(\''+funcNum+'\', \''+path.replace("'", "%27")+'\');window.close();"><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span>'
+		+ '<span'+fullsize+' onclick="ckeditor4_dialog_update(\''+path.replace("'", "%27")+'\',\'\',\''+name.replace("'", "%27")+'\');window.close();"><img src="'+imgUrl+'alignbigleft.gif" alt="" /></span>'
 		+ '<br><span class="file_info">'+fm.i18n('size')+': ' + file.width + 'x' + file.height+'</span>';
 		if (file.url.match(/\bview\b/)) {
 			insertCode.iSize = Math.max(file.width, file.height);
-			var tsize = Math.min(insertCode.iSize, defaultTmbSize);
+			var tsize = $.insertAtCaret.resizePx || Math.min(insertCode.iSize, defaultTmbSize);
 			buttons += '<br>'
 					+ '<span class="file_info">'+fm.i18n('resize')+':<input id="resize_px" style="width: 2.5em" class="button_input" value="'+tsize+'">px</span>';
 		}
 		$.openImgInsertDialog(buttons, path, fm);
-		
 	} else {
-		window.opener.CKEDITOR.tools.callFunction(funcNum, path);
-		window.close();
+		setTimeout(function(){
+			ckeditor4_dialog_update(path, '', name);
+		}, 100);
 	}
 };
 
 // for tinyMCE
 // Url: '[XOOPS_URL]/modules/xelfinder/manager.php?cb=tinymce'
 var getFileCallback_tinymce = function (file, fm) {
-	window.tinymceFileWin.document.forms[0].elements[window.tinymceFileField].value = file.url;
-	window.tinymceFileWin.focus();
-	window.close();
+	setTimeout(function(){
+		window.tinymceFileWin.document.forms[0].elements[window.tinymceFileField].value = file.url;
+		window.tinymceFileWin.focus();
+		window.close();
+	}, 100);
 };
-

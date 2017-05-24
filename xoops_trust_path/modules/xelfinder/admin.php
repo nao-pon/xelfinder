@@ -1,5 +1,10 @@
 <?php
-ini_set('mbstring.internal_encoding', _CHARSET);
+ini_set('default_charset', _CHARSET);
+if (version_compare(PHP_VERSION, '5.6', '<')) {
+	ini_set('mbstring.internal_encoding', _CHARSET);
+} else {
+	@ini_set('mbstring.internal_encoding', '');
+}
 if (! defined('XOOPS_MODULE_PATH')) define('XOOPS_MODULE_PATH', XOOPS_ROOT_PATH . '/modules');
 if (! defined('XOOPS_MODULE_URL')) define('XOOPS_MODULE_URL', XOOPS_URL . '/modules');
 
@@ -48,7 +53,7 @@ if( ! empty( $_GET['lib'] ) ) {
 	}
 } else {
 	// load language files (main.php & admin.php)
-	$langman->read( 'admin.php' , $mydirname , $mytrustdirname ) ;
+	$langman->read( 'modinfo.php' , $mydirname , $mytrustdirname ) ;
 	$langman->read( 'main.php' , $mydirname , $mytrustdirname ) ;
 
 	// fork each pages of this module
@@ -61,4 +66,11 @@ if( ! empty( $_GET['lib'] ) ) {
 	} else {
 		die( 'wrong request' ) ;
 	}
+
 }
+
+function xelfinderAdminLang($name) {
+	$pref = '_MI_'.strtoupper($GLOBALS['mydirname']).'_';
+	return defined($pref.$name)? constant($pref.$name) : $pref.$name;
+}
+

@@ -5,10 +5,11 @@
  *
  * @author Dmitry (dio) Levashov, dio@std42.ru
  **/
-elFinder.prototype.commands.info = function() {
+(elFinder.prototype.commands.info = function() {
 	var m   = 'msg',
 		fm  = this.fm,
 		spclass = 'elfinder-info-spinner',
+		btnclass = 'elfinder-info-button',
 		msg = {
 			calc     : fm.i18n('calc'),
 			size     : fm.i18n('size'),
@@ -22,19 +23,24 @@ elFinder.prototype.commands.info = function() {
 			kind     : fm.i18n('kind'),
 			files    : fm.i18n('files'),
 			folders  : fm.i18n('folders'),
+			roots    : fm.i18n('volumeRoots'),
 			items    : fm.i18n('items'),
 			yes      : fm.i18n('yes'),
 			no       : fm.i18n('no'),
-			link     : fm.i18n('link')
+			link     : fm.i18n('link'),
+			owner    : fm.i18n('owner'),
+			group    : fm.i18n('group'),
+			perm     : fm.i18n('perm'),
+			getlink  : fm.i18n('getLink')
 		};
 		
 	this.tpl = {
-		main       : '<div class="ui-helper-clearfix elfinder-info-title"><span class="elfinder-cwd-icon {class} ui-corner-all"/>{title}</div><table class="elfinder-info-tb">{content}</table>',
+		main       : '<div class="ui-helper-clearfix elfinder-info-title {dirclass}"><span class="elfinder-cwd-icon {class} ui-corner-all"{style}/>{title}</div><table class="elfinder-info-tb">{content}</table>',
 		itemTitle  : '<strong>{name}</strong><span class="elfinder-info-kind">{kind}</span>',
 		groupTitle : '<strong>{items}: {num}</strong>',
 		row        : '<tr><td>{label} : </td><td>{value}</td></tr>',
-		spinner    : '<span>{text}</span> <span class="'+spclass+'"/>'
-	}
+		spinner    : '<span>{text}</span> <span class="'+spclass+' '+spclass+'-{name}"/>'
+	};
 	
 	this.alwaysEnabled = true;
 	this.updateOnSelect = false;
@@ -46,11 +52,11 @@ elFinder.prototype.commands.info = function() {
 		$.each(msg, function(k, v) {
 			msg[k] = fm.i18n(v);
 		});
-	}
+	};
 	
 	this.getstate = function() {
 		return 0;
-	}
+	};
 	
 	this.exec = function(hashes) {
 		var files   = this.files(hashes);
@@ -67,16 +73,133 @@ elFinder.prototype.commands.info = function() {
 			view    = tpl.main,
 			l       = '{label}',
 			v       = '{value}',
+			reqs    = [],
 			opts    = {
 				title : this.title,
 				width : 'auto',
-				close : function() { $(this).elfinderdialog('destroy'); }
+				close : function() {
+					$(this).elfinderdialog('destroy');
+					$.each(reqs, function(i, req) {
+						var xhr = (req && req.xhr)? req.xhr : null;
+						if (xhr && xhr.state() == 'pending') {
+							xhr.quiet = true;
+							xhr.abort();
+						}
+					});
+				}
 			},
 			count = [],
-			replSpinner = function(msg) { dialog.find('.'+spclass).parent().text(msg); },
-			id = fm.namespace+'-info-'+$.map(files, function(f) { return f.hash }).join('-'),
-			dialog = fm.getUI().find('#'+id), 
-			size, tmb, file, title, dcnt;
+			replSpinner = function(msg, name) { dialog.find('.'+spclass+'-'+name).parent().html(msg); },
+			id = fm.namespace+'-info-'+$.map(files, function(f) { return f.hash; }).join('-'),
+			dialog = fm.getUI().find('#'+id),
+			customActions = [],
+			getSize = function(targets) {
+				var getLeafRoots = function(file) {
+						var targets = [];
+						if (file.mime === 'directory') {
+							$.each(fm.leafRoots, function(hash, roots) {
+								var phash;
+								if (hash === file.hash) {
+									targets.push.apply(targets, roots);
+								} else {
+									phash = (fm.file(hash) || {}).phash;
+									while(phash) {
+										if (phash === file.hash) {
+											targets.push.apply(targets, roots);
+										}
+										phash = (fm.file(phash) || {}).phash;
+									}
+								}
+							});
+						}
+						return targets;
+					},
+					checkPhash = function(hash) {
+						var dfd = $.Deferred(),
+							dir = fm.file(hash),
+							target = dir? dir.phash : hash;
+						if (target && ! fm.file(target)) {
+							fm.request({
+								data : {
+									cmd    : 'parents',
+									target : target
+								},
+								preventFail : true
+							}).done(function() {
+								fm.one('parentsdone', function() {
+									dfd.resolve();
+								});
+							}).fail(function() {
+								dfd.resolve();
+							});
+						} else {
+							dfd.resolve();
+						}
+						return dfd;
+					},
+					cache = function() {
+						var dfd = $.Deferred(),
+							cnt = Object.keys(fm.leafRoots).length;
+						
+						if (cnt > 0) {
+							$.each(fm.leafRoots, function(hash) {
+								checkPhash(hash).done(function() {
+									--cnt;
+									if (cnt < 1) {
+										dfd.resolve();
+									}
+								});
+							});
+						} else {
+							dfd.resolve();
+						}
+						return dfd;
+					};
+				
+				fm.autoSync('stop');
+				cache().done(function() {
+					var files = [], grps = {}, dfds = [];
+					
+					$.each(targets, function() {
+						files.push.apply(files, getLeafRoots(fm.file(this)));
+					});
+					targets.push.apply(targets, files);
+					
+					$.each(targets, function() {
+						var root = fm.root(this);
+						if (! grps[root]) {
+							grps[root] = [ this ];
+						} else {
+							grps[root].push(this);
+						}
+					});
+					
+					$.each(grps, function() {
+						dfds.push(fm.request({
+							data : {cmd : 'size', targets : this},
+							preventDefault : true
+						}));
+					});
+					reqs.push.apply(reqs, dfds);
+					
+					$.when.apply($, dfds).fail(function() {
+						replSpinner(msg.unknown, 'size');
+					}).done(function() {
+						var size = 0,
+							argLen = arguments.length,
+							i;
+						
+						for (i = 0; i < argLen; i++) {
+							size += parseInt(arguments[i].size);
+						}
+						replSpinner(size >= 0 ? fm.formatSize(size) : msg.unknown, 'size');
+					});
+					
+					fm.autoSync();
+				});
+			},
+			style = '',
+			size, tmb, file, title, dcnt, rdcnt, path;
 			
 		if (!cnt) {
 			return $.Deferred().reject();
@@ -91,34 +214,52 @@ elFinder.prototype.commands.info = function() {
 		if (cnt == 1) {
 			file  = files[0];
 			
-			view  = view.replace('{class}', fm.mime2class(file.mime));
-			title = tpl.itemTitle.replace('{name}', fm.escape(file.i18 || file.name)).replace('{kind}', fm.mime2kind(file));
-
-			if (file.tmb) {
-				tmb = fm.option('tmbUrl')+file.tmb;
+			if (file.icon) {
+				style = ' '+fm.getIconStyle(file);
 			}
+			
+			view  = view.replace('{dirclass}', file.csscls? fm.escape(file.csscls) : '').replace('{class}', fm.mime2class(file.mime)).replace('{style}', style);
+			title = tpl.itemTitle.replace('{name}', fm.escape(file.i18 || file.name)).replace('{kind}', '<span title="'+fm.escape(file.mime)+'">'+fm.mime2kind(file)+'</span>');
+
+			tmb = fm.tmb(file);
 			
 			if (!file.read) {
 				size = msg.unknown;
 			} else if (file.mime != 'directory' || file.alias) {
 				size = fm.formatSize(file.size);
 			} else {
-				size = tpl.spinner.replace('{text}', msg.calc);
+				size = tpl.spinner.replace('{text}', msg.calc).replace('{name}', 'size');
 				count.push(file.hash);
 			}
 			
 			content.push(row.replace(l, msg.size).replace(v, size));
 			file.alias && content.push(row.replace(l, msg.aliasfor).replace(v, file.alias));
-			content.push(row.replace(l, msg.path).replace(v, fm.escape(fm.path(file.hash, true))));
+			if (path = fm.path(file.hash, true)) {
+				content.push(row.replace(l, msg.path).replace(v, fm.escape(path)));
+			} else {
+				content.push(row.replace(l, msg.path).replace(v, tpl.spinner.replace('{text}', msg.calc).replace('{name}', 'path')));
+				reqs.push(fm.path(file.hash, true, {notify: null})
+				.fail(function() {
+					replSpinner(msg.unknown, 'path');
+				})
+				.done(function(path) {
+					replSpinner(path, 'path');
+				}));
+			}
 			if (file.read) {
-				var href;
-				if (o.nullUrlDirLinkSelf && file.mime == 'directory' && file.url === null) {
-					var loc = window.location;
-					href = loc.pathname + loc.search + '#elf_' + file.hash;
+				var href,
+				name_esc = fm.escape(file.name);
+				if (file.url == '1') {
+					content.push(row.replace(l, msg.link).replace(v, '<button class="'+btnclass+' '+spclass+'-url">'+msg.getlink+'</button>'));
 				} else {
-					href = fm.url(file.hash);
+					if (o.nullUrlDirLinkSelf && file.mime == 'directory' && file.url === null) {
+						var loc = window.location;
+						href = loc.pathname + loc.search + '#elf_' + file.hash;
+					} else {
+						href = fm.url(file.hash);
+					}
+					content.push(row.replace(l, msg.link).replace(v,  '<a href="'+href+'" target="_blank">'+name_esc+'</a>'));
 				}
-				content.push(row.replace(l, msg.link).replace(v,  '<a href="'+href+'" target="_blank">'+file.name+'</a>'));
 			}
 			
 			if (file.dim) { // old api
@@ -127,23 +268,23 @@ elFinder.prototype.commands.info = function() {
 				if (file.width && file.height) {
 					content.push(row.replace(l, msg.dim).replace(v, file.width+'x'+file.height));
 				} else {
-					content.push(row.replace(l, msg.dim).replace(v, tpl.spinner.replace('{text}', msg.calc)));
-					fm.request({
+					content.push(row.replace(l, msg.dim).replace(v, tpl.spinner.replace('{text}', msg.calc).replace('{name}', 'dim')));
+					reqs.push(fm.request({
 						data : {cmd : 'dim', target : file.hash},
 						preventDefault : true
 					})
 					.fail(function() {
-						replSpinner(msg.unknown);
+						replSpinner(msg.unknown, 'dim');
 					})
 					.done(function(data) {
-						replSpinner(data.dim || msg.unknown);
+						replSpinner(data.dim || msg.unknown, 'dim');
 						if (data.dim) {
 							var dim = data.dim.split('x');
 							var rfile = fm.file(file.hash);
 							rfile.width = dim[0];
 							rfile.height = dim[1];
 						}
-					});
+					}));
 				}
 			}
 			
@@ -151,10 +292,31 @@ elFinder.prototype.commands.info = function() {
 			content.push(row.replace(l, msg.modify).replace(v, fm.formatDate(file)));
 			content.push(row.replace(l, msg.perms).replace(v, fm.formatPermissions(file)));
 			content.push(row.replace(l, msg.locked).replace(v, file.locked ? msg.yes : msg.no));
+			file.owner && content.push(row.replace(l, msg.owner).replace(v, file.owner));
+			file.group && content.push(row.replace(l, msg.group).replace(v, file.group));
+			file.perm && content.push(row.replace(l, msg.perm).replace(v, fm.formatFileMode(file.perm)));
+			
+			// Add custom info fields
+			if (o.custom) {
+				$.each(o.custom, function(name, details) {
+					if (
+					  (!details.mimes || $.map(details.mimes, function(m){return (file.mime === m || file.mime.indexOf(m+'/') === 0)? true : null;}).length)
+					    &&
+					  (!details.hashRegex || file.hash.match(details.hashRegex))
+					) {
+						// Add to the content
+						content.push(row.replace(l, fm.i18n(details.label)).replace(v , details.tpl.replace('{id}', id)));
+						// Register the action
+						if (details.action && (typeof details.action == 'function')) {
+							customActions.push(details.action);
+						}
+					}
+				});
+			}
 		} else {
 			view  = view.replace('{class}', 'elfinder-cwd-icon-group');
 			title = tpl.groupTitle.replace('{items}', msg.items).replace('{num}', cnt);
-			dcnt  = $.map(files, function(f) { return f.mime == 'directory' ? 1 : null }).length;
+			dcnt  = $.map(files, function(f) { return f.mime == 'directory' ? 1 : null ; }).length;
 			if (!dcnt) {
 				size = 0;
 				$.each(files, function(h, f) { 
@@ -169,9 +331,11 @@ elFinder.prototype.commands.info = function() {
 				content.push(row.replace(l, msg.kind).replace(v, msg.files));
 				content.push(row.replace(l, msg.size).replace(v, fm.formatSize(size)));
 			} else {
-				content.push(row.replace(l, msg.kind).replace(v, dcnt == cnt ? msg.folders : msg.folders+' '+dcnt+', '+msg.files+' '+(cnt-dcnt)))
-				content.push(row.replace(l, msg.size).replace(v, tpl.spinner.replace('{text}', msg.calc)));
-				count = $.map(files, function(f) { return f.hash });
+				rdcnt = $.map(files, function(f) { return f.mime === 'directory' && (! f.phash || f.isroot)? 1 : null ; }).length;
+				dcnt -= rdcnt;
+				content.push(row.replace(l, msg.kind).replace(v, (rdcnt === cnt || dcnt === cnt)? msg[rdcnt? 'roots' : 'folders'] : $.map({roots: rdcnt, folders: dcnt, files: cnt - rdcnt - dcnt}, function(c, t) { return c? msg[t]+' '+c : null}).join(', ')));
+				content.push(row.replace(l, msg.size).replace(v, tpl.spinner.replace('{text}', msg.calc).replace('{name}', 'size')));
+				count = $.map(files, function(f) { return f.hash; });
 				
 			}
 		}
@@ -179,30 +343,53 @@ elFinder.prototype.commands.info = function() {
 		view = view.replace('{title}', title).replace('{content}', content.join(''));
 		
 		dialog = fm.dialog(view, opts);
-		dialog.attr('id', id)
+		dialog.attr('id', id);
+
+		if (file && file.url == '1') {
+			dialog.on('click', '.'+spclass+'-url', function(){
+				$(this).parent().html(tpl.spinner.replace('{text}', fm.i18n('ntfurl')).replace('{name}', 'url'));
+				fm.request({
+					data : {cmd : 'url', target : file.hash},
+					preventDefault : true
+				})
+				.fail(function() {
+					replSpinner(name_esc, 'url');
+				})
+				.done(function(data) {
+					if (data.url) {
+						replSpinner('<a href="'+data.url+'" target="_blank">'+name_esc+'</a>' || name_esc, 'url');
+						var rfile = fm.file(file.hash);
+						rfile.url = data.url;
+					} else {
+						replSpinner(name_esc, 'url');
+					}
+				});
+			});
+		}
 
 		// load thumbnail
 		if (tmb) {
 			$('<img/>')
-				.load(function() { dialog.find('.elfinder-cwd-icon').css('background', 'url("'+tmb+'") center center no-repeat'); })
-				.attr('src', tmb);
+				.on('load', function() { dialog.find('.elfinder-cwd-icon').addClass(tmb.className).css('background-image', "url('"+tmb.url+"')"); })
+				.attr('src', tmb.url);
 		}
 		
 		// send request to count total size
 		if (count.length) {
-			fm.request({
-					data : {cmd : 'size', targets : count},
-					preventDefault : true
-				})
-				.fail(function() {
-					replSpinner(msg.unknown);
-				})
-				.done(function(data) {
-					var size = parseInt(data.size);
-					replSpinner(size >= 0 ? fm.formatSize(size) : msg.unknown);
-				});
+			getSize(count);
 		}
 		
-	}
+		// call custom actions
+		if (customActions.length) {
+			$.each(customActions, function(i, action) {
+				try {
+					action(file, fm, dialog);
+				} catch(e) {
+					fm.debug('error', e);
+				}
+			});
+		}
+
+	};
 	
-}
+}).prototype = { forceLoad : true }; // this is required command

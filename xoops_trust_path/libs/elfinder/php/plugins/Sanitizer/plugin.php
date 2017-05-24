@@ -7,8 +7,11 @@
  * ex. binding, configure on connector options
  *	$opts = array(
  *		'bind' => array(
- *			'mkdir.pre mkfile.pre rename.pre' => array(
+ *			'upload.pre mkdir.pre mkfile.pre rename.pre archive.pre ls.pre' => array(
  *				'Plugin.Sanitizer.cmdPreprocess'
+ *			),
+ *			'ls' => array(
+ *				'Plugin.Sanitizer.cmdPostprocess'
  *			),
  *			'upload.presave' => array(
  *				'Plugin.Sanitizer.onUpLoadPreSave'
@@ -43,54 +46,71 @@
  * @author Naoki Sawada
  * @license New BSD
  */
-class elFinderPluginSanitizer
+class elFinderPluginSanitizer extends elFinderPlugin
 {
-	private $opts = array();
-	
+	private $replaced = array();
+	private $keyMap = array(
+		'ls' => 'intersect',
+		'upload' => 'renames'
+	);
+
 	public function __construct($opts) {
 		$defaults = array(
 			'enable'   => true,  // For control by volume driver
 			'targets'  => array('\\','/',':','*','?','"','<','>','|'), // target chars
-			'replace'  => '_'    // replace to this
+			'replace'  => '_',   // replace to this
+			'pathAllows' => array('/') // Characters allowed in path name of characters in `targets` array
 		);
 	
 		$this->opts = array_merge($defaults, $opts);
 	}
 	
 	public function cmdPreprocess($cmd, &$args, $elfinder, $volume) {
-		$opts = $this->getOpts($volume);
+		$opts = $this->getCurrentOpts($volume);
 		if (! $opts['enable']) {
 			return false;
 		}
-	
-		if (isset($args['name'])) {
-			$args['name'] = $this->sanitizeFileName($args['name'], $opts);
-		}
-		return true;
-	}
-
-	public function onUpLoadPreSave(&$path, &$name, $src, $elfinder, $volume) {
-		$opts = $this->getOpts($volume);
-		if (! $opts['enable']) {
-			return false;
-		}
-	
-		if ($path) {
-			$path = $this->sanitizeFileName($path, $opts, array('/'));
-		}
-		$name = $this->sanitizeFileName($name, $opts);
-		return true;
-	}
-	
-	private function getOpts($volume) {
-		$opts = $this->opts;
-		if (is_object($volume)) {
-			$volOpts = $volume->getOptionsPlugin('Sanitizer');
-			if (is_array($volOpts)) {
-				$opts = array_merge($this->opts, $volOpts);
+		$this->replaced[$cmd] = array();
+		$key = (isset($this->keyMap[$cmd]))? $this->keyMap[$cmd] : 'name';
+		
+		if (isset($args[$key])) {
+			if (is_array($args[$key])) {
+				foreach($args[$key] as $i => $name) {
+					$this->replaced[$cmd][$name] = $args[$key][$i] = $this->sanitizeFileName($name, $opts);
+				}
+			} else {
+				$name = $args[$key];
+				$this->replaced[$cmd][$name] = $args[$key] = $this->sanitizeFileName($name, $opts);
 			}
 		}
-		return $opts;
+		return true;
+	}
+	
+	public function cmdPostprocess($cmd, &$result, $args, $elfinder) {
+		if ($cmd === 'ls') {
+			if (! empty($result['list']) && ! empty($this->replaced['ls'])) {
+				foreach($result['list'] as $hash => $name) {
+					if ($keys = array_keys($this->replaced['ls'], $name)) {
+						if (count($keys) === 1) {
+							$result['list'][$hash] = $keys[0];
+						} else {
+							$result['list'][$hash] = $keys;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	// NOTE: $thash is directory hash so it unneed to process at here
+	public function onUpLoadPreSave(&$thash, &$name, $src, $elfinder, $volume) {
+		$opts = $this->getCurrentOpts($volume);
+		if (! $opts['enable']) {
+			return false;
+		}
+	
+		$name = $this->sanitizeFileName($name, $opts);
+		return true;
 	}
 	
 	private function sanitizeFileName($filename, $opts, $allows = array()) {

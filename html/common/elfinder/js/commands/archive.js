@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 /**
  * @class  elFinder command "archive"
  * Archive selected files
@@ -8,11 +8,12 @@
 elFinder.prototype.commands.archive = function() {
 	var self  = this,
 		fm    = self.fm,
-		mimes = [];
+		mimes = [],
+		dfrd;
 		
 	this.variants = [];
 	
-	this.disableOnSearch = true;
+	this.disableOnSearch = false;
 	
 	/**
 	 * Update mimes on open/reload
@@ -27,22 +28,33 @@ elFinder.prototype.commands.archive = function() {
 		self.change();
 	});
 	
-	this.getstate = function() {
-		return !this._disabled && mimes.length && fm.selected().length && fm.cwd().write ? 0 : -1;
+	this.getstate = function(sel) {
+		var sel = this.files(sel),
+			cnt = sel.length,
+			chk = (cnt && ! fm.isRoot(sel[0]) && (fm.file(sel[0].phash) || {}).write && ! $.map(sel, function(f){ return f.read ? null : true }).length),
+			cwdId;
+		
+		if (chk && fm.searchStatus.state > 1) {
+			cwdId = fm.cwd().volumeid;
+			chk = (cnt === $.map(sel, function(f) { return f.read && f.hash.indexOf(cwdId) === 0 ? f : null; }).length);
+		}
+		
+		return chk && !this._disabled && mimes.length && (cnt || (dfrd && dfrd.state() == 'pending')) ? 0 : -1;
 	}
 	
 	this.exec = function(hashes, type) {
 		var files = this.files(hashes),
 			cnt   = files.length,
 			mime  = type || mimes[0],
-			cwd   = fm.cwd(),
+			cwd   = fm.file(files[0].phash) || null,
 			error = ['errArchive', 'errPerm', 'errCreatingTempDir', 'errFtpDownloadFile', 'errFtpUploadFile', 'errFtpMkdir', 'errArchiveExec', 'errExtractExec', 'errRm'],
-			dfrd  = $.Deferred().fail(function(error) {
-				error && fm.error(error);
-			}), 
-			i;
+			i, open;
 
-		if (!(this.enabled() && cnt && mimes.length && $.inArray(mime, mimes) !== -1)) {
+		dfrd = $.Deferred().fail(function(error) {
+			error && fm.error(error);
+		});
+
+		if (! (cnt && mimes.length && $.inArray(mime, mimes) !== -1)) {
 			return dfrd.reject();
 		}
 		
@@ -56,11 +68,23 @@ elFinder.prototype.commands.archive = function() {
 			}
 		}
 
-		return fm.request({
-			data       : {cmd : 'archive', targets : this.hashes(hashes), type : mime},
-			notify     : {type : 'archive', cnt : 1},
-			syncOnFail : true
-		});
+		self.mime   = mime;
+		self.prefix = ((cnt > 1)? 'Archive' : files[0].name) + (fm.option('archivers')['createext']? '.' + fm.option('archivers')['createext'][mime] : '');
+		self.data   = {targets : self.hashes(hashes), type : mime};
+		
+		if (fm.cwd().hash !== cwd.hash) {
+			open = fm.exec('open', cwd.hash).done(function() {
+				fm.one('cwdrender', function() {
+					fm.selectfiles({files : hashes});
+					dfrd = $.proxy(fm.res('mixin', 'make'), self)();
+				});
+			});
+		} else {
+			fm.selectfiles({files : hashes});
+			dfrd = $.proxy(fm.res('mixin', 'make'), self)();
+		}
+		
+		return dfrd;
 	}
 
-}
+};

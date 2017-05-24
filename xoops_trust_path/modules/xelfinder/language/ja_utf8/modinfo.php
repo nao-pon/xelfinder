@@ -13,6 +13,9 @@ define( $constpref.'_DESC' , 'Webベースのファイルマネージャ elFinde
 // admin menu
 define($constpref.'_ADMENU_GOTO_MODULE' ,   'モジュール画面' ) ;
 define($constpref.'_ADMENU_GOTO_MANAGER' ,  'ファイルマネージャ' ) ;
+define($constpref.'_ADMENU_DROPBOX' ,       'Dropbox App Token 取得' ) ;
+define($constpref.'_ADMENU_GOOGLEDRIVE' ,   'GoogleDrive Token 取得' ) ;
+define($constpref.'_ADMENU_VENDORUPDATE' ,  'vendor アップデート' ) ;
 define($constpref.'_ADMENU_MYLANGADMIN' ,   '言語定数管理' ) ;
 define($constpref.'_ADMENU_MYTPLSADMIN' ,   'テンプレート管理' ) ;
 define($constpref.'_ADMENU_MYBLOCKSADMIN' , 'ブロック管理/アクセス権限' ) ;
@@ -22,10 +25,20 @@ define($constpref.'_ADMENU_MYPREFERENCES' , '一般設定' ) ;
 define( $constpref.'_MANAGER_TITLE' ,           'マネージャのページタイトル' );
 define( $constpref.'_MANAGER_TITLE_DESC' ,      '' );
 define( $constpref.'_VOLUME_SETTING' ,          'ボリュームドライバ' );
-define( $constpref.'_VOLUME_SETTING_DESC' ,     '[モジュールディレクトリ名]:[プラグイン名]:[ファイル格納ディレクトリ]:[表示名]:[オプション]<br />行単位で記述。先頭に # を置くと無視されます。<br />オプションは | で区切ります。<br />共通オプション: gid=[有効にするグループIDをカンマ区切りで指定]| uploadMaxSize=[アップロードファイルサイズの上限値(例:2M)]| id=[任意の一意なID]' );
+define( $constpref.'_VOLUME_SETTING_DESC' ,     '[モジュールディレクトリ名]:[プラグイン名]:[ファイル格納ディレクトリ]:[表示名]:[オプション]<br />行単位で記述。先頭に # を置くと無視されます。<br />オプションは 「|」 で区切ります。<br />共通オプション:<br />gid=[有効にするグループIDをカンマ区切りで指定]<br />defaults=[read, write, hidden, lock の各パーミッションをデフォルトとして有効にするものをそれぞれの頭文字 r w h l で指定（例: defaults=rw）]<br />uploadMaxSize=[アップロードファイルサイズの上限値(例:2M)]<br />id=[任意の一意なID（固定リンクのURLハッシュに利用されます)]<br />encoding=[文字エンコーディング(iconvで有効な値)]<br />locale=[ロケール(重要: encoding に対応する適切なロケール)]<br />chmod=1(chmod が可能な場合、ファイル属性の変更を許可)' );
 define( $constpref.'_SHARE_HOLDER' ,            '共有フォルダ' );
 define( $constpref.'_DISABLED_CMDS_BY_GID' ,    'グループ毎無効コマンド' );
-define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','グループ毎に無効にするコマンドを [グループID]=[無効コマンド(カンマ区切り)] として ":" で区切って指定する。<br />コマンド名: mkdir, mkfile, rm, rename, duplicate, paste, upload, archive, extract, resize, netmount, pixlr' );
+define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','グループ毎(管理者を除く)に無効にするコマンドを [グループID]=[無効コマンド(カンマ区切り)] として ":" で区切って指定する。<br />コマンド名: mkdir, mkfile, rm, rename, duplicate, paste, upload, archive, extract, resize, netmount, perm, pixlr など' );
+define( $constpref.'_DISABLE_WRITES_GUEST' ,    'ゲスト書き込み無効' );
+define( $constpref.'_DISABLE_WRITES_GUEST_DESC','ゲスト向けにグループ毎無効コマンドに指定した無効コマンドに合わせ、書き込み系コマンドをすべて追加します。' );
+define( $constpref.'_DISABLE_WRITES_USER' ,     '登録ユーザー書き込み無効' );
+define( $constpref.'_DISABLE_WRITES_USER_DESC', '登録ユーザー向けにグループ毎無効コマンドに指定した無効コマンドに合わせ、書き込み系コマンドをすべて追加します。' );
+define( $constpref.'_USE_GOOGLE_PREVIEW' ,      'Google Docs プレビュー有効' );
+define( $constpref.'_USE_GOOGLE_PREVIEW_DESC',  'Google Docs を利用しプレビュー可能なファイルタイプを拡大します。Google Docs プレビュー利用時は Google Docs へコンテンツ URL を通知します。' );
+define( $constpref.'_MAIL_NOTIFY_GUEST' ,       'メール通知(ゲスト)' );
+define( $constpref.'_MAIL_NOTIFY_GUEST_DESC',   'ゲストによるファイル追加を管理グループメンバーにメール通知します。' );
+define( $constpref.'_MAIL_NOTIFY_GROUP' ,       'メール通知(グループ)' );
+define( $constpref.'_MAIL_NOTIFY_GROUP_DESC',   '選択したグループに属するユーザーによるファイル追加を管理グループメンバーにメール通知します。' );
 define( $constpref.'_FTP_NAME' ,                'FTP ネットボリューム表示名' );
 define( $constpref.'_FTP_NAME_DESC' ,           '管理者用の FTP 接続ネットボリュームの表示名' );
 define( $constpref.'_FTP_HOST' ,                'FTP ホスト名' );
@@ -40,12 +53,48 @@ define( $constpref.'_FTP_PASS' ,                'FTP パスワード' );
 define( $constpref.'_FTP_PASS_DESC' ,           '' );
 define( $constpref.'_FTP_SEARCH' ,              'FTP ボリュームを検索対象にする' );
 define( $constpref.'_FTP_SEARCH_DESC' ,         'FTP ネットボリュームを検索対象にすると、検索に時間がかかりタイムアウトすることがあります。<br />有効にした場合は問題なく検索できるかの確認をお忘れなく。' );
+define( $constpref.'_BOXAPI_ID' ,               'Box API OAuth2 client_id' );
+define( $constpref.'_BOXAPI_ID_DESC' ,          'Box API Console [ https://app.box.com/developers/services ]' );
+define( $constpref.'_BOXAPI_SECRET' ,           'Box API OAuth2 client_secret' );
+define( $constpref.'_BOXAPI_SECRET_DESC' ,      'Boxをネットワークボリュームとして利用する場合はバックエンドとの接続を https に設定し Box API アプリケーションの設定 - redirect_uri に "'.str_replace('http://','https://',XOOPS_URL).'/modules/'.$mydirname.'/connector.php" を追加してください。(ドメイン以降のパスは省略可)' );
+define( $constpref.'_GOOGLEAPI_ID' ,            'Google API クライアント ID' );
+define( $constpref.'_GOOGLEAPI_ID_DESC' ,       'Google API Console [ https://console.developers.google.com ]' );
+define( $constpref.'_GOOGLEAPI_SECRET' ,        'Google API クライアント シークレット' );
+define( $constpref.'_GOOGLEAPI_SECRET_DESC' ,   'Googleドライブをネットワークボリュームとして利用する場合(PHP 5.4 以上が必須)は Google API コンソールの認証情報 - 承認済みのリダイレクト URL に "'.XOOPS_URL.'/modules/'.$mydirname.'/connector.php?cmd=netmount&protocol=googledrive&host=1" を追加してください。' );
+define( $constpref.'_ONEDRIVEAPI_ID' ,          'OneDrive API アプリケーション ID' );
+define( $constpref.'_ONEDRIVEAPI_ID_DESC' ,     'OneDrive API Console [ https://apps.dev.microsoft.com/#/appList ]' );
+define( $constpref.'_ONEDRIVEAPI_SECRET' ,      'OneDrive API パスワード' );
+define( $constpref.'_ONEDRIVEAPI_SECRET_DESC' , 'OneDriveをネットワークボリュームとして利用する場合は OneDrive API アプリケーションの設定 - リダイレクト URL に "'.XOOPS_URL.'/modules/'.$mydirname.'/connector.php/netmount/googledrive/1" を追加してください。' );
 define( $constpref.'_DROPBOX_TOKEN' ,           'Dropbox.com アプリケーション Key' );
 define( $constpref.'_DROPBOX_TOKEN_DESC' ,      'Developers - Dropbox [ https://www.dropbox.com/developers ]' );
 define( $constpref.'_DROPBOX_SECKEY' ,          'Dropbox.com アプリケーション Secret key' );
 define( $constpref.'_DROPBOX_SECKEY_DESC' ,     '' );
+define( $constpref.'_DROPBOX_ACC_TOKEN' ,       '共有Dropboxのアクセストークン' );
+define( $constpref.'_DROPBOX_ACC_TOKEN_DESC' ,  '共有のDropboxボリュームで使用するためのアクセストークンは https://www.dropbox.com/developers/apps にて取得できます。' );
+define( $constpref.'_DROPBOX_ACC_SECKEY' ,      '共有Dropboxのアクセストークン・シークレットキー' );
+define( $constpref.'_DROPBOX_ACC_SECKEY_DESC' , '古い OAuth1 のための設定です。新しい OAuth2 のアクセストークンを設定する場合は値を空にする必要があります。OAuth1 を利用している場合は早めに OAuth2 に移行してください。' );
+define( $constpref.'_DROPBOX_NAME' ,            '共有のDropboxボリューム表示名' );
+define( $constpref.'_DROPBOX_NAME_DESC' ,       '共有のDropboxボリュームは、ネットワークボリュームのマウントと違い、すべてのユーザーに表示されます。' );
+define( $constpref.'_DROPBOX_PATH' ,            '共有Dropboxのルートパス' );
+define( $constpref.'_DROPBOX_PATH_DESC' ,       '共有のDropboxボリュームで一般に開示してもよい階層のパスを指定します。(設定例: "/Public")<br />Dropbox 設定はボリュームドライバの "dropbox" プラグインにも使用されます。<br />"dropbox" プラグイン用のみに設定する場合はルートパスを空欄にしてください。' );
+define( $constpref.'_DROPBOX_HIDDEN_EXT' ,      '共有のDropbox非表示ファイル' );
+define( $constpref.'_DROPBOX_HIDDEN_EXT_DESC' , '管理者にのみ表示するファイル（ファイル名の後方一致）をカンマ区切りで指定します。<br />末尾を「/」とした場合はフォルダを対象とします。' );
+define( $constpref.'_DROPBOX_WRITABLE_GROUPS' , '共有Dropbox書き込み許可グループ' );
+define( $constpref.'_DROPBOX_WRITABLE_GROUPS_DESC' , 'ここに設定したグループには、ファイル・フォルダの書き込みが許可されます。ただし、次の設定項目「共有のDropboxアップロード可能な MIME タイプ」、「共有のDropbox書き込みを許可ファイル」と「共有のDropbox非ロックファイル」で、何を許可するかをコントロールできます。その他のグループは読み取りのみ可能です。' );
+define( $constpref.'_DROPBOX_UPLOAD_MIME' ,     '共有のDropboxアップロード可能な MIME タイプ') ;
+define( $constpref.'_DROPBOX_UPLOAD_MIME_DESC' ,'書き込みを許可するグループがアップロード可能な MIME タイプをカンマ区切りで設定します。管理者はこの制限を受けません。') ;
+define( $constpref.'_DROPBOX_WRITE_EXT' ,       '共有のDropbox書き込み許可ファイル') ;
+define( $constpref.'_DROPBOX_WRITE_EXT_DESC' ,  '書き込みを許可するグループに書き込みを許可するファイル(ファイル名の後方一致)をカンマ区切りで指定します。<br />末尾を「/」とした場合はフォルダを対象とします。<br />管理者はこの制限を受けません。') ;
+define( $constpref.'_DROPBOX_UNLOCK_EXT' ,      '共有のDropbox非ロックファイル') ;
+define( $constpref.'_DROPBOX_UNLOCK_EXT_DESC' , 'ファイルをロックしない(非ロック)と、削除・移動・リネームが可能になります。<br />ロックをしないファイル(ファイル名の後方一致)をカンマ区切りで指定します。<br />末尾を「/」とした場合はフォルダを対象とします。<br />管理者には全てのファイルがロックされません。') ;
+define( $constpref.'_JQUERY' ,                  'jQuery の URL' );
+define( $constpref.'_JQUERY_DESC' ,             'Google の CDN を利用しない場合に、jQuery の js の  URL を指定します。' );
+define( $constpref.'_JQUERY_UI' ,               'jQuery UI の URL' );
+define( $constpref.'_JQUERY_UI_DESC' ,          'Google の CDN を利用しない場合に、jQueryUI の js の  URL を指定します。' );
+define( $constpref.'_JQUERY_UI_CSS' ,           'jQuery UI の CSS URL' );
+define( $constpref.'_JQUERY_UI_CSS_DESC' ,      'Google の CDN を利用しない場合に、jQueryUI の css の  URL を指定します。' );
 define( $constpref.'_JQUERY_UI_THEME' ,         'jQuery UI のテーマ' );
-define( $constpref.'_JQUERY_UI_THEME_DESC' ,    'jQuery UI のテーマをテーマ名、又は CSS の URL で指定します。 (デフォルト: smoothness)' );
+define( $constpref.'_JQUERY_UI_THEME_DESC' ,    'Google の CDN を利用する場合の jQuery UI のテーマをテーマ名、又は CSS の URL で指定します。 (デフォルト: smoothness)' );
 define( $constpref.'_THUMBNAIL_SIZE' ,          '[xelfinder_db] 画像挿入時のサムネイルサイズ' );
 define( $constpref.'_THUMBNAIL_SIZE_DESC' ,     'BBコードでの画像挿入時のサムネイルサイズの規定値(px)' );
 define( $constpref.'_DEFAULT_ITEM_PERM' ,       '[xelfinder_db] 作成されるアイテムのパーミッション' );
@@ -76,6 +125,8 @@ define( $constpref.'_UPLOAD_ALLOW_ADMIN' ,      '[xelfinder_db] 管理者にア�
 define( $constpref.'_UPLOAD_ALLOW_ADMIN_DESC' , 'MIME タイプを半角スペース区切りで記述。<br />all: 全て許可, none: 何も許可しない<br />例: image text/plain' );
 define( $constpref.'_AUTO_RESIZE_ADMIN' ,       '[xelfinder_db] 管理者用自動リサイズ (px)' );
 define( $constpref.'_AUTO_RESIZE_ADMIN_DESC' ,  '画像をアップロード時、指定した矩形サイズに収まるように自動リサイズする値(px)。<br />何も入力しないと自動リサイズは行われません。' );
+define( $constpref.'_UPLOAD_MAX_ADMIN' ,        '[xelfinder_db] 管理者用最大ファイルサイズ' );
+define( $constpref.'_UPLOAD_MAX_ADMIN_DESC',    '管理者がアップロード可能な最大ファイルサイズを指定します。無指定または 0 で無制限となります。(例 10M)' );
 
 define( $constpref.'_SPECIAL_GROUPS' ,          '[xelfinder_db] 特定グループ' );
 define( $constpref.'_SPECIAL_GROUPS_DESC' ,     '特定グループとするグループを選択 (複数選択可)' );
@@ -83,16 +134,22 @@ define( $constpref.'_UPLOAD_ALLOW_SPGROUPS' ,   '[xelfinder_db] 特定グルー�
 define( $constpref.'_UPLOAD_ALLOW_SPGROUPS_DESC','' );
 define( $constpref.'_AUTO_RESIZE_SPGROUPS' ,    '[xelfinder_db] 特定グループ用自動リサイズ (px)' );
 define( $constpref.'_AUTO_RESIZE_SPGROUPS_DESC','' );
+define( $constpref.'_UPLOAD_MAX_SPGROUPS' ,     '[xelfinder_db] 特定グループ用最大ファイルサイズ' );
+define( $constpref.'_UPLOAD_MAX_SPGROUPS_DESC', '' );
 
 define( $constpref.'_UPLOAD_ALLOW_USER' ,       '[xelfinder_db] 登録ユーザーにアップロードを許可する MIME タイプ' );
 define( $constpref.'_UPLOAD_ALLOW_USER_DESC' ,  '' );
 define( $constpref.'_AUTO_RESIZE_USER' ,        '[xelfinder_db] 登録ユーザー用自動リサイズ (px)' );
 define( $constpref.'_AUTO_RESIZE_USER_DESC',    '' );
+define( $constpref.'_UPLOAD_MAX_USER' ,         '[xelfinder_db] 登録ユーザー用最大ファイルサイズ' );
+define( $constpref.'_UPLOAD_MAX_USER_DESC',     '' );
 
 define( $constpref.'_UPLOAD_ALLOW_GUEST' ,      '[xelfinder_db] ゲストにアップロードを許可する MIME タイプ' );
 define( $constpref.'_UPLOAD_ALLOW_GUEST_DESC' , '' );
 define( $constpref.'_AUTO_RESIZE_GUEST' ,       '[xelfinder_db] ゲスト用自動リサイズ (px)' );
 define( $constpref.'_AUTO_RESIZE_GUEST_DESC',   '' );
+define( $constpref.'_UPLOAD_MAX_GUEST' ,        '[xelfinder_db] ゲスト用最大ファイルサイズ' );
+define( $constpref.'_UPLOAD_MAX_GUEST_DESC',    '' );
 
 define( $constpref.'_DISABLE_PATHINFO' ,        '[xelfinder_db] ファイル参照URLの PathInfo を使用しない' );
 define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '環境変数 "PATH_INFO" が利用できないサーバーは「はい」を選択してください。' );
@@ -100,13 +157,53 @@ define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '環境変数 "PATH_INFO" が利
 define( $constpref.'_EDIT_DISABLE_LINKED' ,     '[xelfinder_db] リンク済みファイルの書き込み禁止' );
 define( $constpref.'_EDIT_DISABLE_LINKED_DESC' ,'リンク切れや不用意な上書きを防止するためにリンク・参照されたファイルを自動的に書き込み禁止に設定します。' );
 
-define( $constpref.'_SSL_CONNECTOR_URL' ,       'セキュア接続 URL' );
-define( $constpref.'_SSL_CONNECTOR_URL_DESC' ,  'バックエンドとの通信のみセキュアな環境を利用する場合に https:// から始まる connector.php の URL を指定してください。<br />ブラウザの User Agent に "Firefox" "Chrome" "Safari" が含まれる場合のみ有効になります。' );
+define( $constpref.'_CONNECTOR_URL' ,           '外部またはセキュア接続のコネクタURL（任意）' );
+define( $constpref.'_CONNECTOR_URL_DESC' ,      '外部サイトのコネクタに接続する場合やバックエンドとの通信のみセキュアな環境を利用する場合に connector.php の URL を指定してください。' );
+
+define( $constpref.'_CONN_URL_IS_EXT',          '外部のコネクタURL' );
+define( $constpref.'_CONN_URL_IS_EXT_DESC',     '任意指定したコネクタURLが外部サイトの場合に「はい」、コネクタURLがバックエンド通信のみSSL接続するURLの場合は「いいえ」を選択してください。<br />外部サイトのコネクタに接続する場合は相手先サイトにて、当サイトのオリジンドメインが許可されている必要があります。' );
+
+define( $constpref.'_ALLOW_ORIGINS',            '許可するドメインオリジン' );
+define( $constpref.'_ALLOW_ORIGINS_DESC',       '当サイトのコネクタに接続を許可する外部サイトのドメインオリジン（例:"http://example.com" 最後のスラッシュは不要）を行区切りで設定します。<br />コネクタURLがバックエンド通信のみSSL接続するURLの場合は「 <strong>'.preg_replace('#^(https?://[^/]+).*$#', '$1', XOOPS_URL).'</strong> 」を指定する必要があります。' );
 
 define( $constpref.'_UNZIP_LANG_VALUE' ,        'unzip 実行時のロケール' );
 define( $constpref.'_UNZIP_LANG_VALUE_DESC' ,   'アーカイブ解凍のコマンド unzip 使用時の言語ロケール設定。<br />通常は指定なしで問題ないと思われるが、解凍後のファイル名が文字化けする場合には ja_JP.Shift_JIS などとすると解消される場合がある。' );
 
+define( $constpref.'_AUTOSYNC_SEC_ADMIN',       '自動更新間隔(管理者):秒' );
+define( $constpref.'_AUTOSYNC_SEC_ADMIN_DESC',  '自動で更新チェックをする間隔を秒数で指定します。' );
+
+define( $constpref.'_AUTOSYNC_SEC_SPGROUPS',    '自動更新間隔(特定グループ):秒' );
+define( $constpref.'_AUTOSYNC_SEC_SPGROUPS_DESC', '' );
+
+define( $constpref.'_AUTOSYNC_SEC_USER',        '自動更新間隔(登録ユーザー):秒' );
+define( $constpref.'_AUTOSYNC_SEC_USER_DESC',   '' );
+
+define( $constpref.'_AUTOSYNC_SEC_GUEST',       '自動更新間隔(ゲスト):秒' );
+define( $constpref.'_AUTOSYNC_SEC_GUEST_DESC',  '' );
+
+define( $constpref.'_AUTOSYNC_START',           'すぐに自動更新を開始する' );
+define( $constpref.'_AUTOSYNC_START_DESC',      'コンテキストメニューの「リロード」で自動更新の開始・停止ができます。' );
+
 define( $constpref.'_DEBUG' ,                   'デバッグモードを有効にする' );
 define( $constpref.'_DEBUG_DESC' ,              'デバッグモードにすると elFinder の "elfinder.min.css", "elfinder.min.js" ではなく個別のファイルを読み込みます。<br />また、JavaScript のレスポンスにデバグ情報を含めます。<br />パフォーマンス向上のために、通常はデバッグモードは無効にして運用することをお勧めします。' );
+
+// admin/dropbox.php
+define( $constpref.'_DROPBOX_STEP1' ,        'Step 1: App の作成');
+define( $constpref.'_DROPBOX_GOTO_APP' ,     '次のリンク先 (Dropbox.com) で App を作成し、 App key と App secre を取得し、一般設定の「%s」と「%s」へ設定してください。');
+define( $constpref.'_DROPBOX_GET_TOKEN' ,    'Dropbox App Token の取得');
+define( $constpref.'_DROPBOX_STEP2' ,        'Step 2: Dropbox へ行き、アプリを認可');
+define( $constpref.'_DROPBOX_GOTO_CONFIRM' , '次のリンク先 (Dropbox.com) へ進み、アプリを認可してください。');
+define( $constpref.'_DROPBOX_CONFIRM_LINK' , 'Dropbox.com へ行き、アプリを認可する');
+define( $constpref.'_DROPBOX_STEP3' ,        'Step 3: 取得完了。一般設定へ設定');
+define( $constpref.'_DROPBOX_SET_PREF' ,     '次の値を一般設定の各項目に設定してください。');
+
+// admin/googledrive.php
+define( $constpref.'_GOOGLEDRIVE_GET_TOKEN', 'Google Drive Token の取得');
+
+// admin/composer_update.php
+define( $constpref.'_COMPOSER_UPDATE' ,       'plugins/vendor アップデート(composer update)');
+define( $constpref.'_COMPOSER_DO_UPDATE' ,    'アップデートを実行する(ある程度時間が掛かります)');
+define( $constpref.'_COMPOSER_UPDATE_STARTED','アップデートを開始しました。「アップデートが完了しました。」と表示されるまでお待ち下さい...');
+define( $constpref.'_COMPOSER_DONE_UPDATE' ,  'アップデートが完了しました。');
 
 }

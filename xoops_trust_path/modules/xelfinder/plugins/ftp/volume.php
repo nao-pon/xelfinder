@@ -14,7 +14,7 @@ if (is_dir(XOOPS_ROOT_PATH . $path)) {
 		'path'    => XOOPS_ROOT_PATH . $path,
 		'user'    => $mConfig['ftp_user'],
 		'pass'    => $mConfig['ftp_pass'],
-		'enable_search' => !empty($mConfig['ftp_search']),
+		'disabled' => !empty($mConfig['ftp_search'])? array() : array('search'),
 		'is_local'=> true,
 		'tmpPath' => XOOPS_MODULE_PATH . '/'.$mDirname.'/cache',
 		'utf8fix' => true,

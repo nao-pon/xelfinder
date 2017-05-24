@@ -1,6 +1,8 @@
 <?php
 class xelFinder extends elFinder {
 
+	private $isAdmin = false;
+	
 	/**
 	 * Constructor
 	 *
@@ -10,9 +12,12 @@ class xelFinder extends elFinder {
 	 **/
 	public function __construct($opts) {
 		parent::__construct($opts);
-		$this->commands['perm'] = array('target' => true, 'perm' => true, 'umask' => false, 'gids' => false, 'filter' => false);
+		$this->isAdmin = $opts['isAdmin'];
+		$this->commands['perm'] = array('target' => true, 'perm' => true, 'umask' => false, 'gids' => false, 'filter' => false, 'uid' => false, 'phash' => false);
 	}
 
+	
+	
 	/**
 	* Set perm
 	*
@@ -26,6 +31,11 @@ class xelFinder extends elFinder {
 		if (!is_array($targets)) {
 			$targets = array($targets);
 		}
+		if ($args['phash'] && is_array($args['phash']) && count($args['phash']) === count($targets)) {
+			$phashes = $args['phash'];
+		} else {
+			$phashes = array();
+		}
 
 		if (($volume = $this->volume($targets[0])) != false) {
 			if (method_exists($volume, 'savePerm')) {
@@ -33,16 +43,24 @@ class xelFinder extends elFinder {
 					return array('error' => $this->error(self::ERROR_PERM_DENIED));
 				}
 
+				$uid = ($this->isAdmin && is_numeric($args['uid']))? intval($args['uid']) : null;
+				// @todo uid ���݂��邩�H�Ó�������
+				
 				if ($args['perm'] === 'getgroups') {
 					$groups = $volume->getGroups($targets[0]);
 					return $groups? $groups : array('error' => $this->error($volume->error()));
 				} else {
 					$files = array();
 					$errors = array();
-					foreach($targets as $target) {
+					foreach($targets as $i => $target) {
 						if (!isset($args['filter'])) $args['filter'] = '';
-						$file = $volume->savePerm($target, $args['perm'], $args['umask'], $args['gids'], $args['filter']);
+						$file = $volume->savePerm($target, $args['perm'], $args['umask'], $args['gids'], $args['filter'], $uid);
 						if ($file) {
+							if (!empty($phashes[$i])) {
+								$file['alias']  = $volume->path($target);
+								$file['target'] = $volume->getPath($target);
+								$file['phash'] = $phashes[$i];
+							}
 							$files[] = $file;
 						} else {
 							$errors = array_merge($errors, $volume->error());

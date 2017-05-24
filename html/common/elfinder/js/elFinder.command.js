@@ -21,11 +21,27 @@ elFinder.prototype.command = function(fm) {
 	this.name = '';
 	
 	/**
+	 * Command icon class name with out 'elfinder-button-icon-'
+	 * Use this.name if it is empty
+	 *
+	 * @type  String
+	 */
+	this.className = '';
+
+	/**
 	 * Short command description
 	 *
 	 * @type  String
 	 */
 	this.title = '';
+	
+	/**
+	 * Linked(Child) commands name
+	 * They are loaded together when tthis command is loaded.
+	 * 
+	 * @type  Array
+	 */
+	this.linkedCmds = [];
 	
 	/**
 	 * Current command state
@@ -59,6 +75,8 @@ elFinder.prototype.command = function(fm) {
 	
 	this.updateOnSelect = true;
 	
+	this.syncTitleOnChange = false;
+	
 	/**
 	 * elFinder events defaults handlers.
 	 * Inside handlers "this" is current command object
@@ -68,7 +86,7 @@ elFinder.prototype.command = function(fm) {
 	this._handlers = {
 		enable  : function() { this.update(void(0), this.value); },
 		disable : function() { this.update(-1, this.value); },
-		'open reload load'    : function(e) { 
+		'open reload load sync'    : function() { 
 			this._disabled = !(this.alwaysEnabled || this.fm.isCommandEnabled(this.name));
 			this.update(void(0), this.value)
 			this.change(); 
@@ -105,31 +123,71 @@ elFinder.prototype.command = function(fm) {
 	 */
 	this.setup = function(name, opts) {
 		var self = this,
-			fm   = this.fm, i, s;
+			fm   = this.fm, i, s, sc, cb;
 
 		this.name      = name;
-		this.title     = fm.messages['cmd'+name] ? fm.i18n('cmd'+name) : name, 
-		this.options   = $.extend({}, this.options, opts);
+		this.title     = fm.messages['cmd'+name] ? fm.i18n('cmd'+name)
+		               : ((this.extendsCmd && fm.messages['cmd'+this.extendsCmd]) ? fm.i18n('cmd'+this.extendsCmd) : name), 
+		this.options   = Object.assign({}, this.options, opts);
 		this.listeners = [];
+
+		if (opts.shortcuts) {
+			if (typeof opts.shortcuts === 'function') {
+				sc = opts.shortcuts(this.fm, this.shortcuts);
+			} else if (Array.isArray(opts.shortcuts)) {
+				sc = opts.shortcuts;
+			}
+			this.shortcuts = sc || [];
+		}
 
 		if (this.updateOnSelect) {
 			this._handlers.select = function() { this.update(void(0), this.value); }
 		}
 
-		$.each($.extend({}, self._handlers, self.handlers), function(cmd, handler) {
+		$.each(Object.assign({}, self._handlers, self.handlers), function(cmd, handler) {
 			fm.bind(cmd, $.proxy(handler, self));
 		});
 
 		for (i = 0; i < this.shortcuts.length; i++) {
 			s = this.shortcuts[i];
-			s.callback = $.proxy(s.callback || function() { this.exec() }, this);
+			cb = s.callback || self.exec;
+			s.callback = function(e) {
+				var enabled, checks = {};
+				if (fm.searchStatus.state < 2) {
+					enabled = fm.isCommandEnabled(self.name);
+				} else {
+					$.each(fm.selected(), function(i, h) {
+						if (fm.optionsByHashes[h]) {
+							checks[h] = true;
+						} else {
+							$.each(fm.volOptions, function(id) {
+								if (!checks[id] && h.indexOf(id) === 0) {
+									checks[id] = true;
+									return false;
+								}
+							});
+						}
+					});
+					$.each(checks, function(h) {
+						enabled = fm.isCommandEnabled(self.name, h);
+						if (! enabled) {
+							return false;
+						}
+					});
+				}
+				if (enabled) {
+					self.event = e;
+					cb.call(self);
+					delete self.event;
+				}
+			};
 			!s.description && (s.description = this.title);
 			fm.shortcut(s);
 		}
 
 		if (this.disableOnSearch) {
-			fm.bind('search searchend', function(e) {
-				self._disabled = e.type == 'search';
+			fm.bind('search searchend', function() {
+				self._disabled = this.type === 'search'? true : ! (this.alwaysEnabled || fm.isCommandEnabled(name));
 				self.update(void(0), self.value);
 			});
 		}
@@ -204,7 +262,7 @@ elFinder.prototype.command = function(fm) {
 		var state = this.state,
 			value = this.value;
 
-		if (this._disabled) {
+		if (this._disabled && this.fm.searchStatus === 0) {
 			this.state = -1;
 		} else {
 			this.state = s !== void(0) ? s : this.getstate();
@@ -251,7 +309,7 @@ elFinder.prototype.command = function(fm) {
 	 */
 	this.hashes = function(hashes) {
 		return hashes
-			? $.map($.isArray(hashes) ? hashes : [hashes], function(hash) { return fm.file(hash) ? hash : null; })
+			? $.map(Array.isArray(hashes) ? hashes : [hashes], function(hash) { return fm.file(hash) ? hash : null; })
 			: fm.selected();
 	}
 	
@@ -265,9 +323,7 @@ elFinder.prototype.command = function(fm) {
 		var fm = this.fm;
 		
 		return hashes
-			? $.map($.isArray(hashes) ? hashes : [hashes], function(hash) { return fm.file(hash) || null })
+			? $.map(Array.isArray(hashes) ? hashes : [hashes], function(hash) { return fm.file(hash) || null })
 			: fm.selectedFiles();
 	}
-}
-
-
+};

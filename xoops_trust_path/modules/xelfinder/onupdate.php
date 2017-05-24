@@ -132,6 +132,34 @@ function xelfinder_onupdate_base( $module , $mydirname )
 		if ($_res) $msgs[] = 'removed unless tmbs';
 	}
 	
+	if ($lastupdate < 166) {
+		$msgs[] = 'ALTER TABLE file `home_of` and fix data (Version < 1.66)';		
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` CHANGE `home_of` `home_of` INT(10) NULL DEFAULT NULL');
+		$db->queryF('UPDATE `'.$db->prefix($mydirname."_file").'` SET `home_of` = NULL WHERE `home_of` = 0 AND `mime` != \'directory\'');
+	}
+	
+	if ($lastupdate < 182) {
+		$msgs[] = 'ALTER TABLE file `home_of` Add Index (Version < 1.82)';		
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'` ADD INDEX home_of( home_of )');
+	}
+	
+	if ($lastupdate < 219) {
+		$msgs[] = 'ALTER TABLE `file` CHANGE `size` `size` BIGINT UNSIGNED NOT NULL DEFAULT \'0\'; (Version < 2.19)';
+		$db->queryF('ALTER TABLE `'.$db->prefix($mydirname."_file").'`  CHANGE `size` `size` BIGINT( 20 ) UNSIGNED NOT NULL DEFAULT \'0\'');
+		$prefix = defined('XELFINDER_DB_FILENAME_PREFIX')? XELFINDER_DB_FILENAME_PREFIX : substr(XOOPS_URL, strpos(XOOPS_URL, '://') + 3);
+		$files = glob(XOOPS_TRUST_PATH.'/uploads/xelfinder/' . rawurlencode($prefix) . '_' . $mydirname . '_*');
+		foreach($files as $file) {
+			$basename = basename($file);
+			if (preg_match('/(\d+)$/', $basename, $m)) {
+				list($savedsize) = $db->fetchRow($db->query('SELECT `size` FROM `'.$db->prefix($mydirname).'_file` WHERE file_id='.$m[1].' LIMIT 1'));
+				if (($size = filesize($file)) !== (int)$savedsize) {
+					$msgs[] = 'UPDATE `file` SET `size`='.$size.' WHERE `file_id`='.$m[1].' from '.$savedsize;
+					$db->queryF('UPDATE `'.$db->prefix($mydirname."_file").'` SET `size`='.$size.' WHERE `file_id`='.$m[1]);
+				}
+			}
+		}
+	}
+	
 	// TEMPLATES (all templates have been already removed by modulesadmin)
 	$tplfile_handler =& xoops_gethandler( 'tplfile' ) ;
 	$tpl_path = dirname(__FILE__).'/templates' ;

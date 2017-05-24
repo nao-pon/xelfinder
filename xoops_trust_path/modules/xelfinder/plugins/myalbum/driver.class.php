@@ -88,7 +88,9 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 		$this->tbc = $this->db->prefix($this->mydirname) . '_cat';
 		$this->tbf = $this->db->prefix($this->mydirname) . '_photos';
 
-		//$this->updateCache($this->options['path'], $this->_stat($this->options['path']));
+		if (is_null($this->options['syncChkAsTs'])) {
+			$this->options['syncChkAsTs'] = true;
+		}
 
 		return true;
 	}
@@ -234,7 +236,8 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 						$row['size'] = filesize($realpath);
 						$row['mime'] = $this->mimetypeInternalDetect($row['id']);
 						$row['simg'] = trim($this->options['smallImg'], '/');
-						$row['tooltip'] = 'Owner: ' . xoops_elFinder::getUnameByUid($row['uid']);
+						$row['owner'] = xoops_elFinder::getUnameByUid($row['uid']);
+						$row['tooltip'] = 'Owner: ' . $row['owner'];
 						unset($row['uid'], $row['pid'], $row['lid'], $row['id']);
 						if (($stat = $this->updateCache($id, $row)) && empty($stat['hidden'])) {
 							$this->dirsCache[$path][] = $id;
@@ -365,10 +368,17 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _path($path) {
- 		if (($file = $this->stat('_')) == false) {
- 			return '';
- 		}
- 		return $file['name'];
+ 		if (($file = $this->stat($path)) == false) {
+			return '';
+		}
+
+		$parentsIds = $this->getParents($path);
+		$path = '';
+		foreach ($parentsIds as $id) {
+			$dir = $this->stat($id);
+			$path .= $dir['name'].$this->separator;
+		}
+		return $path.$file['name'];
 	}
 
 	/**
@@ -466,7 +476,8 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 				$stat['size'] = filesize($realpath);
 				$stat['mime'] = $this->mimetypeInternalDetect($stat['id']);
 				$stat['simg'] = trim($this->options['smallImg'], '/');
-				$stat['tooltip'] = 'Owner: ' . xoops_elFinder::getUnameByUid($stat['uid']);
+				$stat['owner'] = xoops_elFinder::getUnameByUid($stat['uid']);
+				$stat['tooltip'] = 'Owner: ' . $stat['owner'];
 				unset($stat['uid'], $stat['lid'], $stat['cid'], $stat['id']);
 				return $stat;
 			}
@@ -700,6 +711,15 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 	protected function _checkArchivers() {
 		// die('Not yet implemented. (_checkArchivers)');
 		return array();
+	}
+
+	/**
+	 * chmod implementation
+	 *
+	 * @return bool
+	 **/
+	protected function _chmod($path, $mode) {
+		return false;
 	}
 
 	/**

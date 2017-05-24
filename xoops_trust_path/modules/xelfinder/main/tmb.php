@@ -1,10 +1,9 @@
 <?php
 
 require_once dirname(dirname(__FILE__)) . '/class/xelFinderMisc.class.php';
-$xelFinderMisc = new xelFinderMisc();
+$xelFinderMisc = new xelFinderMisc($mydirname);
 $xelFinderMisc->myConfig = $xoopsModuleConfig;
-$xelFinderMisc->db = $xoopsDB;
-$xelFinderMisc->mydirname = $mydirname;
+$xelFinderMisc->dbSetCharset('utf8');
 
 $xelFinderMisc->mode = 'tmb';
 
@@ -33,7 +32,8 @@ if ($file_id && ($res = $xoopsDB->query($query)) && $xoopsDB->getRowsNum($res)) 
 		
 		@include_once XOOPS_TRUST_PATH . '/class/hyp_common/hyp_common_func.php';
 		
-		$basepath = XOOPS_TRUST_PATH . '/uploads/xelfinder/'. rawurlencode(substr(XOOPS_URL, strpos(XOOPS_URL, '://') + 3)) . '_' . $mydirname . '_';
+		$prefix = defined('XELFINDER_DB_FILENAME_PREFIX')? XELFINDER_DB_FILENAME_PREFIX : substr(XOOPS_URL, strpos(XOOPS_URL, '://') + 3);
+		$basepath = XOOPS_TRUST_PATH . '/uploads/xelfinder/'. rawurlencode($prefix) . '_' . $mydirname . '_';
 		if (! $file) {
 			$tmb = $file = $basepath . $file_id;
 		} else {

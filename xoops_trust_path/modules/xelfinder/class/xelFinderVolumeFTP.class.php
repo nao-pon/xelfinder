@@ -4,14 +4,16 @@ require_once _MD_ELFINDER_LIB_PATH . '/php/elFinderVolumeFTP.class.php';
 elFinder::$netDrivers['ftp'] = 'FTPx';
 
 class elFinderVolumeFTPx extends elFinderVolumeFTP {
+	protected function init() {
+		//$this->options['tmpPath'] = XOOPS_MODULE_PATH.'/'._MD_ELFINDER_MYDIRNAME.'/cache';
+		$this->options['tmpPath'] = XOOPS_TRUST_PATH.'/cache';
+		$this->options['tmbPath'] = XOOPS_MODULE_PATH.'/'._MD_ELFINDER_MYDIRNAME.'/cache/tmb';
+		$this->options['tmbURL']  = _MD_XELFINDER_MODULE_URL.'/'._MD_ELFINDER_MYDIRNAME.'/cache/tmb';
+		return parent::init();
+	}
 	
 	protected function configure() {
-		$this->options['tmpPath'] = XOOPS_MODULE_PATH.'/'._MD_ELFINDER_MYDIRNAME.'/cache';
-		
 		parent::configure();
-		
-		$this->tmbURL = '';
-		$this->tmbPath = '';
 		
 		$this->disabled[] = 'pixlr';
 	}
@@ -32,6 +34,13 @@ class elFinderVolumeFTPx extends elFinderVolumeFTP {
 			return $this->setError('Unable to login into '.$this->options['host']);
 		}
 	
+		// try switch utf8 mode
+		if ($this->encoding) {
+			@ftp_exec($this->connect, 'OPTS UTF8 OFF');
+		} else {
+			@ftp_exec($this->connect, 'OPTS UTF8 ON' );
+		}
+		
 		// switch off extended passive mode - may be usefull for some servers
 		@ftp_exec($this->connect, 'epsv4 off' );
 		// enter passive mode if required
@@ -50,16 +59,17 @@ class elFinderVolumeFTPx extends elFinderVolumeFTP {
 		$features = ftp_raw($this->connect, 'FEAT');
 		if (!is_array($features)) {
 			$this->umount();
-			return $this->setError('Server does not support command FEAT. wtf? 0_o');
+			return $this->setError('Server does not support command FEAT.');
 		}
 	
 		foreach ($features as $feat) {
 			if (strpos(trim($feat), 'MLST') === 0) {
-				return true;
+				$this->MLSTsupprt = true;
+				break;
 			}
 		}
-	
-		return $this->setError('Server does not support command MLST. wtf? 0_o');
+		
+		return true;
 	}
 	
 	protected function setLocalRoot() {
@@ -81,11 +91,4 @@ class elFinderVolumeFTPx extends elFinderVolumeFTP {
 		return false;
 	}
 	
-	protected function doSearch($path, $q, $mimes) {
-		if ($this->options['enable_search']) {
-			return parent::doSearch($path, $q, $mimes);
-		} else {
-			return array();
-		}
-	}
 }

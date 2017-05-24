@@ -5,8 +5,8 @@ if (! defined('XOOPS_MODULE_URL')) define('XOOPS_MODULE_URL', XOOPS_URL . '/modu
 
 $target = isset($_GET['target'])? (preg_match('/^[a-zA-Z0-9_:.-]+$/', $_GET['target'])? $_GET['target'] : '') : '';
 
-$callback = isset($_GET['cb'])? (preg_match('/^[a-zA-Z0-9_]+$/', $_GET['cb'])? $_GET['cb'] : '') : 'bbcode';
-$callback = 'getFileCallback_' . $callback;
+$callback = isset($_GET['cb'])? (preg_match('/^[a-zA-Z0-9_]+$/', $_GET['cb'])? $_GET['cb'] : '') : '';
+$callback = $callback? 'getFileCallback_' . $callback : 'null';
 
 $siteimg = (empty($_GET['si']) && empty($use_bbcode_siteimg))? 0 : 1;
 
@@ -18,16 +18,20 @@ $modules_basename = trim(str_replace(XOOPS_URL, '', XOOPS_MODULE_URL), '/');
 
 $module_handler =& xoops_gethandler('module');
 $xelfinderModule = $module_handler->getByDirname($mydirname);
+$xelfVer = $xelfinderModule->getVar('version');
 $config_handler =& xoops_gethandler('config');
 $config = $config_handler->getConfigsByCat(0, $xelfinderModule->getVar('mid'));
 
-if (!empty($config['ssl_connector_url']) && preg_match('/Firefox|Chrome|Safari/', $_SERVER['HTTP_USER_AGENT'])) {
-	$conector_url = $config['ssl_connector_url'];
-	$session_name = session_name();
-} else {
-	$session_name = $conector_url = '';
-}
+// load xoops_elFinder
+include_once dirname(__FILE__).'/class/xoops_elFinder.class.php';
+$xoops_elFinder = new xoops_elFinder($mydirname);
+$xoops_elFinder->setConfig($config);
 
+$conector_url = $conn_is_ext = '';
+if (!empty($config['connector_url'])) {
+	$conector_url = $config['connector_url'];
+	!$config['conn_url_is_ext'] || $conn_is_ext = 1;
+}
 $managerJs = '';
 $_plugin_dir = dirname(__FILE__) . '/plugins/';
 $_js_cache_path = $_js_cache_times = array();
@@ -61,7 +65,7 @@ if ($_js_cache_path) {
 		}
 		file_put_contents($_js_cacahe, $_src);
 	}
-	$managerJs = '<script src="'.$myurl.$_managerJs.'" charset="UTF-8"></script>' . "\n";
+	$managerJs = '<script src="'.$myurl.$_managerJs.'?v='.$xelfVer.'" charset="UTF-8"></script>' . "\n";
 }
 
 $default_tmbsize = isset($config['thumbnail_size'])? (int)$config['thumbnail_size'] : '160';
@@ -70,27 +74,46 @@ $debug = (! empty($config['debug']));
 $cToken = md5(session_id() . XOOPS_ROOT_PATH . (defined(XOOPS_SALT)? XOOPS_SALT : XOOPS_DB_PASS));
 $_SESSION['XELFINDER_CTOKEN'] = $cToken;
 
-$viewport = (preg_match('/Mobile/i', $_SERVER['HTTP_USER_AGENT']))? '<meta name="viewport" content="width=device-width" />' : '';
+$viewport = (preg_match('/Mobile|Android/i', $_SERVER['HTTP_USER_AGENT']))? '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2" />' : '';
 
 $userLang = xelfinder_detect_lang();
 
-$jQueryCDN = '//ajax.googleapis.com/ajax/libs/jquery/%s/jquery.min.js';
-$jQueryUICDN = '//ajax.googleapis.com/ajax/libs/jqueryui/%s';
-$jQueryVersion   = '1.10.2';
-$jQueryUIVersion = '1.10.3';
-
-if (! $jQueryUiTheme = @$config['jquery_ui_theme']) {
-	$jQueryUiTheme = 'smoothness';
+if (empty($config['jquery'])) {
+	$jQueryVersion = (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/4.0') === false)? '3.2.1' : '1.12.4';
+	$jQueryCDN = '//cdnjs.cloudflare.com/ajax/libs/jquery/%s/jquery.min.js';
+	$jQueryUrl = sprintf($jQueryCDN, $jQueryVersion);
 } else {
-	if ($jQueryUiTheme === 'base' && version_compare($jQueryUIVersion, '1.10.1', '>')) {
-		$jQueryUiTheme = 'smoothness';
-	}
+	$jQueryUrl = trim($config['jquery']);
 }
-if (! preg_match('#^(?:https?:)?//#i', $jQueryUiTheme)) {
-	$jQueryUiTheme = sprintf($jQueryUICDN, $jQueryUIVersion) . '/themes/'.$jQueryUiTheme.'/jquery-ui.css';
+
+if (empty($config['jquery_ui'])) {
+	$jQueryUIVersion = '1.12.1';
+	$jQueryUICDN = '//cdnjs.cloudflare.com/ajax/libs/jqueryui/%s';
+	$jQueryUIUrl = sprintf($jQueryUICDN, $jQueryUIVersion).'/jquery-ui.min.js';
+} else {
+	$jQueryUIUrl = trim($config['jquery_ui']);
+}
+
+if (empty($config['jquery_ui_css'])) {
+	if (! $jQueryUiTheme = @$config['jquery_ui_theme']) {
+		$jQueryUiTheme = 'smoothness';
+	} else {
+		if ($jQueryUiTheme === 'base' && version_compare($jQueryUIVersion, '1.10.1', '>')) {
+			$jQueryUiTheme = 'smoothness';
+		}
+	}
+	if (! preg_match('#^(?:https?:)?//#i', $jQueryUiTheme)) {
+		$jQueryUiTheme = sprintf($jQueryUICDN, $jQueryUIVersion) . '/themes/'.$jQueryUiTheme.'/jquery-ui.min.css';
+	}
+} else {
+	$jQueryUiTheme = trim($config['jquery_ui_css']);
 }
 
 $title = mb_convert_encoding($config['manager_title'], 'UTF-8', _CHARSET);
+
+$useCKEditor = (is_file(XOOPS_ROOT_PATH.'/modules/ckeditor4/ckeditor/ckeditor.js'))? 'true' : 'false';
+
+$start = (!empty($_GET['start']) && preg_match('/^[a-zA-Z0-9_-]+$/', $_GET['start']))? $_GET['start'] : '';
 
 while(ob_get_level() && @ob_end_clean()) {}
 
@@ -98,6 +121,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 		<meta charset="utf-8">
 		<title><?php echo $title?></title>
 		<?php echo $viewport ?>
@@ -105,85 +129,96 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<link rel="stylesheet" href="<?php echo $jQueryUiTheme?>" type="text/css">
 
 <?php if ($debug) {?>
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/commands.css"    type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/common.css"      type="text/css" >
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/dialog.css"      type="text/css" >
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/toolbar.css"     type="text/css" >
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/navbar.css"      type="text/css" >
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/statusbar.css"   type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/contextmenu.css" type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/cwd.css"         type="text/css" >
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/quicklook.css"   type="text/css" >
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/commands.css"    type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/dialog.css"      type="text/css" >
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/fonts.css"       type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/navbar.css"      type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/places.css"      type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/quicklook.css"   type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/statusbar.css"   type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/toast.css"       type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/toolbar.css"     type="text/css" >
 <?php } else {?>
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/elfinder.min.css" type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/elfinder.min.css?v=<?php echo $xelfVer?>" type="text/css" >
 <?php }?>
 
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/theme.css"       type="text/css" >
+		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/theme.css?v=<?php echo $xelfVer?>" type="text/css" >
 
-		<script src="<?php echo sprintf($jQueryCDN, $jQueryVersion)?>"></script>
-		<script src="<?php echo sprintf($jQueryUICDN, $jQueryUIVersion)?>/jquery-ui.min.js"></script>
+		<script src="<?php echo $jQueryUrl?>"></script>
+		<script src="<?php echo $jQueryUIUrl?>"></script>
 
-<?php if ($debug) {?>
+		<?php if ($debug) {?>
 		<!-- elfinder core -->
 		<script src="<?php echo $elfurl ?>/js/elFinder.js"></script>
+		
+		<script src="<?php echo $elfurl ?>/js/elFinder.command.js"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.history.js"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.options.js"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.options.netmount.js"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.resources.js"></script>
 		<script src="<?php echo $elfurl ?>/js/elFinder.version.js"></script>
 		<script src="<?php echo $elfurl ?>/js/jquery.elfinder.js"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.resources.js"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.options.js"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.history.js"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.command.js"></script>
 	
 		<!-- elfinder ui -->
-		<script src="<?php echo $elfurl ?>/js/ui/overlay.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/workzone.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/navbar.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/dialog.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/tree.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/cwd.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/toolbar.js"></script>
 		<script src="<?php echo $elfurl ?>/js/ui/button.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/uploadButton.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/viewbutton.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/contextmenu.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/cwd.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/dialog.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/fullscreenbutton.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/navbar.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/overlay.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/panel.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/path.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/places.js"></script>
 		<script src="<?php echo $elfurl ?>/js/ui/searchbutton.js"></script>
 		<script src="<?php echo $elfurl ?>/js/ui/sortbutton.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/panel.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/contextmenu.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/path.js"></script>
 		<script src="<?php echo $elfurl ?>/js/ui/stat.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/places.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/toast.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/toolbar.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/tree.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/uploadButton.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/viewbutton.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/workzone.js"></script>
 	
 		<!-- elfinder commands -->
+		<script src="<?php echo $elfurl ?>/js/commands/archive.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/back.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/forward.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/reload.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/up.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/home.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/chmod.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/colwidth.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/copy.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/cut.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/paste.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/open.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/rm.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/info.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/download.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/duplicate.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/rename.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/help.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/edit.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/extract.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/forward.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/fullscreen.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/getfile.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/help.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/home.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/info.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/mkdir.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/mkfile.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/upload.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/download.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/edit.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/netmount.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/open.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/opendir.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/paste.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/pixlr.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/places.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/quicklook.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/quicklook.plugins.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/extract.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/archive.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/search.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/view.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/reload.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/rename.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/resize.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/rm.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/search.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/sort.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/netmount.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/pixlr.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/up.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/upload.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/view.js"></script>
 	
 		<!-- elfinder languages -->
 		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.en.js" charset="UTF-8"></script>
@@ -191,13 +226,13 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<!-- elfinder dialog -->
 		<script src="<?php echo $elfurl ?>/js/jquery.dialogelfinder.js"></script>
 <?php } else {?>
-		<script src="<?php echo $elfurl ?>/js/elfinder.min.js"></script>
+		<script src="<?php echo $elfurl ?>/js/elfinder.min.js?v=<?php echo $xelfVer?>"></script>
 <?php }?>
+		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.<?php echo $userLang?>.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/extras/quicklook.googledocs.js?v=<?php echo $xelfVer?>"></script>
 		
-		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.<?php echo $userLang?>.js" charset="UTF-8"></script>
-
 		<!-- elFinder initialization (REQUIRED) -->
-		<link rel="stylesheet" href="<?php echo $myurl ?>/include/css/manager.css" type="text/css">
+		<link rel="stylesheet" href="<?php echo $myurl ?>/include/css/manager.css?v=<?php echo $xelfVer?>" type="text/css">
 		<script type="text/javascript">
 			var target = '<?php echo $target ?>';
 			var rootUrl = '<?php echo XOOPS_URL ?>';
@@ -205,31 +240,33 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var myUrl = moduleUrl + '/<?php echo $mydirname?>/';
 			var imgUrl = myUrl + 'images/';
 			var connectorUrl = '<?php echo $conector_url?>';
-			var sessionName = '<?php echo $session_name?>';
+			var connIsExt = <?php echo (int)$conn_is_ext?>;
 			var useSiteImg = <?php echo $siteimg ?>;
 			var imgThumb = '';
 			var itemPath = '';
 			var itemObject = [];
 			var defaultTmbSize = <?php echo $default_tmbsize?>;
 			var lang = '<?php echo $userLang?>';
+			var xoopsUid = '<?php echo $xoops_elFinder->getUid()?>';
 			var adminMode = <?php echo $admin?>;
 			var cToken = '<?php echo $cToken?>';
+			var editorsConfig = [];
+			var useCKEditor = <?php echo $useCKEditor ?>;
+			var startPathHash = '<?php echo $start?>';
+			var autoSyncSec = <?php echo $xoops_elFinder->getAutoSyncSec()?>;
+			var autoSyncStart = <?php echo (empty($config['autosync_start'])? 'false' : 'true')?>;
+			var useGoogleDocsPreview = <?php echo (empty($config['use_google_preview'])? 'false' : 'true')?>;
 		</script>
-		<script src="<?php echo $myurl ?>/include/js/commands/perm.js"></script>
-		<script src="<?php echo $myurl ?>/include/js/manager.js" charset="UTF-8"></script>
+		<script src="<?php echo $myurl ?>/include/js/commands/perm.js?v=<?php echo $xelfVer?>"></script>
+		<script src="<?php echo $myurl ?>/include/js/manager.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>
 		<script type="text/javascript" charset="UTF-8">
 			var callbackFunc = <?php echo $callback ?>;
-			setInterval(function(){
-				jQuery.ajax({url:"<?php echo $myurl ?>/connector.php?keepalive=1",cache:false});
-			}, 300000); // keep alive interval 5min
 		</script>
 		<?php echo $managerJs ?>
 	</head>
-	<body>
-
+	<body style="margin:0;padding:0;">
 		<!-- Element where elFinder will be created (REQUIRED) -->
-		<div id="elfinder"></div>
-
+		<div id="elfinder" style="height:100%;border:none;"></div>
 	</body>
 </html>
 <?php exit();

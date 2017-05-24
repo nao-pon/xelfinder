@@ -22,10 +22,10 @@ elFinder.prototype.commands.perm = function() {
 	};
 
 	this.tpl = {
-		main       : '<div class="ui-helper-clearfix elfinder-info-title"><span class="elfinder-cwd-icon {class} ui-corner-all"/>{title}</div>'
+		main       : '<div class="ui-helper-clearfix elfinder-info-title elfinder-perm-dialog"><span class="elfinder-cwd-icon {class} ui-corner-all"/>{title}</div>'
 					+'{filter}{dataTable}{targetGroups}',
 		filter     : '<div>'+fm.i18n('mimeserach')+': <input id="{id}-filter" type="textbox" name="filter" size="30" value="{value}"></div>',
-		itemTitle  : '<strong>{name}</strong><span id="elfinder-info-kind">{kind}</span> ('+fm.i18n('owner')+':<span id="{id}-owner-name"><span class="'+spclass+'"/></span>)',
+		itemTitle  : '<strong>{name}</strong><span id="elfinder-info-kind">{kind}</span> ('+fm.i18n('owner')+':<span id="{id}-owner-name">{owner}{uidinput}</span>)',
 		groupTitle : '<strong>{items}: {num}</strong>',
 		dataTable  : '<table id="{id}-table-{type}"><tr><td>{0}</td><td>{1}</td><td>{2}</td></tr></table>'
 					+'<div class="">'+msg.perm+': <input id="{id}-{type}" type="text" size="4" maxlength="3" value="{value}"></div>',
@@ -37,7 +37,8 @@ elFinder.prototype.commands.perm = function() {
 		tab        : '<div id="{id}-tab"><ul><li><a href="#{id}-tab-perm">'+msg.perms+'</a></li><li><a href="#{id}-tab-umask">'+msg.newitem+'</a></li></ul>'
 					+'<div id="{id}-tab-perm">{permTable}</div><div id="{id}-tab-umask">{umaskTable}</div></div>',
 		groups     : '<fieldset id="{id}-fieldset-groups"><legend>'+fm.i18n('targetgroups')+'</legend><div id="{id}-groups"><span class="'+spclass+'"/></div></fieldset>',
-		groupCheck : '<input type="checkbox" id="{id}-group-{gid}" name="gids" value="{gid}"{checked} /><label for="{id}-group-{gid}">{gname}</label>'
+		groupCheck : '<input type="checkbox" id="{id}-group-{gid}" name="gids" value="{gid}"{checked} /><label for="{id}-group-{gid}">{gname}</label>',
+		uidInput   : ' uid: <input type="text" id="{id}-uid" class="perm-uid" value="{uid}">'
 	};
 
 	this.shortcuts = [{
@@ -58,7 +59,7 @@ elFinder.prototype.commands.perm = function() {
 		if (!cnt) return false;
 		var loccheck = (cnt && sel[0]._localalias);
 		var chk = $.map(sel, function(f) {
-			return (f.isowner && (cnt == 1 || f.mime != 'directory') && (f._localalias || !f.alias) && !((f._localalias) ^ loccheck)) ? f : null;
+			return (f.isowner && (cnt == 1 || f.mime != 'directory') && !((f._localalias) ^ loccheck)) ? f : null;
 		}).length;
 		return (cnt == chk)? true : false;
 	};
@@ -75,6 +76,10 @@ elFinder.prototype.commands.perm = function() {
 		}),
 		tpl     = this.tpl,
 		hashes  = this.hashes(hashes),
+		phashes = $.map(hashes, function(h) {
+			var f = fm.file(h);
+			return f.thash && f.phash? f.phash : '';
+		}),
 		cnt     = files.length,
 		file    = files[0],
 		id = fm.namespace + '-perm-' + file.hash,
@@ -89,6 +94,7 @@ elFinder.prototype.commands.perm = function() {
 		save = function() {
 			var perm = $('#'+id+'-perm').val();
 			var umask = $('#'+id+'-umask').val();
+			var uid = $('#'+id+'-uid').val();
 			var gids = [];
 			var filter = $('#'+id+'-filter').val();
 			$('#'+id+'-fieldset-groups input[name=gids]:checked').map(function() {
@@ -103,14 +109,20 @@ elFinder.prototype.commands.perm = function() {
 				umask = '';
 			}
 			
+			if (fm.customData && !fm.customData.admin) {
+				uid = '';
+			}
+			
 			fm.request({
 				data : {
 					cmd    : 'perm',
 					target : hashes,
+					phash  : phashes,
 					perm   : perm,
 					umask  : umask,
 					gids   : gids,
-					filter : filter
+					filter : filter,
+					uid    : uid
 				},
 				notify : {type : 'perm', cnt : cnt}
 			})
@@ -200,7 +212,7 @@ elFinder.prototype.commands.perm = function() {
 			return perm;
 		},
 		makeDataTable = function(perm, type) {
-			var _perm;
+			var _perm, fieldset;
 			var value = '';
 			var dataTable = tpl.dataTable;
 			for (var i = 0; i < 3; i++){
@@ -232,18 +244,24 @@ elFinder.prototype.commands.perm = function() {
 			close : function() { $(this).elfinderdialog('destroy'); }
 		},
 		dialog = fm.getUI().find('#'+id),
-		tmb = '', title, dataTable, targetGroups, filter;
+		tmb = '', title, dataTable, targetGroups, filter, uidInput;
 
 		if (dialog.length) {
 			dialog.elfinderdialog('toTop');
 			return $.Deferred().resolve();
+		}
+		
+		if (fm.customData && fm.customData.admin) {
+			uidInput = tpl.uidInput.replace('{uid}', file.uid);
+		} else {
+			uidInput = '';
 		}
 
 		view  = view.replace('{class}', cnt > 1 ? 'elfinder-cwd-icon-group' : fm.mime2class(file.mime));
 		if (cnt > 1) {
 			title = tpl.groupTitle.replace('{items}', fm.i18n('items')).replace('{num}', cnt);
 		} else {
-			title = tpl.itemTitle.replace('{name}', file.name).replace('{kind}', fm.mime2kind(file));
+			title = tpl.itemTitle.replace('{name}', file.name).replace('{kind}', fm.mime2kind(file)).replace('{owner}', file.owner).replace('{uidinput}', uidInput);
 			if (file.tmb) {
 				tmb = fm.option('tmbUrl')+file.tmb;
 			}
@@ -260,8 +278,8 @@ elFinder.prototype.commands.perm = function() {
 
 		view = view.replace('{title}', title).replace('{filter}', filter).replace('{dataTable}', dataTable).replace('{targetGroups}', targetGroups).replace(/{id}/g, id);
 
-		buttons[fm.i18n('btnCancel')] = function() { dialog.elfinderdialog('close'); };
 		buttons[fm.i18n('btnApply')] = save;
+		buttons[fm.i18n('btnCancel')] = function() { dialog.elfinderdialog('close'); };
 
 		dialog = fm.dialog(view, opts);
 		dialog.attr('id', id);
@@ -269,41 +287,44 @@ elFinder.prototype.commands.perm = function() {
 		// load thumbnail
 		if (tmb) {
 			$('<img/>')
-				.load(function() { dialog.find('.elfinder-cwd-icon').css('background', 'url("'+tmb+'") center center no-repeat'); })
+				.on('load', function() { dialog.find('.elfinder-cwd-icon').css('background', 'url("'+tmb+'") center center no-repeat'); })
 				.attr('src', tmb);
 		}
 
-		$('#' + id + '-table-perm :checkbox').click(function(){setperm('perm');});
-		$('#' + id + '-perm').keydown(function(e) {
+		$('#' + id + '-table-perm :checkbox').on('click', function(){setperm('perm');});
+		$('#' + id + '-perm').on('keydown', function(e) {
 			var c = e.keyCode;
 			e.stopPropagation();
 			if (c == 13) {
 				save();
 				return;
 			}
-
-		});
-		$('#' + id + '-perm').keyup(function(e) {
+		}).on('focus', function(e){
+			$(this).select();
+		}).on('keyup', function(e) {
 			if ($(this).val().length == 3) {
+				$(this).select();
 				setcheck($(this).val(), 'perm');
 			}
 		});
-		$('#' + id + '-filter').keydown(function(e) {
+		$('#' + id + '-filter,#' + id + '-uid').keydown(function(e) {
 			e.stopPropagation();
 		});
 		if (file.mime == 'directory') {
 			$('#' + id + '-tab').tabs();
-			$('#' + id + '-table-umask :checkbox').click(function(){setperm('umask');});
-			$('#' + id + '-umask').keydown(function(e) {
+			$('#' + id + '-table-umask :checkbox').on('click', function(){setperm('umask');});
+			$('#' + id + '-umask').on('keydown', function(e) {
 				var c = e.keyCode;
 				e.stopPropagation();
 				if (c == 13) {
 					save();
 					return;
 				}
-			});
-			$('#' + id + '-umask').keyup(function(e) {
+			}).on('focus', function(e){
+				$(this).select();
+			}).on('keyup', function(e) {
 				if ($(this).val().length == 3) {
+					$(this).select();
 					setcheck($(this).val(), 'umask');
 				}
 			});
@@ -328,7 +349,6 @@ elFinder.prototype.commands.perm = function() {
 				};
 			}
 			replSpinner(html ? html : msg.unknown, id+'-groups');
-			replSpinner(data.uname, id+'-owner-name');
 		});
 
 		return dfrd;

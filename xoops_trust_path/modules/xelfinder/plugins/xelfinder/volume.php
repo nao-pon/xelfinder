@@ -3,18 +3,25 @@
  * Created on 2012/01/20 by nao-pon http://xoops.hypweb.net/
  */
 
-if (is_dir(XOOPS_ROOT_PATH . $path)) {
+$_path = '';
+if (strpos($path, '/[trust]') === 0) {
+	$path = str_replace('/[trust]', XOOPS_TRUST_PATH, $path);
+} else {
+	$_path = $path;
+	$path = XOOPS_ROOT_PATH . $path;
+}
+if (is_dir($path)) {
 
 	$volumeOptions = array(
 		'driverSrc'  => dirname(__FILE__) . '/driver.class.php',
 		'driver'     => 'XoopsXelfinder',
 		'mydirname'  => $mydirname,
-		'path'       => XOOPS_ROOT_PATH . $path,
-		'URL'        => _MD_XELFINDER_SITEURL . $path,
+		'path'       => $path,
+		'URL'        => $_path? _MD_XELFINDER_SITEURL . $_path : '',
 		'alias'      => $title,
 		'tmbURL'     => _MD_XELFINDER_MODULE_URL . '/'.$mydirname.'/cache/tmb/',
-		'tmbPath'    => XOOPS_MODULE_PATH . '/'.$mydirname.'/cache/tmb/',
-		'quarantine' => XOOPS_MODULE_PATH . '/'.$mydirname.'/cache/tmb/.quarantine',
+		'tmbPath'    => XOOPS_MODULE_PATH . '/'.$mydirname.'/cache/tmb',
+		'quarantine' => XOOPS_TRUST_PATH.'/cache',
 		//'tmbSize'    => 140,
 		//'tmbCrop'    => false,
 		// 'startPath'  => '../files/test',

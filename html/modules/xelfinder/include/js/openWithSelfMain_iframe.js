@@ -31,10 +31,10 @@ var XELFINDER_URL;
 
 function openWithSelfMain(url, name, w, h, returnwindow) {
 	var $ = jQuery;
-	
-	w = $(window).width() - 60;
-	h = $(window).height() - 60;
-	$.modal('<iframe name="'+name+'" id="xelf_window" src="' + url + '" height="'+h+'" width="'+w+'" style="border:0;overflow:hidden;" allowtransparency="true" scrolling="no" frameborder="0">', {
+	var margin = $.mobile? 0 : 60;
+	w = $(window).width() - margin;
+	h = $(window).height() - margin;
+	$.modal('<iframe name="'+name+'" id="xelf_window" src="' + url + '" height="100%" width="100%" style="border:0;overflow:hidden;" allowtransparency="true" scrolling="no" frameborder="0" allowfullscreen="allowfullscreen">', {
 		containerCss:{
 			backgroundColor:	"transparent",
 			borderColor:		"transparent",
@@ -47,9 +47,10 @@ function openWithSelfMain(url, name, w, h, returnwindow) {
 			width:				w
 		},
 		dataCss:{
+			overflow:			"hidden",
 			padding:			0,
-			height:				h-20,
-			width:				w-20
+			height:				"100%",
+			width:				"100%"
 		},
 		overlayClose:			true,
 		zIndex:					100000
@@ -57,9 +58,25 @@ function openWithSelfMain(url, name, w, h, returnwindow) {
 
 	$('#xelf_window').load(
 		function(e){
+			$(this).css({overflow: 'auto'});
+			$.mobile && $('#simplemodal-container a.modalCloseImg').css({
+				top:0,
+				right:0});
 			setTimeout(function(){ e.target.contentWindow.focus(); }, 100);
 		}
 	);
+
+	var resizeTimer = null;
+	$(window).resize(function() {
+		resizeTimer && clearTimeout(resizeTimer);
+		resizeTimer = setTimeout(function() {
+			$("#simplemodal-container").css({
+				height: $(window).height() - margin,
+				width: $(window).width() - margin,
+				top: margin/2,
+				left: margin/2});
+		}, 200);
+	});
 
 	if (returnwindow != null){
 		return $('#xelf_window');

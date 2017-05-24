@@ -13,6 +13,9 @@ define( $constpref.'_DESC' , 'Webе┘б╝е╣д╬е╒ебедеые▐е═б╝е╕еу elFinder дЄедесб╝е╕е
 // admin menu
 define($constpref.'_ADMENU_GOTO_MODULE' ,   'ете╕ехб╝еы▓ш╠╠' ) ;
 define($constpref.'_ADMENU_GOTO_MANAGER' ,  'е╒ебедеые▐е═б╝е╕еу' ) ;
+define($constpref.'_ADMENU_DROPBOX' ,       'Dropbox App Token ╝ш╞└' ) ;
+define($constpref.'_ADMENU_GOOGLEDRIVE' ,   'GoogleDrive Token ╝ш╞└' ) ;
+define($constpref.'_ADMENU_VENDORUPDATE' ,  'vendor еве├е╫е╟б╝е╚' ) ;
 define($constpref.'_ADMENU_MYLANGADMIN' ,   '╕└╕ь─ъ┐Ї┤╔═¤' ) ;
 define($constpref.'_ADMENU_MYTPLSADMIN' ,   'е╞еєе╫еьб╝е╚┤╔═¤' ) ;
 define($constpref.'_ADMENU_MYBLOCKSADMIN' , 'е╓еэе├еп┤╔═¤/евепе╗е╣╕в╕┬' ) ;
@@ -22,10 +25,20 @@ define($constpref.'_ADMENU_MYPREFERENCES' , '░ь╚╠└▀─ъ' ) ;
 define( $constpref.'_MANAGER_TITLE' ,           'е▐е═б╝е╕еуд╬е┌б╝е╕е┐еде╚еы' );
 define( $constpref.'_MANAGER_TITLE_DESC' ,      '' );
 define( $constpref.'_VOLUME_SETTING' ,          'е▄еъехб╝ере╔ещеде╨' );
-define( $constpref.'_VOLUME_SETTING_DESC' ,     '[ете╕ехб╝еые╟егеьепе╚еъ╠╛]:[е╫еще░едеє╠╛]:[е╒ебедеы│╩╟╝е╟егеьепе╚еъ]:[╔╜╝и╠╛]:[еке╫е╖ечеє]<br />╣╘├▒░╠д╟╡н╜╥бг└ш╞мд╦ # дЄ├╓дпд╚╠╡╗ыд╡дьд▐д╣бг<br />еке╫е╖ечеєд╧ | д╟╢ш└┌дъд▐д╣бг<br />╢ж─╠еке╫е╖ечеє: gid=[═н╕·д╦д╣дые░еыб╝е╫IDдЄелеєе▐╢ш└┌дъд╟╗╪─ъ]| uploadMaxSize=[еве├е╫еэб╝е╔е╒ебедеые╡еде║д╬╛х╕┬├═(╬у:2M)]| id=[╟д░╒д╬░ь░╒д╩ID]' );
+define( $constpref.'_VOLUME_SETTING_DESC' ,     '[ете╕ехб╝еые╟егеьепе╚еъ╠╛]:[е╫еще░едеє╠╛]:[е╒ебедеы│╩╟╝е╟егеьепе╚еъ]:[╔╜╝и╠╛]:[еке╫е╖ечеє]<br />╣╘├▒░╠д╟╡н╜╥бг└ш╞мд╦ # дЄ├╓дпд╚╠╡╗ыд╡дьд▐д╣бг<br />еке╫е╖ечеєд╧ б╓|б╫ д╟╢ш└┌дъд▐д╣бг<br />╢ж─╠еке╫е╖ечеє:<br />gid=[═н╕·д╦д╣дые░еыб╝е╫IDдЄелеєе▐╢ш└┌дъд╟╗╪─ъ]<br />defaults=[read, write, hidden, lock д╬│╞е╤б╝е▀е├е╖ечеєдЄе╟е╒ейеые╚д╚д╖д╞═н╕·д╦д╣дыдтд╬дЄд╜дьд╛дьд╬╞м╩╕╗· r w h l д╟╗╪─ъб╩╬у: defaults=rwб╦]<br />uploadMaxSize=[еве├е╫еэб╝е╔е╒ебедеые╡еде║д╬╛х╕┬├═(╬у:2M)]<br />id=[╟д░╒д╬░ь░╒д╩IDб╩╕╟─ъеъеєепд╬URLе╧е├е╖ехд╦═°═╤д╡дьд▐д╣)]<br />encoding=[╩╕╗·еиеєе│б╝е╟егеєе░(iconvд╟═н╕·д╩├═)]<br />locale=[еэе▒б╝еы(╜┼═╫: encoding д╦┬╨▒■д╣ды┼м└┌д╩еэе▒б╝еы)]<br />chmod=1(chmod дм▓─╟╜д╩╛ь╣чбве╒ебедеы┬░└нд╬╩╤╣╣дЄ╡Ў▓─)' );
 define( $constpref.'_SHARE_HOLDER' ,            '╢ж═не╒ейеые└' );
 define( $constpref.'_DISABLED_CMDS_BY_GID' ,    'е░еыб╝е╫╦ш╠╡╕·е│е▐еєе╔' );
-define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','е░еыб╝е╫╦шд╦╠╡╕·д╦д╣дые│е▐еєе╔дЄ [е░еыб╝е╫ID]=[╠╡╕·е│е▐еєе╔(елеєе▐╢ш└┌дъ)] д╚д╖д╞ ":" д╟╢ш└┌д├д╞╗╪─ъд╣дыбг<br />е│е▐еєе╔╠╛: mkdir, mkfile, rm, rename, duplicate, paste, upload, archive, extract, resize, netmount, pixlr' );
+define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','е░еыб╝е╫╦ш(┤╔═¤╝╘дЄ╜№дп)д╦╠╡╕·д╦д╣дые│е▐еєе╔дЄ [е░еыб╝е╫ID]=[╠╡╕·е│е▐еєе╔(елеєе▐╢ш└┌дъ)] д╚д╖д╞ ":" д╟╢ш└┌д├д╞╗╪─ъд╣дыбг<br />е│е▐еєе╔╠╛: mkdir, mkfile, rm, rename, duplicate, paste, upload, archive, extract, resize, netmount, perm, pixlr д╩д╔' );
+define( $constpref.'_DISABLE_WRITES_GUEST' ,    'е▓е╣е╚╜ёдн╣■д▀╠╡╕·' );
+define( $constpref.'_DISABLE_WRITES_GUEST_DESC','е▓е╣е╚╕■д▒д╦е░еыб╝е╫╦ш╠╡╕·е│е▐еєе╔д╦╗╪─ъд╖д┐╠╡╕·е│е▐еєе╔д╦╣чдяд╗бв╜ёдн╣■д▀╖╧е│е▐еєе╔дЄд╣д┘д╞─╔▓├д╖д▐д╣бг' );
+define( $constpref.'_DISABLE_WRITES_USER' ,     '┼╨╧┐ецб╝е╢б╝╜ёдн╣■д▀╠╡╕·' );
+define( $constpref.'_DISABLE_WRITES_USER_DESC', '┼╨╧┐ецб╝е╢б╝╕■д▒д╦е░еыб╝е╫╦ш╠╡╕·е│е▐еєе╔д╦╗╪─ъд╖д┐╠╡╕·е│е▐еєе╔д╦╣чдяд╗бв╜ёдн╣■д▀╖╧е│е▐еєе╔дЄд╣д┘д╞─╔▓├д╖д▐д╣бг' );
+define( $constpref.'_MAIL_NOTIFY_GUEST' ,       'есб╝еы─╠├╬(е▓е╣е╚)' );
+define( $constpref.'_MAIL_NOTIFY_GUEST_DESC',   'е▓е╣е╚д╦дшдые╒ебедеы─╔▓├дЄ┤╔═¤е░еыб╝е╫есеєе╨б╝д╦есб╝еы─╠├╬д╖д▐д╣бг' );
+define( $constpref.'_USE_GOOGLE_PREVIEW' ,      'Google Docs е╫еье╙ехб╝═н╕·' );
+define( $constpref.'_USE_GOOGLE_PREVIEW_DESC',  'Google Docs дЄ═°═╤д╖е╫еье╙ехб╝▓─╟╜д╩е╒ебедеые┐еде╫дЄ│╚┬чд╖д▐д╣бгGoogle Docs е╫еье╙ехб╝═°═╤╗■д╦ Google Docs д╪е│еєе╞еєе─ URL дЄ─╠├╬д╖д▐д╣бг' );
+define( $constpref.'_MAIL_NOTIFY_GROUP' ,       'есб╝еы─╠├╬(е░еыб╝е╫)' );
+define( $constpref.'_MAIL_NOTIFY_GROUP_DESC',   '┴к┬Єд╖д┐е░еыб╝е╫д╦┬░д╣дыецб╝е╢б╝д╦дшдые╒ебедеы─╔▓├дЄ┤╔═¤е░еыб╝е╫есеєе╨б╝д╦есб╝еы─╠├╬д╖д▐д╣бг' );
 define( $constpref.'_FTP_NAME' ,                'FTP е═е├е╚е▄еъехб╝ер╔╜╝и╠╛' );
 define( $constpref.'_FTP_NAME_DESC' ,           '┤╔═¤╝╘═╤д╬ FTP └▄┬│е═е├е╚е▄еъехб╝ерд╬╔╜╝и╠╛' );
 define( $constpref.'_FTP_HOST' ,                'FTP е█е╣е╚╠╛' );
@@ -40,12 +53,48 @@ define( $constpref.'_FTP_PASS' ,                'FTP е╤е╣еяб╝е╔' );
 define( $constpref.'_FTP_PASS_DESC' ,           '' );
 define( $constpref.'_FTP_SEARCH' ,              'FTP е▄еъехб╝ердЄ╕б║ў┬╨╛▌д╦д╣ды' );
 define( $constpref.'_FTP_SEARCH_DESC' ,         'FTP е═е├е╚е▄еъехб╝ердЄ╕б║ў┬╨╛▌д╦д╣дыд╚бв╕б║ўд╦╗■┤╓дмдлдлдъе┐едеревеже╚д╣дыд│д╚дмдвдъд▐д╣бг<br />═н╕·д╦д╖д┐╛ь╣чд╧╠ф┬ъд╩дп╕б║ўд╟дндыдлд╬│╬╟здЄдк╦║дьд╩дпбг' );
+define( $constpref.'_BOXAPI_ID' ,               'Box API OAuth2 client_id' );
+define( $constpref.'_BOXAPI_ID_DESC' ,          'Box API Console [ https://app.box.com/developers/services ]' );
+define( $constpref.'_BOXAPI_SECRET' ,           'Box API OAuth2 client_secret' );
+define( $constpref.'_BOXAPI_SECRET_DESC' ,      'BoxдЄе═е├е╚еяб╝епе▄еъехб╝ерд╚д╖д╞═°═╤д╣ды╛ь╣чд╧е╨е├епеиеєе╔д╚д╬└▄┬│дЄ https д╦└▀─ъд╖ Box API еве╫еъе▒б╝е╖ечеєд╬└▀─ъ - redirect_uri д╦ "'.str_replace('http://','https://',XOOPS_URL).'/modules/'.$mydirname.'/connector.php" дЄ─╔▓├д╖д╞дпд└д╡ддбг(е╔еседеє░╩╣▀д╬е╤е╣д╧╛╩╬м▓─)' );
+define( $constpref.'_GOOGLEAPI_ID' ,            'Google API епещедевеєе╚ ID' );
+define( $constpref.'_GOOGLEAPI_ID_DESC' ,       'Google API Console [ https://console.developers.google.com ]' );
+define( $constpref.'_GOOGLEAPI_SECRET' ,        'Google API епещедевеєе╚ е╖б╝епеье├е╚' );
+define( $constpref.'_GOOGLEAPI_SECRET_DESC' ,   'Googleе╔ещеде╓дЄе═е├е╚еяб╝епе▄еъехб╝ерд╚д╖д╞═°═╤д╣ды╛ь╣ч(PHP 5.4 ░╩╛хдм╔м┐▄)д╧ Google API е│еєе╜б╝еыд╬╟з╛┌╛Ё╩є - ╛╡╟з║╤д▀д╬еъе└едеьепе╚ URL д╦ "'.XOOPS_URL.'/modules/'.$mydirname.'/connector.php?cmd=netmount&protocol=googledrive&host=1" дЄ─╔▓├д╖д╞дпд└д╡ддбг' );
+define( $constpref.'_ONEDRIVEAPI_ID' ,          'OneDrive API еве╫еъе▒б╝е╖ечеє ID' );
+define( $constpref.'_ONEDRIVEAPI_ID_DESC' ,     'OneDrive API Console [ https://apps.dev.microsoft.com/#/appList ]' );
+define( $constpref.'_ONEDRIVEAPI_SECRET' ,      'OneDrive API е╤е╣еяб╝е╔' );
+define( $constpref.'_ONEDRIVEAPI_SECRET_DESC' , 'OneDriveдЄе═е├е╚еяб╝епе▄еъехб╝ерд╚д╖д╞═°═╤д╣ды╛ь╣чд╧ OneDrive API еве╫еъе▒б╝е╖ечеєд╬└▀─ъ - еъе└едеьепе╚ URL д╦ "'.XOOPS_URL.'/modules/'.$mydirname.'/connector.php/netmount/googledrive/1" дЄ─╔▓├д╖д╞дпд└д╡ддбг' );
 define( $constpref.'_DROPBOX_TOKEN' ,           'Dropbox.com еве╫еъе▒б╝е╖ечеє Key' );
 define( $constpref.'_DROPBOX_TOKEN_DESC' ,      'Developers - Dropbox [ https://www.dropbox.com/developers ]' );
 define( $constpref.'_DROPBOX_SECKEY' ,          'Dropbox.com еве╫еъе▒б╝е╖ечеє Secret key' );
 define( $constpref.'_DROPBOX_SECKEY_DESC' ,     '' );
+define( $constpref.'_DROPBOX_ACC_TOKEN' ,       '╢ж═нDropboxд╬евепе╗е╣е╚б╝епеє' );
+define( $constpref.'_DROPBOX_ACC_TOKEN_DESC' ,  '╢ж═нд╬Dropboxе▄еъехб╝ерд╟╗╚═╤д╣дыд┐дсд╬евепе╗е╣е╚б╝епеєд╧ https://www.dropbox.com/developers/apps д╦д╞╝ш╞└д╟днд▐д╣бг' );
+define( $constpref.'_DROPBOX_ACC_SECKEY' ,      '╢ж═нDropboxд╬евепе╗е╣е╚б╝епеєбже╖б╝епеье├е╚енб╝' );
+define( $constpref.'_DROPBOX_ACC_SECKEY_DESC' , '╕┼дд OAuth1 д╬д┐дсд╬└▀─ъд╟д╣бг┐╖д╖дд OAuth2 д╬евепе╗е╣е╚б╝епеєдЄ└▀─ъд╣ды╛ь╣чд╧├═дЄ╢їд╦д╣ды╔м═╫дмдвдъд▐д╣бгOAuth1 дЄ═°═╤д╖д╞ддды╛ь╣чд╧┴сдсд╦ OAuth2 д╦░▄╣╘д╖д╞дпд└д╡ддбг' );
+define( $constpref.'_DROPBOX_NAME' ,            '╢ж═нд╬Dropboxе▄еъехб╝ер╔╜╝и╠╛' );
+define( $constpref.'_DROPBOX_NAME_DESC' ,       '╢ж═нд╬Dropboxе▄еъехб╝ерд╧бве═е├е╚еяб╝епе▄еъехб╝ерд╬е▐ежеєе╚д╚░уддбвд╣д┘д╞д╬ецб╝е╢б╝д╦╔╜╝ид╡дьд▐д╣бг' );
+define( $constpref.'_DROPBOX_PATH' ,            '╢ж═нDropboxд╬еыб╝е╚е╤е╣' );
+define( $constpref.'_DROPBOX_PATH_DESC' ,       '╢ж═нд╬Dropboxе▄еъехб╝ерд╟░ь╚╠д╦│л╝ид╖д╞дтдшдд│м┴╪д╬е╤е╣дЄ╗╪─ъд╖д▐д╣бг(└▀─ъ╬у: "/Public")<br />Dropbox └▀─ъд╧е▄еъехб╝ере╔ещеде╨д╬ "dropbox" е╫еще░едеєд╦дт╗╚═╤д╡дьд▐д╣бг<br />"dropbox" е╫еще░едеє═╤д╬д▀д╦└▀─ъд╣ды╛ь╣чд╧еыб╝е╚е╤е╣дЄ╢ї═єд╦д╖д╞дпд└д╡ддбг' );
+define( $constpref.'_DROPBOX_HIDDEN_EXT' ,      '╢ж═нд╬Dropbox╚є╔╜╝ие╒ебедеы' );
+define( $constpref.'_DROPBOX_HIDDEN_EXT_DESC' , '┤╔═¤╝╘д╦д╬д▀╔╜╝ид╣дые╒ебедеыб╩е╒ебедеы╠╛д╬╕х╩¤░ь├╫б╦дЄелеєе▐╢ш└┌дъд╟╗╪─ъд╖д▐д╣бг<br />╦Ў╚°дЄб╓/б╫д╚д╖д┐╛ь╣чд╧е╒ейеые└дЄ┬╨╛▌д╚д╖д▐д╣бг' );
+define( $constpref.'_DROPBOX_WRITABLE_GROUPS' , '╢ж═нDropbox╜ёдн╣■д▀╡Ў▓─е░еыб╝е╫' );
+define( $constpref.'_DROPBOX_WRITABLE_GROUPS_DESC' , 'д│д│д╦└▀─ъд╖д┐е░еыб╝е╫д╦д╧бве╒ебедеыбже╒ейеые└д╬╜ёдн╣■д▀дм╡Ў▓─д╡дьд▐д╣бгд┐д└д╖бв╝бд╬└▀─ъ╣р╠▄б╓╢ж═нд╬Dropboxеве├е╫еэб╝е╔▓─╟╜д╩ MIME е┐еде╫б╫бвб╓╢ж═нд╬Dropbox╜ёдн╣■д▀дЄ╡Ў▓─е╒ебедеыб╫д╚б╓╢ж═нд╬Dropbox╚єеэе├епе╒ебедеыб╫д╟бв▓┐дЄ╡Ў▓─д╣дыдлдЄе│еєе╚еэб╝еыд╟днд▐д╣бгд╜д╬┬╛д╬е░еыб╝е╫д╧╞╔д▀╝шдъд╬д▀▓─╟╜д╟д╣бг' );
+define( $constpref.'_DROPBOX_UPLOAD_MIME' ,     '╢ж═нд╬Dropboxеве├е╫еэб╝е╔▓─╟╜д╩ MIME е┐еде╫') ;
+define( $constpref.'_DROPBOX_UPLOAD_MIME_DESC' ,'╜ёдн╣■д▀дЄ╡Ў▓─д╣дые░еыб╝е╫дмеве├е╫еэб╝е╔▓─╟╜д╩ MIME е┐еде╫дЄелеєе▐╢ш└┌дъд╟└▀─ъд╖д▐д╣бг┤╔═¤╝╘д╧д│д╬└й╕┬дЄ╝їд▒д▐д╗дєбг') ;
+define( $constpref.'_DROPBOX_WRITE_EXT' ,       '╢ж═нд╬Dropbox╜ёдн╣■д▀╡Ў▓─е╒ебедеы') ;
+define( $constpref.'_DROPBOX_WRITE_EXT_DESC' ,  '╜ёдн╣■д▀дЄ╡Ў▓─д╣дые░еыб╝е╫д╦╜ёдн╣■д▀дЄ╡Ў▓─д╣дые╒ебедеы(е╒ебедеы╠╛д╬╕х╩¤░ь├╫)дЄелеєе▐╢ш└┌дъд╟╗╪─ъд╖д▐д╣бг<br />╦Ў╚°дЄб╓/б╫д╚д╖д┐╛ь╣чд╧е╒ейеые└дЄ┬╨╛▌д╚д╖д▐д╣бг<br />┤╔═¤╝╘д╧д│д╬└й╕┬дЄ╝їд▒д▐д╗дєбг') ;
+define( $constpref.'_DROPBOX_UNLOCK_EXT' ,      '╢ж═нд╬Dropbox╚єеэе├епе╒ебедеы') ;
+define( $constpref.'_DROPBOX_UNLOCK_EXT_DESC' , 'е╒ебедеыдЄеэе├епд╖д╩дд(╚єеэе├еп)д╚бв║я╜№бж░▄╞░бжеъе═б╝ердм▓─╟╜д╦д╩дъд▐д╣бг<br />еэе├епдЄд╖д╩дде╒ебедеы(е╒ебедеы╠╛д╬╕х╩¤░ь├╫)дЄелеєе▐╢ш└┌дъд╟╗╪─ъд╖д▐д╣бг<br />╦Ў╚°дЄб╓/б╫д╚д╖д┐╛ь╣чд╧е╒ейеые└дЄ┬╨╛▌д╚д╖д▐д╣бг<br />┤╔═¤╝╘д╦д╧┴┤д╞д╬е╒ебедеыдмеэе├епд╡дьд▐д╗дєбг') ;
+define( $constpref.'_JQUERY' ,                  'jQuery д╬ URL' );
+define( $constpref.'_JQUERY_DESC' ,             'Google д╬ CDN дЄ═°═╤д╖д╩дд╛ь╣чд╦бвjQuery д╬ js д╬  URL дЄ╗╪─ъд╖д▐д╣бг' );
+define( $constpref.'_JQUERY_UI' ,               'jQuery UI д╬ URL' );
+define( $constpref.'_JQUERY_UI_DESC' ,          'Google д╬ CDN дЄ═°═╤д╖д╩дд╛ь╣чд╦бвjQueryUI д╬ js д╬  URL дЄ╗╪─ъд╖д▐д╣бг' );
+define( $constpref.'_JQUERY_UI_CSS' ,           'jQuery UI д╬ CSS URL' );
+define( $constpref.'_JQUERY_UI_CSS_DESC' ,      'Google д╬ CDN дЄ═°═╤д╖д╩дд╛ь╣чд╦бвjQueryUI д╬ css д╬  URL дЄ╗╪─ъд╖д▐д╣бг' );
 define( $constpref.'_JQUERY_UI_THEME' ,         'jQuery UI д╬е╞б╝е▐' );
-define( $constpref.'_JQUERY_UI_THEME_DESC' ,    'jQuery UI д╬е╞б╝е▐дЄе╞б╝е▐╠╛бв╦Їд╧ CSS д╬ URL д╟╗╪─ъд╖д▐д╣бг (е╟е╒ейеые╚: smoothness)' );
+define( $constpref.'_JQUERY_UI_THEME_DESC' ,    'Google д╬ CDN дЄ═°═╤д╣ды╛ь╣чд╬ jQuery UI д╬е╞б╝е▐дЄе╞б╝е▐╠╛бв╦Їд╧ CSS д╬ URL д╟╗╪─ъд╖д▐д╣бг (е╟е╒ейеые╚: smoothness)' );
 define( $constpref.'_THUMBNAIL_SIZE' ,          '[xelfinder_db] ▓ш┴№┴▐╞■╗■д╬е╡ере═едеые╡еде║' );
 define( $constpref.'_THUMBNAIL_SIZE_DESC' ,     'BBе│б╝е╔д╟д╬▓ш┴№┴▐╞■╗■д╬е╡ере═едеые╡еде║д╬╡м─ъ├═(px)' );
 define( $constpref.'_DEFAULT_ITEM_PERM' ,       '[xelfinder_db] ║ю└од╡дьдыеведе╞ерд╬е╤б╝е▀е├е╖ечеє' );
@@ -76,6 +125,8 @@ define( $constpref.'_UPLOAD_ALLOW_ADMIN' ,      '[xelfinder_db] ┤╔═¤╝╘д╦еве├е╫еэ
 define( $constpref.'_UPLOAD_ALLOW_ADMIN_DESC' , 'MIME е┐еде╫дЄ╚╛│╤е╣е┌б╝е╣╢ш└┌дъд╟╡н╜╥бг<br />all: ┴┤д╞╡Ў▓─, none: ▓┐дт╡Ў▓─д╖д╩дд<br />╬у: image text/plain' );
 define( $constpref.'_AUTO_RESIZE_ADMIN' ,       '[xelfinder_db] ┤╔═¤╝╘═╤╝л╞░еъе╡еде║ (px)' );
 define( $constpref.'_AUTO_RESIZE_ADMIN_DESC' ,  '▓ш┴№дЄеве├е╫еэб╝е╔╗■бв╗╪─ъд╖д┐╢ы╖┴е╡еде║д╦╝¤д▐дыдшджд╦╝л╞░еъе╡еде║д╣ды├═(px)бг<br />▓┐дт╞■╬╧д╖д╩ддд╚╝л╞░еъе╡еде║д╧╣╘дядьд▐д╗дєбг' );
+define( $constpref.'_UPLOAD_MAX_ADMIN' ,        '[xelfinder_db] ┤╔═¤╝╘═╤║╟┬че╒ебедеые╡еде║' );
+define( $constpref.'_UPLOAD_MAX_ADMIN_DESC',    '┤╔═¤╝╘дмеве├е╫еэб╝е╔▓─╟╜д╩║╟┬че╒ебедеые╡еде║дЄ╗╪─ъд╖д▐д╣бг╠╡╗╪─ъд▐д┐д╧ 0 д╟╠╡└й╕┬д╚д╩дъд▐д╣бг(╬у 10M)' );
 
 define( $constpref.'_SPECIAL_GROUPS' ,          '[xelfinder_db] ╞├─ъе░еыб╝е╫' );
 define( $constpref.'_SPECIAL_GROUPS_DESC' ,     '╞├─ъе░еыб╝е╫д╚д╣дые░еыб╝е╫дЄ┴к┬Є (╩г┐Ї┴к┬Є▓─)' );
@@ -83,16 +134,22 @@ define( $constpref.'_UPLOAD_ALLOW_SPGROUPS' ,   '[xelfinder_db] ╞├─ъе░еыб╝е╫д╦ев
 define( $constpref.'_UPLOAD_ALLOW_SPGROUPS_DESC','' );
 define( $constpref.'_AUTO_RESIZE_SPGROUPS' ,    '[xelfinder_db] ╞├─ъе░еыб╝е╫═╤╝л╞░еъе╡еде║ (px)' );
 define( $constpref.'_AUTO_RESIZE_SPGROUPS_DESC','' );
+define( $constpref.'_UPLOAD_MAX_SPGROUPS' ,     '[xelfinder_db] ╞├─ъе░еыб╝е╫═╤║╟┬че╒ебедеые╡еде║' );
+define( $constpref.'_UPLOAD_MAX_SPGROUPS_DESC', '' );
 
 define( $constpref.'_UPLOAD_ALLOW_USER' ,       '[xelfinder_db] ┼╨╧┐ецб╝е╢б╝д╦еве├е╫еэб╝е╔дЄ╡Ў▓─д╣ды MIME е┐еде╫' );
 define( $constpref.'_UPLOAD_ALLOW_USER_DESC' ,  '' );
 define( $constpref.'_AUTO_RESIZE_USER' ,        '[xelfinder_db] ┼╨╧┐ецб╝е╢б╝═╤╝л╞░еъе╡еде║ (px)' );
 define( $constpref.'_AUTO_RESIZE_USER_DESC',    '' );
+define( $constpref.'_UPLOAD_MAX_USER' ,         '[xelfinder_db] ┼╨╧┐ецб╝е╢б╝═╤║╟┬че╒ебедеые╡еде║' );
+define( $constpref.'_UPLOAD_MAX_USER_DESC',     '' );
 
 define( $constpref.'_UPLOAD_ALLOW_GUEST' ,      '[xelfinder_db] е▓е╣е╚д╦еве├е╫еэб╝е╔дЄ╡Ў▓─д╣ды MIME е┐еде╫' );
 define( $constpref.'_UPLOAD_ALLOW_GUEST_DESC' , '' );
 define( $constpref.'_AUTO_RESIZE_GUEST' ,       '[xelfinder_db] е▓е╣е╚═╤╝л╞░еъе╡еде║ (px)' );
 define( $constpref.'_AUTO_RESIZE_GUEST_DESC',   '' );
+define( $constpref.'_UPLOAD_MAX_GUEST' ,        '[xelfinder_db] е▓е╣е╚═╤║╟┬че╒ебедеые╡еде║' );
+define( $constpref.'_UPLOAD_MAX_GUEST_DESC',    '' );
 
 define( $constpref.'_DISABLE_PATHINFO' ,        '[xelfinder_db] е╒ебедеы╗▓╛╚URLд╬ PathInfo дЄ╗╚═╤д╖д╩дд' );
 define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '┤─╢н╩╤┐Ї "PATH_INFO" дм═°═╤д╟днд╩дде╡б╝е╨б╝д╧б╓д╧ддб╫дЄ┴к┬Єд╖д╞дпд└д╡ддбг' );
@@ -100,13 +157,53 @@ define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '┤─╢н╩╤┐Ї "PATH_INFO" дм═°═╤д╟дн
 define( $constpref.'_EDIT_DISABLE_LINKED' ,     '[xelfinder_db] еъеєеп║╤д▀е╒ебедеыд╬╜ёдн╣■д▀╢╪╗▀' );
 define( $constpref.'_EDIT_DISABLE_LINKED_DESC' ,'еъеєеп└┌дьдф╔╘═╤░╒д╩╛х╜ёдндЄ╦╔╗▀д╣дыд┐дсд╦еъеєепбж╗▓╛╚д╡дьд┐е╒ебедеыдЄ╝л╞░┼кд╦╜ёдн╣■д▀╢╪╗▀д╦└▀─ъд╖д▐д╣бг' );
 
-define( $constpref.'_SSL_CONNECTOR_URL' ,       'е╗енехев└▄┬│ URL' );
-define( $constpref.'_SSL_CONNECTOR_URL_DESC' ,  'е╨е├епеиеєе╔д╚д╬─╠┐од╬д▀е╗енехевд╩┤─╢ндЄ═°═╤д╣ды╛ь╣чд╦ https:// длдщ╗╧д▐ды connector.php д╬ URL дЄ╗╪─ъд╖д╞дпд└д╡ддбг<br />е╓ещеже╢д╬ User Agent д╦ "Firefox" "Chrome" "Safari" дм┤▐д▐дьды╛ь╣чд╬д▀═н╕·д╦д╩дъд▐д╣бг' );
+define( $constpref.'_CONNECTOR_URL' ,           '│░╔Їд▐д┐д╧е╗енехев└▄┬│д╬е│е═епе┐URLб╩╟д░╒б╦' );
+define( $constpref.'_CONNECTOR_URL_DESC' ,      '│░╔Їе╡еде╚д╬е│е═епе┐д╦└▄┬│д╣ды╛ь╣чдфе╨е├епеиеєе╔д╚д╬─╠┐од╬д▀е╗енехевд╩┤─╢ндЄ═°═╤д╣ды╛ь╣чд╦ connector.php д╬ URL дЄ╗╪─ъд╖д╞дпд└д╡ддбг' );
+
+define( $constpref.'_CONN_URL_IS_EXT',          '│░╔Їд╬е│е═епе┐URL' );
+define( $constpref.'_CONN_URL_IS_EXT_DESC',     '╟д░╒╗╪─ъд╖д┐е│е═епе┐URLдм│░╔Їе╡еде╚д╬╛ь╣чд╦б╓д╧ддб╫бве│е═епе┐URLдме╨е├епеиеєе╔─╠┐од╬д▀SSL└▄┬│д╣дыURLд╬╛ь╣чд╧б╓дддддиб╫дЄ┴к┬Єд╖д╞дпд└д╡ддбг<br />│░╔Їе╡еде╚д╬е│е═епе┐д╦└▄┬│д╣ды╛ь╣чд╧┴ъ╝ъ└ше╡еде╚д╦д╞бв┼Ўе╡еде╚д╬екеъе╕еєе╔еседеєдм╡Ў▓─д╡дьд╞ддды╔м═╫дмдвдъд▐д╣бг' );
+
+define( $constpref.'_ALLOW_ORIGINS',            '╡Ў▓─д╣дые╔еседеєекеъе╕еє' );
+define( $constpref.'_ALLOW_ORIGINS_DESC',       '┼Ўе╡еде╚д╬е│е═епе┐д╦└▄┬│дЄ╡Ў▓─д╣ды│░╔Їе╡еде╚д╬е╔еседеєекеъе╕еєб╩╬у:"http://example.com" ║╟╕хд╬е╣еще├е╖ехд╧╔╘═╫б╦дЄ╣╘╢ш└┌дъд╟└▀─ъд╖д▐д╣бг<br />е│е═епе┐URLдме╨е├епеиеєе╔─╠┐од╬д▀SSL└▄┬│д╣дыURLд╬╛ь╣чд╧б╓ <strong>'.preg_replace('#^(https?://[^/]+).*$#', '$1', XOOPS_URL).'</strong> б╫дЄ╗╪─ъд╣ды╔м═╫дмдвдъд▐д╣бг' );
 
 define( $constpref.'_UNZIP_LANG_VALUE' ,        'unzip ╝┬╣╘╗■д╬еэе▒б╝еы' );
 define( $constpref.'_UNZIP_LANG_VALUE_DESC' ,   'евб╝еледе╓▓Є┼рд╬е│е▐еєе╔ unzip ╗╚═╤╗■д╬╕└╕ьеэе▒б╝еы└▀─ъбг<br />─╠╛яд╧╗╪─ъд╩д╖д╟╠ф┬ъд╩ддд╚╗╫дядьдыдмбв▓Є┼р╕хд╬е╒ебедеы╠╛дм╩╕╗·▓╜д▒д╣ды╛ь╣чд╦д╧ ja_JP.Shift_JIS д╩д╔д╚д╣дыд╚▓Є╛├д╡дьды╛ь╣чдмдвдыбг' );
 
+define( $constpref.'_AUTOSYNC_SEC_ADMIN',       '╝л╞░╣╣┐╖┤╓│╓(┤╔═¤╝╘):╔├' );
+define( $constpref.'_AUTOSYNC_SEC_ADMIN_DESC',  '╝л╞░д╟╣╣┐╖е┴езе├епдЄд╣ды┤╓│╓дЄ╔├┐Їд╟╗╪─ъд╖д▐д╣бг' );
+
+define( $constpref.'_AUTOSYNC_SEC_SPGROUPS',    '╝л╞░╣╣┐╖┤╓│╓(╞├─ъе░еыб╝е╫):╔├' );
+define( $constpref.'_AUTOSYNC_SEC_SPGROUPS_DESC', '' );
+
+define( $constpref.'_AUTOSYNC_SEC_USER',        '╝л╞░╣╣┐╖┤╓│╓(┼╨╧┐ецб╝е╢б╝):╔├' );
+define( $constpref.'_AUTOSYNC_SEC_USER_DESC',   '' );
+
+define( $constpref.'_AUTOSYNC_SEC_GUEST',       '╝л╞░╣╣┐╖┤╓│╓(е▓е╣е╚):╔├' );
+define( $constpref.'_AUTOSYNC_SEC_GUEST_DESC',  '' );
+
+define( $constpref.'_AUTOSYNC_START',           'д╣д░д╦╝л╞░╣╣┐╖дЄ│л╗╧д╣ды' );
+define( $constpref.'_AUTOSYNC_START_DESC',      'е│еєе╞ене╣е╚есе╦ехб╝д╬б╓еъеэб╝е╔б╫д╟╝л╞░╣╣┐╖д╬│л╗╧бж─ф╗▀дмд╟днд▐д╣бг' );
+
 define( $constpref.'_DEBUG' ,                   'е╟е╨е├е░етб╝е╔дЄ═н╕·д╦д╣ды' );
 define( $constpref.'_DEBUG_DESC' ,              'е╟е╨е├е░етб╝е╔д╦д╣дыд╚ elFinder д╬ "elfinder.min.css", "elfinder.min.js" д╟д╧д╩дп╕─╩╠д╬е╒ебедеыдЄ╞╔д▀╣■д▀д▐д╣бг<br />д▐д┐бвJavaScript д╬еье╣е▌еєе╣д╦е╟е╨е░╛Ё╩єдЄ┤▐дсд▐д╣бг<br />е╤е╒ейб╝е▐еєе╣╕■╛хд╬д┐дсд╦бв─╠╛яд╧е╟е╨е├е░етб╝е╔д╧╠╡╕·д╦д╖д╞▒┐═╤д╣дыд│д╚дЄдк┤лдсд╖д▐д╣бг' );
+
+// admin/dropbox.php
+define( $constpref.'_DROPBOX_STEP1' ,        'Step 1: App д╬║ю└о');
+define( $constpref.'_DROPBOX_GOTO_APP' ,     '╝бд╬еъеєеп└ш (Dropbox.com) д╟ App дЄ║ю└од╖бв App key д╚ App secre дЄ╝ш╞└д╖бв░ь╚╠└▀─ъд╬б╓%sб╫д╚б╓%sб╫д╪└▀─ъд╖д╞дпд└д╡ддбг');
+define( $constpref.'_DROPBOX_GET_TOKEN' ,    'Dropbox App Token д╬╝ш╞└');
+define( $constpref.'_DROPBOX_STEP2' ,        'Step 2: Dropbox д╪╣╘днбвеве╫еъдЄ╟з▓─');
+define( $constpref.'_DROPBOX_GOTO_CONFIRM' , '╝бд╬еъеєеп└ш (Dropbox.com) д╪┐╩д▀бвеве╫еъдЄ╟з▓─д╖д╞дпд└д╡ддбг');
+define( $constpref.'_DROPBOX_CONFIRM_LINK' , 'Dropbox.com д╪╣╘днбвеве╫еъдЄ╟з▓─д╣ды');
+define( $constpref.'_DROPBOX_STEP3' ,        'Step 3: ╝ш╞└┤░╬╗бг░ь╚╠└▀─ъд╪└▀─ъ');
+define( $constpref.'_DROPBOX_SET_PREF' ,     '╝бд╬├═дЄ░ь╚╠└▀─ъд╬│╞╣р╠▄д╦└▀─ъд╖д╞дпд└д╡ддбг');
+
+// admin/googledrive.php
+define( $constpref.'_GOOGLEDRIVE_GET_TOKEN', 'Google Drive Token д╬╝ш╞└');
+
+// admin/composer_update.php
+define( $constpref.'_COMPOSER_UPDATE' ,       'plugins/vendor еве├е╫е╟б╝е╚(composer update)');
+define( $constpref.'_COMPOSER_DO_UPDATE' ,    'еве├е╫е╟б╝е╚дЄ╝┬╣╘д╣ды(двды─°┼┘╗■┤╓дм│▌длдъд▐д╣)');
+define( $constpref.'_COMPOSER_UPDATE_STARTED','еве├е╫е╟б╝е╚дЄ│л╗╧д╖д▐д╖д┐бгб╓еве├е╫е╟б╝е╚дм┤░╬╗д╖д▐д╖д┐бгб╫д╚╔╜╝ид╡дьдыд▐д╟дк┬╘д┴▓╝д╡дд...');
+define( $constpref.'_COMPOSER_DONE_UPDATE' ,  'еве├е╫е╟б╝е╚дм┤░╬╗д╖д▐д╖д┐бг');
 
 }
