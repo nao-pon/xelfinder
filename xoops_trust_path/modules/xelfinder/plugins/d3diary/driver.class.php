@@ -101,13 +101,13 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 			return false;
 		}
 		require_once( $langmanpath ) ;
-		$langman =& D3LanguageManager::getInstance() ;
+		$langman = D3LanguageManager::getInstance() ;
 		$langman->read( 'main.php' , $mydirname , 'd3diary' ) ;
 		
 		$d3dTrustDir = XOOPS_TRUST_PATH . '/modules/d3diary';
 		include_once $d3dTrustDir.'/class/d3diaryConf.class.php';
 
-		$this->d3dConf =& D3diaryConf::getInstance($mydirname, 0, 'photolist');
+		$this->d3dConf = D3diaryConf::getInstance($mydirname, 0, 'photolist');
 		if (! is_object($this->d3dConf)) return false;
 
 		xoops_elFinder::dbSetCharset('utf8');

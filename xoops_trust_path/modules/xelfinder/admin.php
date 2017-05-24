@@ -24,7 +24,7 @@ require XOOPS_ROOT_PATH.'/include/cp_functions.php' ;
 $langmanpath = XOOPS_TRUST_PATH.'/libs/altsys/class/D3LanguageManager.class.php' ;
 if( ! file_exists( $langmanpath ) ) die( 'install the latest altsys' ) ;
 require_once( $langmanpath ) ;
-$langman =& D3LanguageManager::getInstance() ;
+$langman = D3LanguageManager::getInstance() ;
 
 
 if( ! empty( $_GET['lib'] ) ) {
