@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.24 (2.1_n Nightly: 66af9e4) (2017-05-19)
+ * Version 2.1.24 (2.1_n Nightly: 53d2d24) (2017-06-03)
  * http://elfinder.org
  * 
  * Copyright 2009-2017, Studio 42
@@ -260,6 +260,11 @@
 
 .elfinder-dialog-resize .elfinder-resize-type span.ui-checkboxradio-icon {
 	display: none;
+}
+
+.elfinder-resize-preset-container {
+	box-sizing: border-box;
+	border-radius: 5px;
 }
 
 /********************** COMMAND "EDIT" ****************************/
