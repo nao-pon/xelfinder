@@ -3,6 +3,7 @@
 \#*
 *.bak
 .idea/
+.gitignore
 .buildpath
 .project
 .settings
