@@ -5,8 +5,11 @@ if (! defined('XOOPS_MODULE_URL')) define('XOOPS_MODULE_URL', XOOPS_URL . '/modu
 
 $target = isset($_GET['target'])? (preg_match('/^[a-zA-Z0-9_:.-]+$/', $_GET['target'])? $_GET['target'] : '') : '';
 
+if (! isset($_GET['cb']) && isset($_GET['getfile']) && $_GET['getfile'] === 'ckeditor') {
+	$_GET['cb'] = $_GET['getfile'];
+}
 $callback = isset($_GET['cb'])? (preg_match('/^[a-zA-Z0-9_]+$/', $_GET['cb'])? $_GET['cb'] : '') : '';
-$callback = $callback? 'getFileCallback_' . $callback : 'null';
+$callback = $callback? 'getFileCallback_' . $callback : 'void 0';
 
 $siteimg = (empty($_GET['si']) && empty($use_bbcode_siteimg))? 0 : 1;
 
@@ -109,9 +112,9 @@ if (empty($config['jquery_ui_css'])) {
 	$jQueryUiTheme = trim($config['jquery_ui_css']);
 }
 
-$title = mb_convert_encoding($config['manager_title'], 'UTF-8', _CHARSET);
+$editorsJs = !empty($config['editors_js']) ? trim($config['editors_js']) : $elfurl.'/js/extras/editors.default.js?v='.$xelfVer;
 
-$useCKEditor = (is_file(XOOPS_ROOT_PATH.'/modules/ckeditor4/ckeditor/ckeditor.js'))? 'true' : 'false';
+$title = mb_convert_encoding($config['manager_title'], 'UTF-8', _CHARSET);
 
 $start = (!empty($_GET['start']) && preg_match('/^[a-zA-Z0-9_-]+$/', $_GET['start']))? $_GET['start'] : '';
 
@@ -230,6 +233,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 <?php }?>
 		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.<?php echo $userLang?>.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/extras/quicklook.googledocs.js?v=<?php echo $xelfVer?>"></script>
+		<script src="<?php echo $editorsJs ?>"></script>
 		
 		<!-- elFinder initialization (REQUIRED) -->
 		<link rel="stylesheet" href="<?php echo $myurl ?>/include/css/manager.css?v=<?php echo $xelfVer?>" type="text/css">
@@ -250,12 +254,11 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var xoopsUid = '<?php echo $xoops_elFinder->getUid()?>';
 			var adminMode = <?php echo $admin?>;
 			var cToken = '<?php echo $cToken?>';
-			var editorsConfig = [];
-			var useCKEditor = <?php echo $useCKEditor ?>;
 			var startPathHash = '<?php echo $start?>';
 			var autoSyncSec = <?php echo $xoops_elFinder->getAutoSyncSec()?>;
 			var autoSyncStart = <?php echo (empty($config['autosync_start'])? 'false' : 'true')?>;
 			var useGoogleDocsPreview = <?php echo (empty($config['use_google_preview'])? 'false' : 'true')?>;
+			var creativeCloudApikey = <?php echo (empty($config['creative_cloud_apikey'])? 'void 0' : '\''.$config['creative_cloud_apikey'].'\'')?>;
 		</script>
 		<script src="<?php echo $myurl ?>/include/js/commands/perm.js?v=<?php echo $xelfVer?>"></script>
 		<script src="<?php echo $myurl ?>/include/js/manager.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>
