@@ -33,7 +33,7 @@ if( $page && file_exists( "$mytrustdirpath/main/$page.php" ) ) {
 	$langmanpath = XOOPS_TRUST_PATH.'/libs/altsys/class/D3LanguageManager.class.php' ;
 	if( ! file_exists( $langmanpath ) ) die( 'install the latest altsys' ) ;
 	require_once( $langmanpath ) ;
-	$langman =& D3LanguageManager::getInstance() ;
+	$langman = D3LanguageManager::getInstance() ;
 	$langman->read( 'main.php' , $mydirname , $mytrustdirname ) ;
 	include "$mytrustdirpath/main/index.php" ;
 }
