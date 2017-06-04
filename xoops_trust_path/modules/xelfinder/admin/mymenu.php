@@ -16,7 +16,7 @@ if( ! is_object( $xoopsModule ) ) die( '$xoopsModule is not set' )  ;
 $langmanpath = XOOPS_TRUST_PATH.'/libs/altsys/class/D3LanguageManager.class.php' ;
 if( ! file_exists( $langmanpath ) ) die( 'install the latest altsys' ) ;
 require_once( $langmanpath ) ;
-$langman =& D3LanguageManager::getInstance() ;
+$langman = D3LanguageManager::getInstance() ;
 $langman->read( 'modinfo.php' , $mydirname , $mytrustdirname ) ;
 
 include dirname(dirname(__FILE__)).'/admin_menu.php' ;
