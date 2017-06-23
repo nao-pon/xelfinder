@@ -27,7 +27,7 @@ define( $constpref.'_VOLUME_SETTING' ,          'Volume Drivers' );
 define( $constpref.'_VOLUME_SETTING_DESC' ,     '[Module directory name]:[Plugin name]:[Saved files dirctory path]:[View name]:[Options]<br />Written line by line. Will be ignored and put a "#" at the beginning.<br />Options separates with "|".<br />Common option:<br />gid=[Group ID to validate is specified by comma separated values]<br />defaults=[What validates each permission of read, write, hidden, and lock as a default is specified in each initial "r" "w" "h" "l" (example:  defaults=rw)]<br />uploadMaxSize=[Maximum upload file size (ex.2M)]<br />id=[Arbitrary unique ID]<br />encoding=[character encoding(use iconv)]<br />locale=[Locale(Impotant: for encoding)]<br />chmod=1(Enable chmod on supported volume only)' );
 define( $constpref.'_SHARE_HOLDER' ,            'Share holder' );
 define( $constpref.'_DISABLED_CMDS_BY_GID' ,    'Disabled cmds of each group' );
-define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','Set [GroupID]=[Disabled cmds(comma-separated)] separated by ":".<br />Command list: mkdir, mkfile, rm, rename, duplicate, paste, upload, archive, extract, resize, netmount, perm, pixlr etc...' );
+define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','Set [GroupID]=[Disabled cmds(comma-separated)] separated by ":".<br />Command list: archive, chmod, cut, duplicate, edit, empty, extract, mkdir, mkfile, paste, perm, put, rename, resize, rm, upload etc...' );
 define( $constpref.'_DISABLE_WRITES_GUEST' ,    'Disable writing cmds to guest' );
 define( $constpref.'_DISABLE_WRITES_GUEST_DESC','All writing commands are added to the disabled commands to guests.' );
 define( $constpref.'_DISABLE_WRITES_USER' ,     'Disable writing cmds to user' );

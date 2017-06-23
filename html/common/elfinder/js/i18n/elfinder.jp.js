@@ -156,8 +156,6 @@
 			'cmdfullscreen': 'フルスクリーン', // from v2.1.15 added 03.08.2016
 			'cmdmove'      : '移動', // from v2.1.15 added 21.08.2016
 			'cmdempty'     : 'フォルダーを空に', // from v2.1.25 added 22.06.2017
-			
-			'cmdpixlr'     : 'Pixlr で編集',
 
 			/*********************************** buttons ***********************************/
 			'btnClose'  : '閉じる',

@@ -12,12 +12,6 @@ class elFinderVolumeFTPx extends elFinderVolumeFTP {
 		return parent::init();
 	}
 	
-	protected function configure() {
-		parent::configure();
-		
-		$this->disabled[] = 'pixlr';
-	}
-	
 	/**
 	 * Connect to ftp server
 	 *

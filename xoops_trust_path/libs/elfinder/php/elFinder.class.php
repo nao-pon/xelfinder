@@ -180,8 +180,7 @@ class elFinder {
 		'url'       => array('target' => true, 'options' => false),
 		'callback'  => array('node' => true, 'json' => false, 'bind' => false, 'done' => false),
 		'chmod'     => array('targets' => true, 'mode' => true),
-		'subdirs'   => array('targets' => true),
-		'pixlr'     => array('target' => false, 'node' => false, 'image' => false, 'type' => false, 'title' => false)
+		'subdirs'   => array('targets' => true)
 	);
 	
 	/**
@@ -3157,35 +3156,6 @@ class elFinder {
 		}
 		
 		return $proc;
-	}
-
-	/**
-	 * Edit on Pixlr.com
-	 *
-	 * @param  array  command arguments
-	 * @author Naoki Sawada
-	 **/
-	 protected function pixlr($args) {
-
-		$out = array();
-		if (! empty($args['target'])) {
-			$args['upload'] = array( $args['image'] );
-			$args['name']   = array( preg_replace('/\.[a-z]{1,4}$/i', '', $args['title']).'.'.$args['type'] );
-				
-			$res = $this->upload($args);
-				
-			$res['callback'] = array(
-				'node' => $args['node'],
-				'bind' => 'upload'
-			);
-		} else {
-			$res = array(
-				'error'    => $this->error(self::ERROR_UPLOAD_NO_FILES),
-				'callback' => array('node' => $args['node'])
-			);
-		}
-		
-		return $res;
 	}
 
 	/***************************************************************************/

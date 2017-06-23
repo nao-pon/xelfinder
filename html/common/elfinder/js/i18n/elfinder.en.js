@@ -148,8 +148,6 @@ if (typeof elFinder === 'function' && elFinder.prototype.i18) {
 			'cmdfullscreen': 'Full Screen', // from v2.1.15 added 03.08.2016
 			'cmdmove'      : 'Move', // from v2.1.15 added 21.08.2016
 			'cmdempty'     : 'Empty the folder', // from v2.1.25 added 22.06.2017
-			
-			'cmdpixlr'     : 'Edit on Pixlr',
 
 			/*********************************** buttons ***********************************/
 			'btnClose'  : 'Close',

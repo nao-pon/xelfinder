@@ -38,22 +38,22 @@ class xoops_elFinder {
 	);
 	
 	protected $writeCmds = array(
-	    'mkdir',
-	    'mkfile',
-	    'rm',
-	    'rename',
-	    'duplicate',
-	    'cut',
-	    'paste',
-	    'upload',
-	    'put',
-	    'edit',
-	    'archive',
-	    'extract',
-	    'resize',
-		'perm',
+		'archive',
 		'chmod',
-	    'pixlr'
+		'cut',
+		'duplicate',
+		'edit',
+		'empty',
+		'extract',
+		'mkdir',
+		'mkfile',
+		'paste',
+		'perm',
+		'put',
+		'rename',
+		'resize',
+		'rm',
+		'upload'
 	);
 	
 	public function __construct($mydirname, $opt = array()) {

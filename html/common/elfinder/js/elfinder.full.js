@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.25 (2.1 Nightly: faaf6ad) (2017-06-23)
+ * Version 2.1.25 (2.1 Nightly: 75d8513) (2017-06-23)
  * http://elfinder.org
  * 
  * Copyright 2009-2017, Studio 42
@@ -7847,7 +7847,7 @@ if (!Object.assign) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.25 (2.1 Nightly: faaf6ad)';
+elFinder.prototype.version = '2.1.25 (2.1 Nightly: 75d8513)';
 
 
 
@@ -8348,7 +8348,6 @@ elFinder.prototype._options = {
 	commands : ['*'],
 	// Available commands list
 	//commands : [
-	//	'pixlr',
 	//	'archive', 'back', 'chmod', 'colwidth', 'copy', 'cut', 'download', 'duplicate', 'edit', 'extract',
 	//	'forward', 'fullscreen', 'getfile', 'help', 'home', 'info', 'mkdir', 'mkfile', 'netmount', 'netunmount',
 	//	'open', 'opendir', 'paste', 'places', 'quicklook', 'reload', 'rename', 'resize', 'restore', 'rm',
@@ -8695,7 +8694,7 @@ elFinder.prototype._options = {
 			['quicklook'],
 			['copy', 'cut', 'paste'],
 			['rm', 'empty'],
-			['duplicate', 'rename', 'edit', 'resize', 'pixlr'],
+			['duplicate', 'rename', 'edit', 'resize'],
 			['extract', 'archive'],
 			['search'],
 			['view', 'sort'],
@@ -9090,7 +9089,7 @@ elFinder.prototype._options = {
 		// current directory menu
 		cwd    : ['reload', 'back', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'empty', '|', 'view', 'sort', 'colwidth', '|', 'info', '|', 'fullscreen'],
 		// current directory file menu
-		files  : ['getfile', '|' ,'open', 'download', 'opendir', 'quicklook', '|', 'upload', 'mkdir', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', 'empty', '|', 'rename', 'edit', 'resize', 'pixlr', '|', 'archive', 'extract', '|', 'places', 'info', 'chmod', 'netunmount']
+		files  : ['getfile', '|' ,'open', 'download', 'opendir', 'quicklook', '|', 'upload', 'mkdir', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', 'empty', '|', 'rename', 'edit', 'resize', '|', 'archive', 'extract', '|', 'places', 'info', 'chmod', 'netunmount']
 	},
 
 	/**
@@ -10255,8 +10254,6 @@ if (typeof elFinder === 'function' && elFinder.prototype.i18) {
 			'cmdfullscreen': 'Full Screen', // from v2.1.15 added 03.08.2016
 			'cmdmove'      : 'Move', // from v2.1.15 added 21.08.2016
 			'cmdempty'     : 'Empty the folder', // from v2.1.25 added 22.06.2017
-			
-			'cmdpixlr'     : 'Edit on Pixlr',
 
 			/*********************************** buttons ***********************************/
 			'btnClose'  : 'Close',
@@ -21617,98 +21614,6 @@ elFinder.prototype.commands.paste = function() {
 
 };
 
-
-/*
- * File: /js/commands/pixlr.js
- */
-
-elFinder.prototype.commands.pixlr = function() {
-
-	this.getstate = function(sel) {
-		var fm = this.fm;
-		var sel = fm.selectedFiles();
-		return !this._disabled && sel.length == 1 && sel[0].read && sel[0].mime.indexOf('image/') !== -1 && fm.file(sel[0].phash) && fm.file(sel[0].phash).write ? 0 : -1;
-	};
-
-	this.exec = function(hashes) {
-		var fm    = this.fm,
-		dfrd  = $.Deferred().fail(function(error) { error && fm.error(error); }),
-		files = this.files(hashes),
-		cnt   = files.length,
-		fire = function(mode) {
-			var file, url, uploadURL, img, target, exit, loc,
-			cdata = $.param(fm.options.customData);
-			
-			// set custom data
-			if (cdata) {
-				cdata = '&' + cdata;
-			}
-			
-			file = files[0];
-			
-			loc = location.href.replace(/^(https?:\/\/[^\/]+).+/i, '$1');
-			img = fm.url(file.hash);
-			if (! img.match(/^http/)) {
-				img = loc + img;
-			}
-			
-			loc = location.href.replace(/\/[^\/]*$/, '/');
-			uploadURL = fm.uploadURL;
-			if (! uploadURL.match(/^http/)) {
-				uploadURL = loc + uploadURL;
-			}
-			
-			target = uploadURL + (uploadURL.indexOf('?') === -1 ? '?' : '&')
-				+ 'cmd=pixlr'
-				+ '&target=' + file.phash
-				+ '&node=' + encodeURIComponent(fm.id)
-				+ cdata;
-			
-			exit = uploadURL + (uploadURL.indexOf('?') === -1 ? '?' : '&')
-				+ 'cmd=pixlr'
-				+ '&node=' + encodeURIComponent(fm.id)
-				+ cdata;
-			
-			url = 'http://pixlr.com/'+mode+'/?image=' + encodeURIComponent(img)
-				+ '&target=' + encodeURIComponent(target)
-				+ '&title=' + encodeURIComponent('pixlr_'+file.name)
-				+ '&exit=' + encodeURIComponent(exit);
-			
-			if (!window.open(url)) {
-				return dfrd.reject('errPopup');
-			}
-		},
-		selector = $('<div/>'),
-		opts    = {
-			title : 'Pixlr Editor or Pixlr Express ?',
-			width : 'auto',
-			close : function() { $(this).elfinderdialog('destroy'); }
-		}
-		;
-		
-		if (!cnt) {
-			return dfrd.reject();
-		}
-		
-		selector.css('text-align', 'center')
-		        .append($('<button/>').css('margin', '30px').append('Pixlr Editor').button().click(
-					function(){
-						fire('editor');
-						$(this).elfinderdialog('destroy');
-						return false;
-					}))
-		        .append($('<button/>').css('margin', '30px').append('Pixlr Express').button().click(
-		        	function(){
-		        		fire('express');
-		        		$(this).elfinderdialog('destroy');
-		        		return false;
-		        	}));
-		
-		dialog = fm.dialog(selector, opts);
-
-		return dfrd.resolve();
-	};
-};
 
 /*
  * File: /js/commands/places.js

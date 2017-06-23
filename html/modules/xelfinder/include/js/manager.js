@@ -83,6 +83,7 @@ $(document).ready(function() {
 	var elfinderInstance = $('#elfinder').elfinder({
 		lang: lang,
 		url : connectorUrl,
+		baseUrl : baseUrl,
 		cssAutoLoad : false,
 		customData : customData,
 		customHeaders: cors? {'X-Requested-With' : 'XMLHttpRequest'} : {},

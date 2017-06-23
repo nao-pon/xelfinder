@@ -196,6 +196,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/commands/download.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/duplicate.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/edit.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/empty.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/extract.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/forward.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/fullscreen.js"></script>
@@ -209,7 +210,6 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/commands/open.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/opendir.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/paste.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/pixlr.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/places.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/quicklook.js"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/quicklook.plugins.js"></script>
@@ -243,6 +243,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var moduleUrl = '<?php echo XOOPS_MODULE_URL ?>';
 			var myUrl = moduleUrl + '/<?php echo $mydirname?>/';
 			var imgUrl = myUrl + 'images/';
+			var baseUrl = '<?php echo $elfurl?>/';
 			var connectorUrl = '<?php echo $conector_url?>';
 			var connIsExt = <?php echo (int)$conn_is_ext?>;
 			var useSiteImg = <?php echo $siteimg ?>;
