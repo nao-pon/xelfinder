@@ -14,9 +14,24 @@ class elFinder {
 	/**
 	 * API version number
 	 *
+	 * @var float
+	 **/
+	protected static $ApiVersion = 2.1;
+	
+	/**
+	 * API version number
+	 *
+	 * @deprecated
 	 * @var string
 	 **/
-	protected $version = '2.1';
+	protected $version;
+	
+	/**
+	 * API revision that this connector supports all functions
+	 * 
+	 * @var integer
+	 */
+	protected static $ApiRevision = 25;
 	
 	/**
 	 * Storages (root dirs)
@@ -376,6 +391,9 @@ class elFinder {
 	 * @author Dmitry (dio) Levashov
 	 */
 	public function __construct($opts) {
+		// for backward compat
+		$this->version = (string)self::$ApiVersion;
+		
 		// set error handler of WARNING, NOTICE
 		$errLevel = E_WARNING | E_NOTICE | E_USER_WARNING | E_USER_NOTICE | E_STRICT | E_RECOVERABLE_ERROR;
 		if (defined('E_DEPRECATED')) {
@@ -620,7 +638,17 @@ class elFinder {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	public function version() {
-		return $this->version;
+		return self::$ApiVersion;
+	}
+	
+	/**
+	 * Return revision (api) number
+	 *
+	 * @return string
+	 * @author Naoki Sawada
+	 **/
+	public function revision() {
+		return self::$ApiRevision;
 	}
 	
 	/**
@@ -1256,7 +1284,7 @@ class elFinder {
 		}
 		
 		if (!empty($args['init'])) {
-			$result['api'] = $this->version;
+			$result['api'] = self::$ApiVersion + (self::$ApiRevision / 10000);
 			$result['uplMaxSize'] = ini_get('upload_max_filesize');
 			$result['uplMaxFile'] = ini_get('max_file_uploads');
 			$result['netDrivers'] = array_keys(self::$netDrivers);
@@ -1509,6 +1537,30 @@ class elFinder {
 				'Connection: close'
 			)
 		);
+		
+		// check 'xsendfile'
+		$xsendfile = $volume->getOption('xsendfile');
+		$path = null;
+		if ($xsendfile) {
+			$info = stream_get_meta_data($fp);
+			if ($path = empty($info['uri'])? null : $info['uri']) {
+				$basePath = rtrim($volume->getOption('xsendfilePath'), DIRECTORY_SEPARATOR);
+				if ($basePath) {
+					$root = rtrim($volume->getRootPath(), DIRECTORY_SEPARATOR);
+					if (strpos($path, $root) === 0) {
+						$path = $basePath . substr($path, strlen($root));
+					} else {
+						$path = null;
+					}
+				}
+			}
+		}
+		if ($path) {
+			$result['header'][] = $xsendfile . ': ' . $path;
+			$result['info']['xsendfile'] = $xsendfile;
+		}
+		
+		// add "Content-Location" if file has url data
 		if (isset($file['url']) && $file['url'] && $file['url'] != 1) {
 			$result['header'][] = 'Content-Location: '.$file['url'];
 		}
@@ -3382,6 +3434,15 @@ class elFinder {
 	/***************************************************************************/
 	/*                           static  utils                                 */
 	/***************************************************************************/
+	
+	/**
+	 * Return full version of API that this connector supports all functions
+	 * 
+	 * @return string
+	 */
+	public static function getApiFullVersion() {
+		return (string)self::$ApiVersion . '.' . (string)self::$ApiRevision;
+	}
 	
 	/**
 	 * Return Is Animation Gif

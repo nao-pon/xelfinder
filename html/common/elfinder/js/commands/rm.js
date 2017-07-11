@@ -300,10 +300,6 @@ elFinder.prototype.commands.rm = function() {
 			return thash;
 		};
 	
-	fm.bind('contextmenu', function(e) {
-		self.update(void(0), getTHash(e.data.targets)? 'trash' : 'rm');
-	});
-	
 	this.syncTitleOnChange = true;
 	this.updateOnSelect = true;
 	this.shortcuts = [{
@@ -312,15 +308,21 @@ elFinder.prototype.commands.rm = function() {
 	this.handlers = {
 		'open' : function() {
 			self.update(void(0), fm.i18n(self.fm.option('trashHash')? 'trash' : 'rm'));
+		},
+		'select' : function(e) {
+			if (e.data && e.data.selected && e.data.selected.length) {
+				self.update(void(0), getTHash(e.data.selected)? 'trash' : 'rm');
+			}
 		}
 	}
+	this.value = 'rm';
 	
 	this.init = function() {
 		self.change(function() {
 			delete self.extra;
 			self.title = fm.i18n('cmd' + self.value);
 			self.className = self.value;
-			self.button.children('span.elfinder-button-icon')[self.value === 'trash'? 'addClass' : 'removeClass']('elfinder-button-icon-trash');
+			self.button && self.button.children('span.elfinder-button-icon')[self.value === 'trash'? 'addClass' : 'removeClass']('elfinder-button-icon-trash');
 			if (self.value === 'trash') {
 				self.extra = {
 					icon: 'rm',

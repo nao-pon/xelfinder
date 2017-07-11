@@ -1130,8 +1130,27 @@ $.fn.elfindercwd = function(fm, options) {
 							preventFail : true
 						})
 						.done(function(data) {
-							if (data.images && Object.keys(data.images).length) {
-								attachThumbnails(data.images, reload);
+							var errs = [],
+								resLen;
+							if (data.images) {
+								if (resLen = Object.keys(data.images).length) {
+									if (resLen < tmbs.length) {
+										$.each(tmbs, function(i, h) {
+											if (! data.images[h]) {
+												errs.push(h);
+											}
+										});
+									}
+									attachThumbnails(data.images, reload);
+								} else {
+									errs = tmbs;
+								}
+								// unset error items from bufferExt.attachTmbs
+								if (errs.length) {
+									$.each(errs, function(i, h) {
+										delete bufferExt.attachTmbs[h];
+									});
+								}
 							}
 							if (reload) {
 								if (reloads.length) {
@@ -2087,6 +2106,8 @@ $.fn.elfindercwd = function(fm, options) {
 					node = fm.getUI();
 					node.on('resize', function(e, data) {
 						var offset;
+						e.preventDefault();
+						e.stopPropagation();
 						if (data && data.fullscreen) {
 							offset = node.offset();
 							if (data.fullscreen === 'on') {
