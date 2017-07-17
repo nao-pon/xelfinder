@@ -148,12 +148,12 @@ elFinder.prototype._options = {
 
 	/**
 	 * Base URL of elfFinder library starting from Manager HTML
-	 * Auto detect when cssAutoLoad is `true`
+	 * Auto detect when empty value`
 	 * 
 	 * @type String
-	 * @default "./"
+	 * @default ""
 	 */
-	baseUrl : './',
+	baseUrl : '',
 	
 	/**
 	 * Auto load required CSS
@@ -569,7 +569,7 @@ elFinder.prototype._options = {
 			// The tree of directories with children exceeding this number will be split
 			subTreeMax : 100,
 			// Numbar of max connctions of subdirs request
-			subdirsMaxConn : 3,
+			subdirsMaxConn : 2,
 			// Number of max simultaneous processing directory of subdirs
 			subdirsAtOnce : 5
 			// ,

@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.25 (2.1 Nightly: b947fb7) (2017-07-11)
+ * Version 2.1.26 (2.1 Nightly: c1f0f7a) (2017-07-17)
  * http://elfinder.org
  * 
  * Copyright 2009-2017, Studio 42
@@ -693,19 +693,21 @@ var elFinder = function(node, opts, bootCallback) {
 	 **/
 	this.options = $.extend(true, {}, this._options, opts||{});
 	
-	// set dispInlineRegex
-	cwdOptionsDefault['dispInlineRegex'] = this.options.dispInlineRegex;
-	
-	// auto load required CSS
-	if (this.options.cssAutoLoad) {
-		(function(fm) {
-			var myTag = $('head > script[src$="js/elfinder.min.js"],script[src$="js/elfinder.full.js"]:first'),
-				base, baseUrl, hide, fi, cnt;
+	// set fm.baseUrl
+	this.baseUrl = (function() {
+		var myTag, myCss, base, baseUrl;
+		
+		if (self.options.baseUrl) {
+			return self.options.baseUrl;
+		} else {
+			baseUrl = '';
+			myTag = $('head > script[src$="js/elfinder.min.js"],script[src$="js/elfinder.full.js"]:first');
 			if (myTag.length) {
-				// hide elFinder node while css loading
-				hide = $('<style>.elfinder{visibility:hidden;overflow:hidden}</style>');
-				
-				$('head').append(hide);
+				myCss = $('head > link[href$="css/elfinder.min.css"],link[href$="css/elfinder.full.css"]:first').length;
+				if (! myCss) {
+					// to request CSS auto loading
+					self.cssloaded = null;
+				}
 				baseUrl = myTag.attr('src').replace(/js\/[^\/]+$/, '');
 				if (! baseUrl.match(/^(https?\/\/|\/)/)) {
 					// check <base> tag
@@ -713,13 +715,38 @@ var elFinder = function(node, opts, bootCallback) {
 						baseUrl = base.replace(/\/$/, '') + '/' + baseUrl; 
 					}
 				}
-				fm.loadCss([baseUrl+'css/elfinder.min.css', baseUrl+'css/theme.css']);
+			}
+			if (baseUrl !== '') {
+				self.options.baseUrl = baseUrl;
+			} else {
+				if (! self.options.baseUrl) {
+					self.options.baseUrl = './';
+				}
+				baseUrl = self.options.baseUrl;
+			}
+			return baseUrl;
+		}
+	})();
+	
+	// set dispInlineRegex
+	cwdOptionsDefault['dispInlineRegex'] = this.options.dispInlineRegex;
+	
+	// auto load required CSS
+	if (this.options.cssAutoLoad) {
+		(function(fm) {
+			var baseUrl = self.baseUrl,
+				hide, fi, cnt;
+			
+			if (self.cssloaded === null) {
+				// hide elFinder node while css loading
+				hide = $('<style>.elfinder{visibility:hidden;overflow:hidden}</style>');
 				
-				fm.baseUrl = baseUrl;
+				$('head').append(hide);
+				self.loadCss([baseUrl+'css/elfinder.min.css', baseUrl+'css/theme.css']);
 				
 				// additional CSS files
-				if (Array.isArray(fm.options.cssAutoLoad)) {
-					fm.loadCss(fm.options.cssAutoLoad);
+				if (Array.isArray(self.options.cssAutoLoad)) {
+					self.loadCss(self.options.cssAutoLoad);
 				}
 				
 				// check css loaded and remove hide
@@ -728,14 +755,13 @@ var elFinder = function(node, opts, bootCallback) {
 					if (--cnt < 0 || node.css('visibility') !== 'hidden') {
 						clearInterval(fi);
 						hide.remove();
-						fm.cssloaded = true;
-						fm.trigger('cssloaded');
+						self.cssloaded = true;
+						self.trigger('cssloaded');
 					}
 				}, 10);
-			} else {
-				fm.options.cssAutoLoad = false;
 			}
-		})(this);
+			self.options.cssAutoLoad = false;
+		})();
 	}
 	
 	/**
@@ -4366,7 +4392,7 @@ var elFinder = function(node, opts, bootCallback) {
 		}
 
 		// trigger event cssloaded if cddAutoLoad disabled
-		if (! self.options.cssAutoLoad) {
+		if (self.cssloaded === false) {
 			self.cssloaded = true;
 			self.trigger('cssloaded');
 		}
@@ -7994,7 +8020,7 @@ if (!Object.assign) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.25 (2.1 Nightly: b947fb7)';
+elFinder.prototype.version = '2.1.26 (2.1 Nightly: c1f0f7a)';
 
 
 
@@ -8464,12 +8490,12 @@ elFinder.prototype._options = {
 
 	/**
 	 * Base URL of elfFinder library starting from Manager HTML
-	 * Auto detect when cssAutoLoad is `true`
+	 * Auto detect when empty value`
 	 * 
 	 * @type String
-	 * @default "./"
+	 * @default ""
 	 */
-	baseUrl : './',
+	baseUrl : '',
 	
 	/**
 	 * Auto load required CSS
@@ -8885,7 +8911,7 @@ elFinder.prototype._options = {
 			// The tree of directories with children exceeding this number will be split
 			subTreeMax : 100,
 			// Numbar of max connctions of subdirs request
-			subdirsMaxConn : 3,
+			subdirsMaxConn : 2,
 			// Number of max simultaneous processing directory of subdirs
 			subdirsAtOnce : 5
 			// ,
@@ -12580,7 +12606,7 @@ $.fn.elfindercwd = function(fm, options) {
 							} else {
 								if (reload) {
 									loadThumbnails([hash]);
-								} else {
+								} else if (! bufferExt.tmbLoading[hash]) {
 									bufferExt.getTmbs.push(hash);
 								}
 							}
@@ -12590,7 +12616,7 @@ $.fn.elfindercwd = function(fm, options) {
 				if ($.isPlainObject(tmbs) && Object.keys(tmbs).length) {
 					Object.assign(bufferExt.attachTmbs, tmbs);
 					$.each(tmbs, chk);
-					if (! reload && bufferExt.getTmbs.length) {
+					if (! reload && bufferExt.getTmbs.length && ! Object.keys(bufferExt.tmbLoading).length) {
 						loadThumbnails();
 					}
 				}
@@ -12630,6 +12656,9 @@ $.fn.elfindercwd = function(fm, options) {
 				}
 				if (tmbs.length) {
 					if (reload || inViewHashes[tmbs[0]] || inViewHashes[tmbs[tmbs.length-1]]) {
+						$.each(tmbs, function(i, h) {
+							bufferExt.tmbLoading[h] = true;
+						});
 						fm.request({
 							data : {cmd : 'tmb', targets : tmbs},
 							preventFail : true
@@ -12664,6 +12693,7 @@ $.fn.elfindercwd = function(fm, options) {
 							}
 						})
 						.always(function() {
+							bufferExt.tmbLoading = {};
 							if (! reload && bufferExt.getTmbs.length) {
 								loadThumbnails();
 							}
@@ -13050,6 +13080,7 @@ $.fn.elfindercwd = function(fm, options) {
 						renderd: 0,
 						attachTmbs: {},
 						getTmbs: [],
+						tmbLoading: {},
 						lazyOpts: { tm : 0 }
 					};
 					
@@ -13629,6 +13660,9 @@ $.fn.elfindercwd = function(fm, options) {
 			})
 			.bind('enable', function() {
 				resize();
+			})
+			.bind('request.open', function() {
+				bufferExt.getTmbs = [];
 			})
 			.bind('open add remove searchend', function() {
 				var phash = fm.cwd().hash,
@@ -17442,12 +17476,15 @@ $.fn.elfindertree = function(fm, opts) {
 					},
 					done= function(res, dfrd) {
 						var open = function() {
-								checkSubdirs();
 								if (openRoot && baseNode) {
 									findSubtree(baseNode.hash).show().prev(selNavdir).addClass(expanded);
 									openRoot = false;
 								}
-								autoScr && autoScroll();
+								if (autoScr) {
+									autoScroll().done(checkSubdirs);
+								} else {
+									checkSubdirs();
+								}
 							},
 							current;
 						
@@ -18812,7 +18849,7 @@ elFinder.prototype.commands.download = function() {
 			}
 		}
 	}).one('open', function() {
-		if (fm.api > 2) {
+		if (fm.api >= 2.1012) {
 			czipdl = fm.getCommand('zipdl');
 		}
 	});
