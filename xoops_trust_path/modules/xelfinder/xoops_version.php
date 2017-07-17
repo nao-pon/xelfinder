@@ -666,6 +666,14 @@ array(
 	'default'		=> 1
 ),
 array(
+	'name'			=> 'ffmpeg_path' ,
+	'title'			=> $constpref.'_FFMPEG_PATH',
+	'description'	=> $constpref.'_FFMPEG_PATH_DESC',
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> 'ffmpeg'
+),
+array(
 	'name'			=> 'debug' ,
 	'title'			=> $constpref.'_DEBUG',
 	'description'	=> $constpref.'_DEBUG_DESC',

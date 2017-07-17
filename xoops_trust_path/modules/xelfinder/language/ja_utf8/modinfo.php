@@ -188,6 +188,9 @@ define( $constpref.'_AUTOSYNC_SEC_GUEST_DESC',  '' );
 define( $constpref.'_AUTOSYNC_START',           'すぐに自動更新を開始する' );
 define( $constpref.'_AUTOSYNC_START_DESC',      'コンテキストメニューの「リロード」で自動更新の開始・停止ができます。' );
 
+define( $constpref.'_FFMPEG_PATH',              'ffmpeg コマンドのパス' );
+define( $constpref.'_FFMPEG_PATH_DESC',         'ffmpeg コマンドのパスが必要な場合に指定してください。' );
+
 define( $constpref.'_DEBUG' ,                   'デバッグモードを有効にする' );
 define( $constpref.'_DEBUG_DESC' ,              'デバッグモードにすると elFinder の "elfinder.min.css", "elfinder.min.js" ではなく個別のファイルを読み込みます。<br />また、JavaScript のレスポンスにデバグ情報を含めます。<br />パフォーマンス向上のために、通常はデバッグモードは無効にして運用することをお勧めします。' );
 

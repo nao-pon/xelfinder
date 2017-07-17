@@ -186,6 +186,9 @@ define( $constpref.'_AUTOSYNC_SEC_GUEST_DESC',  '' );
 define( $constpref.'_AUTOSYNC_START',           'Start auto sync as soon' );
 define( $constpref.'_AUTOSYNC_START_DESC',      'Can start-stop of the auto sync by "reload" in the context menu.' );
 
+define( $constpref.'_FFMPEG_PATH',              'Path to ffmpeg command' );
+define( $constpref.'_FFMPEG_PATH_DESC',         'Specify the path when the path to ffmpeg is required.' );
+
 define( $constpref.'_DEBUG' ,                   'Enable Debug mode' );
 define( $constpref.'_DEBUG_DESC' ,              'If it is set in a debug mode, an individual file will be read instead of "elfinder.min.css" and "elfinder.min.js" by elFinder.<br />Moreover, debugging information is included in the response of JavaScript.<br />We recommend "No debug" for performance improvement.' );
 

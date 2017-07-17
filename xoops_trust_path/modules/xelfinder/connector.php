@@ -96,6 +96,10 @@ try {
 		error_reporting(0);
 	}
 
+	if (! empty($config['ffmpeg_path'])) {
+		define('ELFINDER_FFMPEG_PATH', $config['ffmpeg_path']);
+	}
+	
 	$allowOrigins = array_map('trim', preg_split('/\s+/', $config['allow_origins']));
 	$allowOrigins[] = preg_replace('#(^https?://[^/]+).*#i', '$1', XOOPS_URL);
 	$allowOrigins = array_flip($allowOrigins);
