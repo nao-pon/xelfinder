@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.26 (2.1 Nightly: c1f0f7a) (2017-07-17)
+ * Version 2.1.26 (2.1 Nightly: 25b70be) (2017-07-26)
  * http://elfinder.org
  * 
  * Copyright 2009-2017, Studio 42
@@ -7778,68 +7778,75 @@ elFinder.prototype = {
 			},
 			success = null,
 			cnt, scripts = {};
-		if ($.isFunction(callback)) {
-			success = function(d, status) {
-				if (!status || status === 'success' || status === 'notmodified') {
-					if (check) {
-						if (typeof check.obj[check.name] === 'undefined') {
-							var cnt = check.timeout? (check.timeout / 10) : 1;
-							var fi = setInterval(function() {
-								if (--cnt < 0 || typeof check.obj[check.name] !== 'undefined') {
-									clearInterval(fi);
-									callback();
-								}
-							}, 10);
+		
+		opts = opts || {};
+		if (opts.tryRequire && typeof define === 'function' && define.amd) {
+			require(urls, callback, opts.error);
+		} else {
+			if ($.isFunction(callback)) {
+				success = function(d, status) {
+					if (!status || status === 'success' || status === 'notmodified') {
+						if (check) {
+							if (typeof check.obj[check.name] === 'undefined') {
+								var cnt = check.timeout? (check.timeout / 10) : 1;
+								var fi = setInterval(function() {
+									if (--cnt < 0 || typeof check.obj[check.name] !== 'undefined') {
+										clearInterval(fi);
+										callback();
+									}
+								}, 10);
+							} else {
+								callback();
+							}
 						} else {
 							callback();
 						}
 					} else {
-						callback();
-					}
-				} else {
-					if (opts && opts.error && $.isFunction(opts.error)) {
-						opts.error();
+						if (opts.error && $.isFunction(opts.error)) {
+							opts.error();
+						}
 					}
 				}
 			}
-		}
-		if (opts && opts.loadType === 'tag') {
-			$('head > script').each(function() {
-				scripts[this.src] = this;
-			});
-			cnt = urls.length;
-			$.each(urls, function(i, url) {
-				var done = false,
-					script;
-				
-				if (scripts[url]) {
-					(--cnt < 1) && success(void(0), scripts[url]._error);
-				} else {
-					script = document.createElement('script');
-					script.charset = opts.charset || 'UTF-8';
-					$('head').append(script);
-					script.onload = script.onreadystatechange = function() {
-						if ( !done && (!this.readyState ||
-								this.readyState === 'loaded' || this.readyState === 'complete') ) {
-							done = true;
-							(--cnt < 1) && success();
+
+			if (opts.loadType === 'tag') {
+				$('head > script').each(function() {
+					scripts[this.src] = this;
+				});
+				cnt = urls.length;
+				$.each(urls, function(i, url) {
+					var done = false,
+						script;
+					
+					if (scripts[url]) {
+						(--cnt < 1) && success(void(0), scripts[url]._error);
+					} else {
+						script = document.createElement('script');
+						script.charset = opts.charset || 'UTF-8';
+						$('head').append(script);
+						script.onload = script.onreadystatechange = function() {
+							if ( !done && (!this.readyState ||
+									this.readyState === 'loaded' || this.readyState === 'complete') ) {
+								done = true;
+								(--cnt < 1) && success();
+							}
+						};
+						script.onerror = function(err) {
+							script._error = (err && err.type)? err.type : 'error';
+							(--cnt < 1) && success(void(0), script._error);
 						}
-					};
-					script.onerror = function(err) {
-						script._error = (err && err.type)? err.type : 'error';
-						(--cnt < 1) && success(void(0), script._error);
+						script.src = url;
 					}
-					script.src = url;
-				}
-			});
-		} else {
-			opts = $.isPlainObject(opts)? Object.assign(defOpts, opts) : defOpts;
-			(function appendScript() {
-				$.ajax(Object.assign(opts, {
-					url: urls.shift(),
-					success: urls.length? appendScript : success
-				}));
-			})();
+				});
+			} else {
+				opts = $.isPlainObject(opts)? Object.assign(defOpts, opts) : defOpts;
+				(function appendScript() {
+					$.ajax(Object.assign(opts, {
+						url: urls.shift(),
+						success: urls.length? appendScript : success
+					}));
+				})();
+			}
 		}
 		return this;
 	},
@@ -8020,7 +8027,7 @@ if (!Object.assign) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.26 (2.1 Nightly: c1f0f7a)';
+elFinder.prototype.version = '2.1.26 (2.1 Nightly: 25b70be)';
 
 
 
@@ -8584,7 +8591,10 @@ elFinder.prototype._options = {
 		},
 		// "download" command options.
 		download : {
-			maxRequests : 10
+			// max request to download files when zipdl disabled
+			maxRequests : 10,
+			// minimum count of files to use zipdl
+			minFilesZipdl : 2
 		},
 		// "quicklook" command options.
 		quicklook : {
@@ -8593,7 +8603,11 @@ elFinder.prototype._options = {
 			height   : 300,
 			// MIME types to use Google Docs online viewer
 			// Example ['application/pdf', 'image/tiff', 'application/vnd.ms-office', 'application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
-			googleDocsMimes : []
+			googleDocsMimes : [],
+			// URL of hls.js
+			hlsJsUrl : '//cdnjs.cloudflare.com/ajax/libs/hls.js/0.7.11/hls.min.js',
+			// URL of dash.all.js
+			dashJsUrl : '//cdnjs.cloudflare.com/ajax/libs/dashjs/2.5.0/dash.all.min.js'
 		},
 		// "quicklook" command options.
 		edit : {
@@ -9005,7 +9019,7 @@ elFinder.prototype._options = {
 	 *  dispInlineRegex : '.',  // is allow inline of all of MIME types
 	 *  dispInlineRegex : '$^', // is not allow inline of all of MIME types
 	 */
-	dispInlineRegex : '^(?:(?:image|video|audio)|(?:text/plain|application/pdf)$)',
+	dispInlineRegex : '^(?:(?:image|video|audio)|application/(?:x-mpegURL|dash\+xml)|(?:text/plain|application/pdf)$)',
 
 	/**
 	 * Display only required files by types
@@ -18883,7 +18897,7 @@ elFinder.prototype.commands.download = function() {
 							dfd.resolve();
 						} else if (e.zipdl) {
 							zipdl = e.zipdl;
-							if (linkdl || (!html5dl && fm.UA.Mobile)) {
+							if (html5dl || linkdl) {
 								url = fm.options.url + (fm.options.url.indexOf('?') === -1 ? '?' : '&')
 								+ 'cmd=zipdl&download=1';
 								$.each([hashes[0], zipdl.file, zipdl.name, zipdl.mime], function(key, val) {
@@ -18899,21 +18913,26 @@ elFinder.prototype.commands.download = function() {
 									.attr('target', '_blank')
 									.on('click', function() {
 										dfd.resolve();
+										dialog && dialog.elfinderdialog('destroy');
+									});
+								if (linkdl) {
+									dllink.append('<span class="elfinder-button-icon elfinder-button-icon-download"></span>'+fm.escape(zipdl.name));
+									btn[fm.i18n('btnCancel')] = function() {
 										dialog.elfinderdialog('destroy');
-									})
-									.append('<span class="elfinder-button-icon elfinder-button-icon-download"></span>'+fm.escape(zipdl.name));
-								btn[fm.i18n('btnCancel')] = function() {
-									dialog.elfinderdialog('destroy');
-								};
-								dialog = fm.dialog(dllink, {
-									title: fm.i18n('link'),
-									buttons: btn,
-									width: '200px',
-									destroyOnClose: true,
-									close: function() {
-										(dfd.state() !== 'resolved') && dfd.resolve();
-									}
-								});
+									};
+									dialog = fm.dialog(dllink, {
+										title: fm.i18n('link'),
+										buttons: btn,
+										width: '200px',
+										destroyOnClose: true,
+										close: function() {
+											(dfd.state() !== 'resolved') && dfd.resolve();
+										}
+									});
+								} else {
+									dllink.hide().appendTo('body').get(0).click();
+									dllink.remove();
+								}
 							} else {
 								form = $('<form action="'+fm.options.url+'" method="post" target="'+uniq+'" style="display:none"/>')
 								.append('<input type="hidden" name="cmd" value="zipdl"/>')
@@ -18943,19 +18962,20 @@ elFinder.prototype.commands.download = function() {
 					return dfd.promise();
 				};
 			},
-			link, html5dl;
+			link, html5dl, fileCnt;
 			
 		if (!files.length) {
 			return dfrd.reject();
 		}
 		
-		link = $('<a>').hide().appendTo($('body'));
+		fileCnt = $.map(files, function(f) { return f.mime === 'directory'? null : true; }).length;
+		link = $('<a>').hide().appendTo('body');
 		html5dl = (typeof link.get(0).download === 'string');
 		
-		if (zipOn && (files.length > 1 || files[0].mime === 'directory')) {
+		if (zipOn && (fileCnt !== files.length || fileCnt >= (this.options.minFilesZipdl || 1))) {
 			link.remove();
+			linkdl = (!html5dl && fm.UA.Mobile);
 			if (mixed) {
-				linkdl = fm.UA.Mobile;
 				targets = {};
 				$.each(files, function(i, f) {
 					var p = f.hash.split('_', 2);
@@ -18965,6 +18985,9 @@ elFinder.prototype.commands.download = function() {
 						targets[p[0]].push(f.hash);
 					}
 				});
+				if (!linkdl && fm.UA.Mobile && Object.keys(targets).length > 1) {
+					linkdl = true;
+				}
 			} else {
 				targets = [ $.map(files, function(f) { return f.hash; }) ];
 			}
@@ -20502,38 +20525,38 @@ elFinder.prototype.commands.fullscreen = function() {
 					optTags = [],
 					langs = self.options.langs || {
 						ar: 'اللغة العربية',
-						bg: 'български език',
+						bg: 'Български',
 						ca: 'Català',
-						cs: 'čeština',
-						da: 'dansk',
+						cs: 'Čeština',
+						da: 'Dansk',
 						de: 'Deutsch',
 						el: 'Ελληνικά',
 						en: 'English',
-						es: 'español',
+						es: 'Español',
 						fa: 'فارسی‌‎, پارسی‌',
 						fo: 'Føroyskt',
 						fr: 'Français',
 						he: 'עברית‎',
 						hr: 'Hrvatski',
-						hu: 'magyar',
+						hu: 'Magyar',
 						id: 'Bahasa Indonesia',
 						it: 'Italiano',
 						jp: '日本語',
 						ko: '한국어',
 						nl: 'Nederlands',
-						no: 'norsk',
-						pl: 'język polski',
+						no: 'Norsk',
+						pl: 'Polski',
 						pt_BR: 'Português',
 						ro: 'Română',
-						ru: 'русский язык',
+						ru: 'Pусский',
 						si: 'සිංහල',
-						sk: 'slovenský jazyk',
-						sl: 'slovenščina',
-						sr: 'српски језик',
-						sv: 'svenska',
+						sk: 'Slovenský',
+						sl: 'Slovenščina',
+						sr: 'Srpski',
+						sv: 'Svenska',
 						tr: 'Türkçe',
 						ug_CN: 'ئۇيغۇرچە',
-						uk: 'Українська мова',
+						uk: 'Український',
 						vi: 'Tiếng Việt',
 						zh_CN: '简体中文',
 						zh_TW: '正體中文'
@@ -20578,7 +20601,7 @@ elFinder.prototype.commands.fullscreen = function() {
 		$.inArray('about', parts) !== -1 && about();
 		$.inArray('shortcuts', parts) !== -1 && shortcuts();
 		if ($.inArray('help', parts) !== -1) {
-			helpSource = fm.baseUrl+'js/i18n/help/%s.html';
+			helpSource = fm.baseUrl+'js/i18n/help/%s.html.js';
 			help();
 		}
 		$.inArray('preference', parts) !== -1 && preference();
@@ -21592,7 +21615,7 @@ elFinder.prototype.commands.netunmount = function() {
 			var wnd, target;
 			
 			try {
-				reg = new RegExp(fm.option('dispInlineRegex'));
+				reg = new RegExp(fm.option('dispInlineRegex'), 'i');
 			} catch(e) {
 				reg = false;
 			}
@@ -22244,8 +22267,8 @@ elFinder.prototype.commands.places = function() {
 			}
 		},
 		
-		support = function(codec) {
-			var media = document.createElement(codec.substr(0, codec.indexOf('/'))),
+		support = function(codec, name) {
+			var media = document.createElement(name || codec.substr(0, codec.indexOf('/'))),
 				value = false;
 			
 			try {
@@ -22254,7 +22277,7 @@ elFinder.prototype.commands.places = function() {
 				
 			}
 			
-			return value && value !== '' && value != 'no';
+			return (value && value !== '' && value != 'no')? true : false;
 		},
 		
 		platformWin = (window.navigator.platform.indexOf('Win') != -1),
@@ -22595,8 +22618,10 @@ elFinder.prototype.commands.places = function() {
 		},
 		video : {
 			ogg  : support('video/ogg; codecs="theora"'),
-			webm : support('video/webm; codecs="vp8, vorbis"'),
-			mp4  : support('video/mp4; codecs="avc1.42E01E"') || support('video/mp4; codecs="avc1.42E01E, mp4a.40.2"') 
+			webm : support('video/webm; codecs="vp8, vorbis"') || support('video/webm; codecs="vp9"'),
+			mp4  : support('video/mp4; codecs="avc1.42E01E"') || support('video/mp4; codecs="avc1.42E01E, mp4a.40.2"'),
+			m3u8 : support('application/x-mpegURL', 'video') || support('application/vnd.apple.mpegURL', 'video'),
+			mpd  : support('application/dash+xml', 'video')
 		}
 	};
 	
@@ -22687,10 +22712,10 @@ elFinder.prototype.commands.places = function() {
 						self.dispInlineRegex = cwdDispInlineRegex;
 						if (serach || fm.optionsByHashes[hash]) {
 							try {
-								self.dispInlineRegex = new RegExp(fm.option('dispInlineRegex', hash));
+								self.dispInlineRegex = new RegExp(fm.option('dispInlineRegex', hash), 'i');
 							} catch(e) {
 								try {
-									self.dispInlineRegex = new RegExp(!fm.isRoot(file)? fm.option('dispInlineRegex', file.phash) : fm.options.dispInlineRegex);
+									self.dispInlineRegex = new RegExp(!fm.isRoot(file)? fm.option('dispInlineRegex', file.phash) : fm.options.dispInlineRegex, 'i');
 								} catch(e) {
 									self.dispInlineRegex = /^$/;
 								}
@@ -22723,7 +22748,7 @@ elFinder.prototype.commands.places = function() {
 			
 			// set current volume dispInlineRegex
 			try {
-				cwdDispInlineRegex = new RegExp(fm.option('dispInlineRegex'));
+				cwdDispInlineRegex = new RegExp(fm.option('dispInlineRegex'), 'i');
 			} catch(e) {
 				cwdDispInlineRegex = /^$/;
 			}
@@ -23061,7 +23086,8 @@ elFinder.prototype.commands.quicklook.plugins = [
 	 * @param elFinder.commands.quicklook
 	 **/
 	function(ql) {
-		var preview  = ql.preview,
+		var fm       = ql.fm,
+			preview  = ql.preview,
 			autoplay = !!ql.options['autoplay'],
 			mimes    = {
 				'video/mp4'       : 'mp4',
@@ -23069,17 +23095,21 @@ elFinder.prototype.commands.quicklook.plugins = [
 				'video/quicktime' : 'mp4',
 				'video/ogg'       : 'ogg',
 				'application/ogg' : 'ogg',
-				'video/webm'      : 'webm'
+				'video/webm'      : 'webm',
+				'application/vnd.apple.mpegurl' : 'm3u8',
+				'application/x-mpegurl' : 'm3u8',
+				'application/dash+xml'  : 'mpd'
 			},
 			node,
 			win  = ql.window,
-			navi = ql.navbar;
+			navi = ql.navbar,
+			cHls, cDash;
 
 		preview.on('update', function(e) {
 			var file = e.file,
-				type = mimes[file.mime],
+				type = mimes[file.mime.toLowerCase()],
 				setNavi = function() {
-					if (ql.fm.UA.iOS) {
+					if (fm.UA.iOS) {
 						if (win.hasClass('elfinder-quicklook-fullscreen')) {
 							preview.css('height', '-webkit-calc(100% - 50px)');
 							navi._show();
@@ -23089,22 +23119,79 @@ elFinder.prototype.commands.quicklook.plugins = [
 					} else {
 						navi.css('bottom', win.hasClass('elfinder-quicklook-fullscreen')? '50px' : '');
 					}
+				},
+				render = function(opts) {
+					opts = opts || {};
+					ql.hideinfo();
+					node = $('<video class="elfinder-quicklook-preview-video" controls preload="auto" autobuffer playsinline>'
+							+'</video>')
+						.on('change', function(e) {
+							// Firefox fire change event on seek or volume change
+							e.stopPropagation();
+						});
+					if (opts.src) {
+						node.append('<source src="'+opts.src+'" type="'+file.mime+'"/><source src="'+opts.src+'"/>');
+					}
+					
+					node.appendTo(preview);
+
+					win.on('viewchange.video', setNavi);
+					setNavi();
+				},
+				loadHls = function() {
+					var hls;
+					render();
+					hls = new cHls();
+					hls.loadSource(fm.openUrl(file.hash));
+					hls.attachMedia(node[0]);
+					if (autoplay) {
+						hls.on(cHls.Events.MANIFEST_PARSED,function() {
+							node[0].play();
+						});
+					}
+				},
+				loadDash = function() {
+					var player;
+					render();
+					player = cDash.MediaPlayer().create();
+					player.initialize(node[0], fm.openUrl(file.hash), autoplay);
 				};
-				
-			if (ql.dispInlineRegex.test(file.mime) && ql.support.video[type]) {
+			
+			if (ql.dispInlineRegex.test(file.mime) && (type === 'm3u8' || type === 'mpd' || ql.support.video[type])) {
 				e.stopImmediatePropagation();
 
-				ql.hideinfo();
-				node = $('<video class="elfinder-quicklook-preview-video" controls preload="auto" autobuffer><source src="'+ql.fm.openUrl(file.hash)+'" /></video>')
-					.on('change', function(e) {
-						// Firefox fire change event on seek or volume change
-						e.stopPropagation();
-					})
-					.appendTo(preview);
-				autoplay && node[0].play();
-
-				win.on('viewchange.video', setNavi);
-				setNavi();
+				if (fm.UA.Safari && ql.support.video[type]) {
+					render({ src: fm.openUrl(file.hash) });
+					autoplay && node[0].play();
+				} else {
+					if (type === 'm3u8') {
+						if (cHls) {
+							loadHls();
+						} else {
+							fm.loadScript(
+								[ ql.options.hlsJsUrl ],
+								function(res) { 
+									cHls = res || window.Hls;
+									loadHls();
+								},
+								{tryRequire: true}
+							);
+						}
+					} else if (type === 'mpd') {
+						if (cDash) {
+							loadDash();
+						} else {
+							fm.loadScript(
+								[ ql.options.dashJsUrl ],
+								function() { 
+									cDash = window.dashjs;
+									loadDash();
+								},
+								{tryRequire: true}
+							);
+						}
+					}
+				}
 			}
 		}).on('change', function() {
 			if (node && node.parent().length) {

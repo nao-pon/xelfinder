@@ -279,7 +279,10 @@ abstract class elFinderVolumeDriver {
 			'm4a:video/mp4'                => 'audio/mp4',
 			'oga:application/ogg'          => 'audio/ogg',
 			'ogv:application/ogg'          => 'video/ogg',
-			'zip:application/x-zip'        => 'application/zip'
+			'zip:application/x-zip'        => 'application/zip',
+			'm3u8:text/plain'              => 'application/x-mpegURL',
+			'mpd:text/plain'               => 'application/dash+xml',
+			'mpd:application/xml'          => 'application/dash+xml'
 		),
 		// An option to add MimeMap to the `mimeMap` option
 		// Array '[ext]:[detected mime type]' => '[normalized mime]'
@@ -287,7 +290,7 @@ abstract class elFinderVolumeDriver {
 		// MIME regex of send HTTP header "Content-Disposition: inline" or allow preview in quicklook
 		// '.' is allow inline of all of MIME types
 		// '$^' is not allow inline of all of MIME types
-		'dispInlineRegex' => '^(?:(?:image|video|audio)|(?:text/plain|application/pdf)$)',
+		'dispInlineRegex' => '^(?:(?:image|video|audio)|application/(?:x-mpegURL|dash\+xml)|(?:text/plain|application/pdf)$)',
 		// temporary content URL's base path
 		'tmpLinkPath'     => '',
 		// temporary content URL's base URL
@@ -641,8 +644,10 @@ abstract class elFinderVolumeDriver {
 		'ogm'   => 'video/ogg',
 		'm2ts'  => 'video/MP2T',
 		'mts'   => 'video/MP2T',
-		'ts'    => 'video/MP2T'
-		);
+		'ts'    => 'video/MP2T',
+		'm3u8'  => 'application/x-mpegURL',
+		'mpd'   => 'application/dash+xml'
+	);
 	
 	/**
 	 * Directory separator - required by client
@@ -815,6 +820,21 @@ abstract class elFinderVolumeDriver {
 			$this->options['resourcePath'] = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'resources';
 		}
 
+		// define accept constant of server commands path
+		! defined('ELFINDER_TAR_PATH')      && define('ELFINDER_TAR_PATH',      'tar');
+		! defined('ELFINDER_GZIP_PATH')     && define('ELFINDER_GZIP_PATH',     'gzip');
+		! defined('ELFINDER_BZIP2_PATH')    && define('ELFINDER_BZIP2_PATH',    'bzip2');
+		! defined('ELFINDER_XZ_PATH')       && define('ELFINDER_XZ_PATH',       'xz');
+		! defined('ELFINDER_ZIP_PATH')      && define('ELFINDER_ZIP_PATH',      'zip');
+		! defined('ELFINDER_UNZIP_PATH')    && define('ELFINDER_UNZIP_PATH',    'unzip');
+		! defined('ELFINDER_RAR_PATH')      && define('ELFINDER_RAR_PATH',      'rar');
+		! defined('ELFINDER_UNRAR_PATH')    && define('ELFINDER_UNRAR_PATH',    'unrar');
+		! defined('ELFINDER_7Z_PATH')       && define('ELFINDER_7Z_PATH', (substr(PHP_OS, 0, 3) === 'WIN')? '7z' : '7za');
+		! defined('ELFINDER_CONVERT_PATH')  && define('ELFINDER_CONVERT_PATH',  'convert');
+		! defined('ELFINDER_EXIFTRAN_PATH') && define('ELFINDER_EXIFTRAN_PATH', 'exiftran');
+		! defined('ELFINDER_JPEGTRAN_PATH') && define('ELFINDER_JPEGTRAN_PATH', 'jpegtran');
+		! defined('ELFINDER_FFMPEG_PATH')   && define('ELFINDER_FFMPEG_PATH',   'ffmpeg');
+		
 		// set image manipulation library
 		$type = preg_match('/^(imagick|gd|convert|auto)$/i', $this->options['imgLib'])
 			? strtolower($this->options['imgLib'])
@@ -830,7 +850,7 @@ abstract class elFinderVolumeDriver {
 			if (($convertCmd = $this->session->get($convertCache, false)) !== false) {
 				$this->imgLib = $convertCmd;
 			} else {
-				$this->imgLib = ($this->procExec('convert -version') === 0)? 'convert' : '';
+				$this->imgLib = ($this->procExec(ELFINDER_CONVERT_PATH . ' -version') === 0)? 'convert' : '';
 				$this->session->set($convertCache, $this->imgLib);
 			}
 		}
@@ -849,9 +869,6 @@ abstract class elFinderVolumeDriver {
 		}
 		if (! isset($this->imgConverter['video'])) {
 			$videoLibCache = 'videoLib';
-			if (! defined('ELFINDER_FFMPEG_PATH')) {
-				define('ELFINDER_FFMPEG_PATH', 'ffmpeg');
-			}
 			if (($videoLibCmd = $this->session->get($videoLibCache, false)) === false) {
 				$videoLibCmd = ($this->procExec(ELFINDER_FFMPEG_PATH . ' -version') === 0)? 'ffmpeg' : '';
 				$this->session->set($videoLibCache, $videoLibCmd);
@@ -2171,7 +2188,7 @@ abstract class elFinderVolumeDriver {
 		$isDir = ($file['mime'] === 'directory');
 		
 		if (!$this->nameAccepted($name, $isDir)) {
-			return $this->setError(elFinder::ERROR_INVALID_DIRNAME);
+			return $this->setError($isDir? elFinder::ERROR_INVALID_DIRNAME : elFinder::ERROR_INVALID_NAME);
 		}
 		
 		if (! $isDir) {
@@ -3113,25 +3130,37 @@ abstract class elFinderVolumeDriver {
 	 * 
 	 * @param  $file video source file path
 	 * @param  $stat file stat array
+	 * @param  $self volume driver object
+	 * @param  $ss   start seconds
 	 * @return bool
 	 * @author Naoki Sawada
 	 */
-	public function ffmpegToImg($file, $stat) {
+	public function ffmpegToImg($file, $stat, $self, $ss = null) {
 		$name = basename($file);
 		$path = dirname($file);
 		$tmp = $path . DIRECTORY_SEPARATOR . md5($name);
 		$GLOBALS['elFinderTempFiles'][] = $tmp; // regist to remove at the end
 		if (rename($file, $tmp)) {
-			// specific start time by file name (xxx^[sec].[extention] - video^3.mp4)
-			if (preg_match('/\^(\d+(?:\.\d+)?)\.[^.]+$/', $stat['name'], $_m)) {
-				$ss = $_m[1];
-			} else {
-				$ss = $this->options['tmbVideoConvSec'];
+			if ($ss === null) {
+				// specific start time by file name (xxx^[sec].[extention] - video^3.mp4)
+				if (preg_match('/\^(\d+(?:\.\d+)?)\.[^.]+$/', $stat['name'], $_m)) {
+					$ss = $_m[1];
+				} else {
+					$ss = $this->options['tmbVideoConvSec'];
+				}
 			}
 			$cmd = sprintf(ELFINDER_FFMPEG_PATH . ' -i %s -ss 00:00:%.3f -vframes 1 -f image2 %s', escapeshellarg($tmp), $ss, escapeshellarg($file));
-			$r = $this->procExec($cmd, $ou, $re, $er);
-			unlink($tmp);
-			return ($r === 0);
+			$r = ($this->procExec($cmd) === 0);
+			clearstatcache();
+			if ($r && $ss > 0 && ! file_exists($file)) {
+				// Retry by half of $ss
+				$ss = max(intval($ss / 2), 0);
+				rename($tmp, $file);
+				$r = $this->ffmpegToImg($file, $stat, $self, $ss);
+			} else {
+				unlink($tmp);
+			}
+			return $r;
 		}
 		return false;
 	}
@@ -5038,8 +5067,7 @@ abstract class elFinderVolumeDriver {
 				extract($this->imageMagickConvertPrepare($path, $destformat, $jpgQuality, $s));
 				$filter = ($destformat === 'png' /* createTmb */)? '-filter Box' : '-filter Lanczos';
 				$strip = (isset($options['preserveExif']) && ! $options['preserveExif'])? ' -strip' : '';
-				//$cmd = sprintf('convert%s%s +repage %s -resize %dx%d +repage%s %s %s', $coalesce, $jpgQuality, $filter, $size_w, $size_h, $deconstruct, $quotedPath, $quotedDstPath);
-				$cmd = sprintf('convert %s%s%s %s -geometry %dx%d! %s %s', $quotedPath, $coalesce, $jpgQuality, $filter, $size_w, $size_h, $deconstruct, $quotedDstPath);
+				$cmd = sprintf('%s %s%s%s %s -geometry %dx%d! %s %s', ELFINDER_CONVERT_PATH, $quotedPath, $coalesce, $jpgQuality, $filter, $size_w, $size_h, $deconstruct, $quotedDstPath);
 				
 				$result = false;
 				if ($this->procExec($cmd) === 0) {
@@ -5149,7 +5177,7 @@ abstract class elFinderVolumeDriver {
 
 			case 'convert':
 				extract($this->imageMagickConvertPrepare($path, $destformat, $jpgQuality, $s));
-				$cmd = sprintf('convert %s%s%s -crop %dx%d+%d+%d%s %s', $quotedPath, $coalesce, $jpgQuality, $width, $height, $x, $y, $deconstruct, $quotedDstPath);
+				$cmd = sprintf('%s %s%s%s -crop %dx%d+%d+%d%s %s', ELFINDER_CONVERT_PATH, $quotedPath, $coalesce, $jpgQuality, $width, $height, $x, $y, $deconstruct, $quotedDstPath);
 				
 				$result = false;
 				if ($this->procExec($cmd) === 0) {
@@ -5286,7 +5314,7 @@ abstract class elFinderVolumeDriver {
 				if ($bgcolor === 'transparent') {
 					$bgcolor = 'rgba(255, 255, 255, 0.0)';
 				}
-				$cmd = sprintf('convert -size %dx%d "xc:%s" png:- | convert%s%s png:-  %s -geometry +%d+%d -compose over -composite%s %s', $width, $height, $bgcolor, $coalesce, $jpgQuality, $quotedPath, $x, $y, $deconstruct, $quotedDstPath);
+				$cmd = sprintf('%s -size %dx%d "xc:%s" png:- | convert%s%s png:-  %s -geometry +%d+%d -compose over -composite%s %s', ELFINDER_CONVERT_PATH, $width, $height, $bgcolor, $coalesce, $jpgQuality, $quotedPath, $x, $y, $deconstruct, $quotedDstPath);
 				
 				$result = false;
 				if ($this->procExec($cmd) === 0) {
@@ -5358,11 +5386,11 @@ abstract class elFinderVolumeDriver {
 			);
 			$quotedPath = escapeshellarg($path);
 			$cmds = array();
-			if ($this->procExec('exiftran -h') === 0) {
-				$cmds[] = 'exiftran -i '.$exiftran[$count].' '.$path;
+			if ($this->procExec(ELFINDER_EXIFTRAN_PATH . ' -h') === 0) {
+				$cmds[] = ELFINDER_EXIFTRAN_PATH . ' -i '.$exiftran[$count].' '.$path;
 			}
-			if ($this->procExec('jpegtran -version') === 0) {
-				$cmds[] = 'jpegtran -rotate '.$jpegtran[$count].' -copy all -outfile '.$quotedPath.' '.$quotedPath;
+			if ($this->procExec(ELFINDER_JPEGTRAN_PATH . ' -version') === 0) {
+				$cmds[] = ELFINDER_JPEGTRAN_PATH . ' -rotate '.$jpegtran[$count].' -copy all -outfile '.$quotedPath.' '.$quotedPath;
 			}
 			foreach($cmds as $cmd) {
 				if ($this->procExec($cmd) === 0) {
@@ -5412,7 +5440,7 @@ abstract class elFinderVolumeDriver {
 				if ($s[2] === IMAGETYPE_GIF || $s[2] === IMAGETYPE_PNG) {
 					$bgcolor = 'rgba(255, 255, 255, 0.0)';
 				}
-				$cmd = sprintf('convert %s%s%s -background "%s" -rotate %d%s %s', $quotedPath, $coalesce, $jpgQuality, $bgcolor, $degree, $deconstruct, $quotedDstPath);
+				$cmd = sprintf('%s %s%s%s -background "%s" -rotate %d%s %s', ELFINDER_CONVERT_PATH, $quotedPath, $coalesce, $jpgQuality, $bgcolor, $degree, $deconstruct, $quotedDstPath);
 				
 				$result = false;
 				if ($this->procExec($cmd) === 0) {
@@ -5810,91 +5838,70 @@ abstract class elFinderVolumeDriver {
 		
 		if ($this->procExec('') === 0) {
 		
-			$this->procExec('tar --version', $o, $ctar);
+			$this->procExec(ELFINDER_TAR_PATH . ' --version', $o, $ctar);
 			
 			if ($ctar == 0) {
-				$arcs['create']['application/x-tar']  = array('cmd' => 'tar', 'argc' => '-cf', 'ext' => 'tar');
-				$arcs['extract']['application/x-tar'] = array('cmd' => 'tar', 'argc' => '-xf', 'ext' => 'tar', 'toSpec' => '-C ');
+				$arcs['create']['application/x-tar']  = array('cmd' => ELFINDER_TAR_PATH, 'argc' => '-cf', 'ext' => 'tar');
+				$arcs['extract']['application/x-tar'] = array('cmd' => ELFINDER_TAR_PATH, 'argc' => '-xf', 'ext' => 'tar', 'toSpec' => '-C ');
 				unset($o);
-				$this->procExec('gzip --version', $o, $c);
+				$this->procExec(ELFINDER_GZIP_PATH . ' --version', $o, $c);
 				if ($c == 0) {
-					$arcs['create']['application/x-gzip']  = array('cmd' => 'tar', 'argc' => '-czf', 'ext' => 'tgz');
-					$arcs['extract']['application/x-gzip'] = array('cmd' => 'tar', 'argc' => '-xzf', 'ext' => 'tgz', 'toSpec' => '-C ');
+					$arcs['create']['application/x-gzip']  = array('cmd' => ELFINDER_TAR_PATH, 'argc' => '-czf', 'ext' => 'tgz');
+					$arcs['extract']['application/x-gzip'] = array('cmd' => ELFINDER_TAR_PATH, 'argc' => '-xzf', 'ext' => 'tgz', 'toSpec' => '-C ');
 				}
 				unset($o);
-				$this->procExec('bzip2 --version', $o, $c);
+				$this->procExec(ELFINDER_BZIP2_PATH . ' --version', $o, $c);
 				if ($c == 0) {
-					$arcs['create']['application/x-bzip2']  = array('cmd' => 'tar', 'argc' => '-cjf', 'ext' => 'tbz');
-					$arcs['extract']['application/x-bzip2'] = array('cmd' => 'tar', 'argc' => '-xjf', 'ext' => 'tbz', 'toSpec' => '-C ');
+					$arcs['create']['application/x-bzip2']  = array('cmd' => ELFINDER_TAR_PATH, 'argc' => '-cjf', 'ext' => 'tbz');
+					$arcs['extract']['application/x-bzip2'] = array('cmd' => ELFINDER_TAR_PATH, 'argc' => '-xjf', 'ext' => 'tbz', 'toSpec' => '-C ');
 				}
 				unset($o);
-				$this->procExec('xz --version', $o, $c);
+				$this->procExec(ELFINDER_XZ_PATH . ' --version', $o, $c);
 				if ($c == 0) {
-					$arcs['create']['application/x-xz']  = array('cmd' => 'tar', 'argc' => '-cJf', 'ext' => 'xz');
-					$arcs['extract']['application/x-xz'] = array('cmd' => 'tar', 'argc' => '-xJf', 'ext' => 'xz', 'toSpec' => '-C ');
+					$arcs['create']['application/x-xz']  = array('cmd' => ELFINDER_TAR_PATH, 'argc' => '-cJf', 'ext' => 'xz');
+					$arcs['extract']['application/x-xz'] = array('cmd' => ELFINDER_TAR_PATH, 'argc' => '-xJf', 'ext' => 'xz', 'toSpec' => '-C ');
 				}
 			}
 			unset($o);
-			$this->procExec('zip -v', $o, $c);
+			$this->procExec(ELFINDER_ZIP_PATH . ' -v', $o, $c);
 			if ($c == 0) {
-				$arcs['create']['application/zip']  = array('cmd' => 'zip', 'argc' => '-r9', 'ext' => 'zip');
+				$arcs['create']['application/zip']  = array('cmd' => ELFINDER_ZIP_PATH, 'argc' => '-r9', 'ext' => 'zip');
 			}
 			unset($o);
-			$this->procExec('unzip --help', $o, $c);
+			$this->procExec(ELFINDER_UNZIP_PATH . ' --help', $o, $c);
 			if ($c == 0) {
-				$arcs['extract']['application/zip'] = array('cmd' => 'unzip', 'argc' => '',  'ext' => 'zip', 'toSpec' => '-d ');
+				$arcs['extract']['application/zip'] = array('cmd' => ELFINDER_UNZIP_PATH, 'argc' => '',  'ext' => 'zip', 'toSpec' => '-d ');
 			}
 			unset($o);
-			$this->procExec('rar --version', $o, $c);
+			$this->procExec(ELFINDER_RAR_PATH . ' --version', $o, $c);
 			if ($c == 0 || $c == 7) {
-				$arcs['create']['application/x-rar']  = array('cmd' => 'rar', 'argc' => 'a -inul', 'ext' => 'rar');
+				$arcs['create']['application/x-rar']  = array('cmd' => ELFINDER_RAR_PATH, 'argc' => 'a -inul', 'ext' => 'rar');
 			}
 			unset($o);
-			$this->procExec('unrar', $o, $c);
+			$this->procExec(ELFINDER_UNRAR_PATH, $o, $c);
 			if ($c==0 || $c == 7) {
-				$arcs['extract']['application/x-rar'] = array('cmd' => 'unrar', 'argc' => 'x -y', 'ext' => 'rar', 'toSpec' => '');
+				$arcs['extract']['application/x-rar'] = array('cmd' => ELFINDER_UNRAR_PATH, 'argc' => 'x -y', 'ext' => 'rar', 'toSpec' => '');
 			}
 			unset($o);
-			$this->procExec('7za --help', $o, $c);
+			$this->procExec(ELFINDER_7Z_PATH, $o, $c);
 			if ($c == 0) {
-				$arcs['create']['application/x-7z-compressed']  = array('cmd' => '7za', 'argc' => 'a', 'ext' => '7z');
-				$arcs['extract']['application/x-7z-compressed'] = array('cmd' => '7za', 'argc' => 'x -y', 'ext' => '7z', 'toSpec' => '-o');
+				$arcs['create']['application/x-7z-compressed']  = array('cmd' => ELFINDER_7Z_PATH, 'argc' => 'a', 'ext' => '7z');
+				$arcs['extract']['application/x-7z-compressed'] = array('cmd' => ELFINDER_7Z_PATH, 'argc' => 'x -y', 'ext' => '7z', 'toSpec' => '-o');
 				
 				if (empty($arcs['create']['application/zip'])) {
-					$arcs['create']['application/zip'] = array('cmd' => '7za', 'argc' => 'a -tzip', 'ext' => 'zip');
+					$arcs['create']['application/zip'] = array('cmd' => ELFINDER_7Z_PATH, 'argc' => 'a -tzip', 'ext' => 'zip');
 				}
 				if (empty($arcs['extract']['application/zip'])) {
-					$arcs['extract']['application/zip'] = array('cmd' => '7za', 'argc' => 'x -tzip -y', 'ext' => 'zip', 'toSpec' => '-o');
+					$arcs['extract']['application/zip'] = array('cmd' => ELFINDER_7Z_PATH, 'argc' => 'x -tzip -y', 'ext' => 'zip', 'toSpec' => '-o');
 				}
 				if (empty($arcs['create']['application/x-tar'])) {
-					$arcs['create']['application/x-tar'] = array('cmd' => '7za', 'argc' => 'a -ttar', 'ext' => 'tar');
+					$arcs['create']['application/x-tar'] = array('cmd' => ELFINDER_7Z_PATH, 'argc' => 'a -ttar', 'ext' => 'tar');
 				}
 				if (empty($arcs['extract']['application/x-tar'])) {
-					$arcs['extract']['application/x-tar'] = array('cmd' => '7za', 'argc' => 'x -ttar -y', 'ext' => 'tar', 'toSpec' => '-o');
+					$arcs['extract']['application/x-tar'] = array('cmd' => ELFINDER_7Z_PATH, 'argc' => 'x -ttar -y', 'ext' => 'tar', 'toSpec' => '-o');
 				}
-			} else if (substr(PHP_OS,0,3) === 'WIN') {
-				// check `7z` for Windows server.
-				unset($o);
-				$this->procExec('7z', $o, $c);
-				if ($c == 0) {
-					$arcs['create']['application/x-7z-compressed']  = array('cmd' => '7z', 'argc' => 'a', 'ext' => '7z');
-					$arcs['extract']['application/x-7z-compressed'] = array('cmd' => '7z', 'argc' => 'x -y', 'ext' => '7z', 'toSpec' => '-o');
-					
-					if (empty($arcs['create']['application/zip'])) {
-						$arcs['create']['application/zip'] = array('cmd' => '7z', 'argc' => 'a -tzip', 'ext' => 'zip');
-					}
-					if (empty($arcs['extract']['application/zip'])) {
-						$arcs['extract']['application/zip'] = array('cmd' => '7z', 'argc' => 'x -tzip -y', 'ext' => 'zip', 'toSpec' => '-o');
-					}
-					if (empty($arcs['create']['application/x-tar'])) {
-						$arcs['create']['application/x-tar'] = array('cmd' => '7z', 'argc' => 'a -ttar', 'ext' => 'tar');
-					}
-					if (empty($arcs['extract']['application/x-tar'])) {
-						$arcs['extract']['application/x-tar'] = array('cmd' => '7z', 'argc' => 'x -ttar -y', 'ext' => 'tar', 'toSpec' => '-o');
-					}
-					if (empty($arcs['extract']['application/x-rar'])) {
-						$arcs['extract']['application/x-rar'] = array('cmd' => '7z', 'argc' => 'x -trar -y', 'ext' => 'rar', 'toSpec' => '-o');
-					}
+				if (substr(PHP_OS, 0, 3) === 'WIN' && empty($arcs['extract']['application/x-rar'])) {
+					$arcs['extract']['application/x-rar'] = array('cmd' => ELFINDER_7Z_PATH, 'argc' => 'x -trar -y', 'ext' => 'rar', 'toSpec' => '-o');
 				}
 			}
 		
