@@ -219,6 +219,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/commands/rm.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/search.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/sort.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/undo.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/up.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/upload.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/view.js" charset="UTF-8"></script>
