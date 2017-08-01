@@ -1115,13 +1115,13 @@ var elFinder = function(node, opts, bootCallback) {
 			
 			if (dups.length) {
 				ui.helper.hide();
-				self.exec('duplicate', dups);
+				self.exec('duplicate', dups, {_userAction: true});
 			}
 			
 			if (result.length) {
 				ui.helper.hide();
 				self.clipboard(result, !isCopy);
-				self.exec('paste', hash, void 0, hash).always(function(){
+				self.exec('paste', hash, {_userAction: true}, hash).always(function(){
 					self.clipboard([]);
 					self.trigger('unlockfiles', {files : targets});
 				});
@@ -1896,7 +1896,7 @@ var elFinder = function(node, opts, bootCallback) {
 														$(this).toggleClass('ui-state-hover', e.type == 'mouseenter');
 													})
 													.on('click', function() {
-														self.exec(cmd, data || hashes, { _currentType: 'toast', _currentNode: $(this) });
+														self.exec(cmd, data || hashes, {_userAction: true, _currentType: 'toast', _currentNode: $(this) });
 														if (done) {
 															self.one(cmd+'done', function() {
 																if (typeof done === 'function') {
@@ -2626,15 +2626,20 @@ var elFinder = function(node, opts, bootCallback) {
 	 * @return $.Deferred
 	 */		
 	this.exec = function(cmd, files, opts, dstHash) {
+		var dfrd;
+		
 		if (cmd === 'open') {
 			if (this.searchStatus.state || this.searchStatus.ininc) {
 				this.trigger('searchend', { noupdate: true });
 			}
 			this.autoSync('stop');
 		}
-		return this._commands[cmd] && this.isCommandEnabled(cmd, dstHash) 
+		dfrd = this._commands[cmd] && this.isCommandEnabled(cmd, dstHash) 
 			? this._commands[cmd].exec(files, opts) 
 			: $.Deferred().reject('No such command');
+		
+		this.trigger('exec', { dfrd : dfrd, cmd : cmd, files : files, opts : opts, dstHash : dstHash });
+		return dfrd;
 	};
 	
 	/**
@@ -2902,7 +2907,7 @@ var elFinder = function(node, opts, bootCallback) {
 					syncInterval && clearTimeout(syncInterval);
 					syncInterval = setTimeout(function() {
 						var dosync = true, hash = cwd, cts;
-						if (cwdOptions.syncChkAsTs && (cts = files[hash].ts)) {
+						if (cwdOptions.syncChkAsTs && files[hash] && (cts = files[hash].ts)) {
 							self.request({
 								data           : {cmd : 'info', targets : [hash], compare : cts, reload : 1},
 								preventDefault : true
