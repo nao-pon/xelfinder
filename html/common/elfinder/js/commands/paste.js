@@ -219,8 +219,8 @@ elFinder.prototype.commands.paste = function() {
 							.done(function(data) {
 								var dsts = {},
 									added = data.added && data.added.length? data.added : null;
-								if (cut && added /*&& (!data.removed || data.removed.length === 0)*/) {
-									// undo
+								if (cut && added) {
+									// undo/redo
 									$.each(files, function(i, f) {
 										var phash = f.phash,
 											srcHash = function(name) {
@@ -240,9 +240,6 @@ elFinder.prototype.commands.paste = function() {
 											} else {
 												dsts[phash] = [ shash ];
 											}
-										} else {
-											dsts = {};
-											return false;
 										}
 									});
 									if (Object.keys(dsts).length) {
@@ -367,7 +364,7 @@ elFinder.prototype.commands.paste = function() {
 			paste(fpaste)
 		)
 		.done(function(cr, pr) {
-			dfrd.resolve(pr.undo? pr : void(0));
+			dfrd.resolve(pr && pr.undo? pr : void(0));
 		})
 		.fail(function() {
 			dfrd.reject();
