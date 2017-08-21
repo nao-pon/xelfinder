@@ -156,14 +156,14 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<?php if ($debug) {?>
 		<!-- elfinder core -->
 		<script src="<?php echo $elfurl ?>/js/elFinder.js" charset="UTF-8"></script>
-		
-		<script src="<?php echo $elfurl ?>/js/elFinder.command.js" charset="UTF-8"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.history.js" charset="UTF-8"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.options.js" charset="UTF-8"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.options.netmount.js" charset="UTF-8"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.resources.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/elFinder.version.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/jquery.elfinder.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.mimetypes.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.options.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.options.netmount.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.history.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.command.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.resources.js" charset="UTF-8"></script>
 	
 		<!-- elfinder ui -->
 		<script src="<?php echo $elfurl ?>/js/ui/button.js" charset="UTF-8"></script>
