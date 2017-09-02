@@ -436,11 +436,13 @@
 			'language'        : 'Language setting', // from v2.1.26 added 28.6.2017
 			'clearBrowserData': 'Initialize the settings saved in this browser', // from v2.1.26 added 28.6.2017
 			'toolbarPref'     : 'Toolbar setting', // from v2.1.27 added 2.8.2017
+			'charsLeft'       : '... $1 chars left.',  // from v2.1.29 added 30.8.2017
 
 			/********************************** mimetypes **********************************/
 			'kindUnknown'     : 'Unknown',
 			'kindRoot'        : 'Volume Root', // from v2.1.16 added 16.10.2016
 			'kindFolder'      : 'Folder',
+			'kindSelects'     : 'Selections', // from v2.1.29 added 29.8.2017
 			'kindAlias'       : 'Alias',
 			'kindAliasBroken' : 'Broken alias',
 			// applications

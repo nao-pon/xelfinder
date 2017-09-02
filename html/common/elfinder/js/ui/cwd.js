@@ -313,7 +313,7 @@ $.fn.elfindercwd = function(fm, options) {
 						type = mime.split('/');
 						ext = fm.escape(fm.mimeTypes[mime] || (name.replace(/.bac?k$/i, '').match(/\.([^.]+)$/) || ['',''])[1]);
 						if (ext) {
-							sel = '.elfinder-cwd-view-icons .elfinder-cwd-icon-' + type[0].replace(/(\.|\+)/g, '-');
+							sel = '.elfinder-cwd-icon-' + type[0].replace(/(\.|\+)/g, '-');
 							if (typeof type[1] !== 'undefined') {
 								sel += '.elfinder-cwd-icon-' + type[1].replace(/(\.|\+)/g, '-');
 							}
@@ -939,6 +939,7 @@ $.fn.elfindercwd = function(fm, options) {
 								setPos();
 								if (e.type === 'resize') {
 									e.stopPropagation();
+									tableHeader.css(wrapper.position());
 									wrapper.data('width', wrapper.css('overflow', 'hidden').width());
 									wrapper.css('overflow', 'auto');
 									fixTableHeader();
@@ -1135,9 +1136,7 @@ $.fn.elfindercwd = function(fm, options) {
 								}
 								tmbObj = fm.tmb(file);
 								if (reload) {
-									fm.reloadContents(tmbObj.url).done(function() {
-										node.find('.elfinder-cwd-icon').addClass(tmbObj.className).css('background-image', "url('"+tmbObj.url+"')");
-									});
+									node.find('.elfinder-cwd-icon').addClass(tmbObj.className).css('background-image', "url('"+tmbObj.url+"')");
 								} else {
 									attach(node, tmbObj);
 								}
@@ -1825,7 +1824,7 @@ $.fn.elfindercwd = function(fm, options) {
 									files = [],
 									icon  = function(f) {
 										var mime = f.mime, i, tmb = fm.tmb(f);
-										i = '<div class="elfinder-cwd-icon '+fm.mime2class(mime)+' ui-corner-all"/>';
+										i = '<div class="elfinder-cwd-icon elfinder-cwd-icon-drag '+fm.mime2class(mime)+' ui-corner-all"/>';
 										if (tmb) {
 											i = $(i).addClass(tmb.className).css('background-image', "url('"+tmb.url+"')").get(0).outerHTML;
 										}

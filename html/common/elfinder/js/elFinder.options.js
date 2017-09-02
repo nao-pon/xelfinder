@@ -252,13 +252,23 @@ elFinder.prototype._options = {
 			autoplay : true,
 			width    : 450,
 			height   : 300,
+			// Maximum characters length to preview
+			textMaxlen : 2000,
+			// preview window into NavDock
+			docked   : false,
+			// Docked preview height ('auto' or Number of pixel) 'auto' is setted to the Navbar width
+			dockHeight : 'auto',
+			// media auto play when docked
+			dockAutoplay : false,
 			// MIME types to use Google Docs online viewer
 			// Example ['application/pdf', 'image/tiff', 'application/vnd.ms-office', 'application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
 			googleDocsMimes : [],
 			// URL of hls.js
 			hlsJsUrl : '//cdnjs.cloudflare.com/ajax/libs/hls.js/0.7.11/hls.min.js',
 			// URL of dash.all.js
-			dashJsUrl : '//cdnjs.cloudflare.com/ajax/libs/dashjs/2.5.0/dash.all.min.js'
+			dashJsUrl : '//cdnjs.cloudflare.com/ajax/libs/dashjs/2.5.0/dash.all.min.js',
+			// URL of run_prettify.js
+			prettifyUrl : '//cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js'
 		},
 		// "quicklook" command options.
 		edit : {
@@ -355,7 +365,7 @@ elFinder.prototype._options = {
 			],
 			// Character encodings of select box
 			encodings : ['Big5', 'Big5-HKSCS', 'Cp437', 'Cp737', 'Cp775', 'Cp850', 'Cp852', 'Cp855', 'Cp857', 'Cp858', 
-				'Cp862', 'Cp866', 'Cp874', 'EUC-CN', 'EUC-JP', 'EUC-KR', 'ISO-2022-CN', 'ISO-2022-JP', 'ISO-2022-KR', 
+				'Cp862', 'Cp866', 'Cp874', 'EUC-CN', 'EUC-JP', 'EUC-KR', 'GB18030', 'ISO-2022-CN', 'ISO-2022-JP', 'ISO-2022-KR', 
 				'ISO-8859-1', 'ISO-8859-2', 'ISO-8859-3', 'ISO-8859-4', 'ISO-8859-5', 'ISO-8859-6', 'ISO-8859-7', 
 				'ISO-8859-8', 'ISO-8859-9', 'ISO-8859-13', 'ISO-8859-15', 'KOI8-R', 'KOI8-U', 'Shift-JIS', 
 				'Windows-1250', 'Windows-1251', 'Windows-1252', 'Windows-1253', 'Windows-1254', 'Windows-1257'],
@@ -601,6 +611,14 @@ elFinder.prototype._options = {
 			maxWidth : 500,
 			// auto hide on initial open
 			autoHideUA: [] // e.g. ['Mobile']
+		},
+		navdock : {
+			// disabled navdock ui
+			disabled : false,
+			// percentage of initial maximum height to work zone
+			initMaxHeight : '50%',
+			// percentage of maximum height to work zone by user resize action
+			maxHeight : '90%'
 		},
 		cwd : {
 			// display parent folder with ".." name :)
@@ -890,6 +908,23 @@ elFinder.prototype._options = {
 	 *  validName : /^[^\s]+$/,
 	 */
 	validName : false,
+	
+	/**
+	 * Additional rule to filtering for browsing.
+	 * This setting does not have a sense of security.
+	 * 
+	 * The object `this` is elFinder instance object in this function
+	 *
+	 * @type false|RegExp|function
+	 * @default  false
+	 * @example
+	 *  show only png and jpg files:
+	 *  fileFilter : /.*\.(png|jpg)$/i,
+	 *  
+	 *  show only image type files:
+	 *  fileFilter : function(file) { return file.mime && file.mime.match(/^image\//i); },
+	 */
+	fileFilter : false,
 	
 	/**
 	 * Backup name suffix.

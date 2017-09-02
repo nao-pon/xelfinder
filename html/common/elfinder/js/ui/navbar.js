@@ -11,11 +11,7 @@ $.fn.elfindernavbar = function(fm, opts) {
 			wz     = parent.children('.elfinder-workzone').append(nav),
 			delta  = nav.outerHeight() - nav.height(),
 			ltr    = fm.direction == 'ltr',
-			handle, swipeHandle, autoHide, setWidth,
-			cssloaded = function() {
-				delta = nav.outerHeight() - nav.height();
-			},
-			cssloadedMobile,
+			handle, swipeHandle, autoHide, setWidth, navdock,
 			setWzRect = function() {
 				var cwd = fm.getUI('cwd'),
 					wz  = fm.getUI('workzone'),
@@ -24,14 +20,18 @@ $.fn.elfindernavbar = function(fm, opts) {
 				wz.data('rectangle', Object.assign(wzRect, { cwdEdge: (fm.direction === 'ltr')? cwdOffset.left : cwdOffset.left + cwd.width() }));
 			};
 
-			if (fm.cssloaded) {
-				cssloaded();
-			} else {
-				fm.one('cssloaded', cssloaded);
-			}
-			
-			fm.bind('wzresize', function() {
-				nav.height(wz.height() - delta);
+			fm.one('cssloaded', function() {
+				delta = nav.outerHeight() - nav.height();
+			}).bind('wzresize', function() {
+				var navdockH = 0;
+				if (! navdock) {
+					navdock =fm.getUI('navdock');
+				}
+				navdock.width(nav.get(0).offsetWidth - 2);
+				if (navdock.children().length > 1) {
+					navdockH = navdock.outerHeight(true);
+				}
+				nav.height(wz.height() - navdockH - delta);
 			});
 		
 		if (fm.UA.Touch) {
@@ -59,21 +59,31 @@ $.fn.elfindernavbar = function(fm, opts) {
 				var mode     = (e.type === 'navshow')? 'show' : 'hide',
 					duration = (data && data.duration)? data.duration : 'fast',
 					handleW = (data && data.handleW)? data.handleW : Math.max(50, fm.getUI().width() / 10);
-				nav.stop(true, true)[mode](duration, function() {
-					if (mode === 'show') {
-						swipeHandle && swipeHandle.stop(true, true).hide();
-					} else {
+				nav.stop(true, true)[mode]({
+					duration: duration,
+					step    : function() {
+						fm.trigger('wzresize');
+					},
+					complete: function() {
 						if (swipeHandle) {
-							swipeHandle.width(handleW? handleW : '');
-							fm.resources.blink(swipeHandle, 'slowonce');
+							if (mode === 'show') {
+								swipeHandle.stop(true, true).hide();
+							} else {
+								swipeHandle.width(handleW? handleW : '');
+								fm.resources.blink(swipeHandle, 'slowonce');
+							}
 						}
+						fm.trigger('navbar'+ mode);
+						data.init && fm.trigger('uiautohide');
+						setWzRect();
 					}
-					fm.trigger('navbar'+ mode);
-					data.init && fm.trigger('uiautohide');
-					setWzRect();
 				});
 				autoHide.navbar = (mode !== 'show');
 				fm.storage('autoHide', Object.assign(fm.storage('autoHide'), {navbar: autoHide.navbar}));
+			}).on('touchstart', function(e) {
+				if ($(this)['scroll' + (fm.direction === 'ltr'? 'Right' : 'Left')]() > 5) {
+					e.originalEvent._preventSwipe = true;
+				}
 			});
 		}
 		
@@ -82,6 +92,9 @@ $.fn.elfindernavbar = function(fm, opts) {
 					handles : ltr ? 'e' : 'w',
 					minWidth : opts.minWidth || 150,
 					maxWidth : opts.maxWidth || 500,
+					resize : function() {
+						fm.trigger('wzresize');
+					},
 					stop : function(e, ui) {
 						fm.storage('navbarWidth', ui.size.width);
 						setWzRect();
@@ -117,7 +130,7 @@ $.fn.elfindernavbar = function(fm, opts) {
 			nav.width(setWidth);
 		} else {
 			if (fm.UA.Mobile) {
-				cssloadedMobile = function() {
+				fm.one('cssloaded', function() {
 					var set = function() {
 						setWidth = nav.parent().width() / 2;
 						if (nav.data('defWidth') > setWidth) {
@@ -126,16 +139,12 @@ $.fn.elfindernavbar = function(fm, opts) {
 							nav.width(nav.data('defWidth'));
 						}
 						nav.data('width', nav.width());
+						fm.trigger('wzresize');
 					}
 					nav.data('defWidth', nav.width());
 					$(window).on('resize.' + fm.namespace, set);
 					set();
-				};
-				if (fm.cssloaded) {
-					cssloadedMobile();
-				} else {
-					fm.one('cssloaded', cssloadedMobile);
-				}
+				});
 			}
 		}
 

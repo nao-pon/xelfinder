@@ -172,6 +172,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/ui/dialog.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/ui/fullscreenbutton.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/ui/navbar.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/navdock.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/ui/overlay.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/ui/panel.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/ui/path.js" charset="UTF-8"></script>

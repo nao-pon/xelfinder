@@ -242,6 +242,13 @@ var elFinder = function(node, opts, bootCallback) {
 		heightBase = null,
 		
 		/**
+		 * MIME type list(Associative array) handled as a text file
+		 * 
+		 * @type Object|null
+		 */
+		textMimes = null,
+		
+		/**
 		 * elfinder path for sound played on remove
 		 * @type String
 		 * @default ./sounds/
@@ -702,32 +709,21 @@ var elFinder = function(node, opts, bootCallback) {
 	
 	// auto load required CSS
 	if (this.options.cssAutoLoad) {
-		(function(fm) {
-			var baseUrl = self.baseUrl,
-				hide, fi, cnt;
+		(function() {
+			var baseUrl = self.baseUrl;
 			
 			if (self.cssloaded === null) {
 				// hide elFinder node while css loading
-				hide = $('<style>.elfinder{visibility:hidden;overflow:hidden}</style>');
+				node.data('cssautoloadHide', $('<style>.elfinder{visibility:hidden;overflow:hidden}</style>'));
+				$('head').append(node.data('cssautoloadHide'));
 				
-				$('head').append(hide);
+				// load CSS
 				self.loadCss([baseUrl+'css/elfinder.min.css', baseUrl+'css/theme.css']);
 				
 				// additional CSS files
 				if (Array.isArray(self.options.cssAutoLoad)) {
 					self.loadCss(self.options.cssAutoLoad);
 				}
-				
-				// check css loaded and remove hide
-				cnt = 1000; // timeout 10 secs
-				fi = setInterval(function() {
-					if (--cnt < 0 || node.css('visibility') !== 'hidden') {
-						clearInterval(fi);
-						hide.remove();
-						self.cssloaded = true;
-						self.trigger('cssloaded');
-					}
-				}, 10);
 			}
 			self.options.cssAutoLoad = false;
 		})();
@@ -1548,6 +1544,9 @@ var elFinder = function(node, opts, bootCallback) {
 				url = tmbUrl + file.tmb;
 			}
 			if (url) {
+				if (file.ts) {
+					url += (url.match(/\?/)? '&' : '?') + '_t=' + file.ts;
+				}
 				return { url: url, className: cls };
 			}
 		}
@@ -1825,6 +1824,12 @@ var elFinder = function(node, opts, bootCallback) {
 							});
 						}
 					},
+					setTextMimes = function() {
+						self.textMimes = {};
+						$.each(self.resources.mimes.text, function() {
+							self.textMimes[this] = true;
+						});
+					},
 					actionTarget;
 					
 					if (isOpen) {
@@ -1847,6 +1852,12 @@ var elFinder = function(node, opts, bootCallback) {
 						self.newAPI = self.api >= 2;
 						self.oldAPI = !self.newAPI;
 					}
+					
+					if (response.textMimes && Array.isArray(response.textMimes)) {
+						self.resources.mimes.text = response.textMimes;
+						setTextMimes();
+					}
+					!self.textMimes && setTextMimes();
 					
 					if (response.options) {
 						cwdOptions = Object.assign({}, cwdOptionsDefault, response.options);
@@ -2160,6 +2171,7 @@ var elFinder = function(node, opts, bootCallback) {
 			added     = [],
 			removed   = [],
 			changed   = [],
+			excludes  = null,
 			isChanged = function(hash) {
 				var l = changed.length;
 
@@ -2169,11 +2181,19 @@ var elFinder = function(node, opts, bootCallback) {
 					}
 				}
 			};
-			
+		
 		$.each(incoming, function(i, f) {
 			raw[f.hash] = f;
 		});
-			
+		
+		// make excludes object
+		if (excludeProps && excludeProps.length) {
+			excludes = {};
+			$.each(excludeProps, function() {
+				excludes[this] = true;
+			});
+		}
+		
 		// find removed
 		$.each(files, function(hash, f) {
 			if (! raw[hash] && (! onlydir || f.phash === onlydir)) {
@@ -2183,19 +2203,38 @@ var elFinder = function(node, opts, bootCallback) {
 		
 		// compare files
 		$.each(raw, function(hash, file) {
-			var origin = files[hash];
+			var origin  = files[hash],
+				orgKeys = {},
+				chkKeyLen;
 
 			if (!origin) {
 				added.push(file);
 			} else {
+				// make orgKeys object
+				$.each(Object.keys(origin), function() {
+					orgKeys[this] = true;
+				});
 				$.each(file, function(prop) {
-					if (! excludeProps || $.inArray(prop, excludeProps) === -1) {
+					delete orgKeys[prop];
+					if (! excludes || ! excludes[prop]) {
 						if (file[prop] !== origin[prop]) {
-							changed.push(file)
+							changed.push(file);
+							orgKeys = {};
 							return false;
 						}
 					}
 				});
+				chkKeyLen = Object.keys(orgKeys).length;
+				if (chkKeyLen !== 0) {
+					if (excludes) {
+						$.each(orgKeys, function(prop) {
+							if (excludes[prop]) {
+								--chkKeyLen;
+							}
+						});
+					}
+					(chkKeyLen !== 0) && changed.push(file);
+				}
 			}
 		});
 		
@@ -3609,18 +3648,6 @@ var elFinder = function(node, opts, bootCallback) {
 		}
 	});
 
-	// make node resizable
-	this.options.resizable 
-	&& $.fn.resizable 
-	&& node.resizable({
-		resize    : function(e, ui) {
-			self.resize(ui.size.width, ui.size.height);
-		},
-		handles   : 'se',
-		minWidth  : 300,
-		minHeight : 200
-	});
-
 	if (this.options.width) {
 		width = this.options.width;
 	}
@@ -3856,7 +3883,7 @@ var elFinder = function(node, opts, bootCallback) {
 
 		// draggable closure
 		(function() {
-			var ltr, wzRect, wzBottom, nodeStyle,
+			var ltr, wzRect, wzBottom, wzBottom2, nodeStyle,
 				keyEvt = keydown + 'draggable' + ' keyup.' + namespace + 'draggable';
 			
 			/**
@@ -3893,6 +3920,7 @@ var elFinder = function(node, opts, bootCallback) {
 					ltr = (self.direction === 'ltr');
 					wzRect = self.getUI('workzone').data('rectangle');
 					wzBottom = wzRect.top + wzRect.height;
+					wzBottom2 = wzBottom - self.getUI('navdock').outerHeight(true);
 					
 					self.draggingUiHelper = helper;
 					cnt = targets.length;
@@ -3914,16 +3942,31 @@ var elFinder = function(node, opts, bootCallback) {
 				},
 				drag       : function(e, ui) {
 					var helper = ui.helper,
-						autoUp;
+						autoScr, autoUp, bottom;
 					
-					if ((autoUp = wzRect.top > e.pageY) || wzBottom < e.pageY) {
+					if ((autoUp = wzRect.top > e.pageY) || wzBottom2 < e.pageY) {
 						if (wzRect.cwdEdge > e.pageX) {
-							helper.data('autoScr', (ltr? 'navbar' : 'cwd') + (autoUp? 'Up' : 'Down'));
+							autoScr = (ltr? 'navbar' : 'cwd') + (autoUp? 'Up' : 'Down');
 						} else {
-							helper.data('autoScr', (ltr? 'cwd' : 'navbar') + (autoUp? 'Up' : 'Down'));
+							autoScr = (ltr? 'cwd' : 'navbar') + (autoUp? 'Up' : 'Down');
 						}
-						helper.data('autoScrVal', Math.pow((autoUp? wzRect.top - e.pageY : e.pageY - wzBottom), 1.3));
-					} else {
+						if (!autoUp) {
+							if (autoScr.substr(0, 3) === 'cwd') {
+								if (wzBottom < e.pageY) {
+									bottom = wzBottom;
+								} else {
+									autoScr = null;
+								}
+							} else {
+								bottom = wzBottom2;
+							}
+						}
+						if (autoScr) {
+							helper.data('autoScr', autoScr);
+							helper.data('autoScrVal', Math.pow((autoUp? wzRect.top - e.pageY : e.pageY - bottom), 1.3));
+						}
+					}
+					if (! autoScr) {
 						if (helper.data('autoScr')) {
 							helper.data('refreshPositions', 1).data('autoScr', null);
 						}
@@ -3963,7 +4006,7 @@ var elFinder = function(node, opts, bootCallback) {
 						helper  = $('<div class="elfinder-drag-helper"><span class="elfinder-drag-helper-icon-status"/></div>'),
 						icon    = function(f) {
 							var mime = f.mime, i, tmb = self.tmb(f);
-							i = '<div class="elfinder-cwd-icon '+self.mime2class(mime)+' ui-corner-all"/>';
+							i = '<div class="elfinder-cwd-icon elfinder-cwd-icon-drag '+self.mime2class(mime)+' ui-corner-all"/>';
 							if (tmb) {
 								i = $(i).addClass(tmb.className).css('background-image', "url('"+tmb.url+"')").get(0).outerHTML;
 							}
@@ -4071,6 +4114,8 @@ var elFinder = function(node, opts, bootCallback) {
 			workzone : $('<div/>').appendTo(node).elfinderworkzone(self),
 			// container for folders tree / places
 			navbar : $('<div/>').appendTo(node).elfindernavbar(self, self.options.uiOptions.navbar || {}),
+			// container for for preview etc at below the navbar
+			navdock : $('<div/>').appendTo(node).elfindernavdock(self, self.options.uiOptions.navdock || {}),
 			// contextmenu
 			contextmenu : $('<div/>').appendTo(node).elfindercontextmenu(self),
 			// overlay
@@ -4110,6 +4155,21 @@ var elFinder = function(node, opts, bootCallback) {
 		
 		// update size	
 		self.resize(width, height);
+		
+		// make node resizable
+		if (self.options.resizable && $.fn.resizable) {
+			node.resizable({
+				resize    : function(e, ui) {
+					self.resize(ui.size.width, ui.size.height);
+				},
+				handles   : 'se',
+				minWidth  : 300,
+				minHeight : 200
+			});
+			if (self.UA.Touch) {
+				node.addClass('touch-punch');
+			}
+		}
 
 		(function() {
 			var navbar = self.getUI('navbar'),
@@ -4151,7 +4211,7 @@ var elFinder = function(node, opts, bootCallback) {
 					handleW, handleH = 50;
 
 				node.on('touchstart touchmove touchend', function(e) {
-					if (e.type === 'touchend') {
+					if (e.type === 'touchend' || e.originalEvent._preventSwipe) {
 						lastX = false;
 						lastY = false;
 						moveOff();
@@ -4182,11 +4242,10 @@ var elFinder = function(node, opts, bootCallback) {
 								}
 							} else {
 								navbarW = navbar.width();
-								treeWidth = Math.max.apply(Math, $.map(navbar.children('.elfinder-tree'), function(c){return $(c).width();}));
 								if (ltr) {
-									swipeX = (x < nodeOffset.left + navbarW && treeWidth - navbar.scrollLeft() - 5 <= navbarW);
+									swipeX = (x < nodeOffset.left + navbarW);
 								} else {
-									swipeX = (x > nodeOffset.left + nodeWidth - navbarW && treeWidth + navbar.scrollLeft() - 5 <= navbarW);
+									swipeX = (x > nodeOffset.left + nodeWidth - navbarW);
 								}
 								if (swipeX) {
 									handleW = Math.max(50, nodeWidth / 10);
@@ -4285,14 +4344,24 @@ var elFinder = function(node, opts, bootCallback) {
 						if (! autoScrTm) {
 							autoScrTm = setTimeout(function() {
 								var wzBottom = wzRect.top + wzRect.height,
+									wzBottom2 = wzBottom - self.getUI('navdock').outerHeight(true),
 									fn;
-								if ((autoUp = e.pageY < wzRect.top) || e.pageY > wzBottom ) {
+								if ((autoUp = e.pageY < wzRect.top) || e.pageY > wzBottom2 ) {
 									if (wzRect.cwdEdge > e.pageX) {
 										fn = (ltr? 'navbar' : 'cwd') + (autoUp? 'Up' : 'Down');
 									} else {
 										fn = (ltr? 'cwd' : 'navbar') + (autoUp? 'Up' : 'Down');
 									}
-									self.autoScroll[fn](Math.pow((autoUp? wzRect.top - e.pageY : e.pageY - wzBottom), 1.3));
+									if (!autoUp) {
+										if (fn.substr(0, 3) === 'cwd') {
+											if (wzBottom < e.pageY) {
+												wzBottom2 = wzBottom;
+											} else {
+												fn = '';
+											}
+										}
+									}
+									fn && self.autoScroll[fn](Math.pow((autoUp? wzRect.top - e.pageY : e.pageY - wzBottom2), 1.3));
 								}
 								autoScrTm = null;
 							}, 20);
@@ -4377,7 +4446,29 @@ var elFinder = function(node, opts, bootCallback) {
 		}
 
 		// trigger event cssloaded if cddAutoLoad disabled
-		if (self.cssloaded === false) {
+		if (self.cssloaded === null) {
+			// check css loaded and remove hide
+			(function() {
+				var loaded = function() {
+						node.data('cssautoloadHide').remove();
+						node.removeData('cssautoloadHide');
+						self.cssloaded = true;
+						self.trigger('cssloaded');
+					},
+					cnt, fi;
+				if (node.css('visibility') === 'hidden') {
+					cnt = 1000; // timeout 10 secs
+					fi  = setInterval(function() {
+						if (--cnt < 0 || node.css('visibility') !== 'hidden') {
+							clearInterval(fi);
+							loaded();
+						}
+					}, 10);
+				} else {
+					loaded();
+				}
+			})();
+		} else {
 			self.cssloaded = true;
 			self.trigger('cssloaded');
 		}
@@ -4565,6 +4656,7 @@ elFinder.prototype = {
 	kinds : 	{
 			'unknown'                       : 'Unknown',
 			'directory'                     : 'Folder',
+			'group'                         : 'Selects',
 			'symlink'                       : 'Alias',
 			'symlink-broken'                : 'AliasBroken',
 			'application/x-empty'           : 'TextPlain',
@@ -6292,6 +6384,21 @@ elFinder.prototype = {
 	 */
 	normalize : function(data) {
 		var self   = this,
+			fileFilter = (function() {
+				var func, filter;
+				if (filter = self.options.fileFilter) {
+					if (typeof filter === 'function') {
+						func = function(file) {
+							return filter.call(self, file);
+						}
+					} else if (filter instanceof RegExp) {
+						func = function(file) {
+							return filter.test(file.name);
+						}
+					}
+				}
+				return func? func : null;
+			})(),
 			chkCmdMap = function(opts) {
 				// Disable command to replace with other command
 				var disabled;
@@ -6331,10 +6438,6 @@ elFinder.prototype = {
 				if (file && file.hash && file.name && file.mime) {
 					if (file.mime == 'application/x-empty') {
 						file.mime = 'text/plain';
-					}
-
-					if (file.options) {
-						self.optionsByHashes[file.hash] = normalizeOptions(file.options);
 					}
 					
 					isRoot = self.isRoot(file);
@@ -6446,7 +6549,20 @@ elFinder.prototype = {
 						if (self.trashes[file.hash]) {
 							file.locked = true;
 						}
+					} else if (fileFilter) {
+						try {
+							if (! fileFilter(file)) {
+								return null;
+							}
+						} catch(e) {
+							self.debug(e);
+						}
 					}
+					
+					if (file.options) {
+						self.optionsByHashes[file.hash] = normalizeOptions(file.options);
+					}
+					
 					delete file.options;
 					
 					return file;
@@ -7083,11 +7199,16 @@ elFinder.prototype = {
 	 * @return String
 	 */
 	mime2class : function(mime) {
-		var prefix = 'elfinder-cwd-icon-';
+		var prefix = 'elfinder-cwd-icon-',
+			mime   = mime.toLowerCase(),
+			isText = this.textMimes[mime];
 		
 		mime = mime.split('/');
+		if (isText) {
+			mime[0] += ' ' + prefix + 'text';
+		}
 		
-		return prefix + mime[0].toLowerCase() + (mime[1] ? ' ' + prefix+mime[1].toLowerCase().replace(/(\.|\+)/g, '-') : '');
+		return prefix + mime[0] + (mime[1] ? ' ' + prefix + mime[1].replace(/(\.|\+)/g, '-') : '');
 	},
 	
 	/**
@@ -7210,6 +7331,24 @@ elFinder.prototype = {
 		}
 		
 		return self.i18n('dateUnknown');
+	},
+	
+	/**
+	 * Return localized number string
+	 * 
+	 * @param  Number
+	 * @return String
+	 */
+	toLocaleString : function(num) {
+		var v = new Number(num);
+		if (v) {
+			if (v.toLocaleString) {
+				return v.toLocaleString();
+			} else {
+				return String(num).replace( /(\d)(?=(\d\d\d)+(?!\d))/g, '$1,');
+			}
+		}
+		return num;
 	},
 	
 	/**

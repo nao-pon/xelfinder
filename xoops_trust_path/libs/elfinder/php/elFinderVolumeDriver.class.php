@@ -275,7 +275,8 @@ abstract class elFinderVolumeDriver {
 			'markdown:text/plain'          => 'text/x-markdown',
 			'css:text/x-asm'               => 'text/css',
 			'csv:text/plain'               => 'text/csv',
-			'json:text/plain'              => 'text/x-json',
+			'json:text/plain'              => 'application/json',
+			'sql:text/plain'               => 'text/x-sql',
 			'ico:image/vnd.microsoft.icon' => 'image/x-icon',
 			'm4a:video/mp4'                => 'audio/mp4',
 			'oga:application/ogg'          => 'audio/ogg',
@@ -336,7 +337,7 @@ abstract class elFinderVolumeDriver {
 		'uploadAllow'     => array(),
 		// mimetypes not allowed to upload
 		'uploadDeny'      => array(),
-		// order to proccess uploadAllow and uploadDeny options
+		// order to process uploadAllow and uploadDeny options
 		'uploadOrder'     => array('deny', 'allow'),
 		// maximum upload file size. NOTE - this is size for every uploaded files
 		'uploadMaxSize'   => 0,
@@ -650,6 +651,28 @@ abstract class elFinderVolumeDriver {
 		'ts'    => 'video/MP2T',
 		'm3u8'  => 'application/x-mpegURL',
 		'mpd'   => 'application/dash+xml'
+	);
+	
+	/**
+	 * MIME type list handled as a text file
+	 * 
+	 * @var array
+	 */
+	protected $textMimes = array(
+		'application/x-empty',
+		'application/javascript',
+		'application/json',
+		'application/xhtml+xml',
+		'audio/x-mp3-playlist',
+		'application/x-web-config',
+		'application/docbook+xml',
+		'application/x-php',
+		'application/x-perl',
+		'application/x-awk',
+		'application/x-config',
+		'application/x-csh',
+		'application/xml',
+		'application/sql'
 	);
 	
 	/**
@@ -1503,9 +1526,9 @@ abstract class elFinderVolumeDriver {
 		
 		if (is_null($extTable)) {
 			$extTable = array_flip(array_unique($this->getMimeTable()));
-			foreach(array_keys($this->options['mimeMap']) as $pair) {
-				list($ext, $_mime) = explode(':', $pair);
-				if ($_mime !== '*' && ! isset($extTable[$_mime])) {
+			foreach($this->options['mimeMap'] as $pair => $_mime) {
+				list($ext) = explode(':', $pair);
+				if ($ext !== '*' && ! isset($extTable[$_mime])) {
 					$extTable[$_mime] = $ext;
 				}
 			}
@@ -1770,6 +1793,9 @@ abstract class elFinderVolumeDriver {
 					if ($item['phash'] !== '') {
 						$parent = $this->decode($item['phash']);
 						unset($this->cache[$parent]);
+						if ($this->root === $parent) {
+							$this->sessionCache['rootstat'] = array();
+						}
 						if ($unsetSubdir) {
 							unset($this->sessionCache['subdirs'][$parent]);
 						}
@@ -2798,6 +2824,10 @@ abstract class elFinderVolumeDriver {
 			}
 		}
 
+		if (elFinder::isAnimationPng($work_path)) {
+			return $this->setError(elFinder::ERROR_UNSUPPORT_TYPE);
+		}
+
 		switch($mode) {
 			
 			case 'propresize':
@@ -3099,6 +3129,17 @@ abstract class elFinderVolumeDriver {
 		// check 'width' ,'height'
 		if (in_array($mode, array('resize', 'propresize', 'crop', 'fitsquare'))) {
 			if (empty($options['width']) || empty($options['height'])) {
+				return false;
+			}
+		}
+		
+		if (! empty($options['checkAnimated'])) {
+			if ($this->imgLib !== 'imagick' && $this->imgLib !== 'convert') {
+				if (elFinder::isAnimationGif($work_path)) {
+					return false;
+				}
+			}
+			if (elFinder::isAnimationPng($work_path)) {
 				return false;
 			}
 		}
