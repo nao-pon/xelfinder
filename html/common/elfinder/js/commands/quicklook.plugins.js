@@ -32,16 +32,6 @@ elFinder.prototype.commands.quicklook.plugins = [
 				loading = $('<div class="elfinder-quicklook-info-data"> '+fm.i18n('nowLoading')+'<span class="elfinder-info-spinner"></div>').appendTo(ql.info.find('.elfinder-quicklook-info'));
 
 				url = fm.openUrl(file.hash);
-				if (url.indexOf('?') === -1) {
-					url += '?_=';
-				} else {
-					if (m = url.match(/[\?&](_+)=/)) {
-						url += '&' + '_'.repeat(m[1].length + 1) + '=';
-					} else {
-						url += '&_=';
-					}
-				}
-				url += (file.ts || +new Date);
 				
 				img = $('<img/>')
 					.hide()
@@ -108,7 +98,8 @@ elFinder.prototype.commands.quicklook.plugins = [
 				}).addClass('elfinder-overflow-auto');
 				
 				jqxhr = fm.request({
-					data           : {cmd : 'get', target  : file.hash, current : file.phash, conv : 1},
+					data           : {cmd : 'get', target : file.hash, conv : 1, _t : file.ts},
+					options        : {type: 'get', cache : true},
 					preventDefault : true
 				})
 				.done(function(data) {
@@ -175,7 +166,8 @@ elFinder.prototype.commands.quicklook.plugins = [
 				});
 				
 				jqxhr = fm.request({
-					data   : {cmd     : 'get', target  : file.hash, conv : 1},
+					data           : {cmd : 'get', target : file.hash, conv : 1, _t : file.ts},
+					options        : {type: 'get', cache : true},
 					preventDefault : true
 				})
 				.done(function(data) {
@@ -426,7 +418,7 @@ elFinder.prototype.commands.quicklook.plugins = [
 					player.initialize(node[0], fm.openUrl(file.hash), autoplay);
 				};
 			
-			if (ql.dispInlineRegex.test(file.mime) && (type === 'm3u8' || type === 'mpd' || ql.support.video[type])) {
+			if (ql.dispInlineRegex.test(file.mime) && (((type === 'm3u8' || type === 'mpd') && !fm.UA.ltIE10) || ql.support.video[type])) {
 				e.stopImmediatePropagation();
 
 				if (ql.support.video[type] && (type !== 'm3u8' || fm.UA.Safari)) {
