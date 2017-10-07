@@ -31,7 +31,7 @@ $.fn.elfindernavdock = function(fm, opts) {
 			resizeFn = [],
 			initMaxHeight = (parseInt(opts.initMaxHeight) || 50) / 100,
 			maxHeight = (parseInt(opts.maxHeight) || 90) / 100,
-			basicHeight;
+			basicHeight, hasNode;
 		
 		
 		self.data('addNode', function(cNode, opts) {
@@ -55,7 +55,8 @@ $.fn.elfindernavdock = function(fm, opts) {
 			} else {
 				self.append(cNode);
 			}
-			self.height(tH).show();
+			hasNode = true;
+			self.resizable('enable').height(tH).show();
 			
 			fm.trigger('wzresize');
 			
@@ -82,7 +83,8 @@ $.fn.elfindernavdock = function(fm, opts) {
 				cNode.remove();
 			}
 			if (self.children().length <= 1) {
-				self.height(0).hide();
+				hasNode = false;
+				self.resizable('disable').height(0).hide();
 			}
 			fm.trigger('wzresize');
 		});
@@ -94,11 +96,15 @@ $.fn.elfindernavdock = function(fm, opts) {
 					self.resizable({
 						maxHeight: fm.getUI('workzone').height() * maxHeight,
 						handles: { n: handle },
+						start: function(e, ui) {
+							fm.trigger('navdockresizestart', {event: e, ui: ui}, true);
+						},
 						resize: function(e, ui) {
 							self.css('top', '');
 							fm.trigger('wzresize', { inNavdockResize : true });
 						},
 						stop: function(e, ui) {
+							fm.trigger('navdockresizestop', {event: e, ui: ui}, true);
 							self.css('top', '');
 							basicHeight = ui.size.height;
 							fm.storage('navdockHeight', basicHeight);
@@ -126,7 +132,7 @@ $.fn.elfindernavdock = function(fm, opts) {
 					});
 				}
 				fm.bind('navbarshow navbarhide', function(e) {
-					self[e.type === 'navbarshow'? 'show' : 'hide']();
+					self[hasNode && e.type === 'navbarshow'? 'show' : 'hide']();
 				});
 			});
 		}

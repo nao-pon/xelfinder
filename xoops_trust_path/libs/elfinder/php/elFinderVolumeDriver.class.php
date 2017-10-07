@@ -2316,7 +2316,7 @@ abstract class elFinderVolumeDriver {
 		}
 
 		if (!$this->allowPutMime($mime) || ($mimeByName && !$this->allowPutMime($mimeByName))) {
-			return $this->setError(elFinder::ERROR_UPLOAD_FILE_MIME);
+			return $this->setError(elFinder::ERROR_UPLOAD_FILE_MIME, '(' . $mime . ')');
 		}
 
 		$tmpsize = sprintf('%u', filesize($tmpname));
@@ -2564,14 +2564,8 @@ abstract class elFinderVolumeDriver {
 		if ($dir = $this->getItemsInHand($hashes)) {
 			$tmppre = (substr(PHP_OS, 0, 3) === 'WIN')? 'zdl' : 'elfzdl';
 			$pdir = dirname($dir);
-			// garbage collection
-			$ttl = 7200; // expire 2h
-			$time = time();
-			foreach(glob($pdir.DIRECTORY_SEPARATOR.$tmppre.'*') as $_file) {
-				if (filemtime($_file) + $ttl < $time) {
-					unlink($_file);
-				}
-			}
+			// garbage collection (expire 2h)
+			register_shutdown_function(array('elFinder', 'GlobGC'), $pdir.DIRECTORY_SEPARATOR.$tmppre.'*', 7200);
 			$files = self::localScandir($dir);
 			if ($files && ($arc = tempnam($dir, $tmppre))) {
 				unlink($arc);
@@ -2654,7 +2648,7 @@ abstract class elFinderVolumeDriver {
 		$mime = '';
 		$mimeByName = $this->mimetype($name, true);
 		if ($this->mimeDetect !== 'internal') {
-			if ($tp = tmpfile()) {
+			if ($tp = $this->tmpfile()) {
 				fwrite($tp, $content);
 				$info = stream_get_meta_data($tp);
 				$filepath = $info['uri'];
@@ -3021,14 +3015,7 @@ abstract class elFinderVolumeDriver {
 			} else if (!empty($options['temporary']) && $this->tmpLinkPath) {
 				$name = 'temp_' . md5($hash);
 				$path = $this->tmpLinkPath . DIRECTORY_SEPARATOR . $name;
-				$contents = $this->getContents($hash);
-				$gc = create_function('$p,$t', 'foreach(glob($p) as $f) { (filemtime($f) < (time() - $t)) && unlink($f); }');
-				/*$gc = function($p,$t) {
-					foreach(glob($p) as $f) {
-						(filemtime($f) < (time() - $t)) && unlink($f);
-					}
-				};*/
-				register_shutdown_function($gc, $this->tmpLinkPath . DIRECTORY_SEPARATOR . 'temp_*', elFinder::$tmpLinkLifeTime);
+				register_shutdown_function(array('elFinder', 'GlobGC'), $this->tmpLinkPath . DIRECTORY_SEPARATOR . 'temp_*', elFinder::$tmpLinkLifeTime);
 				if (file_put_contents($path, $this->getContents($hash))) {
 					return $this->tmpLinkUrl . '/' . $name;
 				}
@@ -3049,6 +3036,8 @@ abstract class elFinderVolumeDriver {
 			$tempPath = $this->tmpPath;
 		} else if (isset($this->tmp) && $this->tmp && is_writable($this->tmp)) {
 			$tempPath = $this->tmp;
+		} else if (elFinder::getStaticVar('commonTempPath') && is_writable(elFinder::getStaticVar('commonTempPath'))) {
+			$tempPath = elFinder::getStaticVar('commonTempPath');
 		} else if (function_exists('sys_get_temp_dir')) {
 			$tempPath = sys_get_temp_dir();
 		} else if ($this->tmbPathWritable) {
@@ -3140,11 +3129,11 @@ abstract class elFinderVolumeDriver {
 		
 		if (! empty($options['checkAnimated'])) {
 			if ($this->imgLib !== 'imagick' && $this->imgLib !== 'convert') {
-				if (elFinder::isAnimationGif($work_path)) {
+				if (elFinder::isAnimationGif($src)) {
 					return false;
 				}
 			}
-			if (elFinder::isAnimationPng($work_path)) {
+			if (elFinder::isAnimationPng($src)) {
 				return false;
 			}
 		}
@@ -3189,7 +3178,8 @@ abstract class elFinderVolumeDriver {
 		$name = basename($file);
 		$path = dirname($file);
 		$tmp = $path . DIRECTORY_SEPARATOR . md5($name);
-		$GLOBALS['elFinderTempFiles'][] = $tmp; // regist to remove at the end
+		// register auto delete on shutdown
+		$GLOBALS['elFinderTempFiles'][$tmp] = true;
 		if (rename($file, $tmp)) {
 			if ($ss === null) {
 				// specific start time by file name (xxx^[sec].[extention] - video^3.mp4)
@@ -3215,6 +3205,18 @@ abstract class elFinderVolumeDriver {
 		return false;
 	}
 
+	/**
+	 * Creates a temporary file and return file pointer
+	 * 
+	 * @return resource|boolean
+	 */
+	public function tmpfile() {
+		if ($tmp = $this->getTempFile()) {
+			return fopen($tmp, 'wb');
+		}
+		return false;
+	}
+	
 	/**
 	 * Save error message
 	 *
@@ -3670,14 +3672,12 @@ abstract class elFinderVolumeDriver {
 		}
 		
 		if ($tmpdir = $this->getTempPath()) {
-			if (!$rmfunc) {
-				$rmfunc = create_function('$f', 'is_file($f) && unlink($f);');
-			}
 			$name = tempnam($tmpdir, 'ELF');
 			if ($key) {
 				$cache[$key] = $name;
 			}
-			register_shutdown_function($rmfunc, $name);
+			// register auto delete on shutdown
+			$GLOBALS['elFinderTempFiles'][$name] = true;
 			return $name;
 		}
 		
@@ -3692,16 +3692,14 @@ abstract class elFinderVolumeDriver {
 	 * @author Naoki Sawada
 	 */
 	protected function getWorkFile($path) {
-		if ($work = $this->getTempFile()) {
-			if ($wfp = fopen($work, 'wb')) {
-				if ($fp = $this->_fopen($path)) {
-					while(!feof($fp)) {
-						fwrite($wfp, fread($fp, 8192));
-					}
-					$this->_fclose($fp, $path);
-					fclose($wfp);
-					return $work;
+		if ($wfp = $this->tmpfile()) {
+			if ($fp = $this->_fopen($path)) {
+				while(!feof($fp)) {
+					fwrite($wfp, fread($fp, 8192));
 				}
+				$this->_fclose($fp, $path);
+				fclose($wfp);
+				return $work;
 			}
 		}
 		return false;
@@ -4200,40 +4198,30 @@ abstract class elFinderVolumeDriver {
 			$nameCheck = true;
 		}
 		$ext = (false === $pos = strrpos($name, '.')) ? '' : substr($name, $pos + 1);
-		if (! $nameCheck && is_readable($path)) {
-			if (filesize($path) > 0) {
-				if ($this->mimeDetect == 'finfo') {
-					if ($type = finfo_file($this->finfo, $path)) {
-						if ($ext && preg_match('~^application/(?:octet-stream|(?:x-)?zip)~', $type)) {
-							if (isset(elFinderVolumeDriver::$mimetypes[$ext])) $type = elFinderVolumeDriver::$mimetypes[$ext];
-						} else if ($ext === 'js' && preg_match('~^text/~', $type)) {
-							$type = 'text/javascript';
-						}
-					} else {
-						$type = 'unknown';
+		if (! $nameCheck && is_readable($path) && filesize($path) > 0) {
+			// detecting by contents
+			if ($this->mimeDetect === 'finfo') {
+				$type = finfo_file($this->finfo, $path);
+			} else if ($this->mimeDetect === 'mime_content_type') {
+				$type = mime_content_type($path);
+			}
+			if ($type) {
+				if ($ext && preg_match('~^application/(?:octet-stream|(?:x-)?zip)~', $type)) {
+					if (isset(elFinderVolumeDriver::$mimetypes[$ext])) {
+						$type = elFinderVolumeDriver::$mimetypes[$ext];
 					}
-				} else if ($this->mimeDetect == 'mime_content_type') {
-					$type = mime_content_type($path);
+				} else if ($ext === 'js' && preg_match('~^text/~', $type)) {
+					$type = 'text/javascript';
 				}
-			} else {
-				$type = 'text/plain';
 			}
 		}
 		if (! $type) {
-			$type = elFinderVolumeDriver::mimetypeInternalDetect($path);
-		}
-		
-		if ($type === 'unknown' && $this->mimeDetect != 'internal') {
-			$type = elFinderVolumeDriver::mimetypeInternalDetect($path);
+			// detecting by filename
+			$type = elFinderVolumeDriver::mimetypeInternalDetect($name);
 		}
 		
 		$type = explode(';', $type);
 		$type = trim($type[0]);
-		
-		if (in_array($type, array('application/x-empty', 'inode/x-empty'))) {
-			// finfo return this mime for empty files
-			$type = 'text/plain';
-		}
 		
 		// mime type normalization
 		$_checkKey = strtolower($ext.':'.$type);
@@ -4310,12 +4298,13 @@ abstract class elFinderVolumeDriver {
 			return $result;
 		}
 		
-		if ($stat['mime'] != 'directory') {
+		if ($stat['mime'] !== 'directory') {
 			$result['size'] = intval($stat['size']);
 			$result['files'] = 1;
 			return $result;
 		}
 		
+		$result['dirs'] = 1;
 		$subdirs = $this->options['checkSubfolders'];
 		$this->options['checkSubfolders'] = true;
 		foreach ($this->getScandir($path) as $stat) {
