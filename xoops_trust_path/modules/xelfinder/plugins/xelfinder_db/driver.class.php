@@ -1437,10 +1437,13 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	protected function _filePutContents($path, $content) {
 		if ($local = $this->readlink($path)) {
 			if (file_put_contents($local, $content) !== false) {
+				clearstatcache();
+				$stat = $this->stat($path);
+				$mime = $this->mimetype($local, $stat['name']);
 				$time = time();
 				unset($this->cache[(int)$path]);
 				$this->updateDirTimestamp($this->_dirname($path), $time, true);
-				return $this->query(sprintf('UPDATE %s SET `size`=%d, `mtime`=%d WHERE `file_id` = "%d" LIMIT 1', $this->tbf, strlen($content), $time, $path));
+				return $this->query(sprintf('UPDATE %s SET `size`=%d, `mtime`=%d, `mime`="%s" WHERE `file_id` = "%d" LIMIT 1', $this->tbf, strlen($content), $time, $mime, $path));
 			}
 		}
 		return false;
