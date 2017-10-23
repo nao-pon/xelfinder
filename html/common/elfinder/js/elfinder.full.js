@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.29 (2.1 Nightly: 664a06a) (2017-10-07)
+ * Version 2.1.29 (2.1 Nightly: 4d2313f) (2017-10-23)
  * http://elfinder.org
  * 
  * Copyright 2009-2017, Studio 42
@@ -1802,6 +1802,8 @@ var elFinder = function(node, opts, bootCallback) {
 			navigate = opts.navigate,
 			// open notify dialog timeout
 			timeout,
+			// use browser cache
+			useCache = (opts.options || {}).cache,
 			// request options
 			options = Object.assign({
 				url      : o.url,
@@ -2182,7 +2184,16 @@ var elFinder = function(node, opts, bootCallback) {
 				delete options.preventFail
 
 				if (self.api >= 2.1029) {
-					Object.assign(options.data, { reqid : reqId });
+					if (useCache) {
+						options.headers['X-elFinderReqid'] = reqId;
+					} else {
+						Object.assign(options.data, { reqid : reqId });
+					}
+				}
+				
+				// function for set value of this syncOnFail
+				dfrd.syncOnFail = function(state) {
+					syncOnFail = !!state;
 				}
 				
 				dfrd.xhr = xhr = self.transport.send(options).always(function() {
@@ -2196,11 +2207,6 @@ var elFinder = function(node, opts, bootCallback) {
 				
 				if (self.api >= 2.1029) {
 					xhr._requestId = reqId;
-				}
-				
-				// function for set value of this syncOnFail
-				dfrd.syncOnFail = function(state) {
-					syncOnFail = !!state;
 				}
 				
 				if (isOpen || (data.compare && cmd === 'info')) {
@@ -2239,6 +2245,7 @@ var elFinder = function(node, opts, bootCallback) {
 				if (notify.type && notify.cnt) {
 					if (cancel) {
 						notify.cancel = dfrd;
+						opts.eachCancel && (notify.id = +new Date());
 					}
 					timeout = setTimeout(function() {
 						self.notify(notify);
@@ -5214,22 +5221,20 @@ elFinder.prototype = {
 				processing = 0,
 				items,
 				mkdirs = [],
-				
-				readEntries = function(dirReader) {
-					var toArray = function(list) {
-						return Array.prototype.slice.call(list || []);
-					};
+				cancel = false,
+				toArray = function(list) {
+					return Array.prototype.slice.call(list || [], 0);
 				},
-				
 				doScan = function(items) {
-					var dirReader, entry, length,
-					entries = [],
-					toArray = function(list) {
-						return Array.prototype.slice.call(list || [], 0);
-					},
-					excludes = fm.options.folderUploadExclude[fm.OS] || null;
-					length = items.length;
+					var dirReader, entry, readEntries,
+						entries = [],
+						excludes = fm.options.folderUploadExclude[fm.OS] || null,
+						length = items.length;
+					
 					for (var i = 0; i < length; i++) {
+						if (cancel) {
+							break;
+						}
 						entry = items[i];
 						if (entry) {
 							if (entry.isFile) {
@@ -5246,12 +5251,15 @@ elFinder.prototype = {
 									processing++;
 									mkdirs.push(entry.fullPath);
 									dirReader = entry.createReader();
-									var entries = [];
+									entries = [];
 									// Call the reader.readEntries() until no more results are returned.
-									var readEntries = function() {
-										 dirReader.readEntries (function(results) {
-											if (!results.length) {
+									readEntries = function() {
+										dirReader.readEntries(function(results) {
+											if (cancel || !results.length) {
 												for (var i = 0; i < entries.length; i++) {
+													if (cancel) {
+														break;
+													}
 													doScan([entries[i]]);
 												}
 												processing--;
@@ -5281,7 +5289,7 @@ elFinder.prototype = {
 				});
 				if (items.length > 0) {
 					fm.uploads.checkExists(items, target, fm, hasDirs).done(function(renames, hashes){
-						var notifyto, dfds = [];
+						var dfds = [];
 						if (fm.options.overwriteUploadConfirm && fm.option('uploadOverwrite', target)) {
 							if (renames === null) {
 								data.overwrite = 0;
@@ -5322,20 +5330,41 @@ elFinder.prototype = {
 							});
 						}
 						$.when.apply($, dfds).done(function(){
-							if (items.length > 0) {
-								notifyto = setTimeout(function() {
-									fm.notify({type : 'readdir', cnt : 1, hideCnt: true});
-								}, fm.options.notifyDelay);
-								doScan(items);
-								setTimeout(function wait() {
-									if (processing > 0) {
+							var notifyto, msg,
+								id = +new Date(),
+								wait = function() {
+									if (!cancel && processing > 0) {
 										setTimeout(wait, 10);
 									} else {
 										notifyto && clearTimeout(notifyto);
-										fm.notify({type : 'readdir', cnt : -1});
-										dfrd.resolve([files, paths, renames, hashes, mkdirs]);
+										fm.notify({type : 'readdir', id: id, cnt : -1});
+										if (cancel) {
+											dfrd.reject();
+										} else {
+											dfrd.resolve([files, paths, renames, hashes, mkdirs]);
+										}
 									}
-								}, 10);
+								};
+							
+							if (items.length > 0) {
+								msg = fm.escape(items[0].name);
+								if (items.length > 1) {
+									msg += ' ... ' + items.length + fm.i18n('items');
+								}
+								notifyto = setTimeout(function() {
+									fm.notify({
+										type : 'readdir',
+										id : id,
+										cnt : 1,
+										hideCnt: true,
+										msg : fm.i18n('ntfreaddir') + ' (' + msg + ')',
+										cancel: function() {
+											cancel = true;
+										}
+									});
+								}, fm.options.notifyDelay);
+								doScan(items);
+								setTimeout(wait, 10);
 							} else {
 								dfrd.reject();
 							}
@@ -6027,9 +6056,14 @@ elFinder.prototype = {
 								data.overwrite = 0;
 								formData.append('name[]', fm.date(fm.nonameDateFormat) + '.png');
 							}
-							if (fm.UA.iOS && file.name === 'image.jpg') {
-								data.overwrite = 0;
-								formData.append('name[]', fm.date(fm.nonameDateFormat) + '.jpg');
+							if (fm.UA.iOS) {
+								if (file.name.match(/^image\.jpe?g$/i)) {
+									data.overwrite = 0;
+									formData.append('name[]', fm.date(fm.nonameDateFormat) + '.jpg');
+								} else if (file.name.match(/^capturedvideo\.mov$/i)) {
+									data.overwrite = 0;
+									formData.append('name[]', fm.date(fm.nonameDateFormat) + '.mov');
+								}
 							}
 						}
 						if (file._chunk) {
@@ -7079,11 +7113,12 @@ elFinder.prototype = {
 	 */
 	notify : function(opts) {
 		var type     = opts.type,
+			id       = opts.id? 'elfinder-notify-'+opts.id : '',
 			msg      = this.i18n((typeof opts.msg !== 'undefined')? opts.msg : (this.messages['ntf'+type] ? 'ntf'+type : 'ntfsmth')),
 			ndialog  = this.ui.notify,
-			notify   = ndialog.children('.elfinder-notify-'+type),
+			notify   = ndialog.children('.elfinder-notify-'+type+(id? ('.'+id) : '')),
 			button   = notify.children('div.elfinder-notify-cancel').children('button'),
-			ntpl     = '<div class="elfinder-notify elfinder-notify-{type}"><span class="elfinder-dialog-icon elfinder-dialog-icon-{type}"/><span class="elfinder-notify-msg">{msg}</span> <span class="elfinder-notify-cnt"/><div class="elfinder-notify-progressbar"><div class="elfinder-notify-progress"/></div><div class="elfinder-notify-cancel"/></div>',
+			ntpl     = '<div class="elfinder-notify elfinder-notify-{type}'+(id? (' '+id) : '')+'"><span class="elfinder-dialog-icon elfinder-dialog-icon-{type}"/><span class="elfinder-notify-msg">{msg}</span> <span class="elfinder-notify-cnt"/><div class="elfinder-notify-progressbar"><div class="elfinder-notify-progress"/></div><div class="elfinder-notify-cancel"/></div>',
 			delta    = opts.cnt,
 			size     = (typeof opts.size != 'undefined')? parseInt(opts.size) : null,
 			progress = (typeof opts.progress != 'undefined' && opts.progress >= 0) ? opts.progress : null,
@@ -7146,7 +7181,7 @@ elFinder.prototype = {
 			}
 			
 			!opts.hideCnt && notify.children('.elfinder-notify-cnt').text('('+cnt+')');
-			ndialog.is(':hidden') && ndialog.elfinderdialog('open', this);
+			ndialog.is(':hidden') && ndialog.elfinderdialog('open', this).height('auto');
 			notify.data('cnt', cnt);
 			
 			if ((progress != null)
@@ -8372,8 +8407,8 @@ elFinder.prototype = {
 			$.each(targets, function() {
 				var root = self.root(this),
 					file = self.file(this);
-				if (file && file.sizeInfo) {
-					cache.push($.Deferred().resolve(file.sizeInfo));
+				if (file && (file.sizeInfo || file.mime !== 'directory')) {
+					cache.push($.Deferred().resolve(file.sizeInfo? file.sizeInfo : {size: file.size, dirCnt: 0, fileCnt : 1}));
 				} else {
 					if (! grps[root]) {
 						grps[root] = [ this ];
@@ -8399,7 +8434,18 @@ elFinder.prototype = {
 			$.when.apply($, dfds).fail(function() {
 				dfrd.reject();
 			}).done(function() {
-				var size = 0,
+				var cache = function(h, data) {
+						var file;
+						if (file = self.file(h)) {
+							file.sizeInfo = { isCache: true };
+							$.each(['size', 'dirCnt', 'fileCnt'], function() {
+								file.sizeInfo[this] = data[this] || 0;
+							});
+							file.size = parseInt(file.sizeInfo.size);
+							changed.push(file);
+						}
+					},
+					size = 0,
 					fileCnt = 0,
 					dirCnt = 0,
 					argLen = arguments.length,
@@ -8411,13 +8457,14 @@ elFinder.prototype = {
 				for (i = 0; i < argLen; i++) {
 					data = arguments[i];
 					file = null;
-					if (!data.isCache && singles[i] && (file = self.file(singles[i]))) {
-						file.sizeInfo = { isCache: true };
-						$.each(['size', 'dirCnt', 'fileCnt'], function() {
-							file.sizeInfo[this] = data[this];
-						});
-						file.size = parseInt(file.sizeInfo.size);
-						changed.push(file);
+					if (!data.isCache) {
+						if (singles[i] && (file = self.file(singles[i]))) {
+							cache(singles[i], data);
+						} else if (data.sizes && $.isPlainObject(data.sizes)) {
+							$.each(data.sizes, function(h, sizeInfo) {
+								cache(h, sizeInfo);
+							});
+						}
 					}
 					size += parseInt(data.size);
 					if (fileCnt !== false) {
@@ -8627,7 +8674,7 @@ if (!String.prototype.repeat) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.29 (2.1 Nightly: 664a06a)';
+elFinder.prototype.version = '2.1.29 (2.1 Nightly: 4d2313f)';
 
 
 
@@ -8980,12 +9027,12 @@ elFinder.prototype._options = {
 	cdns : {
 		// for editor etc.
 		ace        : '//cdnjs.cloudflare.com/ajax/libs/ace/1.2.8',
-		codemirror : '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.29.0',
+		codemirror : '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.30.0',
 		ckeditor   : '//cdnjs.cloudflare.com/ajax/libs/ckeditor/4.7.3',
-		tinymce    : '//cdnjs.cloudflare.com/ajax/libs/tinymce/4.6.6',
+		tinymce    : '//cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.1',
 		simplemde  : '//cdnjs.cloudflare.com/ajax/libs/simplemde/1.11.2',
 		// for quicklook etc.
-		hls        : '//cdnjs.cloudflare.com/ajax/libs/hls.js/0.8.2/hls.min.js',
+		hls        : '//cdnjs.cloudflare.com/ajax/libs/hls.js/0.8.4/hls.min.js',
 		dash       : '//cdnjs.cloudflare.com/ajax/libs/dashjs/2.6.0/dash.all.min.js',
 		prettify   : '//cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js',
 		psd        : '//cdnjs.cloudflare.com/ajax/libs/psd.js/3.2.0/psd.min.js'
@@ -9242,8 +9289,8 @@ elFinder.prototype._options = {
 			textMaxlen : 2000,
 			// quicklook window must be contained in elFinder node on window open (true|false)
 			contain : false,
-			// preview window into NavDock (true|false)
-			docked   : false,
+			// preview window into NavDock (0 : undocked | 1 : docked(show) | 2 : docked(hide))
+			docked   : 0,
 			// Docked preview height ('auto' or Number of pixel) 'auto' is setted to the Navbar width
 			dockHeight : 'auto',
 			// media auto play when docked
@@ -10043,12 +10090,12 @@ elFinder.prototype._options.commandsOptions.netmount = {
 		name : 'FTP',
 		inputs: {
 			host     : $('<input type="text"/>'),
-			port     : $('<input type="text" placeholder="21"/>'),
+			port     : $('<input type="number" placeholder="21" class="elfinder-input-optional"/>'),
 			path     : $('<input type="text" value="/"/>'),
 			user     : $('<input type="text"/>'),
 			pass     : $('<input type="password" autocomplete="new-password"/>'),
-			encoding : $('<input type="text" placeholder="Optional"/>'),
-			locale   : $('<input type="text" placeholder="Optional"/>')
+			encoding : $('<input type="text" placeholder="Optional" class="elfinder-input-optional"/>'),
+			locale   : $('<input type="text" placeholder="Optional" class="elfinder-input-optional"/>')
 		}
 	},
 	dropbox: {
@@ -11624,7 +11671,8 @@ $.fn.elfinderbutton = function(cmd) {
 $.fn.elfindercontextmenu = function(fm) {
 	
 	return this.each(function() {
-		var cmItem = 'elfinder-contextmenu-item',
+		var self   = $(this),
+			cmItem = 'elfinder-contextmenu-item',
 			smItem = 'elfinder-contextsubmenu-item',
 			exIcon = 'elfinder-contextmenu-extra-icon',
 			dragOpt = {
@@ -11908,6 +11956,10 @@ $.fn.elfindercontextmenu = function(fm) {
 			close = function() {
 				fm.getUI().off('click.' + fm.namespace, close);
 				$(document).off('keydown.' + fm.namespace, keyEvts);
+				if (prevSelected) {
+					fm.select({selected: prevSelected});
+					prevSelected = null;
+				}
 				currentType = currentTargets = null;
 				
 				if (menu.is(':visible') || menu.children().length) {
@@ -11956,6 +12008,7 @@ $.fn.elfindercontextmenu = function(fm) {
 				}
 				
 				if (type === 'navbar') {
+					prevSelected = fm.selected();
 					fm.select({selected: targets, origin: 'navbar'});
 				}
 
@@ -12113,7 +12166,6 @@ $.fn.elfindercontextmenu = function(fm) {
 							node = item(cmd.title, cmd.className? cmd.className : cmd.name, function() {
 								if (! menu.data('draged')) {
 									close();
-									//cmd.exec(targets, {_currentType: type, _currentNode: node});
 									fm.exec(cmd.name, targets, {_userAction: true, _currentType: type, _currentNode: node});
 								}
 							});
@@ -12174,7 +12226,8 @@ $.fn.elfindercontextmenu = function(fm) {
 			},
 			
 			currentType = null,
-			currentTargets = null;
+			currentTargets = null,
+			prevSelected = null;
 		
 		fm.one('load', function() {
 			base = fm.getUI();
@@ -14222,7 +14275,7 @@ $.fn.elfindercwd = function(fm, options) {
 					$(this).toggleClass(clHover, (e.type == 'mouseenter'));
 				})
 				.on('contextmenu.'+fm.namespace, function(e) {
-					var file = $(e.target).closest('.'+clFile);
+					var file = $(e.target).closest(fileSelector);
 					
 					if (file.length && (e.target.nodeName != 'TD' || $.inArray(fm.cwdId2Hash(file.get(0).id), fm.selected()) > -1)) {
 						e.stopPropagation();
@@ -15828,8 +15881,11 @@ $.fn.elfindernavdock = function(fm, opts) {
 			delete sizeSyncs[nodeId];
 			self.height(self.height() - $('#'+nodeId).outerHeight(true));
 			if (appendTo) {
-				appendTo.append(cNode);
-				cNode.trigger('resize.' + fm.namespace);
+				if (appendTo === 'detach') {
+					cNode = cNode.detach();
+				} else {
+					appendTo.append(cNode);
+				}
 			} else {
 				cNode.remove();
 			}
@@ -15838,16 +15894,20 @@ $.fn.elfindernavdock = function(fm, opts) {
 				self.resizable('disable').height(0).hide();
 			}
 			fm.trigger('wzresize');
+			return cNode;
 		});
 		
 		if (! opts.disabled) {
 			fm.one('init', function() {
+				var ovf;
 				if (fm.getUI('navbar').children().not('.ui-resizable-handle').length) {
 					self.data('dockEnabled', true);
 					self.resizable({
 						maxHeight: fm.getUI('workzone').height() * maxHeight,
 						handles: { n: handle },
 						start: function(e, ui) {
+							ovf = self.css('overflow');
+							self.css('overflow', 'hidden');
 							fm.trigger('navdockresizestart', {event: e, ui: ui}, true);
 						},
 						resize: function(e, ui) {
@@ -15860,6 +15920,7 @@ $.fn.elfindernavdock = function(fm, opts) {
 							basicHeight = ui.size.height;
 							fm.storage('navdockHeight', basicHeight);
 							resize(basicHeight, ui.originalSize.height);
+							self.css('overflow', ovf);
 						}
 					});
 					fm.bind('wzresize', function(e) {
@@ -20017,6 +20078,7 @@ elFinder.prototype.commands.download = function() {
 						data : {cmd : 'zipdl', targets : hashes},
 						notify : {type : 'zipdl', cnt : 1, hideCnt : true, msg : fm.i18n('ntfzipdl') + volName},
 						cancel : true,
+						eachCancel : true,
 						preventDefault : true
 					}).done(function(e) {
 						var zipdl, dialog, btn = {}, dllink, form, iframe,
@@ -21896,7 +21958,7 @@ elFinder.prototype.commands.fullscreen = function() {
 	
 			fm.bind('backenddebug', function(e) {
 				// CAUTION: DO NOT TOUCH `e.data`
-				if (e.data && e.data.debug) {
+				if (useDebug && e.data && e.data.debug) {
 					self.debug = { options : e.data.options, debug : Object.assign({ cmd : fm.currentReqCmd }, e.data.debug) };
 					if (self.dialog) {
 						debugRender();
@@ -21914,8 +21976,10 @@ elFinder.prototype.commands.fullscreen = function() {
 				autoOpen : false,
 				destroyOnClose : false,
 				close : function() {
-					tabDebug.hide();
-					debugDIV.tabs('destroy');
+					if (useDebug) {
+						tabDebug.hide();
+						debugDIV.tabs('destroy');
+					}
 					opened = false;
 				}
 			})
@@ -21953,6 +22017,20 @@ elFinder.prototype.commands.fullscreen = function() {
 		}
 		
 		self.state = 0;
+	}).one('open', function() {
+		var debug = false;
+		fm.one('backenddebug', function() {
+			debug =true;
+		}).one('opendone', function() {
+			setTimeout(function() {
+				if (! debug && useDebug) {
+					useDebug = false;
+					tabDebug.hide();
+					debugDIV.hide();
+					debugUL.hide();
+				}
+			}, 0);
+		});
 	});
 	
 	this.getstate = function() {
@@ -21962,10 +22040,12 @@ elFinder.prototype.commands.fullscreen = function() {
 	this.exec = function(sel, opts) {
 		var tab = opts? opts.tab : void(0),
 			debugShow = function() {
-				debugDIV.tabs();
-				debugUL.find('a:first').trigger('click');
-				tabDebug.show();
-				opened = true;
+				if (useDebug) {
+					debugDIV.tabs();
+					debugUL.find('a:first').trigger('click');
+					tabDebug.show();
+					opened = true;
+				}
 			};
 		if (! loaded) {
 			loaded = true;
@@ -22508,7 +22588,71 @@ elFinder.prototype.commands.netmount = function() {
 						},
 						buttons        : {}
 					},
-					form = $('<form autocomplete="off"/>'),
+					doMount = function() {
+						var protocol = inputs.protocol.val(),
+							data = {cmd : 'netmount', protocol: protocol},
+							cur = o[protocol];
+						$.each(content.find('input.elfinder-netmount-inputs-'+protocol), function(name, input) {
+							var val;
+							if (typeof input.val == 'function') {
+								val = $.trim(input.val());
+							} else {
+								val = $.trim(input.value);
+							}
+							if (val) {
+								data[input.name] = val;
+							}
+						});
+	
+						if (!data.host) {
+							return fm.trigger('error', {error : 'errNetMountHostReq', opts : {modal: true}});
+						}
+	
+						fm.request({data : data, notify : {type : 'netmount', cnt : 1, hideCnt : true}})
+							.done(function(data) {
+								var pdir;
+								if (data.added && data.added.length) {
+									if (data.added[0].phash) {
+										if (pdir = fm.file(data.added[0].phash)) {
+											if (! pdir.dirs) {
+												pdir.dirs = 1;
+												fm.change({ changed: [ pdir ] });
+											}
+										}
+									}
+									fm.one('netmountdone', function() {
+										fm.exec('open', data.added[0].hash);
+									});
+								}
+								dfrd.resolve();
+							})
+							.fail(function(error) {
+								if (cur.fail && typeof cur.fail == 'function') {
+									cur.fail(fm, error);
+								}
+								dfrd.reject(error);
+							});
+	
+						self.dialog.elfinderdialog('close');
+					},
+					form = $('<form autocomplete="off"/>').on('keydown', 'input', function(e) {
+						var comp = true,
+							next;
+						if (e.keyCode === $.ui.keyCode.ENTER) {
+							$.each(form.find('input:visible:not(.elfinder-input-optional)'), function() {
+								if ($(this).val() === '') {
+									comp = false;
+									next = $(this);
+									return false;
+								}
+							});
+							if (comp) {
+								doMount();
+							} else {
+								next.focus();
+							}
+						}
+					}),
 					hidden  = $('<div/>'),
 					dialog;
 
@@ -22536,54 +22680,7 @@ elFinder.prototype.commands.netmount = function() {
 				
 				content.find('.elfinder-netmount-tr').hide();
 
-				opts.buttons[fm.i18n('btnMount')] = function() {
-					var protocol = inputs.protocol.val(),
-						data = {cmd : 'netmount', protocol: protocol},
-						cur = o[protocol];
-					$.each(content.find('input.elfinder-netmount-inputs-'+protocol), function(name, input) {
-						var val;
-						if (typeof input.val == 'function') {
-							val = $.trim(input.val());
-						} else {
-							val = $.trim(input.value);
-						}
-						if (val) {
-							data[input.name] = val;
-						}
-					});
-
-					if (!data.host) {
-						return fm.trigger('error', {error : 'errNetMountHostReq', opts : {modal: true}});
-					}
-
-					fm.request({data : data, notify : {type : 'netmount', cnt : 1, hideCnt : true}})
-						.done(function(data) {
-							var pdir;
-							if (data.added && data.added.length) {
-								if (data.added[0].phash) {
-									if (pdir = fm.file(data.added[0].phash)) {
-										if (! pdir.dirs) {
-											pdir.dirs = 1;
-											fm.change({ changed: [ pdir ] });
-										}
-									}
-								}
-								fm.one('netmountdone', function() {
-									fm.exec('open', data.added[0].hash);
-								});
-							}
-							dfrd.resolve();
-						})
-						.fail(function(error) {
-							//self.dialog.elfinderdialog('open');
-							if (cur.fail && typeof cur.fail == 'function') {
-								cur.fail(fm, error);
-							}
-							dfrd.reject(error);
-						});
-
-					self.dialog.elfinderdialog('close');
-				};
+				opts.buttons[fm.i18n('btnMount')] = doMount;
 
 				opts.buttons[fm.i18n('btnCancel')] = function() {
 					self.dialog.elfinderdialog('close');
@@ -23422,6 +23519,12 @@ elFinder.prototype.commands.places = function() {
 		 **/
 		docked     = 3,
 		/**
+		 * window docked and hidden state
+		 *
+		 * @type Number
+		 **/
+		dockedhidden = 4,
+		/**
 		 * window state
 		 *
 		 * @type Number
@@ -23468,12 +23571,15 @@ elFinder.prototype.commands.places = function() {
 		 **/
 		closedCss = function(node) {
 			var elf = fm.getUI().offset(),
-				base = node.find('.elfinder-cwd-file-wrapper'),
+				base = (function() {
+					var target = node.find('.elfinder-cwd-file-wrapper');
+					return target.length? target : node;
+				})(),
 				baseOffset = base.offset() || { top: 0, left: 0 };
 			return {
 				opacity : 0,
 				width   : base.width(),
-				height  : base.height(),
+				height  : base.height() - 30,
 				top     : baseOffset.top - elf.top,
 				left    : baseOffset.left  - elf.left
 			}
@@ -23667,15 +23773,9 @@ elFinder.prototype.commands.places = function() {
 					cnt = files.length,
 					inDock = self.docked(),
 					getInfo = function() {
-						var size = 0, ts = 0, getSize;
+						var ts = 0;
 						$.each(files, function(i, f) {
-							var s = parseInt(f.size),
-								t = parseInt(f.ts);
-							if (f.mime !== 'directory' && s >= 0 && size >= 0) {
-								size += s;
-							} else {
-								size = 'unknown';
-							}
+							var t = parseInt(f.ts);
 							if (ts >= 0) {
 								if (t > ts) {
 									ts = t;
@@ -23684,15 +23784,14 @@ elFinder.prototype.commands.places = function() {
 								ts = 'unknown';
 							}
 						});
-						getSize = (size === 'unknown');
 						return {
-							hash : cwdHash,
+							hash : files[0].hash  + '/' + (+new Date()),
 							name : fm.i18n('items') + ': ' + cnt,
 							mime : 'group',
-							size : getSize? spinner : size,
+							size : spinner,
 							ts   : ts,
 							files : $.map(files, function(f) { return f.hash; }),
-							getSize : getSize
+							getSize : true
 						};
 					};
 				if (! cnt) {
@@ -23744,9 +23843,7 @@ elFinder.prototype.commands.places = function() {
 		spinner = '<span class="elfinder-info-spinner"/>' + fm.i18n('calc'),
 		navStyle = '',
 		init = true,
-		dockHeight,
-		getSize,
-		tm4cwd;
+		dockHeight,	getSize, tm4cwd, dockedNode, selectTm;
 
 	(this.navbar = navbar)._show = navShow;
 	this.resize = 'resize.'+fm.namespace;
@@ -23777,6 +23874,7 @@ elFinder.prototype.commands.places = function() {
 				file    = e.file,
 				tpl     = '<div class="elfinder-quicklook-info-data">{value}</div>',
 				update  = function() {
+					var win = self.window.css('overflow', 'hidden');
 					name = fm.escape(file.i18 || file.name);
 					!file.read && e.stopImmediatePropagation();
 					self.window.data('hash', file.hash);
@@ -23841,20 +23939,18 @@ elFinder.prototype.commands.places = function() {
 					if (self.window.hasClass(fullscreen)) {
 						cover.trigger('mousemove');
 					}
+					win.css('overflow', '');
 				},
 				tmb, name, getSizeHashes = [];
 
+			if (file && ! Object.keys(file).length) {
+				file = fm.cwd();
+			}
 			if (file && getSize && getSize.state() === 'pending' && getSize._hash !== file.hash) {
 				getSize.reject();
 			}
-			if (file && (e.forceUpdate || file.hash === cwdHash || self.window.data('hash') !== file.hash)) {
-				tm4cwd && clearTimeout(tm4cwd);
-				if (file.hash === cwdHash) {
-					// wait select any item in cwd
-					tm4cwd = setTimeout(update, 0);
-				} else {
-					update();
-				}
+			if (file && (e.forceUpdate || self.window.data('hash') !== file.hash)) {
+				update();
 			} else { 
 				e.stopImmediatePropagation();
 			}
@@ -23878,50 +23974,66 @@ elFinder.prototype.commands.places = function() {
 			navbar
 		)
 		.draggable({handle : 'div.elfinder-quicklook-titlebar'})
-		.on('open', function(e) {
+		.on('open', function(e, clcss) {
 			var win  = self.window, 
 				file = self.value,
-				node = fm.getUI('cwd');
+				node = fm.getUI('cwd'),
+				open = function(status) {
+					state = status;
+					self.update(1, self.value);
+					self.change();
+					win.trigger('resize.' + fm.namespace);
+				};
 
-			if (self.closed() && file && (file.hash === cwdHash || (node = $('#'+fm.cwdHash2Id(file.hash))).length)) {
+			if (!init && state === closed) {
+				if (file && file.hash !== cwdHash) {
+					node = $('#'+fm.cwdHash2Id(file.hash.split('/', 2)[0]));
+				}
 				navStyle = '';
 				navbar.attr('style', '');
 				state = animated;
 				node.trigger('scrolltoview');
 				coverHide();
-				win.css(closedCss(node))
+				win.css(clcss || closedCss(node))
 					.show()
 					.animate(openedCss(), 550, function() {
-						state = opened;
-						self.update(1, self.value);
-						self.change();
+						open(opened);
 						navShow();
 					});
+			} else if (state === dockedhidden) {
+				fm.getUI('navdock').data('addNode')(dockedNode);
+				open(docked);
+				self.preview.trigger('changesize');
+				fm.storage('previewDocked', '1');
 			}
 		})
 		.on('close', function(e, dfd) {
 			var win     = self.window,
 				preview = self.preview.trigger('change'),
 				file    = self.value,
-				hash    = win.data('hash'),
-				close   = function() {
-					state = closed;
-					win.hide();
+				hash    = (win.data('hash') || '').split('/', 2)[0],
+				close   = function(status, winhide) {
+					state = status;
+					winhide && win.hide();
 					preview.children().remove();
 					self.update(0, self.value);
+					win.data('hash', '');
 					dfd && dfd.resolve();
 				},
 				node;
 				
-			if (! self.docked()) {
-				win.data('hash', '');
-				if (self.opened()) {
-					getSize && getSize.state() === 'pending' && getSize.reject();
+			if (self.opened()) {
+				getSize && getSize.state() === 'pending' && getSize.reject();
+				if (! self.docked()) {
 					state = animated;
 					win.hasClass(fullscreen) && fsicon.click();
 					(hash && (node = cwd.find('#'+hash)).length)
-						? win.animate(closedCss(node), 500, close)
-						: close();
+						? win.animate(closedCss(node), 500, function() { close(closed, true); })
+						: close(closed, true);
+				} else {
+					dockedNode = fm.getUI('navdock').data('removeNode')(self.window.attr('id'), 'detach');
+					close(dockedhidden);
+					fm.storage('previewDocked', '2');
 				}
 			}
 		})
@@ -23933,7 +24045,6 @@ elFinder.prototype.commands.places = function() {
 			
 			if (init) {
 				opts.init = true;
-				init = false;
 			}
 			state = docked;
 			prevStyle = w.attr('style');
@@ -23945,7 +24056,6 @@ elFinder.prototype.commands.places = function() {
 				zIndex: 'unset'
 			});
 			navbar.hide();
-			titleClose.hide();
 			titleDock.toggleClass('ui-icon-plusthick ui-icon-minusthick elfinder-icon-full elfinder-icon-minimize');
 			
 			box.data('addNode')(w, opts);
@@ -23957,23 +24067,16 @@ elFinder.prototype.commands.places = function() {
 		.on('navdockout', function(e) {
 			var w   = self.window,
 				box = fm.getUI('navdock'),
-				dfd = $.Deferred();
-			
-			state = opened;
-			
-			box.data('removeNode')(w.attr('id'), fm.getUI());
+				dfd = $.Deferred(),
+				clcss = closedCss(self.preview);
 			
 			dockHeight = w.outerHeight();
+			box.data('removeNode')(w.attr('id'), fm.getUI());
 			w.toggleClass('ui-front').addClass('ui-widget').draggable('enable').resizable('enable').attr('style', prevStyle);
-			navbar.show();
-			titleClose.show();
 			titleDock.toggleClass('ui-icon-plusthick ui-icon-minusthick elfinder-icon-full elfinder-icon-minimize');
 			
-			w.data('hash', '');
-			w.trigger('close', dfd);
-			dfd.done(function() {
-				w.trigger('open');
-			});
+			state = closed;
+			w.trigger('open', clcss);
 			
 			fm.storage('previewDocked', '0');
 		})
@@ -23997,8 +24100,17 @@ elFinder.prototype.commands.places = function() {
 	
 	this.handlers = {
 		// save selected file
-		select : function() { this.opened() && updateOnSel(); },
-		error  : function() { self.window.is(':visible') && self.window.data('hash', '').trigger('close'); },
+		select : function(e, d) {
+			selectTm && clearTimeout(selectTm);
+			if (! e.data || ! e.data.selected || ! e.data.selected.length) {
+				selectTm = setTimeout(function() {
+					self.opened() && updateOnSel();
+				}, 0);
+			} else {
+				self.opened() && updateOnSel();
+			}
+		},
+		error  : function() { self.window.is(':visible') && self.window.trigger('close'); },
 		'searchshow searchhide' : function() { this.opened() && this.window.trigger('close'); },
 		navbarshow : function() {
 			setTimeout(function() {
@@ -24035,7 +24147,7 @@ elFinder.prototype.commands.places = function() {
 	 * @return Boolean
 	 **/
 	this.closed = function() {
-		return state == closed;
+		return (state == closed || state == dockedhidden);
 	};
 	
 	/**
@@ -24157,13 +24269,20 @@ elFinder.prototype.commands.places = function() {
 				}
 			});
 		}).one('open', function() {
-			var dock = fm.storage('previewDocked') || (o.docked? 1 : 0);
+			var dock = Number(fm.storage('previewDocked') || o.docked),
+				win;
 			if (dockEnabled && dock >= 1) {
+				win = self.window;
 				self.exec();
-				self.window.trigger('navdockin', { init : true });
-				self.update(void(0), fm.cwd());
-				self.change();
+				win.trigger('navdockin', { init : true });
+				if (dock === 2) {
+					win.trigger('close');
+				} else {
+					self.update(void(0), fm.cwd());
+					self.change();
+				}
 			}
+			init = false;
 		}).bind('open', function() {
 			cwdHash = fm.cwd().hash;
 			self.value = fm.cwd();
@@ -24193,10 +24312,8 @@ elFinder.prototype.commands.places = function() {
 	};
 	
 	this.exec = function() {
-		if (state != docked) {
-			this.closed() && updateOnSel();
-			this.enabled() && this.window.trigger(this.opened() ? 'close' : 'open');
-		}
+		self.closed() && updateOnSel();
+		self.enabled() && self.window.trigger(self.opened() ? 'close' : 'open');
 		return $.Deferred().resolve();
 	};
 
@@ -24221,7 +24338,17 @@ elFinder.prototype.commands.quicklook.plugins = [
 	 **/
 	function(ql) {
 		var mimes   = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'image/x-ms-bmp'],
-			preview = ql.preview;
+			preview = ql.preview,
+			WebP;
+		
+		// webp support
+		WebP = new Image();
+		WebP.onload = WebP.onerror = function() {
+			if (WebP.height == 2) {
+				mimes.push('image/webp');
+			}
+		};
+		WebP.src='data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
 		
 		// what kind of images we can display
 		$.each(navigator.mimeTypes, function(i, o) {
@@ -24433,11 +24560,15 @@ elFinder.prototype.commands.quicklook.plugins = [
 			},
 			PRcheck = function(node, cnt) {
 				if (prettify()) {
-					if (typeof PR === 'undefined' && cnt--) {
+					if (typeof window.PR === 'undefined' && cnt--) {
 						setTimeout(function() { PRcheck(node, cnt); }, 100);
 					} else {
-						if (typeof PR === 'object') {
-							PR.prettyPrint && PR.prettyPrint(null, node.get(0));
+						if (typeof window.PR === 'object') {
+							node.css('cursor', 'wait');
+							setTimeout(function() {
+								PR.prettyPrint && PR.prettyPrint(null, node.get(0));
+								node.css('cursor', '');
+							}, 0);
 						} else {
 							prettify = function() { return false; };
 						}
@@ -24453,7 +24584,7 @@ elFinder.prototype.commands.quicklook.plugins = [
 			if (mime.indexOf('text/') === 0 || $.inArray(mime, mimes) !== -1) {
 				e.stopImmediatePropagation();
 				
-				(typeof PR === 'undefined') && prettify();
+				(typeof window.PR === 'undefined') && prettify();
 				
 				loading = $('<div class="elfinder-quicklook-info-data"> '+fm.i18n('nowLoading')+'<span class="elfinder-info-spinner"></div>').appendTo(ql.info.find('.elfinder-quicklook-info'));
 
@@ -24470,7 +24601,7 @@ elFinder.prototype.commands.quicklook.plugins = [
 				.done(function(data) {
 					var reg = new RegExp('^(data:'+file.mime.replace(/([.+])/g, '\\$1')+';base64,)', 'i'),
 						text = data.content,
-						more, node, m;
+						part, more, node, m;
 					ql.hideinfo();
 					if (window.atob && (m = text.match(reg))) {
 						text = atob(text.substr(m[1].length));
@@ -24478,16 +24609,24 @@ elFinder.prototype.commands.quicklook.plugins = [
 					
 					more = text.length - textMaxlen;
 					if (more > 100) {
-						text = text.substr(0, textMaxlen) + '...';
+						part = text.substr(0, textMaxlen) + '...';
 					} else {
 						more = 0;
 					}
 					
-					node = $('<div class="elfinder-quicklook-preview-text-wrapper"><pre class="elfinder-quicklook-preview-text prettyprint">'+fm.escape(text)+'</pre></div>');
+					node = $('<div class="elfinder-quicklook-preview-text-wrapper"><pre class="elfinder-quicklook-preview-text prettyprint"></pre></div>');
 					
 					if (more) {
-						node.append('<div class="elfinder-quicklook-preview-charsleft"><hr/><span>' + fm.i18n('charsLeft', fm.toLocaleString(more)) + '</span></div>');
+						node.append($('<div class="elfinder-quicklook-preview-charsleft"><hr/><span>' + fm.i18n('charsLeft', fm.toLocaleString(more)) + '</span></div>')
+							.on('click', function() {
+								var top = node.scrollTop();
+								$(this).remove();
+								node.children('pre').removeClass('prettyprinted').text(text).scrollTop(top);
+								PRcheck(node, 100);
+							})
+						);
 					}
+					node.children('pre').text(part || text);
 					
 					node.on('touchstart', function(e) {
 						if ($(this)['scroll' + (fm.direction === 'ltr'? 'Right' : 'Left')]() > 5) {
@@ -25478,11 +25617,11 @@ elFinder.prototype.commands.resize = function() {
 			open = function(file, id) {
 				var isJpeg   = (file.mime === 'image/jpeg'),
 					dialog   = $('<div class="elfinder-dialog-resize '+fm.res('class', 'editing')+'"/>'),
-					input    = '<input type="text" size="5"/>',
+					input    = '<input type="number" class="ui-corner-all"/>',
 					row      = '<div class="elfinder-resize-row"/>',
 					label    = '<div class="elfinder-resize-label"/>',
 					control  = $('<div class="elfinder-resize-control"/>')
-						.on('focus', 'input[type=text]', function() {
+						.on('focus', 'input[type=text],input[type=number]', function() {
 							$(this).select();
 						}),
 					preview  = $('<div class="elfinder-resize-preview"/>')
@@ -25510,7 +25649,7 @@ elFinder.prototype.commands.resize = function() {
 							text: false
 						}),
 					uitype   = $('<div class="elfinder-resize-type"/>')
-						.append('<input class="" type="radio" name="type" id="'+id+'-resize" value="resize" checked="checked" /><label for="'+id+'-resize">'+fm.i18n('resize')+'</label>',
+						.append('<input type="radio" name="type" id="'+id+'-resize" value="resize" checked="checked" /><label for="'+id+'-resize">'+fm.i18n('resize')+'</label>',
 						'<input class="api2" type="radio" name="type" id="'+id+'-crop" value="crop" /><label class="api2" for="'+id+'-crop">'+fm.i18n('crop')+'</label>',
 						'<input class="api2" type="radio" name="type" id="'+id+'-rotate" value="rotate" /><label class="api2" for="'+id+'-rotate">'+fm.i18n('rotate')+'</label>'),
 					mode     = 'resize',
@@ -25569,13 +25708,13 @@ elFinder.prototype.commands.resize = function() {
 					offsetY = $(input).change(function(){crop.updateView('h');}),
 					quality = isJpeg && api2?
 						$(input).val(fm.storage('jpgQuality') || fm.option('jpgQuality'))
-							.addClass('quality')
+							.addClass('elfinder-resize-quality')
 							.on('blur', function(){
 								var q = Math.min(100, Math.max(1, parseInt(this.value)));
-								dialog.find('input.quality').val(q);
+								dialog.find('input.elfinder-resize-quality').val(q);
 							})
 						: null,
-					degree = $('<input type="text" size="3" maxlength="3" value="0" />')
+					degree = $('<input type="number" class="ui-corner-all" maxlength="3" value="0" />')
 						.change(function() {
 							rotate.update();
 						}),
@@ -25666,7 +25805,7 @@ elFinder.prototype.commands.resize = function() {
 							},
 							text: false
 						}),
-					bg = $('<input class="elfinder-resize-bg" type="text">')
+					bg = $('<input class="ui-corner-all elfinder-resize-bg" type="text">')
 						.on('focus', function() {
 							$(this).attr('style', '');
 						})
@@ -26853,7 +26992,15 @@ elFinder.prototype.commands.resize = function() {
 				dirs = [],
 				results = [],
 				reqs = [],
-				phashes = [];
+				phashes = [],
+				getFile;
+			
+			dfd._xhrReject = function() {
+				$.each(reqs, function() {
+					this && this.reject && this.reject();
+				});
+				getFile && getFile._xhrReject();
+			};
 			
 			$.each(files, function(i, f) {
 				f.mime === 'directory'? dirs.push(f) : results.push(f);
@@ -26889,7 +27036,7 @@ elFinder.prototype.commands.resize = function() {
 						}
 					});
 					fm.cache(items);
-					getFilesRecursively(items).done(function(res) {
+					getFile = getFilesRecursively(items).done(function(res) {
 						results = results.concat(res);
 						dfd.resolve(results);
 					});
@@ -26898,7 +27045,7 @@ elFinder.prototype.commands.resize = function() {
 				dfd.resolve(results);
 			}
 			
-			return dfd.promise();
+			return dfd;
 		},
 		restore = function(dfrd, files, targets, opts) {
 			var rHashes = {},
@@ -26906,7 +27053,8 @@ elFinder.prototype.commands.resize = function() {
 				found = false,
 				dirs = [],
 				opts = opts || {},
-				tm;
+				id = +new Date(),
+				tm, getFile;
 			
 			fm.lockfiles({files : targets});
 			
@@ -26921,13 +27069,16 @@ elFinder.prototype.commands.resize = function() {
 			});
 			
 			tm = setTimeout(function() {
-				fm.notify({type : 'search', cnt : 1, hideCnt : true});
+				fm.notify({type : 'search', id : id, cnt : 1, hideCnt : true, cancel : function() {
+					getFile && getFile._xhrReject();
+					dfrd.reject();
+				}});
 			}, fm.notifyDelay);
-			
+
 			fakeCnt = 0;
-			getFilesRecursively(files).always(function() {
+			getFile = getFilesRecursively(files).always(function() {
 				tm && clearTimeout(tm);
-				fm.notify({type : 'search', cnt : -1, hideCnt : true});
+				fm.notify({type : 'search', id: id, cnt : -1, hideCnt : true});
 			}).fail(function() {
 				dfrd.reject('errRestore', 'errFileNotFound');
 			}).done(function(res) {

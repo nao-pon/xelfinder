@@ -286,7 +286,8 @@ abstract class elFinderVolumeDriver {
 			'mpd:text/plain'               => 'application/dash+xml',
 			'mpd:application/xml'          => 'application/dash+xml',
 			'xml:application/xml'          => 'text/xml',
-			'*:application/x-dosexec'      => 'application/x-executable'
+			'*:application/x-dosexec'      => 'application/x-executable',
+			'webp:application/octet-stream'=> 'image/webp'
 		),
 		// An option to add MimeMap to the `mimeMap` option
 		// Array '[ext]:[detected mime type]' => '[normalized mime]'
@@ -3697,9 +3698,11 @@ abstract class elFinderVolumeDriver {
 				while(!feof($fp)) {
 					fwrite($wfp, fread($fp, 8192));
 				}
-				$this->_fclose($fp, $path);
+				$info = stream_get_meta_data($wfp);
 				fclose($wfp);
-				return $work;
+				if ($info && ! empty($info['uri'])) {
+					return $info['uri'];
+				}
 			}
 		}
 		return false;
@@ -6012,7 +6015,7 @@ abstract class elFinderVolumeDriver {
 			if ($arrn[0] !== '.') {
 				array_unshift($arrn, '.');
 			}
-			$arrn[0] = $base;
+			$arrn[0] = rtrim($base, $separator);
 			return join($separator, $arrn);
 		}
 		
