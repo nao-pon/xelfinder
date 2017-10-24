@@ -1189,7 +1189,8 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _mkfile($path, $name) {
-		$res = $this->make($path, $name, 'text/plain') ? $this->_joinPath($path, $name) : false;
+		$mime = $this->mimeType($name, true);
+		$res = $this->make($path, $name, ($mime === 'unknown')? 'text/plain' : $mime) ? $this->_joinPath($path, $name) : false;
 		if ($res) {
 			$this->updateDirTimestamp($path, time());
 		}
