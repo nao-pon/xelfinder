@@ -74,8 +74,7 @@ if ($_js_cache_path) {
 $default_tmbsize = isset($config['thumbnail_size'])? (int)$config['thumbnail_size'] : '160';
 $debug = (! empty($config['debug']));
 // cToken uses for CSRF protection
-$cToken = md5(session_id() . XOOPS_ROOT_PATH . (defined(XOOPS_SALT)? XOOPS_SALT : XOOPS_DB_PASS));
-$_SESSION['XELFINDER_CTOKEN'] = $cToken;
+$cToken = $xoops_elFinder->getCToken();
 
 $viewport = (preg_match('/Mobile|Android/i', $_SERVER['HTTP_USER_AGENT']))? '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2" />' : '';
 
@@ -266,6 +265,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var creativeCloudApikey = <?php echo (empty($config['creative_cloud_apikey'])? 'void 0' : '\''.$config['creative_cloud_apikey'].'\'')?>;
 		</script>
 		<script src="<?php echo $myurl ?>/include/js/commands/perm.js?v=<?php echo $xelfVer?>"></script>
+		<script src="<?php echo $myurl ?>/include/js/commands/auth.js?v=<?php echo $xelfVer?>"></script>
 		<script src="<?php echo $myurl ?>/include/js/manager.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>
 		<script type="text/javascript" charset="UTF-8">
 			var callbackFunc = <?php echo $callback ?>;

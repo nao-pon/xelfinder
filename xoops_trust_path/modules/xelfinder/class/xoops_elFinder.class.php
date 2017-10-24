@@ -17,6 +17,7 @@ class xoops_elFinder {
 	protected $mygids;
 	protected $uid;
 	protected $inSpecialGroup;
+	protected $myOrigin;
 	
 	public $base64encodeSessionData;
 	
@@ -75,6 +76,15 @@ class xoops_elFinder {
 		$this->mygids = is_object($this->xoopsUser)? $this->xoopsUser->getGroups() : array(XOOPS_GROUP_ANONYMOUS);
 		$this->uid = is_object($this->xoopsUser)? intval($this->xoopsUser->getVar('uid')) : 0;
 		$this->base64encodeSessionData = ((!defined('_CHARSET') || _CHARSET !== 'UTF-8') && substr($this->getSessionTableType(), -4) !== 'blob');
+		$https = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off');
+		$this->myOrigin = ($https? 'https://' : 'http://')
+			.$_SERVER['SERVER_NAME'] // host
+			.(((! $https && $_SERVER['SERVER_PORT'] == 80) || ($https && $_SERVER['SERVER_PORT'] == 443)) ? '' : (':' . $_SERVER['SERVER_PORT']));  // port
+		
+	}
+	
+	public function getMyOrigin() {
+		return $this->myOrigin;
 	}
 	
 	public function getUserRoll() {
@@ -88,6 +98,134 @@ class xoops_elFinder {
 	
 	public function getUid() {
 		return $this->uid;
+	}
+	
+	public function getUname($mode = 'n') {
+		$uname = '';
+		if ($this->uid) {
+			$uname = $this->xoopsUser->getVar('uname', $mode);
+			if (strtoupper(_CHARSET) !== 'UTF-8') {
+				$uname = mb_convert_encoding($uname, 'UTF-8', _CHARSET);
+			}
+		}
+		return $uname;
+	}
+	
+	protected function destroySessionVar() {
+		unset(
+			$_SESSION['xoopsUserId'],
+			$_SESSION['xoopsUserGroups'],
+			$_SESSION['xoopsUserTheme'],
+			$_SESSION['XELFINDER_RF_'.$this->mydirname]
+		);
+	}
+	
+	public function checkLogin($session) {
+		// login/logout/status
+		if (isset($_GET['login']) || isset($_GET['logout']) || isset($_GET['status'])) {
+			header('Content-Type: application/json; charset=utf-8');
+			header('Cache-Control: no-store, no-cache, must-revalidate');
+			header('Cache-Control: post-check=0, pre-check=0', false);
+			header('Pragma: no-cache');
+			if (isset($_GET['status'])) {
+				$uname = $this->getUname();
+				echo json_encode(array('uname' => $uname));
+			} else {
+				$session->start();
+				$data = array('uname' => '');
+				if (isset($_GET['logout'])) {
+					//$_SESSION = array();
+					$this->destroySessionVar();
+					$this->xoopsUser = null;
+					$this->isAdmin = false;
+					$this->mygids = array(XOOPS_GROUP_ANONYMOUS);
+					$this->inSpecialGroup = false;
+					$this->uid = 0;
+				} else {
+					$data = array();
+					if ($this->login()) {
+						$data['uname'] = $this->getUname();
+					} else {
+						$data['error'] = 'Login faild';
+					}
+				}
+				if (empty($data['error'])) {
+					$data['xoopsUid'] = $this->getUid();
+					$data['autoSyncSec'] = $this->getAutoSyncSec();
+					$data['cToken'] = $this->getCToken();
+				}
+				session_write_close();
+				echo json_encode($data);
+			}
+			exit();
+		}
+	}
+	
+	protected function login() {
+		$uname = isset($_POST['uname'])? $_POST['uname'] : '';
+		$pass = isset($_POST['pass'])? $_POST['pass'] : '';
+		if (strtoupper(_CHARSET) !== 'UTF-8') {
+			$uname = mb_convert_encoding($uname, _CHARSET, 'UTF-8');
+		}
+
+		$config_handler = xoops_gethandler('config');
+		$xoopsConfig = $config_handler->getConfigsByCat(XOOPS_CONF);
+		$member_handler = xoops_gethandler('member');
+		$myts = method_exists('MyTextsanitizer', 'sGetInstance')? MyTextsanitizer::sGetInstance() : MyTextsanitizer::getInstance();
+		$user = $member_handler->loginUser(addslashes($myts->stripSlashesGPC($uname)), addslashes($myts->stripSlashesGPC($pass)));
+		if ($user) {
+			if (! $user->getVar('level')) {
+				return false;
+			}
+			$groups = $user->getGroups();
+			if ($xoopsConfig['closesite'] == 1) {
+				$allowed = false;
+				foreach ($groups as $group) {
+					if (in_array($group, $xoopsConfig['closesite_okgrp']) || XOOPS_GROUP_ADMIN == $group) {
+						$allowed = true;
+						break;
+					}
+				}
+				if (!$allowed) {
+					return false;
+				}
+			}
+			
+			session_regenerate_id();
+			//$_SESSION = array();
+			$this->destroySessionVar();
+			$user->setVar('last_login', time());
+			$member_handler->insertUser($user, true);
+			$_SESSION['xoopsUserId'] = $user->getVar('uid');
+			$_SESSION['xoopsUserGroups'] = $groups;
+			if ($xoopsConfig['use_mysession'] && $xoopsConfig['session_name'] != '') {
+				setcookie($xoopsConfig['session_name'], session_id(), time()+(60 * $xoopsConfig['session_expire']), '/',  '', 0);
+			}
+			$user_theme = $user->getVar('theme');
+			if (in_array($user_theme, $xoopsConfig['theme_set_allowed'])) {
+				$_SESSION['xoopsUserTheme'] = $user_theme;
+			}
+			// RMV-NOTIFY
+			// Perform some maintenance of notification records
+			$notification_handler = xoops_gethandler('notification');
+			$notification_handler->doLoginMaintenance($user->getVar('uid'));
+		} else {
+			return false;
+		}
+		
+		$this->xoopsUser = $user;
+		$this->isAdmin = (is_object($user) && $user->isAdmin($this->xoopsModule->getVar('mid')));
+		$this->mygids = is_object($user)? $user->getGroups() : array(XOOPS_GROUP_ANONYMOUS);
+		$this->uid = is_object($user)? intval($user->getVar('uid')) : 0;
+		$this->inSpecialGroup = (array_intersect($this->mygids, ( isset($this->config['special_groups'])? $this->config['special_groups'] : array() )));
+		
+		return true;
+	}
+	
+	public function getCToken() {
+		$cToken = md5(session_id() . XOOPS_ROOT_PATH . (defined(XOOPS_SALT)? XOOPS_SALT : XOOPS_DB_PASS));
+		$_SESSION['XELFINDER_CTOKEN'] = $cToken;
+		return $cToken;
 	}
 	
 	public function getNetmountData() {

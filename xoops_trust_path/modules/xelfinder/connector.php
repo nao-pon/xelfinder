@@ -41,9 +41,6 @@ try {
 		require_once __DIR__ . '/plugins/vendor/autoload.php';
 	}
 
-	// HTTP request header origin
-	$origin = isset($_SERVER['HTTP_ORIGIN'])? $_SERVER['HTTP_ORIGIN'] : '';
-
 	// convert PATH_INFO to GET query for netmount
 	if (! empty($_SERVER['PATH_INFO'])) {
 		$_ps = explode('/', trim($_SERVER['PATH_INFO'], '/'));
@@ -62,16 +59,6 @@ try {
 					}
 				}
 			}
-		}
-	}
-
-	// Check cToken for protect from CSRF
-	if (! isset($_SESSION['XELFINDER_CTOKEN'])
-			|| ! isset($_REQUEST['ctoken'])
-			|| $_SESSION['XELFINDER_CTOKEN'] !== $_REQUEST['ctoken']) {
-		$origin || (isset($_GET['cmd']) && ($_GET['cmd'] === 'callback' || $_GET['cmd'] === 'netmount')) || (isset($_REQUEST['cmd']) && $_REQUEST['cmd'] === 'file') || exit(json_encode(array('error' => 'errPleaseReload')));
-		if ($origin && $_REQUEST['ctoken']) {
-			$_SESSION['XELFINDER_CTOKEN'] = $_REQUEST['ctoken'];
 		}
 	}
 
@@ -99,10 +86,36 @@ try {
 	if (! empty($config['ffmpeg_path'])) {
 		define('ELFINDER_FFMPEG_PATH', $config['ffmpeg_path']);
 	}
-	
+
+	// load xoops_elFinder
+	require_once dirname(__FILE__).'/class/xoops_elFinder.class.php';
+	$xoops_elFinder = new xoops_elFinder($mydirname);
+	$xoops_elFinder->setConfig($config);
+	$xoops_elFinder->setLogfile($debug? XOOPS_TRUST_PATH . '/cache/elfinder.log.txt' : '');
+
+	// HTTP request header origin
+	$origin = isset($_SERVER['HTTP_ORIGIN'])? $_SERVER['HTTP_ORIGIN'] : '';
+	if ($origin && $origin === $xoops_elFinder->getMyOrigin()) {
+		$origin = '';
+	}
+
 	$allowOrigins = array_map('trim', preg_split('/\s+/', $config['allow_origins']));
 	$allowOrigins[] = preg_replace('#(^https?://[^/]+).*#i', '$1', XOOPS_URL);
 	$allowOrigins = array_flip($allowOrigins);
+
+	// Check cToken for protect from CSRF
+	if (! isset($_SESSION['XELFINDER_CTOKEN'])
+	|| ! isset($_REQUEST['ctoken'])
+	|| $_SESSION['XELFINDER_CTOKEN'] !== $_REQUEST['ctoken']) {
+		($origin && isset($allowOrigins[$origin]))
+		|| isset($_GET['logout'])
+		|| (isset($_GET['cmd']) && ($_GET['cmd'] === 'callback' || $_GET['cmd'] === 'netmount'))
+		|| (isset($_REQUEST['cmd']) && $_REQUEST['cmd'] === 'file')
+		|| exit(json_encode(array('error' => 'errPleaseReload')));
+		if ($origin && $_REQUEST['ctoken'] && ! isset($_SESSION['XELFINDER_CTOKEN'])) {
+			$_SESSION['XELFINDER_CTOKEN'] = $_REQUEST['ctoken'];
+		}
+	}
 
 	define('_MD_XELFINDER_NETVOLUME_SESSION_KEY', 'xel_'.$mydirname.'_NetVolumes');
 
@@ -179,11 +192,11 @@ try {
 		define('ELFINDER_ONEDRIVE_CLIENTSECRET', $config['onedriveapi_secret']);
 	}
 
-	// load xoops_elFinder
+	/*// load xoops_elFinder
 	require_once dirname(__FILE__).'/class/xoops_elFinder.class.php';
 	$xoops_elFinder = new xoops_elFinder($mydirname);
 	$xoops_elFinder->setConfig($config);
-	$xoops_elFinder->setLogfile($debug? XOOPS_TRUST_PATH . '/cache/elfinder.log.txt' : '');
+	$xoops_elFinder->setLogfile($debug? XOOPS_TRUST_PATH . '/cache/elfinder.log.txt' : '');*/
 
 	// Access control
 	require_once dirname(__FILE__).'/class/xelFinderAccess.class.php';
@@ -202,6 +215,9 @@ try {
 			'netvolume' => _MD_XELFINDER_NETVOLUME_SESSION_KEY
 		)
 	));
+	
+	// Check command login/logout/status
+	$xoops_elFinder->checkLogin($session);
 	
 	// set netmount data to session
 	$netVolumeData = null;
