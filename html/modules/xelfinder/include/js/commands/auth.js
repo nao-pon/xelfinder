@@ -168,6 +168,7 @@ elFinder.prototype.commands.login = function() {
 }
 elFinder.prototype._options.commands.push('login');
 elFinder.prototype._options.uiOptions.toolbar.push(['login']);
+elFinder.prototype.i18.en.messages.cmdlogin = 'Login/Logout';
 elFinder.prototype.i18.en.messages.login = 'Login';
 elFinder.prototype.i18.en.messages.logout = '$1: Logout';
 elFinder.prototype.i18.en.messages.username = 'UserName';
