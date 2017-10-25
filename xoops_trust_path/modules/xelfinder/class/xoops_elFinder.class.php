@@ -122,6 +122,8 @@ class xoops_elFinder {
 				$uname = $this->getUname();
 				echo json_encode(array('uname' => $uname));
 			} else {
+				$config_handler = xoops_gethandler('config');
+				$xoopsConfig = $config_handler->getConfigsByCat(XOOPS_CONF);
 				$session->start();
 				$data = array('uname' => '');
 				if (isset($_GET['logout'])) {
@@ -133,18 +135,23 @@ class xoops_elFinder {
 					$this->uid = 0;
 				} else {
 					$data = array();
-					if ($this->login($session)) {
+					if ($this->login($session, $xoopsConfig)) {
 						$data['uname'] = $this->getUname();
 					} else {
 						$data['error'] = 'loginFaild';
 					}
 				}
 				if (empty($data['error'])) {
+					session_regenerate_id();
 					$data['xoopsUid'] = $this->getUid();
 					$data['autoSyncSec'] = $this->getAutoSyncSec();
 					$data['cToken'] = $this->getCToken();
+					// care to old xoops
+					if ($xoopsConfig['use_mysession'] && $xoopsConfig['session_name'] && session_name() !== $xoopsConfig['session_name']) {
+						setcookie($xoopsConfig['session_name'], session_id(), time()+(60 * $xoopsConfig['session_expire']), rtrim($urlInfo['path'], '/').'/', '', 0);
+					}
 				}
-				session_write_close();
+				$session->close();
 				echo json_encode($data);
 			}
 			exit();
@@ -786,15 +793,13 @@ EOD;
 		);
 	}
 	
-	protected function login($session) {
+	protected function login($session, $xoopsConfig) {
 		$uname = isset($_POST['uname'])? $_POST['uname'] : '';
 		$pass = isset($_POST['pass'])? $_POST['pass'] : '';
 		if (strtoupper(_CHARSET) !== 'UTF-8') {
 			$uname = mb_convert_encoding($uname, _CHARSET, 'UTF-8');
 		}
 
-		$config_handler = xoops_gethandler('config');
-		$xoopsConfig = $config_handler->getConfigsByCat(XOOPS_CONF);
 		$member_handler = xoops_gethandler('member');
 		$myts = method_exists('MyTextsanitizer', 'sGetInstance')? MyTextsanitizer::sGetInstance() : MyTextsanitizer::getInstance();
 		$user = $member_handler->loginUser(addslashes($myts->stripSlashesGPC($uname)), addslashes($myts->stripSlashesGPC($pass)));
@@ -816,16 +821,7 @@ EOD;
 					return false;
 				}
 			}
-			// care to old xoops
-			if ($xoopsConfig['use_mysession'] && session_name() !== $xoopsConfig['session_name']) {
-				$session->close();
-				$urlInfo = parse_url(XOOPS_URL);
-				session_name($xoopsConfig['session_name']);
-				session_set_cookie_params(60 * $xoopsConfig['session_expire'], '/'.trim($urlInfo['path'], '/').'/');
-				$session->start();
-			}
 			// reset session
-			session_regenerate_id();
 			$this->destroySessionVar();
 			// set login status
 			$user->setVar('last_login', time());
