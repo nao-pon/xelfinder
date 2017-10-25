@@ -166,13 +166,16 @@ elFinder.prototype.commands.login = function() {
 		}
 	};
 }
-elFinder.prototype._options.commands.push('login');
-elFinder.prototype._options.uiOptions.toolbar.push(['login']);
-elFinder.prototype.i18.en.messages.cmdlogin = 'Login/Logout';
-elFinder.prototype.i18.en.messages.login = 'Login';
-elFinder.prototype.i18.en.messages.logout = '$1: Logout';
-elFinder.prototype.i18.en.messages.username = 'UserName';
-elFinder.prototype.i18.en.messages.password = 'Password';
+var _opts = elFinder.prototype._options;
+var _msgs = elFinder.prototype.i18.en.messages;
+_opts.commands.push('login');
+_opts.uiOptions.toolbar.push(['login']);
+_msgs.cmdlogin = 'Login/Logout';
+_msgs.login = 'Login';
+_msgs.logout = '$1: Logout';
+_msgs.username = 'UserName';
+_msgs.password = 'Password';
+_msgs.loginFaild = 'Login Faild.';
 
 } catch(e) {}
 }));

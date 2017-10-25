@@ -85,6 +85,7 @@ $(document).ready(function() {
 					mes_jp.logout   = '$1: ログアウト';
 					mes_jp.username = 'ユーザー名';
 					mes_jp.password = 'パスワード';
+					mes_jp.loginFaild = 'ログインできません。';
 				}
 			}
 		},
