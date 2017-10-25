@@ -817,7 +817,7 @@ EOD;
 				}
 			}
 			// care to old xoops
-			if (session_name() !== $xoopsConfig['session_name']) {
+			if ($xoopsConfig['use_mysession'] && session_name() !== $xoopsConfig['session_name']) {
 				$session->close();
 				$urlInfo = parse_url(XOOPS_URL);
 				session_name($xoopsConfig['session_name']);
