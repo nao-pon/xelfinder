@@ -283,7 +283,9 @@ elFinder.prototype._options = {
 			dockAutoplay : false,
 			// MIME types to use Google Docs online viewer
 			// Example ['application/pdf', 'image/tiff', 'application/vnd.ms-office', 'application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
-			googleDocsMimes : []
+			googleDocsMimes : [],
+			// File size (byte) threshold when using the dim command for obtain the image size necessary to image preview
+			getDimThreshold : 200000
 		},
 		// "quicklook" command options.
 		edit : {
@@ -469,7 +471,11 @@ elFinder.prototype._options = {
 			// defalt status of snap to 8px grid of the jpeg image ("enable" or "disable")
 			grid8px : 'enable',
 			// Preset size array [width, height]
-			presetSize : [[320, 240], [400, 400], [640, 480], [800,600]]
+			presetSize : [[320, 240], [400, 400], [640, 480], [800,600]],
+			// File size (bytes) threshold when using the `dim` command for obtain the image size necessary to start editing
+			getDimThreshold : 204800,
+			// File size (bytes) to request to get substitute image (400px) with the `dim` command
+			dimSubImgSize : 307200
 		},
 		rm: {
 			// If trash is valid, items moves immediately to the trash holder without confirm.
@@ -697,6 +703,10 @@ elFinder.prototype._options = {
 		path : {
 			// Move to head of work zone without UI navbar
 			toWorkzoneWithoutNavbar : true
+		},
+		dialog : {
+			// Enable to auto focusing on mouse over in the target form element
+			focusOnMouseOver : true
 		}
 	},
 

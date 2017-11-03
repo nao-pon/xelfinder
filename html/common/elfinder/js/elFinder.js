@@ -88,7 +88,7 @@ var elFinder = function(node, opts, bootCallback) {
 		enabled = true,
 		
 		/**
-		 * Store enabled value before ajax requiest
+		 * Store enabled value before ajax request
 		 *
 		 * @type Boolean
 		 **/
@@ -817,13 +817,22 @@ var elFinder = function(node, opts, bootCallback) {
 			Object.assign(this.options.uiOptions.toolbarExtra, opts.uiOptions.toolbarExtra);
 		}
 	
-		if (opts.uiOptions.cwd && opts.uiOptions.cwd.listView) {
-			if (opts.uiOptions.cwd.listView.columns) {
-				this.options.uiOptions.cwd.listView.columns = opts.uiOptions.cwd.listView.columns;
+		if (opts.uiOptions.cwd) {
+			if (opts.uiOptions.cwd.listView) {
+				if (opts.uiOptions.cwd.listView.columns) {
+					this.options.uiOptions.cwd.listView.columns = opts.uiOptions.cwd.listView.columns;
+				}
+				if (opts.uiOptions.cwd.listView.columnsCustomName) {
+					this.options.uiOptions.cwd.listView.columnsCustomName = opts.uiOptions.cwd.listView.columnsCustomName;
+				}
 			}
-			if (opts.uiOptions.cwd.listView.columnsCustomName) {
-				this.options.uiOptions.cwd.listView.columnsCustomName = opts.uiOptions.cwd.listView.columnsCustomName;
+			if (opts.uiOptions.cwd.showSelectCheckboxUA) {
+				this.options.uiOptions.cwd.showSelectCheckboxUA = opts.uiOptions.cwd.showSelectCheckboxUA;
 			}
+		}
+		
+		if (opts.uiOptions.navbar && opts.uiOptions.navbar.autoHideUA) {
+			this.options.uiOptions.navbar.autoHideUA = opts.uiOptions.navbar.autoHideUA;
 		}
 	}
 	// join toolbarExtra to toolbar
@@ -1732,7 +1741,7 @@ var elFinder = function(node, opts, bootCallback) {
 	};
 	
 	/**
-	 * Proccess ajax request.
+	 * Process ajax request.
 	 * Fired events :
 	 * @todo
 	 * @example
