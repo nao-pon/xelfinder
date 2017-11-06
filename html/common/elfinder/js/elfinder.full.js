@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.29 (2.1 Nightly: 9a55508) (2017-11-03)
+ * Version 2.1.29 (2.1 Nightly: a3c6232) (2017-11-06)
  * http://elfinder.org
  * 
  * Copyright 2009-2017, Studio 42
@@ -2959,7 +2959,6 @@ var elFinder = function(node, opts, bootCallback) {
 
 		if (heightBase && heightBase.data('resizeTm')) {
 			clearTimeout(heightBase.data('resizeTm'));
-		//	heightBase.off('resize.' + self.namespace, fitToBase);
 		}
 		
 		if (typeof h === 'string') {
@@ -2977,12 +2976,16 @@ var elFinder = function(node, opts, bootCallback) {
 						e.preventDefault();
 						e.stopPropagation();
 						tm && clearTimeout(tm);
-						if (! node.hasClass('elfinder-fullscreen')) {
+						if (! node.hasClass('elfinder-fullscreen') && (!self.UA.Mobile || heightBase.data('rotated') !== self.UA.Rotated)) {
+							heightBase.data('rotated', self.UA.Rotated);
 							heightBase.data('resizeTm', setTimeout(function() {
 								self.restoreSize();
 							}, 50));
 						}
 					});
+				}
+				if (typeof heightBase.data('rotated') === 'undefined') {
+					heightBase.data('rotated', self.UA.Rotated);
 				}
 				h = heightBase.height() * (mt[1] / 100) - heightBase.data('marginToMyNode');
 				
@@ -4789,31 +4792,48 @@ elFinder.prototype = {
 	 * @type Object
 	 **/
 	UA : (function(){
-		var webkit = !document.uniqueID && !window.opera && !window.sidebar && window.localStorage && 'WebkitAppearance' in document.documentElement.style;
-		return {
-			// Browser IE <= IE 6
-			ltIE6   : typeof window.addEventListener == "undefined" && typeof document.documentElement.style.maxHeight == "undefined",
-			// Browser IE <= IE 7
-			ltIE7   : typeof window.addEventListener == "undefined" && typeof document.querySelectorAll == "undefined",
-			// Browser IE <= IE 8
-			ltIE8   : typeof window.addEventListener == "undefined" && typeof document.getElementsByClassName == "undefined",
-			// Browser IE <= IE 9
-			ltIE9  : document.uniqueID && document.documentMode <= 9,
-			// Browser IE <= IE 10
-			ltIE10  : document.uniqueID && document.documentMode <= 10,
-			// Browser IE >= IE 11
-			gtIE11  : document.uniqueID && document.documentMode >= 11,
-			IE      : document.uniqueID,
-			Firefox : window.sidebar,
-			Opera   : window.opera,
-			Webkit  : webkit,
-			Chrome  : webkit && window.chrome,
-			Safari  : webkit && !window.chrome,
-			Mobile  : typeof window.orientation != "undefined",
-			Touch   : typeof window.ontouchstart != "undefined",
-			iOS     : navigator.platform.match(/^iP(?:[ao]d|hone)/),
-			Fullscreen : (typeof (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen) !== 'undefined')
-		};
+		var webkit = !document.unqueID && !window.opera && !window.sidebar && window.localStorage && 'WebkitAppearance' in document.documentElement.style,
+			angle = function() {
+				var a = ((screen && screen.orientation && screen.orientation.angle) || window.orientation || 0) + 0;
+				if (a === -90) {
+					a = 270;
+				}
+				return a;
+			},
+			isRotated = function() {
+				return angle() % 180 === 0? false : true;
+			},
+			UA = {
+				// Browser IE <= IE 6
+				ltIE6   : typeof window.addEventListener == "undefined" && typeof document.documentElement.style.maxHeight == "undefined",
+				// Browser IE <= IE 7
+				ltIE7   : typeof window.addEventListener == "undefined" && typeof document.querySelectorAll == "undefined",
+				// Browser IE <= IE 8
+				ltIE8   : typeof window.addEventListener == "undefined" && typeof document.getElementsByClassName == "undefined",
+				// Browser IE <= IE 9
+				ltIE9  : document.uniqueID && document.documentMode <= 9,
+				// Browser IE <= IE 10
+				ltIE10  : document.uniqueID && document.documentMode <= 10,
+				// Browser IE >= IE 11
+				gtIE11  : document.uniqueID && document.documentMode >= 11,
+				IE      : document.uniqueID,
+				Firefox : window.sidebar,
+				Opera   : window.opera,
+				Webkit  : webkit,
+				Chrome  : webkit && window.chrome,
+				Safari  : webkit && !window.chrome,
+				Mobile  : typeof window.orientation != "undefined",
+				Touch   : typeof window.ontouchstart != "undefined",
+				iOS     : navigator.platform.match(/^iP(?:[ao]d|hone)/),
+				Fullscreen : (typeof (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen) !== 'undefined'),
+				Angle   : angle(),
+				Rotated : isRotated()
+			};
+		
+		$(window).on('orientationchange', function() {
+			UA.Rotated = isRotated();
+		});
+		return UA;
 	})(),
 	
 	/**
@@ -8683,7 +8703,7 @@ if (!String.prototype.repeat) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.29 (2.1 Nightly: 9a55508)';
+elFinder.prototype.version = '2.1.29 (2.1 Nightly: a3c6232)';
 
 
 
@@ -9492,7 +9512,7 @@ elFinder.prototype._options = {
 		},
 		resize: {
 			// defalt status of snap to 8px grid of the jpeg image ("enable" or "disable")
-			grid8px : 'enable',
+			grid8px : 'disable',
 			// Preset size array [width, height]
 			presetSize : [[320, 240], [400, 400], [640, 480], [800,600]],
 			// File size (bytes) threshold when using the `dim` command for obtain the image size necessary to start editing
@@ -10756,18 +10776,27 @@ elFinder.prototype.resources = {
 				nnode, pnode,
 				overlay = fm.getUI('overlay'),
 				cleanup = function() {
-					fm.unselectfiles({files : [id]}).unbind('resize', resize);
-					input.remove();
-					if (tree) {
-						node.closest('.elfinder-navbar-wrapper').remove();
+					if (node && node.length) {
+						input.off();
+						node.hide();
+						fm.unselectfiles({files : [id]}).unbind('resize', resize);
+						setTimeout(function() {
+							if (tree) {
+								node.closest('.elfinder-navbar-wrapper').remove();
+							} else {
+								node.remove();
+							}
+						}, 0);
 					}
-					node.remove();
 				},
 				cancel = function(e) { 
 					if (! inError) {
 						cleanup();
-						e.stopPropagation();
 						dfrd.reject();
+						if (e) {
+							e.stopPropagation();
+							e.preventDefault();
+						}
 					}
 				},
 				input = $(tarea? '<textarea/>' : '<input type="text"/>')
@@ -10802,6 +10831,9 @@ elFinder.prototype.resources = {
 							valid  = true,
 							cut;
 
+						if (name === '') {
+							return cancel();
+						}
 						if (!inError && parent.length) {
 
 							if (fm.options.validName && fm.options.validName.test) {
@@ -10848,7 +10880,6 @@ elFinder.prototype.resources = {
 										fm.error(error, {modal: true, close: select});
 									})
 									.done(function(data) {
-										dfrd.resolve(data);
 										if (data && data.added && data.added[0]) {
 											var item    = data.added[0],
 												dirhash = item.hash,
@@ -10873,6 +10904,7 @@ elFinder.prototype.resources = {
 												});
 											}
 										}
+										dfrd.resolve(data);
 									});
 							})
 							.fail(function() {
@@ -10882,12 +10914,12 @@ elFinder.prototype.resources = {
 					}),
 				select = function() {
 					var name = input.val().replace(/\.((tar\.(gz|bz|bz2|z|lzo))|cpio\.gz|ps\.gz|xcf\.(gz|bz2)|[a-z0-9]{1,4})$/ig, '');
-					if (!inError && fm.UA.Mobile) {
+					if (!inError && fm.UA.Mobile && !fm.UA.iOS) { // since iOS has a bug? so disable it
 						overlay.on('click', cancel)
 							.removeClass('ui-front').elfinderoverlay('show');
 					}
 					inError = false;
-					input.select().focus();
+					input.css('z-index', overlay.css('z-index')).focus().select();
 					input[0].setSelectionRange && input[0].setSelectionRange(0, name.length);
 				},
 				resize = function() {
@@ -10907,6 +10939,11 @@ elFinder.prototype.resources = {
 
 			if ($.isPlainObject(self.nextAction)){
 				nextAction = Object.assign({}, self.nextAction);
+			}
+			
+			if (fm.UA.iOS) {
+				// prevent auto zoom
+				input.css('font-size', '16px');
 			}
 			
 			if (tree) {
@@ -10942,7 +10979,7 @@ elFinder.prototype.resources = {
 					pnode.width(colwidth - 15)
 						.parent('td').css('overflow', 'visible');
 				}
-				nnode.empty('').append(input.val(file.name));
+				nnode.empty().append(input.val(file.name));
 			}
 			
 			fm.bind('resize', resize).one('open', openCallback);
@@ -12640,7 +12677,7 @@ $.fn.elfindercwd = function(fm, options) {
 			 */
 			addBadgeStyle = function(mime, name) {
 				var sel, ext, type;
-				if (! addedBadges[mime]) {
+				if (mime && ! addedBadges[mime]) {
 					if (typeof addBadgeStyleSheet === 'undefined') {
 						if ($('#elfinderAddBadgeStyle'+fm.namespace).length) {
 							$('#elfinderAddBadgeStyle'+fm.namespace).remove();
@@ -15078,6 +15115,14 @@ $.fn.elfinderdialog = function(opts, fm) {
 			btnWidth   = 0,
 			btnCnt     = 0,
 			tabstops   = $(),
+			numberToTel = function() {
+				if (opts.optimizeNumber) {
+					dialog.find('input[type=number]').each(function() {
+						$(this).attr('inputmode', 'numeric');
+						$(this).attr('pattern', '[0-9]*');
+					});
+				}
+			},
 			tabstopsInit = function() {
 				tabstops = dialog.find('.'+cltabstop);
 				if (tabstops.length) {
@@ -15391,11 +15436,21 @@ $.fn.elfinderdialog = function(opts, fm) {
 				})
 				.on('posinit', function() {
 					var css = opts.position,
-						nodeOffset, minTop, minLeft, outerSize, win, winSize;
+						nodeOffset, minTop, minLeft, outerSize, win, winSize, nodeFull;
 					if (dialog.hasClass('elfinder-maximized')) {
 						return;
 					}
 					if (! css && ! dialog.data('resizing')) {
+						nodeFull = elfNode.hasClass('elfinder-fullscreen');
+						dialog.css(nodeFull? {
+							'max-width'  : '100%',
+							'max-height' : '100%',
+							'overflow'   : 'auto'
+						} : restoreStyle);
+						if (fm.UA.Mobile && !nodeFull && rotated === fm.UA.Rotated) {
+							return;
+						}
+						rotated = fm.UA.Rotated;
 						win = $(window);
 						nodeOffset = elfNode.offset();
 						outerSize = {
@@ -15413,7 +15468,7 @@ $.fn.elfinderdialog = function(opts, fm) {
 						winSize.right = winSize.scrLeft + winSize.width;
 						winSize.bottom = winSize.scrTop + winSize.height;
 						
-						if (fm.options.dialogContained) {
+						if (fm.options.dialogContained || nodeFull) {
 							minTop = 0;
 							minLeft = 0;
 						} else {
@@ -15526,7 +15581,7 @@ $.fn.elfinderdialog = function(opts, fm) {
 					dialog.css('left', Math.max(Math.min(Math.max(pos.left, 0), node.width() - 200), 0));
 				}
 			},
-			maxSize;
+			maxSize, rotated, restoreStyle;
 		
 		dialog.prepend(titlebar);
 
@@ -15575,6 +15630,12 @@ $.fn.elfinderdialog = function(opts, fm) {
 			dialog.css(maxSize);
 		}
 		
+		restoreStyle = {
+			'max-width'  : dialog.css('max-width'),
+			'max-height' : dialog.css('max-height'),
+			'overflow'   : dialog.css('overflow')
+		};
+		
 		dialog.trigger('posinit').data('margin-y', self.outerHeight(true) - self.height());
 		
 		if (opts.resizable) {
@@ -15601,7 +15662,9 @@ $.fn.elfinderdialog = function(opts, fm) {
 		} 
 		
 		typeof(opts.create) == 'function' && $.proxy(opts.create, this)();
-			
+		
+		numberToTel();
+		
 		tabstopsInit();
 		
 		opts.autoOpen && self.elfinderdialog('open');
@@ -15632,7 +15695,8 @@ $.fn.elfinderdialog.defaults = {
 	allowMinimize : 'auto',
 	allowMaximize : false,
 	headerBtnPos : 'auto',
-	headerBtnOrder : 'auto'
+	headerBtnOrder : 'auto',
+	optimizeNumber : true
 };
 
 
@@ -25405,7 +25469,7 @@ elFinder.prototype.commands.rename = function() {
 			type     = opts._currentType? opts._currentType : (incwd? 'navbar' : 'files'),
 			navbar   = (type === 'navbar'),
 			target   = $('#'+fm[navbar? 'navHash2Id' : 'cwdHash2Id'](file.hash)),
-			tarea    = (type === 'files' && fm.storage('view') != 'list'),
+			tarea    = (type !== 'navbar' && fm.storage('view') != 'list'),
 			unselect = function() {
 				setTimeout(function() {
 					input && input.blur();
@@ -25432,24 +25496,25 @@ elFinder.prototype.commands.rename = function() {
 					var parent = input.parent(),
 						name   = fm.escape(file.i18 || file.name);
 
+					input.off();
 					if (tarea) {
 						name = name.replace(/([_.])/g, '&#8203;$1');
 					}
-					if (navbar) {
-						input.replaceWith(name);
-					} else {
-						if (parent.length) {
-							input.remove();
-							parent.html(name);
+					setTimeout(function() {
+						if (navbar) {
+							input.replaceWith(name);
 						} else {
-							//cwd.find('#'+fm.cwdHash2Id(file.hash)).find(filename).html(name);
-							target.find(filename).html(name);
-							setTimeout(function() {
-								cwd.find('#'+fm.cwdHash2Id(file.hash)).click();
-							}, 50);
+							if (parent.length) {
+								input.remove();
+								parent.html(name);
+							} else {
+								target.find(filename).html(name);
+								setTimeout(function() {
+									cwd.find('#'+fm.cwdHash2Id(file.hash)).click();
+								}, 50);
+							}
 						}
-					}
-					
+					}, 0);
 					error && fm.error(error);
 				})
 				.always(function() {
@@ -25457,18 +25522,17 @@ elFinder.prototype.commands.rename = function() {
 					fm.unbind('resize', resize);
 					fm.enable();
 				}),
-			blur = function() {
+			blur = function(e) {
 				var name   = $.trim(input.val()),
-				parent = input.parent(),
 				valid  = true;
 
+				if (name === '') {
+					return cancel();
+				}
 				if (!inError && pnode.length) {
 					
 					input.off('blur');
 					
-					if (input[0].setSelectionRange) {
-						input[0].setSelectionRange(0, 0)
-					}
 					if (name == file.name) {
 						return dfrd.reject();
 					}
@@ -25490,6 +25554,7 @@ elFinder.prototype.commands.rename = function() {
 						return false;
 					}
 					
+					input.off();
 					rest();
 					
 					(navbar? input : node).html(fm.escape(name));
@@ -25532,7 +25597,7 @@ elFinder.prototype.commands.rename = function() {
 							}
 						})
 						.always(function() {
-							fm.unlockfiles({files : [file.hash]})
+							fm.unlockfiles({files : [file.hash]});
 						});
 				}
 			},
@@ -25566,7 +25631,7 @@ elFinder.prototype.commands.rename = function() {
 				.on('blur', blur),
 			select = function() {
 				var name = input.val().replace(/\.((tar\.(gz|bz|bz2|z|lzo))|cpio\.gz|ps\.gz|xcf\.(gz|bz2)|[a-z0-9]{1,4})$/ig, '');
-				if (!inError && fm.UA.Mobile) {
+				if (!inError && fm.UA.Mobile && !fm.UA.iOS) { // since iOS has a bug? so disable it
 					overlay.on('click', cancel)
 						.removeClass('ui-front').elfinderoverlay('show');
 				}
@@ -25574,7 +25639,7 @@ elFinder.prototype.commands.rename = function() {
 					inError = false;
 					input.on('blur', blur);
 				}
-				input.select().focus();
+				input.focus().select();
 				input[0].setSelectionRange && input[0].setSelectionRange(0, name.length);
 			},
 			node = navbar? target.contents().filter(function(){ return this.nodeType==3 && $(this).parent().attr('id') === fm.navHash2Id(file.hash); })
@@ -25583,14 +25648,22 @@ elFinder.prototype.commands.rename = function() {
 			overlay = fm.getUI('overlay'),
 			cancel = function(e) { 
 				if (! inError) {
-					e.stopPropagation();
 					dfrd.reject();
+					if (e) {
+						e.stopPropagation();
+						e.preventDefault();
+					}
 				}
 			},
 			resize = function() {
 				target.trigger('scrolltoview');
 			},
 			inError = false;
+		
+		if (fm.UA.iOS) {
+			// prevent auto zoom
+			input.css('font-size', '16px');
+		}
 		
 		pnode.addClass('ui-front')
 			.css('position', 'relative')
@@ -25814,8 +25887,10 @@ elFinder.prototype.commands.resize = function() {
 						}),
 					preview  = $('<div class="elfinder-resize-preview"/>')
 						.on('touchmove', function(e) {
-							e.stopPropagation();
-							e.preventDefault();
+							if ($(e.target).hasClass('touch-punch')) {
+								e.stopPropagation();
+								e.preventDefault();
+							}
 						}),
 					spinner  = $('<div class="elfinder-resize-spinner">'+fm.i18n('ntfloadimg')+'</div>'),
 					rhandle  = $('<div class="elfinder-resize-handle touch-punch"/>'),
@@ -25872,22 +25947,24 @@ elFinder.prototype.commands.resize = function() {
 						}),
 					width   = $(input)
 						.on('change', function() {
-							var w = parseInt(width.val()),
-								h = parseInt(cratio ? Math.round(w/ratio) : height.val());
+							var w = round(parseInt(width.val())),
+								h = round(cratio ? w/ratio : parseInt(height.val()));
 
 							if (w > 0 && h > 0) {
 								resize.updateView(w, h);
+								width.val(w);
 								height.val(h);
 							}
 						}),
 					height  = $(input)
 						.on('change', function() {
-							var h = parseInt(height.val()),
-								w = parseInt(cratio ? Math.round(h*ratio) : width.val());
+							var h = round(parseInt(height.val())),
+								w = round(cratio ? h*ratio : parseInt(width.val()));
 
 							if (w > 0 && h > 0) {
 								resize.updateView(w, h);
 								width.val(w);
+								height.val(h);
 							}
 						}),
 					pointX  = $(input).change(function(){crop.updateView();}),
@@ -26051,21 +26128,28 @@ elFinder.prototype.commands.resize = function() {
 						.on('click', function() {
 							grid8 = ! grid8;
 							grid8px.html(fm.i18n(grid8? 'enabled' : 'disabled')).toggleClass('ui-state-active', grid8);
-							if (grid8) {
-								width.val(round(width.val()));
-								height.val(round(height.val()));
-								offsetX.val(round(offsetX.val()));
-								offsetY.val(round(offsetY.val()));
-								pointX.val(round(pointX.val()));
-								pointY.val(round(pointY.val()));
-								if (uiresize.is(':visible')) {
-									resize.updateView(width.val(), height.val());
-								} else if (uicrop.is(':visible')) {
-									crop.updateView();
-								}
-							}
+							setStep8();
 						})
 						.button(),
+					setStep8 = function() {
+						var step = grid8? 8 : 1;
+						$.each([width, height, offsetX, offsetY, pointX, pointY], function() {
+							this.attr('step', step);
+						});
+						if (grid8) {
+							width.val(round(width.val()));
+							height.val(round(height.val()));
+							offsetX.val(round(offsetX.val()));
+							offsetY.val(round(offsetY.val()));
+							pointX.val(round(pointX.val()));
+							pointY.val(round(pointY.val()));
+							if (uiresize.is(':visible')) {
+								resize.updateView(width.val(), height.val());
+							} else if (uicrop.is(':visible')) {
+								crop.updateView();
+							}
+						}
+					},
 					setuprimg = function() {
 						var r_scale,
 							fail = function() {
@@ -26226,6 +26310,7 @@ elFinder.prototype.commands.resize = function() {
 								w = btn.data('s')[0],
 								h = btn.data('s')[1],
 								r = owidth / oheight;
+							btn.data('s', [h, w]).text(h + 'x' + w);
 							if (owidth > w || oheight > h) {
 								if (owidth <= w) {
 									w = round(h * r);
@@ -26254,6 +26339,7 @@ elFinder.prototype.commands.resize = function() {
 								x = pointX.val(),
 								y = pointY.val();
 							
+							btn.data('s', [h, w]).text(h + 'x' + w);
 							if (owidth >= w && oheight >= h) {
 								if (owidth - w - x < 0) {
 									x = owidth - w;
@@ -26401,7 +26487,8 @@ elFinder.prototype.commands.resize = function() {
 								}
 							})
 							.filter(':first');
-							
+						
+						setStep8();
 						!fm.UA.Mobile && inputFirst.focus();
 						resizable();
 					},
@@ -26444,13 +26531,13 @@ elFinder.prototype.commands.resize = function() {
 							if (w > pwidth || h > pheight) {
 								if (w / pwidth > h / pheight) {
 									prop = pwidth / w;
-									img.width(pwidth).height(Math.ceil(h*prop));
+									img.width(pwidth).height(round(h*prop));
 								} else {
 									prop = pheight / h;
-									img.height(pheight).width(Math.ceil(w*prop));
+									img.height(pheight).width(round(w*prop));
 								}
 							} else {
-								img.width(w).height(h);
+								img.width(round(w)).height(round(h));
 							}
 							
 							prop = img.width()/w;
@@ -26560,8 +26647,9 @@ elFinder.prototype.commands.resize = function() {
 							if ( !rotate.imageBeingRotated ) return;
 							
 							var imageCentre = rotate.getCenter( imgr );
-							var mouseXFromCentre = e.pageX - imageCentre[0];
-							var mouseYFromCentre = e.pageY - imageCentre[1];
+							var ev = e.originalEvent.touches? e.originalEvent.touches[0] : e;
+							var mouseXFromCentre = ev.pageX - imageCentre[0];
+							var mouseYFromCentre = ev.pageY - imageCentre[1];
 							var mouseAngle = Math.atan2( mouseYFromCentre, mouseXFromCentre );
 							
 							var rotateAngle = mouseAngle - rotate.mouseStartAngle + rotate.imageStartAngle;
@@ -26587,17 +26675,23 @@ elFinder.prototype.commands.resize = function() {
 						},
 						
 						start : function ( e ) {
+							if (imgr.hasClass('elfinder-resize-picking')) {
+								return;
+							}
+							
 							opStart();
 							rotate.imageBeingRotated = true;
 							
 							var imageCentre = rotate.getCenter( imgr );
-							var mouseStartXFromCentre = e.pageX - imageCentre[0];
-							var mouseStartYFromCentre = e.pageY - imageCentre[1];
+							var ev = e.originalEvent.touches? e.originalEvent.touches[0] : e;
+							var mouseStartXFromCentre = ev.pageX - imageCentre[0];
+							var mouseStartYFromCentre = ev.pageY - imageCentre[1];
 							rotate.mouseStartAngle = Math.atan2( mouseStartYFromCentre, mouseStartXFromCentre );
 							
 							rotate.imageStartAngle = parseFloat(imgr.rotate()) * Math.PI / 180.0;
 							
-							$(document).mousemove( rotate.execute );
+							$(document).on('mousemove', rotate.execute);
+							imgr.on('touchmove', rotate.execute);
 							
 							return false;
 						},
@@ -26606,7 +26700,8 @@ elFinder.prototype.commands.resize = function() {
 							
 							if ( !rotate.imageBeingRotated ) return;
 							
-							$(document).unbind( 'mousemove' , rotate.execute);
+							$(document).off('mousemove', rotate.execute);
+							imgr.off('touchmove', rotate.execute);
 							
 							setTimeout( function() { rotate.imageBeingRotated = false; }, 10 );
 							opStop();
@@ -26642,6 +26737,7 @@ elFinder.prototype.commands.resize = function() {
 								start       : opStart,
 								stop        : function(e) {
 									resize.fixHeight;
+									resize.updateView(width.val(), height.val());
 									opStop();
 								}
 							});
@@ -26807,7 +26903,7 @@ elFinder.prototype.commands.resize = function() {
 						if (checkVals()) {
 							dialogs = fmnode.children('.'+dlcls).fadeOut();
 							base.removeClass(clactive);
-								
+							fm.enable();
 							if (fm.searchStatus.state < 2 && file.phash !== fm.cwd().hash) {
 								reqOpen = fm.exec('open', [file.phash], {thash: file.phash});
 							}
@@ -26835,8 +26931,8 @@ elFinder.prototype.commands.resize = function() {
 					jpgCalc = function() {
 						control.find('input.elfinder-resize-quality:visible').trigger('change');
 					},
-					dinit   = function() {
-						if (base.hasClass('elfinder-dialog-minimized')) {
+					dinit   = function(e) {
+						if (base.hasClass('elfinder-dialog-minimized') || base.is(':hidden')) {
 							return;
 						}
 						
@@ -26925,9 +27021,6 @@ elFinder.prototype.commands.resize = function() {
 					useSaveAs = fm.uploadMimeCheck(file.mime, file.phash),
 					dMinBtn, base;
 				
-				imgr.mousedown( rotate.start );
-				$(document).mouseup( rotate.stop );
-					
 				uiresize.append(
 					$(row).append($(label).text(fm.i18n('width')), width),
 					$(row).append($(label).text(fm.i18n('height')), height, $('<div class="elfinder-resize-whctrls">').append(constr, reset)),
@@ -27040,6 +27133,11 @@ elFinder.prototype.commands.resize = function() {
 						img.attr('src', src);
 						imgc.attr('src', src);
 						imgr.attr('src', src);
+						if (api2) {
+							imgr.on('mousedown touchstart', rotate.start)
+								.on('touchend', rotate.stop);
+							$(document).on('mouseup', rotate.stop);
+						}
 						if (hasSize && !substituteImg) {
 							return init();
 						}
@@ -27067,6 +27165,11 @@ elFinder.prototype.commands.resize = function() {
 						}
 					},
 					close          : function() {
+						if (api2) {
+							imgr.off('mousedown touchstart', rotate.start)
+								.off('touchend', rotate.stop);
+							$(document).off('mouseup', rotate.stop);
+						}
 						fm.unbind('resize', dinit);
 						$(this).elfinderdialog('destroy');
 					},
