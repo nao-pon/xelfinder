@@ -680,11 +680,12 @@ $.fn.elfindercwd = function(fm, options) {
 						tgt = tgt.next();
 					},
 					done = function() {
+						var idsArr;
 						if (cwd.data('selectable')) {
 							Object.assign(ids, selectedFiles);
-							ids = Object.keys(ids);
-							if (ids.length) {
-								selectableOption.filter = '#'+ids.join(', #');
+							idsArr = Object.keys(ids);
+							if (idsArr.length) {
+								selectableOption.filter = '#'+idsArr.join(', #');
 								cwd.selectable('enable').selectable('option', {filter : selectableOption.filter}).selectable('refresh');
 							}
 						}
@@ -1281,7 +1282,7 @@ $.fn.elfindercwd = function(fm, options) {
 				if (l > showFiles) {
 					// re-render for performance tune
 					content();
-					selectedFiles = fm.arrayFlip(files, true);
+					selectedFiles = fm.arrayFlip($.map(files, function(f) { return f.hash; }), true);
 					trigger();
 				} else {
 					// add the item immediately

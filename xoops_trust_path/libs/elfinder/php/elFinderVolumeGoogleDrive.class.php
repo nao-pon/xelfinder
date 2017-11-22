@@ -902,8 +902,8 @@ class elFinderVolumeGoogleDrive extends elFinderVolumeDriver
 
             $errors = [];
             if (!$this->service) {
-                if ($this->options['googleApiClient'] && !class_exists('Google_Client')) {
-                    include_once $this->options['googleApiClient'];
+                if (($this->options['googleApiClient'] || defined('ELFINDER_GOOGLEDRIVE_GOOGLEAPICLIENT')) && !class_exists('Google_Client')) {
+                    include_once $this->options['googleApiClient']? $this->options['googleApiClient'] : ELFINDER_GOOGLEDRIVE_GOOGLEAPICLIENT;
                 }
                 if (!class_exists('Google_Client')) {
                     return $this->setError('Class Google_Client not found.');
@@ -989,6 +989,7 @@ class elFinderVolumeGoogleDrive extends elFinderVolumeDriver
 
         if ($this->options['useGoogleTmb']) {
             $this->options['tmbURL'] = 'https://';
+            $this->options['tmbPath'] = '';
         }
 
         return true;

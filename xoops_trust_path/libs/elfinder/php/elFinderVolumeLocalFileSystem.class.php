@@ -570,6 +570,7 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 				$dirItr = new ParentIterator(
 					new RecursiveDirectoryIterator($path,
 						FilesystemIterator::SKIP_DOTS |
+						FilesystemIterator::CURRENT_AS_SELF |
 						(defined('RecursiveDirectoryIterator::FOLLOW_SYMLINKS')?
 							RecursiveDirectoryIterator::FOLLOW_SYMLINKS : 0)
 					)
@@ -1120,6 +1121,21 @@ class elFinderVolumeLocalFileSystem extends elFinderVolumeDriver {
 	 */
 	protected function delTree($localpath) {
 		return $this->rmdirRecursive($localpath);
+	}
+
+	/**
+	 * Return fileinfo based on filename
+	 * For item ID based path file system
+	 * Please override if needed on each drivers
+	 *
+	 * @param  string  $path  file cache
+	 * @return array
+	 */
+	protected function isNameExists($path) {
+		$res = file_exists($this->convEncIn($path));
+		// restore locale
+		$this->convEncOut();
+		return $res;
 	}
 
 	/******************** Over write (Optimized) functions *************************/

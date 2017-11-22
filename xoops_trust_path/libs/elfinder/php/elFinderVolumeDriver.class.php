@@ -277,6 +277,8 @@ abstract class elFinderVolumeDriver {
 			'csv:text/plain'               => 'text/csv',
 			'json:text/plain'              => 'application/json',
 			'sql:text/plain'               => 'text/x-sql',
+			'rtf:text/rtf'                 => 'application/rtf',
+			'rtfd:text/rtfd'               => 'application/rtfd',
 			'ico:image/vnd.microsoft.icon' => 'image/x-icon',
 			'm4a:video/mp4'                => 'audio/mp4',
 			'oga:application/ogg'          => 'audio/ogg',
@@ -287,7 +289,10 @@ abstract class elFinderVolumeDriver {
 			'mpd:application/xml'          => 'application/dash+xml',
 			'xml:application/xml'          => 'text/xml',
 			'*:application/x-dosexec'      => 'application/x-executable',
-			'webp:application/octet-stream'=> 'image/webp'
+			'webp:application/octet-stream'=> 'image/webp',
+			'doc:application/vnd.ms-office'=> 'application/msword',
+			'xls:application/vnd.ms-office'=> 'application/vnd.ms-excel',
+			'ppt:application/vnd.ms-office'=> 'application/vnd.ms-powerpoint'
 		),
 		// An option to add MimeMap to the `mimeMap` option
 		// Array '[ext]:[detected mime type]' => '[normalized mime]'
@@ -605,8 +610,8 @@ abstract class elFinderVolumeDriver {
 		'htm'   => 'text/html',
 		'js'    => 'text/javascript',
 		'css'   => 'text/css',
-		'rtf'   => 'text/rtf',
-		'rtfd'  => 'text/rtfd',
+		'rtf'   => 'application/rtf',
+		'rtfd'  => 'application/rtfd',
 		'py'    => 'text/x-python',
 		'java'  => 'text/x-java-source',
 		'rb'    => 'text/x-ruby',
@@ -2871,18 +2876,17 @@ abstract class elFinderVolumeDriver {
 		if ($result) {
 			$this->rmTmb($file);
 			$this->clearstatcache();
-			$stat = $this->stat($path);
 			$fstat = stat($work_path);
-			$stat['size'] = $fstat['size'];
-			$stat['ts'] = $fstat['mtime'];
-			if ($imgsize = getimagesize($work_path)) {
-				$stat['width'] = $imgsize[0];
-				$stat['height'] = $imgsize[1];
-				$stat['mime'] = $imgsize['mime'];
-			}
+			$imgsize = getimagesize($work_path);
 			if ($path !== $work_path) {
+				$file['size'] = $fstat['size'];
+				$file['ts'] = $fstat['mtime'];
+				if ($imgsize) {
+					$file['width'] = $imgsize[0];
+					$file['height'] = $imgsize[1];
+				}
 				if ($fp = fopen($work_path, 'rb')) {
-					$ret = $this->saveCE($fp, $this->dirnameCE($path), $this->basenameCE($path), $stat);
+					$ret = $this->saveCE($fp, $this->dirnameCE($path), $this->basenameCE($path), $file);
 					fclose($fp);
 				}
 			} else {
@@ -2891,8 +2895,10 @@ abstract class elFinderVolumeDriver {
 			if ($ret) {
 				$this->clearcache();
 				$ret = $this->stat($path);
-				$ret['width'] = $stat['width'];
-				$ret['height'] = $stat['height'];
+				if ($imgsize) {
+					$ret['width'] = $imgsize[0];
+					$ret['height'] = $imgsize[1];
+				}
 			}
 		}
 		if ($path !== $work_path) {
@@ -3082,7 +3088,9 @@ abstract class elFinderVolumeDriver {
 		$url = false;
 		if (! $maxSize) {
 			$args = elFinder::$currentArgs;
-			$maxSize = $args['substitute'];
+			if (! empty($args['substitute'])) {
+				$maxSize = $args['substitute'];
+			}
 		}
 		if ($maxSize) {
 			if ($this->getOption('substituteImg')) {
@@ -3651,7 +3659,13 @@ abstract class elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 */
 	public function uniqueName($dir, $name, $suffix = ' copy', $checkNum = true, $start = 1) {
-		$ext  = '';
+		static $lasts = null;
+		
+		if ($lasts === null) {
+			$lasts = array();
+		}
+		
+		$ext = '';
 
 		if (preg_match('/\.((tar\.(gz|bz|bz2|z|lzo))|cpio\.gz|ps\.gz|xcf\.(gz|bz2)|[a-z0-9]{1,4})$/i', $name, $m)) {
 			$ext  = '.'.$m[1];
@@ -3666,12 +3680,17 @@ abstract class elFinderVolumeDriver {
 			$name .= $suffix;
 		}
 		$max = $i+100000;
+		
+		if (isset($lasts[$name])) {
+			$i = max($i, $lasts[$name]);
+		}
 
 		while ($i <= $max) {
 			$n = $name.($i > 0 ? sprintf($this->options['uniqueNumFormat'], $i) : '').$ext;
 
 			if (!$this->isNameExists($this->joinPathCE($dir, $n))) {
 				$this->clearcache();
+				$lasts[$name] = ++$i;
 				return $n;
 			}
 			$i++;
@@ -3818,7 +3837,8 @@ abstract class elFinderVolumeDriver {
 				if ($size = getimagesize($work)) {
 					$size['dimensions'] = $size[0].'x'.$size[1];
 					$srcfp = fopen($work, 'rb');
-					if ($subImgLink = $this->getSubstituteImgLink(elFinder::$currentArgs['target'], $size, $srcfp)) {
+					$cArgs = elFinder::$currentArgs;
+					if (!empty($cArgs['target']) && $subImgLink = $this->getSubstituteImgLink($cArgs['target'], $size, $srcfp)) {
 						$size['url'] = $subImgLink;
 					}
 				}
@@ -5732,16 +5752,18 @@ abstract class elFinderVolumeDriver {
 	 * @author Troex Nevelin
 	 **/
 	protected function rmTmb($stat) {
-		if ($stat['mime'] === 'directory') {
-			foreach ($this->scandirCE($this->decode($stat['hash'])) as $p) {
-				elFinder::extendTimeLimit(30);
-				$name = $this->basenameCE($p);
-				$name != '.' && $name != '..' && $this->rmTmb($this->stat($p));
+		if ($this->tmbPathWritable) {
+			if ($stat['mime'] === 'directory') {
+				foreach ($this->scandirCE($this->decode($stat['hash'])) as $p) {
+					elFinder::extendTimeLimit(30);
+					$name = $this->basenameCE($p);
+					$name != '.' && $name != '..' && $this->rmTmb($this->stat($p));
+				}
+			} else if (!empty($stat['tmb']) && $stat['tmb'] != "1") {
+				$tmb = $this->tmbPath.DIRECTORY_SEPARATOR.rawurldecode($stat['tmb']);
+				file_exists($tmb) && unlink($tmb);
+				clearstatcache();
 			}
-		} else if (!empty($stat['tmb']) && $stat['tmb'] != "1") {
-			$tmb = $this->tmbPath.DIRECTORY_SEPARATOR.$stat['tmb'];
-			file_exists($tmb) && unlink($tmb);
-			clearstatcache();
 		}
 	}
 	

@@ -654,7 +654,19 @@ var elFinder = function(node, opts, bootCallback) {
 		 * @type Function
 		 */
 		savedXhrSend;
-
+	
+	// set UA.Angle, UA.Rotated for mobile devices
+	if (self.UA.Mobile) {
+		$(window).on('orientationchange.'+namespace, function() {
+			var a = ((screen && screen.orientation && screen.orientation.angle) || window.orientation || 0) + 0;
+			if (a === -90) {
+				a = 270;
+			}
+			self.UA.Angle = a;
+			self.UA.Rotated = a % 180 === 0? false : true;
+		}).trigger('orientationchange.'+namespace);
+	}
+	
 	// check opt.bootCallback
 	if (opts.bootCallback && typeof opts.bootCallback === 'function') {
 		(function() {
@@ -1649,7 +1661,9 @@ var elFinder = function(node, opts, bootCallback) {
 				cls += ' elfinder-cwd-bgself';
 			} else if ((self.oldAPI || tmbUrl) && file && file.tmb && file.tmb != 1) {
 				url = tmbUrl + file.tmb;
-			}
+			} else if (self.newAPI && file && file.tmb && file.tmb != 1) {
+                url = file.tmb;
+            }
 			if (url) {
 				if (file.ts) {
 					url += (url.match(/\?/)? '&' : '?') + '_t=' + file.ts;
@@ -3195,13 +3209,15 @@ var elFinder = function(node, opts, bootCallback) {
 	 * @param  Object  target    Target jQuery node object
 	 */
 	this.toFront = function(target) {
-		var lastnode = node.children(':last');
+		var lastnode = node.children('.ui-front:last');
 		target = $(target);
-		if (lastnode.get(0) !== target.get(0)) {
+		/*if (lastnode.get(0) !== target.get(0)) {
 			target.trigger('beforedommove')
 				.insertAfter(lastnode)
 				.trigger('dommove');
-		}
+		}*/
+		node.children().css('z-index', '');
+		target.css('z-index', lastnode.css('z-index') + 1);
 	};
 	
 	/**
@@ -3631,7 +3647,7 @@ var elFinder = function(node, opts, bootCallback) {
 	// bind core event handlers
 	this
 		.enable(function() {
-			if (!enabled && self.visible() && self.ui.overlay.is(':hidden') && ! node.children('.elfinder-dialog').find('.'+self.res('class', 'editing')).length) {
+			if (!enabled && self.visible() && self.ui.overlay.is(':hidden') && ! node.children('.elfinder-dialog:visible').find('.'+self.res('class', 'editing')).length) {
 				enabled = true;
 				document.activeElement && document.activeElement.blur();
 				node.removeClass('elfinder-disabled');
@@ -4761,17 +4777,16 @@ elFinder.prototype = {
 	 * @type Object
 	 **/
 	UA : (function(){
-		var webkit = !document.unqueID && !window.opera && !window.sidebar && window.localStorage && 'WebkitAppearance' in document.documentElement.style,
-			angle = function() {
+		var self = this,
+			webkit = !document.unqueID && !window.opera && !window.sidebar && window.localStorage && 'WebkitAppearance' in document.documentElement.style,
+			/*setRotated = function() {
 				var a = ((screen && screen.orientation && screen.orientation.angle) || window.orientation || 0) + 0;
 				if (a === -90) {
 					a = 270;
 				}
-				return a;
-			},
-			isRotated = function() {
-				return angle() % 180 === 0? false : true;
-			},
+				UA.Angle = a;
+				UA.Rotated = a % 180 === 0? false : true;
+			},*/
 			UA = {
 				// Browser IE <= IE 6
 				ltIE6   : typeof window.addEventListener == "undefined" && typeof document.documentElement.style.maxHeight == "undefined",
@@ -4795,14 +4810,10 @@ elFinder.prototype = {
 				Touch   : typeof window.ontouchstart != "undefined",
 				iOS     : navigator.platform.match(/^iP(?:[ao]d|hone)/),
 				Fullscreen : (typeof (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen) !== 'undefined'),
-				Angle   : angle(),
-				Rotated : isRotated()
+				Angle   : 0,
+				Rotated : false
 			};
-		
-		$(window).on('orientationchange', function() {
-			UA.Rotated = isRotated();
-		});
-		return UA;
+			return UA;
 	})(),
 	
 	/**
@@ -7503,6 +7514,16 @@ elFinder.prototype = {
 	},
 	
 	/**
+	 * Return boolean Is mime-type text file
+	 * 
+	 * @param  String  mime-type
+	 * @return Boolean
+	 */
+	mimeIsText : function(mime) {
+		return (this.textMimes[mime] || (mime.indexOf('text/') === 0 && mime.substr(5, 3) !== 'rtf'))? true : false;
+	},
+	
+	/**
 	 * Returns a date string formatted according to the given format string
 	 * 
 	 * @param  String  format string
@@ -8092,6 +8113,26 @@ elFinder.prototype = {
 			ret = ret.replace(reg, '');
 		}
 		return ret;
+	},
+	
+	/**
+	 * Is same origin to current site
+	 * 
+	 * @param  String  check url
+	 * @return Boolean
+	 */
+	isSameOrigin : function (checkUrl) {
+		var url;
+		checkUrl = this.convAbsUrl(checkUrl);
+		if (location.origin && window.URL) {
+			try {
+				url = new URL(checkUrl);
+				return location.origin === url.origin;
+			} catch(e) {}
+		}
+		url = document.createElement('a');
+		url.href = checkUrl;
+		return location.protocol === url.protocol && location.host === url.host && location.port && url.port;
 	},
 	
 	navHash2Id : function(hash) {

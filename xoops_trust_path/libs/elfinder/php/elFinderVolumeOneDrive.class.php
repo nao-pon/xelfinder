@@ -436,6 +436,8 @@ class elFinderVolumeOneDrive extends elFinderVolumeDriver
                 if ($raw->thumbnails[0]->small->url) {
                     $stat['tmb'] = substr($raw->thumbnails[0]->small->url, 8); // remove "https://"
                 }
+            } elseif (!empty($raw->file->processingMetadata)) {
+                $stat['tmb'] = '1';
             }
         }
 
@@ -780,6 +782,7 @@ class elFinderVolumeOneDrive extends elFinderVolumeDriver
 
         if ($this->options['useApiThumbnail']) {
             $this->options['tmbURL'] = 'https://';
+            $this->options['tmbPath'] = '';
             $this->queryOptions['query']['expand'] = 'thumbnails(select=small)';
         }
 
@@ -946,6 +949,27 @@ class elFinderVolumeOneDrive extends elFinderVolumeDriver
      **/
     protected function createTmb($path, $stat)
     {
+        if ($this->options['useApiThumbnail']) {
+            if (func_num_args() > 2) {
+                list(, , $count) = func_get_args();
+            } else {
+                $count = 0;
+            }
+            if ($count < 10) {
+                if (isset($stat['tmb']) && $stat['tmb'] != '1') {
+                    return $stat['tmb'];
+                } else {
+                    sleep(2);
+                    elFinder::extendTimeLimit();
+                    $this->clearcache();
+                    $stat = $this->stat($path);
+
+                    return $this->createTmb($path, $stat, ++$count);
+                }
+            }
+
+            return false;
+        }
         if (!$stat || !$this->canCreateTmb($path, $stat)) {
             return false;
         }
