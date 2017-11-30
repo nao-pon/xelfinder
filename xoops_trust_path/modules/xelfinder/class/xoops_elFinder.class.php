@@ -534,7 +534,7 @@ EOD;
 					$hash = $file['hash'];
 					$path = $elfinder->realpath($file['hash']);
 					$name = $file['name'];
-					$manager = XOOPS_MODULE_URL . '/' . $this->mydirname . '/manager.php#elf_' . $file['phash'];
+					$manager = XOOPS_MODULE_URL . '/' . $this->mydirname . '/manager.php?admin=1#elf_' . $file['phash'];
 					$msg[] = <<<EOD
 HASH: $hash
 PATH: $path
