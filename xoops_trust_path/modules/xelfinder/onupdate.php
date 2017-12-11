@@ -161,7 +161,7 @@ function xelfinder_onupdate_base( $module , $mydirname )
 	}
 	
 	// TEMPLATES (all templates have been already removed by modulesadmin)
-	$tplfile_handler =& xoops_gethandler( 'tplfile' ) ;
+	$tplfile_handler =& xoops_getHandler('tplfile' ) ;
 	$tpl_path = dirname(__FILE__).'/templates' ;
 	if( $handler = @opendir( $tpl_path . '/' ) ) {
 		while( ( $file = readdir( $handler ) ) !== false ) {

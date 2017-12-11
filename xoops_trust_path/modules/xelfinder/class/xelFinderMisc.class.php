@@ -17,7 +17,7 @@ class xelFinderMisc {
 		
 		if (is_object($xoopsUser)) {
 			if (empty($xoopsModule) || ! is_object($xoopsModule)) {
-				$module_handler = xoops_gethandler('module');
+				$module_handler = xoops_getHandler('module');
 				$xModule = $module_handler->getByDirname($this->mydirname);
 			} else {
 				$xModule = $xoopsModule;
@@ -90,7 +90,7 @@ class xelFinderMisc {
 	
 	public function getGroupsByUid($uid) {
 		if ($uid) {
-			$user_handler =& xoops_gethandler('user');
+			$user_handler =& xoops_getHandler('user');
 			$user =& $user_handler->get( $uid );
 			$groups = $user->getGroups();
 		} else {
@@ -124,7 +124,7 @@ class xelFinderMisc {
 			global $xoopsUser;
 			$user = $xoopsUser;
 		} else if ($uid) {
-			$user_handler = xoops_gethandler('user');
+			$user_handler = xoops_getHandler('user');
 			$user = $user_handler->get( $uid );
 		} else {
 			return false;

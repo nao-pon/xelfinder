@@ -19,10 +19,10 @@ $myurl = XOOPS_MODULE_URL . '/' . $mydirname;
 $elfurl = XOOPS_URL . '/common/elfinder';
 $modules_basename = trim(str_replace(XOOPS_URL, '', XOOPS_MODULE_URL), '/');
 
-$module_handler =& xoops_gethandler('module');
+$module_handler =& xoops_getHandler('module');
 $xelfinderModule = $module_handler->getByDirname($mydirname);
 $xelfVer = $xelfinderModule->getVar('version');
-$config_handler =& xoops_gethandler('config');
+$config_handler =& xoops_getHandler('config');
 $config = $config_handler->getConfigsByCat(0, $xelfinderModule->getVar('mid'));
 
 // load xoops_elFinder

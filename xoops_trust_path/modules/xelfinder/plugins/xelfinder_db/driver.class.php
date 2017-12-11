@@ -145,10 +145,10 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		
 		$gids = $this->getGroupsByUid($stat['uid']);
 		if (defined('_CHARSET') && _CHARSET === 'UTF-8') {
-			$xoopsMenber = xoops_gethandler('member');
+			$xoopsMenber = xoops_getHandler('member');
 			$list = $xoopsMenber->getGroupList();
 		} else {
-			$xoopsGroup = xoops_gethandler('group');
+			$xoopsGroup = xoops_getHandler('group');
 			$_groups = $xoopsGroup->getObjects(null, true);
 			$list = array();
 			foreach (array_keys($_groups) as $i) {
@@ -168,8 +168,8 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			$uname = $this->x_uname;
 		} else {
 			if ($stat['uid']) {
-				$module_handler =& xoops_gethandler('module');
-				$user_handler =& xoops_gethandler('user');
+				$module_handler =& xoops_getHandler('module');
+				$user_handler =& xoops_getHandler('user');
 				$user =& $user_handler->get($stat['uid']);
 				if (is_object($user)) {
 					$uname = $user->uname('s');
@@ -177,7 +177,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			}
 		}
 		if ($uname === '') {
-			$config_handler =& xoops_gethandler('config');
+			$config_handler =& xoops_getHandler('config');
 			$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
 			$uname = $this->strToUTF8($xoopsConfig['anonymous']);
 		}
@@ -222,7 +222,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 
 		$this->tbf = $this->db->prefix($this->mydirname) . '_file';
 
-		$module_handler =& xoops_gethandler('module');
+		$module_handler =& xoops_getHandler('module');
 		$XoopsModule =& $module_handler->getByDirname($this->mydirname);
 		$module = $XoopsModule->getInfo();
 		$this->x_mid = $XoopsModule->getVar('mid');
@@ -371,7 +371,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 		if (isset($groups[$uid])) return $groups[$uid];
 
 		if ($uid) {
-			$user_handler =& xoops_gethandler('user');
+			$user_handler =& xoops_getHandler('user');
 			$user =& $user_handler->get( $uid );
 			$groups[$uid] = $user->getGroups();
 			$user = null;
@@ -432,7 +432,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 				}
 
 				if ($group_parent) {
-					$xoopsGroup = xoops_gethandler('group');
+					$xoopsGroup = xoops_getHandler('group');
 					$groups = $xoopsGroup->getObjects(new Criteria('group_type' , 'Anonymous', '!='), true);
 					$sql = 'SELECT gid FROM '.$this->tbf.' WHERE home_of < 0 AND mime = \'directory\'';
 					if (($res = $this->query($sql)) && $this->db->getRowsNum($res)) {
@@ -455,7 +455,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 			if ($this->options['use_guest_dir']) {
 				$sql = 'SELECT file_id FROM '.$this->tbf.' WHERE home_of = 0 AND mime = \'directory\' LIMIT 1';
 				if (($res = $this->query($sql)) && $this->db->getRowsNum($res) < 1) {
-					$config_handler =& xoops_gethandler('config');
+					$config_handler =& xoops_getHandler('config');
 					$xoopsConfig =& $config_handler->getConfigsByCat(XOOPS_CONF);
 					$this->makeUmask = $this->options['guest_dir_umask'];
 					$this->makePerm = $this->options['guest_dir_perm'];
@@ -1189,7 +1189,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _mkfile($path, $name) {
-		$mime = $this->mimeType($name, true);
+		$mime = $this->mimetype($name, true);
 		$res = $this->make($path, $name, ($mime === 'unknown')? 'text/plain' : $mime) ? $this->_joinPath($path, $name) : false;
 		if ($res) {
 			$this->updateDirTimestamp($path, time());
