@@ -13,7 +13,7 @@ function xelfinder_onuninstall_base( $module , $mydirname )
 
 	// for Cube 2.1
 	if( defined( 'XOOPS_CUBE_LEGACY' ) ) {
-		$root =& XCube_Root::getSingleton();
+		$root = XCube_Root::getSingleton();
 		$root->mDelegateManager->add( 'Legacy.Admin.Event.ModuleUninstall.' . ucfirst($mydirname) . '.Success' , 'xelfinder_message_append_onuninstall' ) ;
 		$ret = array() ;
 	} else {
@@ -42,7 +42,7 @@ function xelfinder_onuninstall_base( $module , $mydirname )
 	}
 
 	// TEMPLATES (Not necessary because modulesadmin removes all templates)
-	/* $tplfile_handler =& xoops_gethandler( 'tplfile' ) ;
+	/* $tplfile_handler = xoops_gethandler( 'tplfile' ) ;
 	$templates =& $tplfile_handler->find( null , 'module' , $mid ) ;
 	$tcount = count( $templates ) ;
 	if( $tcount > 0 ) {

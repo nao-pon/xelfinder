@@ -114,7 +114,7 @@ class elFinderVolumeXoopsD3diary extends elFinderVolumeDriver {
 		xoops_elFinder::dbSetCharset('utf8');
 		
 		// make catgory tree
-		$func =& $this->d3dConf->func ;
+		$func = $this->d3dConf->func ;
 		
 		$uid = $this->d3dConf->uid;
 		$cat = $func->get_categories($uid, $uid);

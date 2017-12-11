@@ -405,11 +405,11 @@ class xoops_elFinder {
 		$ret = false;
 	
 		if (is_null($module_handler)) {
-			$module_handler =& xoops_getHandler('module');
+			$module_handler = xoops_getHandler('module');
 		}
 	
 		if ($XoopsModule = $module_handler->getByDirname($dirname)) {
-			$moduleperm_handler =& xoops_getHandler('groupperm');
+			$moduleperm_handler = xoops_getHandler('groupperm');
 			$ret = ($moduleperm_handler->checkRight('module_read', $XoopsModule->getVar('mid'), (is_object($this->xoopsUser)? $this->xoopsUser->getGroups() : XOOPS_GROUP_ANONYMOUS)));
 		}
 	

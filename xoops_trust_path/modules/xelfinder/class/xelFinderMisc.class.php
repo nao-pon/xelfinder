@@ -90,8 +90,8 @@ class xelFinderMisc {
 	
 	public function getGroupsByUid($uid) {
 		if ($uid) {
-			$user_handler =& xoops_getHandler('user');
-			$user =& $user_handler->get( $uid );
+			$user_handler = xoops_getHandler('user');
+			$user = $user_handler->get( $uid );
 			$groups = $user->getGroups();
 		} else {
 			$groups = array( XOOPS_GROUP_ANONYMOUS );
