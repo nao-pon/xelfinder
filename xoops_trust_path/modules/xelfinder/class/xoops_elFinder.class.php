@@ -71,7 +71,7 @@ class xoops_elFinder {
 		$this->xoopsModule = $mModule;
 		$this->isAdmin = (is_object($xoopsUser) && $xoopsUser->isAdmin($mModule->getVar('mid')));
 		$this->mydirname = $mydirname;
-		$this->db = & XoopsDatabaseFactory::getDatabaseConnection();
+		$this->db = XoopsDatabaseFactory::getDatabaseConnection();
 		$this->defaultVolumeOptions = array_merge($this->defaultVolumeOptions, $opt);
 		$this->mygids = is_object($this->xoopsUser)? $this->xoopsUser->getGroups() : array(XOOPS_GROUP_ANONYMOUS);
 		$this->uid = is_object($this->xoopsUser)? intval($this->xoopsUser->getVar('uid')) : 0;
