@@ -14,6 +14,7 @@ define( $constpref.'_DESC' , 'The module which uses the file manager elFinder of
 define( $constpref.'_ADMENU_GOTO_MODULE' , 'Goto Module' ) ;
 define( $constpref.'_ADMENU_GOTO_MANAGER' ,'FileManager' ) ;
 define( $constpref.'_ADMENU_DROPBOX' ,     'Get Dropbox App Token' ) ;
+define( $constpref.'_ADMENU_GOOGLEDRIVE' , 'Get GoogleDrive Token' ) ;
 define( $constpref.'_ADMENU_VENDORUPDATE' ,'Update vendor' ) ;
 define( $constpref.'_ADMENU_MYLANGADMIN',  'Languages');
 define( $constpref.'_ADMENU_MYTPLSADMIN',  'Templates');
