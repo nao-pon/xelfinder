@@ -5,8 +5,11 @@ if (! defined('XOOPS_MODULE_URL')) define('XOOPS_MODULE_URL', XOOPS_URL . '/modu
 
 $target = isset($_GET['target'])? (preg_match('/^[a-zA-Z0-9_:.-]+$/', $_GET['target'])? $_GET['target'] : '') : '';
 
+if (! isset($_GET['cb']) && isset($_GET['getfile']) && $_GET['getfile'] === 'ckeditor') {
+	$_GET['cb'] = $_GET['getfile'];
+}
 $callback = isset($_GET['cb'])? (preg_match('/^[a-zA-Z0-9_]+$/', $_GET['cb'])? $_GET['cb'] : '') : '';
-$callback = $callback? 'getFileCallback_' . $callback : 'null';
+$callback = $callback? 'getFileCallback_' . $callback : 'void 0';
 
 $siteimg = (empty($_GET['si']) && empty($use_bbcode_siteimg))? 0 : 1;
 
@@ -71,8 +74,7 @@ if ($_js_cache_path) {
 $default_tmbsize = isset($config['thumbnail_size'])? (int)$config['thumbnail_size'] : '160';
 $debug = (! empty($config['debug']));
 // cToken uses for CSRF protection
-$cToken = md5(session_id() . XOOPS_ROOT_PATH . (defined(XOOPS_SALT)? XOOPS_SALT : XOOPS_DB_PASS));
-$_SESSION['XELFINDER_CTOKEN'] = $cToken;
+$cToken = $xoops_elFinder->getCToken();
 
 $viewport = (preg_match('/Mobile|Android/i', $_SERVER['HTTP_USER_AGENT']))? '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2" />' : '';
 
@@ -109,9 +111,9 @@ if (empty($config['jquery_ui_css'])) {
 	$jQueryUiTheme = trim($config['jquery_ui_css']);
 }
 
-$title = mb_convert_encoding($config['manager_title'], 'UTF-8', _CHARSET);
+$editorsJs = !empty($config['editors_js']) ? trim($config['editors_js']) : $elfurl.'/js/extras/editors.default.js?v='.$xelfVer;
 
-$useCKEditor = (is_file(XOOPS_ROOT_PATH.'/modules/ckeditor4/ckeditor/ckeditor.js'))? 'true' : 'false';
+$title = mb_convert_encoding($config['manager_title'], 'UTF-8', _CHARSET);
 
 $start = (!empty($_GET['start']) && preg_match('/^[a-zA-Z0-9_-]+$/', $_GET['start']))? $_GET['start'] : '';
 
@@ -152,84 +154,89 @@ while(ob_get_level() && @ob_end_clean()) {}
 
 		<?php if ($debug) {?>
 		<!-- elfinder core -->
-		<script src="<?php echo $elfurl ?>/js/elFinder.js"></script>
-		
-		<script src="<?php echo $elfurl ?>/js/elFinder.command.js"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.history.js"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.options.js"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.options.netmount.js"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.resources.js"></script>
-		<script src="<?php echo $elfurl ?>/js/elFinder.version.js"></script>
-		<script src="<?php echo $elfurl ?>/js/jquery.elfinder.js"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.version.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/jquery.elfinder.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.mimetypes.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.options.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.options.netmount.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.history.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.command.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/elFinder.resources.js" charset="UTF-8"></script>
 	
 		<!-- elfinder ui -->
-		<script src="<?php echo $elfurl ?>/js/ui/button.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/contextmenu.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/cwd.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/dialog.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/fullscreenbutton.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/navbar.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/overlay.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/panel.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/path.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/places.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/searchbutton.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/sortbutton.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/stat.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/toast.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/toolbar.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/tree.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/uploadButton.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/viewbutton.js"></script>
-		<script src="<?php echo $elfurl ?>/js/ui/workzone.js"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/button.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/contextmenu.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/cwd.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/dialog.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/fullscreenbutton.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/navbar.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/navdock.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/overlay.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/panel.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/path.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/places.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/searchbutton.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/sortbutton.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/stat.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/toast.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/toolbar.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/tree.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/uploadButton.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/viewbutton.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/ui/workzone.js" charset="UTF-8"></script>
 	
 		<!-- elfinder commands -->
-		<script src="<?php echo $elfurl ?>/js/commands/archive.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/back.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/chmod.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/colwidth.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/copy.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/cut.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/download.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/duplicate.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/edit.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/extract.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/forward.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/fullscreen.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/getfile.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/help.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/home.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/info.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/mkdir.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/mkfile.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/netmount.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/open.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/opendir.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/paste.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/pixlr.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/places.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/quicklook.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/quicklook.plugins.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/reload.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/rename.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/resize.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/rm.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/search.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/sort.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/up.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/upload.js"></script>
-		<script src="<?php echo $elfurl ?>/js/commands/view.js"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/archive.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/back.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/chmod.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/colwidth.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/copy.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/cut.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/download.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/duplicate.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/edit.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/empty.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/extract.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/forward.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/fullscreen.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/getfile.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/help.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/home.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/info.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/mkdir.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/mkfile.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/netmount.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/open.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/opendir.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/paste.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/places.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/quicklook.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/quicklook.plugins.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/reload.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/rename.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/resize.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/rm.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/search.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/selectall.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/selectinvert.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/selectnone.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/sort.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/undo.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/up.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/upload.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/view.js" charset="UTF-8"></script>
 	
 		<!-- elfinder languages -->
 		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.en.js" charset="UTF-8"></script>
 	
 		<!-- elfinder dialog -->
-		<script src="<?php echo $elfurl ?>/js/jquery.dialogelfinder.js"></script>
+		<script src="<?php echo $elfurl ?>/js/jquery.dialogelfinder.js" charset="UTF-8"></script>
 <?php } else {?>
-		<script src="<?php echo $elfurl ?>/js/elfinder.min.js?v=<?php echo $xelfVer?>"></script>
+		<script src="<?php echo $elfurl ?>/js/elfinder.min.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>
 <?php }?>
-		<script src="<?php echo $elfurl ?>/js/i18n/elfinder.<?php echo $userLang?>.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>
-		<script src="<?php echo $elfurl ?>/js/extras/quicklook.googledocs.js?v=<?php echo $xelfVer?>"></script>
+		<script src="<?php echo $elfurl ?>/js/extras/quicklook.googledocs.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>
+		<script src="<?php echo $editorsJs ?>" charset="UTF-8"></script>
 		
 		<!-- elFinder initialization (REQUIRED) -->
 		<link rel="stylesheet" href="<?php echo $myurl ?>/include/css/manager.css?v=<?php echo $xelfVer?>" type="text/css">
@@ -239,6 +246,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var moduleUrl = '<?php echo XOOPS_MODULE_URL ?>';
 			var myUrl = moduleUrl + '/<?php echo $mydirname?>/';
 			var imgUrl = myUrl + 'images/';
+			var baseUrl = '<?php echo $elfurl?>/';
 			var connectorUrl = '<?php echo $conector_url?>';
 			var connIsExt = <?php echo (int)$conn_is_ext?>;
 			var useSiteImg = <?php echo $siteimg ?>;
@@ -250,14 +258,14 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var xoopsUid = '<?php echo $xoops_elFinder->getUid()?>';
 			var adminMode = <?php echo $admin?>;
 			var cToken = '<?php echo $cToken?>';
-			var editorsConfig = [];
-			var useCKEditor = <?php echo $useCKEditor ?>;
 			var startPathHash = '<?php echo $start?>';
 			var autoSyncSec = <?php echo $xoops_elFinder->getAutoSyncSec()?>;
 			var autoSyncStart = <?php echo (empty($config['autosync_start'])? 'false' : 'true')?>;
 			var useGoogleDocsPreview = <?php echo (empty($config['use_google_preview'])? 'false' : 'true')?>;
+			var creativeCloudApikey = <?php echo (empty($config['creative_cloud_apikey'])? 'void 0' : '\''.$config['creative_cloud_apikey'].'\'')?>;
 		</script>
 		<script src="<?php echo $myurl ?>/include/js/commands/perm.js?v=<?php echo $xelfVer?>"></script>
+		<script src="<?php echo $myurl ?>/include/js/commands/auth.js?v=<?php echo $xelfVer?>"></script>
 		<script src="<?php echo $myurl ?>/include/js/manager.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>
 		<script type="text/javascript" charset="UTF-8">
 			var callbackFunc = <?php echo $callback ?>;

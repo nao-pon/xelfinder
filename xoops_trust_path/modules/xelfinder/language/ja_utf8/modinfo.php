@@ -28,7 +28,7 @@ define( $constpref.'_VOLUME_SETTING' ,          'ボリュームドライバ' );
 define( $constpref.'_VOLUME_SETTING_DESC' ,     '[モジュールディレクトリ名]:[プラグイン名]:[ファイル格納ディレクトリ]:[表示名]:[オプション]<br />行単位で記述。先頭に # を置くと無視されます。<br />オプションは 「|」 で区切ります。<br />共通オプション:<br />gid=[有効にするグループIDをカンマ区切りで指定]<br />defaults=[read, write, hidden, lock の各パーミッションをデフォルトとして有効にするものをそれぞれの頭文字 r w h l で指定（例: defaults=rw）]<br />uploadMaxSize=[アップロードファイルサイズの上限値(例:2M)]<br />id=[任意の一意なID（固定リンクのURLハッシュに利用されます)]<br />encoding=[文字エンコーディング(iconvで有効な値)]<br />locale=[ロケール(重要: encoding に対応する適切なロケール)]<br />chmod=1(chmod が可能な場合、ファイル属性の変更を許可)' );
 define( $constpref.'_SHARE_HOLDER' ,            '共有フォルダ' );
 define( $constpref.'_DISABLED_CMDS_BY_GID' ,    'グループ毎無効コマンド' );
-define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','グループ毎(管理者を除く)に無効にするコマンドを [グループID]=[無効コマンド(カンマ区切り)] として ":" で区切って指定する。<br />コマンド名: mkdir, mkfile, rm, rename, duplicate, paste, upload, archive, extract, resize, netmount, perm, pixlr など' );
+define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','グループ毎(管理者を除く)に無効にするコマンドを [グループID]=[無効コマンド(カンマ区切り)] として ":" で区切って指定する。<br />コマンド名: archive, chmod, cut, duplicate, edit, empty, extract, mkdir, mkfile, paste, perm, put, rename, resize, rm, upload など' );
 define( $constpref.'_DISABLE_WRITES_GUEST' ,    'ゲスト書き込み無効' );
 define( $constpref.'_DISABLE_WRITES_GUEST_DESC','ゲスト向けにグループ毎無効コマンドに指定した無効コマンドに合わせ、書き込み系コマンドをすべて追加します。' );
 define( $constpref.'_DISABLE_WRITES_USER' ,     '登録ユーザー書き込み無効' );
@@ -95,6 +95,10 @@ define( $constpref.'_JQUERY_UI_CSS' ,           'jQuery UI の CSS URL' );
 define( $constpref.'_JQUERY_UI_CSS_DESC' ,      'Google の CDN を利用しない場合に、jQueryUI の css の  URL を指定します。' );
 define( $constpref.'_JQUERY_UI_THEME' ,         'jQuery UI のテーマ' );
 define( $constpref.'_JQUERY_UI_THEME_DESC' ,    'Google の CDN を利用する場合の jQuery UI のテーマをテーマ名、又は CSS の URL で指定します。 (デフォルト: smoothness)' );
+define( $constpref.'_CREATIVE_CLOUD_APIKEY' ,   'Creative SDK APIキー' );
+define( $constpref.'_CREATIVE_CLOUD_APIKEY_DESC','Creative Cloud の Creative SDK のイメージエディターを利用する場合の Creative Cloud APIキーを指定します。<br />APIキー は https://console.adobe.io/ で取得できます。' );
+define( $constpref.'_EDITORS_JS',               'editors.js の URL' );
+define( $constpref.'_EDITORS_JS_DESC',          'common/elfinder/js/extras/editors.default.js をカスタマイズした場合の JavaScript の URL を指定します。' );
 define( $constpref.'_THUMBNAIL_SIZE' ,          '[xelfinder_db] 画像挿入時のサムネイルサイズ' );
 define( $constpref.'_THUMBNAIL_SIZE_DESC' ,     'BBコードでの画像挿入時のサムネイルサイズの規定値(px)' );
 define( $constpref.'_DEFAULT_ITEM_PERM' ,       '[xelfinder_db] 作成されるアイテムのパーミッション' );
@@ -183,6 +187,9 @@ define( $constpref.'_AUTOSYNC_SEC_GUEST_DESC',  '' );
 
 define( $constpref.'_AUTOSYNC_START',           'すぐに自動更新を開始する' );
 define( $constpref.'_AUTOSYNC_START_DESC',      'コンテキストメニューの「リロード」で自動更新の開始・停止ができます。' );
+
+define( $constpref.'_FFMPEG_PATH',              'ffmpeg コマンドのパス' );
+define( $constpref.'_FFMPEG_PATH_DESC',         'ffmpeg コマンドのパスが必要な場合に指定してください。' );
 
 define( $constpref.'_DEBUG' ,                   'デバッグモードを有効にする' );
 define( $constpref.'_DEBUG_DESC' ,              'デバッグモードにすると elFinder の "elfinder.min.css", "elfinder.min.js" ではなく個別のファイルを読み込みます。<br />また、JavaScript のレスポンスにデバグ情報を含めます。<br />パフォーマンス向上のために、通常はデバッグモードは無効にして運用することをお勧めします。' );

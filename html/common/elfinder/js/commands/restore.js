@@ -5,14 +5,24 @@
  *
  * @author Naoki Sawada
  **/
-elFinder.prototype.commands.restore = function() {
+(elFinder.prototype.commands.restore = function() {
 	var self = this,
 		fm = this.fm,
+		fakeCnt = 0,
 		getFilesRecursively = function(files) {
 			var dfd = $.Deferred(),
 				dirs = [],
 				results = [],
-				reqs = [];
+				reqs = [],
+				phashes = [],
+				getFile;
+			
+			dfd._xhrReject = function() {
+				$.each(reqs, function() {
+					this && this.reject && this.reject();
+				});
+				getFile && getFile._xhrReject();
+			};
 			
 			$.each(files, function(i, f) {
 				f.mime === 'directory'? dirs.push(f) : results.push(f);
@@ -25,6 +35,7 @@ elFinder.prototype.commands.restore = function() {
 						preventDefault : true,
 						asNotOpen : true
 					}));
+					phashes[i] = d.hash;
 				});
 				$.when.apply($, reqs).fail(function() {
 					dfd.reject();
@@ -33,11 +44,21 @@ elFinder.prototype.commands.restore = function() {
 					$.each(arguments, function(i, r) {
 						var files;
 						if (r.files) {
-							items = items.concat(r.files);
+							if (r.files.length) {
+								items = items.concat(r.files);
+							} else {
+								items.push({
+									hash: 'fakefile_' + (fakeCnt++),
+									phash: phashes[i],
+									mime: 'fakefile',
+									name: 'fakefile',
+									ts: 0
+								});
+							}
 						}
 					});
 					fm.cache(items);
-					getFilesRecursively(items).done(function(res) {
+					getFile = getFilesRecursively(items).done(function(res) {
 						results = results.concat(res);
 						dfd.resolve(results);
 					});
@@ -46,14 +67,16 @@ elFinder.prototype.commands.restore = function() {
 				dfd.resolve(results);
 			}
 			
-			return dfd.promise();
+			return dfd;
 		},
-		restore = function(dfrd, files, targets) {
+		restore = function(dfrd, files, targets, opts) {
 			var rHashes = {},
 				others = [],
 				found = false,
 				dirs = [],
-				tm;
+				opts = opts || {},
+				id = +new Date(),
+				tm, getFile;
 			
 			fm.lockfiles({files : targets});
 			
@@ -68,13 +91,16 @@ elFinder.prototype.commands.restore = function() {
 			});
 			
 			tm = setTimeout(function() {
-				fm.notify({type : 'search', cnt : 1, hideCnt : true});
+				fm.notify({type : 'search', id : id, cnt : 1, hideCnt : true, cancel : function() {
+					getFile && getFile._xhrReject();
+					dfrd.reject();
+				}});
 			}, fm.notifyDelay);
-			
-			
-			getFilesRecursively(files).always(function() {
+
+			fakeCnt = 0;
+			getFile = getFilesRecursively(files).always(function() {
 				tm && clearTimeout(tm);
-				fm.notify({type : 'search', cnt : -1, hideCnt : true});
+				fm.notify({type : 'search', id: id, cnt : -1, hideCnt : true});
 			}).fail(function() {
 				dfrd.reject('errRestore', 'errFileNotFound');
 			}).done(function(res) {
@@ -106,7 +132,11 @@ elFinder.prototype.commands.restore = function() {
 								if (!rHashes[srcRoot][tPath]) {
 									rHashes[srcRoot][tPath] = [];
 								}
-								rHashes[srcRoot][tPath].push(f.hash);
+								if (f.mime === 'fakefile') {
+									fm.updateCache({removed:[f.hash]});
+								} else {
+									rHashes[srcRoot][tPath].push(f.hash);
+								}
 								if (!dirTop || dirTop.length > tPath.length) {
 									dirTop = tPath;
 								}
@@ -154,28 +184,38 @@ elFinder.prototype.commands.restore = function() {
 											var hasErr = false;
 											$.each(dsts, function(dir, files) {
 												if (hashes[dir]) {
-													if (fm.file(hashes[dir])) {
-														fm.clipboard(files, true);
-														cmdPaste.exec([ hashes[dir] ], {_cmd : 'restore', noToast : dir !== dirTop})
-														.done(function(data) {
-															if (data && (data.error || data.warning)) {
-																hasErr = true;
-															}
-														})
-														.fail(function() {
-															hasErr = true;
-														})
-														.always(function() {
-															if (--cnt < 1) {
-																dfrd[hasErr? 'reject' : 'resolve']();
-																if (others.length) {
-																	// Restore items of other trash
-																	fm.exec('restore', others);
+													if (files.length) {
+														if (fm.file(hashes[dir])) {
+															fm.clipboard(files, true);
+															cmdPaste.exec([ hashes[dir] ], {_cmd : 'restore', noToast : (opts.noToast || dir !== dirTop)})
+															.done(function(data) {
+																if (data && (data.error || data.warning)) {
+																	hasErr = true;
 																}
-															}
-														});
+															})
+															.fail(function() {
+																hasErr = true;
+															})
+															.always(function() {
+																if (--cnt < 1) {
+																	dfrd[hasErr? 'reject' : 'resolve']();
+																	if (others.length) {
+																		// Restore items of other trash
+																		self.exec(others);
+																	}
+																}
+															});
+														} else {
+															dfrd.reject(errFolderNotfound);
+														}
 													} else {
-														dfrd.reject(errFolderNotfound);
+														if (--cnt < 1) {
+															dfrd.resolve();
+															if (others.length) {
+																// Restore items of other trash
+																self.exec(others);
+															}
+														}
 													}
 												}
 											});
@@ -198,10 +238,11 @@ elFinder.prototype.commands.restore = function() {
 			});
 		};
 	
-	this.updateOnSelect  = false;
-	this.shortcuts = [{
-		pattern     : 'ctrl+z'
-	}];
+	this.linkedCmds = ['copy', 'paste', 'mkdir', 'rm'];
+	this.updateOnSelect = false;
+	//this.shortcuts = [{
+	//	pattern     : 'ctrl+z'
+	//}];
 	
 	this.getstate = function(sel, e) {
 		sel = sel || fm.selected();
@@ -209,7 +250,7 @@ elFinder.prototype.commands.restore = function() {
 			? 0 : -1;
 	}
 	
-	this.exec = function(hashes) {
+	this.exec = function(hashes, opts) {
 		var dfrd   = $.Deferred()
 				.fail(function(error) {
 					error && fm.error(error);
@@ -230,10 +271,10 @@ elFinder.prototype.commands.restore = function() {
 		});
 
 		if (dfrd.state() === 'pending') {
-			restore(dfrd, files, hashes);
+			restore(dfrd, files, hashes, opts);
 		}
 			
 		return dfrd;
 	}
 
-};
+}).prototype = { forceLoad : true }; // this is required command

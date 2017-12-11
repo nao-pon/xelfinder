@@ -2,52 +2,6 @@ if (window.parent) {
 	$('.simplemodal-wrap', window.parent.document).css({overflow:'hidden'});
 }
 $(document).ready(function() {
-	var mes_en = elFinder.prototype.i18.en.messages;
-	mes_en.ntfperm = 'Changing permission';
-	mes_en.cmdperm = 'Chage permission';
-	mes_en.newitem = 'New item';
-	mes_en.guest   = 'Guest';
-	mes_en.unlock  = 'Unlock';
-	mes_en.hidden  = 'Hidden';
-	mes_en.targetgroups  = 'Target groups';
-	mes_en.mimeserach    = 'MIME type Serach';
-	mes_en.nowrap        = 'No wrap';
-	mes_en.wraparound    = 'Wrap around';
-	mes_en.inline        = 'Inline';
-	mes_en.fullsize      = 'Full Size';
-	mes_en.thumbnail     = 'Thumbnail';
-	mes_en.continues     = 'Continue more';
-	mes_en.imageinsert   = 'Image insert options';
-	mes_en.CannotUploadOldIE = '<p>Your browser "IE" cannot upload by this manager.</p><p>Please use the newest browser, when you upload files.</p>';
-	mes_en.errPleaseReload = 'Not found access token.<br />Please reload on browser, or re-open popup window.';
-	mes_en.errAccessReload = 'There are no token necessary to a connection, so reload this file manager.';
-
-	if (typeof elFinder.prototype.i18.jp != "undefined") {
-		mes_jp = elFinder.prototype.i18.jp.messages;
-		mes_jp.read    = '読取'; // over write
-		mes_jp.write   = '書込'; // over write
-		mes_jp.ntfperm = 'アイテム属性を変更しています';
-		mes_jp.cmdperm = '属性変更';
-		mes_jp.newitem = '新規アイテム';
-		mes_jp.guest   = 'ゲスト';
-		mes_jp.unlock  = 'ロック解除';
-		mes_jp.hidden  = '非表示';
-		mes_jp.targetgroups  = '対象グループ';
-		mes_jp.mimeserach    = 'MIMEタイプで検索';
-		mes_jp.nowrap        = '回り込みなし';
-		mes_jp.wraparound    = '回り込みあり';
-		mes_jp.inline        = 'インライン';
-		mes_jp.fullsize      = 'フルサイズ';
-		mes_jp.thumbnail     = 'サムネイル';
-		mes_jp.continues     = 'さらに続ける';
-		mes_jp.imageinsert   = '画像挿入オプション';
-		mes_jp.CannotUploadOldIE = '<p>あなたがお使いの IE ブラウザでは、このマネージャーではファイルをアップロードすることができません。</p><p>ファイルをアップロードする場合は、最新のブラウザをご利用下さい。</p>';
-		mes_jp.errPleaseReload = '接続に必要なトークンがありません。<br />ブラウザでリロードするかポップアップウィンドウを開きなおしてください。';
-		mes_jp.errAccessReload = '接続に必要なトークンがないので、ファイルマネージャーを再読込します。';
-
-		elFinder.prototype.i18.ja = elFinder.prototype.i18.jp;
-	}
-	
 	// keep alive
 	var extCheck = connectorUrl;
 	setInterval(function(){
@@ -80,251 +34,64 @@ $(document).ready(function() {
 		}
 	}
 	
-	if (useCKEditor) {
-		editorsConfig.push({
-			mimes : ['text/html'],
-			exts  : ['htm', 'html', 'xhtml'],
-			load : function(textarea) {
-				var dfrd = $.Deferred();
-				this.fm.loadScript([ rootUrl + '/modules/ckeditor4/ckeditor/ckeditor.js' ], function() {
-					CKEDITOR.replace(textarea.id, {
-						baseUrl : rootUrl + '/modules/ckeditor4/ckeditor/',
-						startupFocus : true,
-						fullPage: true,
-						allowedContent: true,
-						filebrowserBrowseUrl: myUrl + '/manager.php?cb=ckeditor',
-						on: {
-							'instanceReady' : function(e) {
-								e.editor.resize('100%', $(textarea).parent().height());
-								dfrd.resolve(e.editor);
-							}
-						}
-					});
-				}, {loadType: 'tag'}, {obj: window, name: 'CKEDITOR'});
-				return dfrd;
-			},
-			close : function(textarea, instance) {
-				instance.destroy();
-			},
-			save : function(textarea, instance) {
-				textarea.value = instance.getData();
-			},
-			focus : function(textarea, instance) {
-				instance && instance.focus();
-			},
-			resize : function(textarea, instance, e, data) {
-				var self;
-				if (instance) {
-					if (typeof data.minimize !== 'undefined') {
-						// for dialog minimize function
-						if (data.minimize === 'on') {
-							// destroy on minimized
-							instance.destroy();
-						} else {
-							// rebuild editor
-							self = this;
-							this.load(textarea).done(function(editor) {
-								self.instance = editor;
-							});
-						}
-						return;
-					}
-					if (instance.status === 'ready') {
-						instance.resize('100%', $(textarea).parent().height());
-					}
+	var elfinderInstance = $('#elfinder').elfinder({
+		handlers : {
+			// set extra messages
+			i18load : function(e, fm) {
+				var mes_en = fm.i18.en.messages;
+				mes_en.ntfperm = 'Changing permission';
+				mes_en.cmdperm = 'Chage permission';
+				mes_en.newitem = 'New item';
+				mes_en.guest   = 'Guest';
+				mes_en.unlock  = 'Unlock';
+				mes_en.hidden  = 'Hidden';
+				mes_en.targetgroups  = 'Target groups';
+				mes_en.mimeserach    = 'MIME type Serach';
+				mes_en.nowrap        = 'No wrap';
+				mes_en.wraparound    = 'Wrap around';
+				mes_en.inline        = 'Inline';
+				mes_en.fullsize      = 'Full Size';
+				mes_en.thumbnail     = 'Thumbnail';
+				mes_en.continues     = 'Continue more';
+				mes_en.imageinsert   = 'Image insert options';
+				mes_en.CannotUploadOldIE = '<p>Your browser "IE" cannot upload by this manager.</p><p>Please use the newest browser, when you upload files.</p>';
+				mes_en.errPleaseReload = 'Not found access token.<br />Please reload on browser, or re-open popup window.';
+				mes_en.errAccessReload = 'There are no token necessary to a connection, so reload this file manager.';
+
+				if (typeof fm.i18.jp !== "undefined") {
+					mes_jp = fm.i18.jp.messages;
+					mes_jp.read    = '読取'; // over write
+					mes_jp.write   = '書込'; // over write
+					mes_jp.ntfperm = 'アイテム属性を変更しています';
+					mes_jp.cmdperm = '属性変更';
+					mes_jp.newitem = '新規アイテム';
+					mes_jp.guest   = 'ゲスト';
+					mes_jp.unlock  = 'ロック解除';
+					mes_jp.hidden  = '非表示';
+					mes_jp.targetgroups  = '対象グループ';
+					mes_jp.mimeserach    = 'MIMEタイプで検索';
+					mes_jp.nowrap        = '回り込みなし';
+					mes_jp.wraparound    = '回り込みあり';
+					mes_jp.inline        = 'インライン';
+					mes_jp.fullsize      = 'フルサイズ';
+					mes_jp.thumbnail     = 'サムネイル';
+					mes_jp.continues     = 'さらに続ける';
+					mes_jp.imageinsert   = '画像挿入オプション';
+					mes_jp.CannotUploadOldIE = '<p>あなたがお使いの IE ブラウザでは、このマネージャーではファイルをアップロードすることができません。</p><p>ファイルをアップロードする場合は、最新のブラウザをご利用下さい。</p>';
+					mes_jp.errPleaseReload = '接続に必要なトークンがありません。<br />ブラウザでリロードするかポップアップウィンドウを開きなおしてください。';
+					mes_jp.errAccessReload = '接続に必要なトークンがないので、ファイルマネージャーを再読込します。';
+					mes_jp.cmdlogin = 'ログイン/ログアウト';
+					mes_jp.login    = 'ログイン';
+					mes_jp.logout   = '$1: ログアウト';
+					mes_jp.username = 'ユーザー名';
+					mes_jp.password = 'パスワード';
+					mes_jp.loginFaild = 'ログインできません。';
 				}
 			}
-		});
-	}
-
-	editorsConfig.push({
-		// ACE Editor
-		// `mimes` is not set for support everything kind of text file
-		load : function(textarea) {
-			var self = this,
-				dfrd = $.Deferred(),
-				cdn  = '//cdnjs.cloudflare.com/ajax/libs/ace/1.2.5',
-				start = function() {
-					var editor, editorBase, mode,
-					ta = $(textarea),
-					taBase = ta.parent(),
-					dialog = taBase.parent(),
-					id = textarea.id + '_ace',
-					ext = self.file.name.replace(/^.+\.([^.]+)|(.+)$/, '$1$2').toLowerCase(),
-					// MIME/mode map
-					mimeMode = {
-						'text/x-php'			  : 'php',
-						'application/x-php'		  : 'php',
-						'text/html'				  : 'html',
-						'application/xhtml+xml'	  : 'html',
-						'text/javascript'		  : 'javascript',
-						'application/javascript'  : 'javascript',
-						'text/css'				  : 'css',
-						'text/x-c'				  : 'c_cpp',
-						'text/x-csrc'			  : 'c_cpp',
-						'text/x-chdr'			  : 'c_cpp',
-						'text/x-c++'			  : 'c_cpp',
-						'text/x-c++src'			  : 'c_cpp',
-						'text/x-c++hdr'			  : 'c_cpp',
-						'text/x-shellscript'	  : 'sh',
-						'application/x-csh'		  : 'sh',
-						'text/x-python'			  : 'python',
-						'text/x-java'			  : 'java',
-						'text/x-java-source'	  : 'java',
-						'text/x-ruby'			  : 'ruby',
-						'text/x-perl'			  : 'perl',
-						'application/x-perl'	  : 'perl',
-						'text/x-sql'			  : 'sql',
-						'text/xml'				  : 'xml',
-						'application/docbook+xml' : 'xml',
-						'application/xml'		  : 'xml'
-					};
-
-					// set base height
-					taBase.height(taBase.height());
-
-					// set basePath of ace
-					ace.config.set('basePath', cdn);
-
-					// Base node of Ace editor
-					editorBase = $('<div id="'+id+'" style="width:100%; height:100%;"/>').text(ta.val()).insertBefore(ta.hide());
-
-					// Editor flag
-					ta.data('ace', true);
-
-					// Aceeditor instance
-					editor = ace.edit(id);
-
-					// Ace editor configure
-					editor.$blockScrolling = Infinity;
-					editor.setOptions({
-						theme: 'ace/theme/monokai',
-						fontSize: '14px',
-						wrap: true,
-					});
-					ace.config.loadModule('ace/ext/modelist', function() {
-						// detect mode
-						mode = ace.require('ace/ext/modelist').getModeForPath('/' + self.file.name).name;
-						if (mode === 'text') {
-							if (mimeMode[self.file.mime]) {
-								mode = mimeMode[self.file.mime];
-							}
-						}
-						// show MIME:mode in title bar
-						taBase.prev().children('.elfinder-dialog-title').append(' (' + self.file.mime + ' : ' + mode.split(/[\/\\]/).pop() + ')');
-						editor.setOptions({
-							mode: 'ace/mode/' + mode
-						});
-					});
-					ace.config.loadModule('ace/ext/language_tools', function() {
-						ace.require('ace/ext/language_tools');
-						editor.setOptions({
-							enableBasicAutocompletion: true,
-							enableSnippets: true,
-							enableLiveAutocompletion: false
-						});
-					});
-					ace.config.loadModule('ace/ext/settings_menu', function() {
-						ace.require('ace/ext/settings_menu').init(editor);
-					});
-					
-					// Short cuts
-					editor.commands.addCommand({
-						name : "saveFile",
-						bindKey: {
-							win : 'Ctrl-s',
-							mac : 'Command-s'
-						},
-						exec: function(editor) {
-							self.doSave();
-						}
-					});
-					editor.commands.addCommand({
-						name : "closeEditor",
-						bindKey: {
-							win : 'Ctrl-w|Ctrl-q',
-							mac : 'Command-w|Command-q'
-						},
-						exec: function(editor) {
-							self.doCancel();
-						}
-					});
-
-					editor.resize();
-
-					// TextArea button and Setting button
-					$('<div class="ui-dialog-buttonset"/>').css('float', 'left')
-					.append(
-						$('<button>TextArea</button>')
-						.button()
-						.on('click', function(){
-							if (ta.data('ace')) {
-								ta.removeData('ace');
-								editorBase.hide();
-								ta.val(editor.session.getValue()).show().focus();
-								$(this).text('AceEditor');
-							} else {
-								ta.data('ace', true);
-								editorBase.show();
-								editor.setValue(ta.hide().val(), -1);
-								editor.focus();
-								$(this).text('TextArea');
-							}
-						})
-					)
-					.append(
-						$('<button>Ace editor setting</button>')
-						.button({
-							icons: {
-								primary: 'ui-icon-gear',
-								secondary: 'ui-icon-triangle-1-e'
-							},
-							text: false
-						})
-						.on('click', function(){
-							editor.showSettingsMenu();
-							$('#ace_settingsmenu')
-								.css('font-size', '80%')
-								.find('div[contains="setOptions"]').hide().end()
-								.parent().parent().appendTo($('#elfinder'));
-						})
-					)
-					.prependTo(taBase.next());
-
-					dfrd.resolve(editor);
-				};
-
-			// check ace & start
-			if (typeof ace === 'undefined') {
-				self.fm.loadScript([ cdn+'/ace.js' ], start, void 0, {obj: window, name: 'ace'});
-			} else {
-				start();
-			}
-
-
-			return dfrd;
 		},
-		close : function(textarea, instance) {
-			if (instance) {
-				instance.destroy();
-				$(textarea).show();
-			}
-		},
-		save : function(textarea, instance) {
-			instance && $(textarea).data('ace') && (textarea.value = instance.session.getValue());
-		},
-		focus : function(textarea, instance) {
-			instance && $(textarea).data('ace') && instance.focus();
-		},
-		resize : function(textarea, instance, e, data) {
-			instance && instance.resize();
-		}
-	});
-
-	
-	var elfinderInstance = $('#elfinder').elfinder({
 		lang: lang,
 		url : connectorUrl,
+		baseUrl : baseUrl,
 		cssAutoLoad : false,
 		customData : customData,
 		customHeaders: cors? {'X-Requested-With' : 'XMLHttpRequest'} : {},
@@ -355,8 +122,10 @@ $(document).ready(function() {
 			    getImgSize: true
 			  },
 			  edit : {
-			      editors : editorsConfig,
-			      dialogWidth: '80%'
+			      dialogWidth: '80%',
+			      extraOptions : {
+			    	  creativeCloudApiKey : creativeCloudApikey
+			      }
 			  },
 			  quicklook : {
 				  googleDocsMimes : useGoogleDocsPreview? ['application/pdf', 'image/tiff', 'application/vnd.ms-office', 'application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'] : []
@@ -409,10 +178,10 @@ $(document).ready(function() {
 			}
 			document.title =  path? path + ':' + title : title;
 		}
-	});
+	})
 	
 	// on error callback
-	elfinderInstance.bind('error', function(e) {
+	.bind('error', function(e) {
 		if (e.data && e.data.error && e.data.error == 'errPleaseReload') {
 			var loc = window.location;
 			if (!loc._reload) {

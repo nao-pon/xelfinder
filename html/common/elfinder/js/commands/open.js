@@ -7,9 +7,10 @@
  **/  
 (elFinder.prototype.commands.open = function() {
 	this.alwaysEnabled = true;
+	this.noChangeDirOnRemovedCwd = true;
 	
 	this._handlers = {
-		dblclick : function(e) { e.preventDefault(); this.exec() },
+		dblclick : function(e) { e.preventDefault(); this.exec(e.data && e.data.file? [ e.data.file ]: void(0)) },
 		'select enable disable reload' : function(e) { this.update(e.type == 'disable' ? -1 : void(0));  }
 	}
 	
@@ -65,7 +66,7 @@
 			var wnd, target;
 			
 			try {
-				reg = new RegExp(fm.option('dispInlineRegex'));
+				reg = new RegExp(fm.option('dispInlineRegex'), 'i');
 			} catch(e) {
 				reg = false;
 			}
@@ -102,8 +103,8 @@
 					}
 					if (into === 'window') {
 						// set window size for image if set
-						imgW = winW = Math.round(2 * $(window).width() / 3);
-						imgH = winH = Math.round(2 * $(window).height() / 3);
+						imgW = winW = Math.round(2 * screen.availWidth / 3);
+						imgH = winH = Math.round(2 * screen.availHeight / 3);
 						if (parseInt(file.width) && parseInt(file.height)) {
 							imgW = parseInt(file.width);
 							imgH = parseInt(file.height);
@@ -143,7 +144,8 @@
 						form.style.display = 'none';
 						var params = Object.assign({}, fm.options.customData, {
 							cmd: 'file',
-							target: file.hash
+							target: file.hash,
+							_t: file.ts || parseInt(+new Date/1000) 
 						});
 						$.each(params, function(key, val)
 						{
@@ -191,6 +193,19 @@
 				] : []
 			});
 		} else {
+			var selAct = fm.storage('selectAction');
+			var cmd;
+			if (selAct) {
+				$.each(selAct.split('/'), function() {
+					if ((cmd = fm.getCommand(this)) && cmd.enabled()) {
+						return false;
+					}
+					cmd = null;
+				});
+				if (cmd) {
+					return cmd.exec();
+				}
+			}
 			doOpen();
 		}
 		

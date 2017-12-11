@@ -27,7 +27,7 @@ define( $constpref.'_VOLUME_SETTING' ,          'Volume Drivers' );
 define( $constpref.'_VOLUME_SETTING_DESC' ,     '[Module directory name]:[Plugin name]:[Saved files dirctory path]:[View name]:[Options]<br />Written line by line. Will be ignored and put a "#" at the beginning.<br />Options separates with "|".<br />Common option:<br />gid=[Group ID to validate is specified by comma separated values]<br />defaults=[What validates each permission of read, write, hidden, and lock as a default is specified in each initial "r" "w" "h" "l" (example:  defaults=rw)]<br />uploadMaxSize=[Maximum upload file size (ex.2M)]<br />id=[Arbitrary unique ID]<br />encoding=[character encoding(use iconv)]<br />locale=[Locale(Impotant: for encoding)]<br />chmod=1(Enable chmod on supported volume only)' );
 define( $constpref.'_SHARE_HOLDER' ,            'Share holder' );
 define( $constpref.'_DISABLED_CMDS_BY_GID' ,    'Disabled cmds of each group' );
-define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','Set [GroupID]=[Disabled cmds(comma-separated)] separated by ":".<br />Command list: mkdir, mkfile, rm, rename, duplicate, paste, upload, archive, extract, resize, netmount, perm, pixlr etc...' );
+define( $constpref.'_DISABLED_CMDS_BY_GID_DESC','Set [GroupID]=[Disabled cmds(comma-separated)] separated by ":".<br />Command list: archive, chmod, cut, duplicate, edit, empty, extract, mkdir, mkfile, paste, perm, put, rename, resize, rm, upload etc...' );
 define( $constpref.'_DISABLE_WRITES_GUEST' ,    'Disable writing cmds to guest' );
 define( $constpref.'_DISABLE_WRITES_GUEST_DESC','All writing commands are added to the disabled commands to guests.' );
 define( $constpref.'_DISABLE_WRITES_USER' ,     'Disable writing cmds to user' );
@@ -93,6 +93,10 @@ define( $constpref.'_JQUERY_UI_CSS' ,           'URL of jQuery UI CSS' );
 define( $constpref.'_JQUERY_UI_CSS_DESC' ,      'When not using CDN of Google, URL of "css" of jQueryUI is specified.' );
 define( $constpref.'_JQUERY_UI_THEME' ,         'jQuery UI Theme' );
 define( $constpref.'_JQUERY_UI_THEME_DESC' ,    'When CDN of Google is used, Theme name or URL to jQuery Theme CSS (Default: smoothness)' );
+define( $constpref.'_CREATIVE_CLOUD_APIKEY' ,   'Creative SDK API Key' );
+define( $constpref.'_CREATIVE_CLOUD_APIKEY_DESC','Specify the Creative Cloud API key when using Creative SDK image editor of Creative Cloud. <br /> API key can be obtained at https://console.adobe.io/.' );
+define( $constpref.'_EDITORS_JS',               'URL of editors.js' );
+define( $constpref.'_EDITORS_JS_DESC',          'Specify the URL of JavaScript when customizing "common/elfinder/js/extras/editors.default.js".' );
 define( $constpref.'_THUMBNAIL_SIZE' ,          '[xelfinder_db] Thumbnail size of image insertion' );
 define( $constpref.'_THUMBNAIL_SIZE_DESC' ,     'The default value (px) of the thumbnail size at picture insertion by BBcode.' );
 define( $constpref.'_DEFAULT_ITEM_PERM' ,       '[xelfinder_db] Permission of new items' );
@@ -181,6 +185,9 @@ define( $constpref.'_AUTOSYNC_SEC_GUEST_DESC',  '' );
 
 define( $constpref.'_AUTOSYNC_START',           'Start auto sync as soon' );
 define( $constpref.'_AUTOSYNC_START_DESC',      'Can start-stop of the auto sync by "reload" in the context menu.' );
+
+define( $constpref.'_FFMPEG_PATH',              'Path to ffmpeg command' );
+define( $constpref.'_FFMPEG_PATH_DESC',         'Specify the path when the path to ffmpeg is required.' );
 
 define( $constpref.'_DEBUG' ,                   'Enable Debug mode' );
 define( $constpref.'_DEBUG_DESC' ,              'If it is set in a debug mode, an individual file will be read instead of "elfinder.min.css" and "elfinder.min.js" by elFinder.<br />Moreover, debugging information is included in the response of JavaScript.<br />We recommend "No debug" for performance improvement.' );

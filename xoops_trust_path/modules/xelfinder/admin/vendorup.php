@@ -38,10 +38,15 @@ if (! empty ( $_POST ['doupdate'] )) {
 	putenv ( 'COMPOSER_HOME=' . $pluginsDir . '/.composer' );
 	
 	$phpcli = !empty($_POST['phpcli'])? trim($_POST['phpcli']) : 'php';
-	$cmds = array(
-		$phpcli.' -d curl.cainfo=cacert.pem -d openssl.cafile=cacert.pem composer.phar self-update --no-ansi --no-interaction 2>&1',
-		$phpcli.' -d curl.cainfo=cacert.pem -d openssl.cafile=cacert.pem composer.phar update --no-ansi --no-interaction --prefer-dist --no-dev 2>&1'
-	);
+	$php54 = !empty($_POST['php54']);
+	$cmds = array();
+	$cmds[] = $phpcli.' -d curl.cainfo=cacert.pem -d openssl.cafile=cacert.pem composer.phar self-update --no-ansi --no-interaction 2>&1';
+	if ($php54) {
+	    $cmds[] = $phpcli.' -d curl.cainfo=cacert.pem -d openssl.cafile=cacert.pem composer.phar remove --no-update kunalvarma05/dropbox-php-sdk';
+	} else {
+	    $cmds[] = $phpcli.' -d curl.cainfo=cacert.pem -d openssl.cafile=cacert.pem composer.phar require --no-update kunalvarma05/dropbox-php-sdk';
+	}
+	$cmds[] = $phpcli.' -d curl.cainfo=cacert.pem -d openssl.cafile=cacert.pem composer.phar update  --no-ansi --no-interaction --prefer-dist --no-dev 2>&1';
 	//$cmds = array(
 	//	$phpcli.' composer.phar info --no-ansi --no-interaction 2>&1',
 	//);
@@ -77,6 +82,7 @@ if ($php54up = version_compare(PHP_VERSION, '5.4.0', '>=')) {
 	} else {
 		$curver = '5.4';
 	}
+	$curverDig = str_replace('.', '', $curver);
 ?>
 <div>
 	<form action="./index.php?page=vendorup" method="post" id="xelfinder_vendorup_f"
@@ -90,7 +96,7 @@ if ($php54up = version_compare(PHP_VERSION, '5.4.0', '>=')) {
 				<dl>
 					<dt>Customized example</dt>
 					<dd><label><input value="/usr/local/php<?php echo $curver; ?>/bin/php" type="radio" name="cli">lolipop - "/usr/local/php<?php echo $curver; ?>/bin/php"</label></dd>
-					<dd><label><input value="/usr/local/bin/php56cli" type="radio" name="cli">XREA/CoreServer/ValueServer - "/usr/local/bin/php56cli"</label></dd>
+					<dd><label><input value="/usr/local/bin/php<?php echo $curverDig; ?>cli" type="radio" name="cli">XREA/CoreServer/ValueServer - "/usr/local/bin/php<?php echo $curverDig; ?>cli"</label></dd>
 					<dd><label><input value="/opt/php-<?php echo PHP_VERSION; ?>/bin/php" type="radio" name="cli">XSERVER - "/opt/php-<?php echo PHP_VERSION; ?>/bin/php"</label></dd>
 				</dl>
 			</td>
@@ -98,6 +104,7 @@ if ($php54up = version_compare(PHP_VERSION, '5.4.0', '>=')) {
 		<p>
 		<input type="submit" name="doupdate" id="xelfinder_vendorup_s"
 			value="<?php echo xelfinderAdminLang('COMPOSER_DO_UPDATE'); ?>" />
+		<input type="hidden" name="php54" value="<?php echo $curver === '5.4' ? '1' : '0'; ?>" />
 		</p>
 	</form>
 </div>

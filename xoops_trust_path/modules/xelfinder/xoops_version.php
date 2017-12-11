@@ -12,7 +12,7 @@ $constpref = '_MI_' . strtoupper( $mydirname ) ;
 $modversion['name'] = 'xelFinder' ;
 //$modversion['name'] = $constpref.'_NAME') ;
 $modversion['description'] = constant($constpref.'_DESC');
-$modversion['version'] = 2.19 ;
+$modversion['version'] = 2.26 ;
 $modversion['credits'] = "Hypweb.net";
 $modversion['author'] = "nao-pon" ;
 $modversion['help'] = "" ;
@@ -362,6 +362,22 @@ array(
 	'options'		=> array('black-tie'=>'black-tie','blitzer'=>'blitzer','cupertino'=>'cupertino','dark-hive'=>'dark-hive','dot-luv'=>'dot-luv','eggplant'=>'eggplant','excite-bike'=>'excite-bike','flick'=>'flick','hot-sneaks'=>'hot-sneaks','humanity'=>'humanity','le-frog'=>'le-frog','mint-choc'=>'mint-choc','overcast'=>'overcast','pepper-grinder','redmond'=>'redmond','smoothness'=>'smoothness','south-street'=>'south-street','start'=>'start','sunny'=>'sunny','swanky-purse'=>'swanky-purse','trontastic'=>'trontastic','ui-darkness'=>'ui-darkness','ui-lightness'=>'ui-lightness','vader'=>'vader')
 ),
 array(
+	'name'			=> 'creative_cloud_apikey' ,
+	'title'			=> $constpref.'_CREATIVE_CLOUD_APIKEY' ,
+	'description'	=> $constpref.'_CREATIVE_CLOUD_APIKEY_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> ''
+),
+array(
+	'name'			=> 'editors_js' ,
+	'title'			=> $constpref.'_EDITORS_JS' ,
+	'description'	=> $constpref.'_EDITORS_JS_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> ''
+),
+array(
 	'name'			=> 'thumbnail_size' ,
 	'title'			=> $constpref.'_THUMBNAIL_SIZE' ,
 	'description'	=> $constpref.'_THUMBNAIL_SIZE_DESC' ,
@@ -648,6 +664,14 @@ array(
 	'formtype'		=> 'yesno' ,
 	'valuetype'		=> 'int' ,
 	'default'		=> 1
+),
+array(
+	'name'			=> 'ffmpeg_path' ,
+	'title'			=> $constpref.'_FFMPEG_PATH',
+	'description'	=> $constpref.'_FFMPEG_PATH_DESC',
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> 'ffmpeg'
 ),
 array(
 	'name'			=> 'debug' ,

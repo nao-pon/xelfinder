@@ -3,12 +3,14 @@
 \#*
 *.bak
 .idea/
+.gitignore
 .buildpath
 .project
 .settings
 xoops_trust_path/uploads/xelfinder/*
 xoops_trust_path/modules/xelfinder/plugins/vendor
 xoops_trust_path/modules/xelfinder/plugins/.composer
+xoops_trust_path/modules/xelfinder/plugins/composer.lock
 html/modules/xelfinder/cache/*_manager.js
 html/modules/xelfinder/cache/.metaCache_*
 html/modules/xelfinder/cache/tmb/*.png
