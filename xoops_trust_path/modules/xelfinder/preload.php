@@ -27,13 +27,13 @@ class xelfinderPreloadBase extends XCube_ActionFilter {
 		
 		$mydirname = $this->mydirname;
 		
-		$root =& XCube_Root::getSingleton();
-		$xoopsUser =& $root->mContext->mXoopsUser;
+		$root = XCube_Root::getSingleton();
+		$xoopsUser = $root->mContext->mXoopsUser;
 		
 		// check module readable
-		$module_handler =& xoops_gethandler('module');
+		$module_handler = xoops_getHandler('module');
 		if ($XoopsModule = $module_handler->getByDirname($mydirname)) {
-			$moduleperm_handler =& xoops_gethandler('groupperm');
+			$moduleperm_handler = xoops_getHandler('groupperm');
 			if ($moduleperm_handler->checkRight('module_read', $XoopsModule->getVar('mid'), (is_object($xoopsUser)? $xoopsUser->getGroups() : XOOPS_GROUP_ANONYMOUS))) {
 				$mydirpath = $this->mydirpath;
 				$use_bbcode_siteimg = 1;
@@ -63,11 +63,11 @@ class xelfinderPreloadBase extends XCube_ActionFilter {
 	
 	function overRideImagecategoryList(& $actionFrame) {
 		if ($actionFrame->mActionName === 'ImagecategoryList') {
-			$image_handler =& xoops_getmodulehandler('image');
+			$image_handler = xoops_getModuleHandler('image');
 			if ($image_handler) {
 				$total_criteria = new CriteriaCompo();
 				if (! $image_handler->getCount($total_criteria)) {
-					$root =& XCube_Root::getSingleton();
+					$root = XCube_Root::getSingleton();
 					$root->mController->executeForward(XOOPS_MODULE_URL . '/' . $this->mydirname . '/');
 				}
 			}

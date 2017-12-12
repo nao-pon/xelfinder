@@ -61,7 +61,7 @@ class xoops_elFinder {
 		global $xoopsUser, $xoopsModule;
 		
 		if (!is_object($xoopsModule)) {
-			$module_handler = xoops_gethandler('module');
+			$module_handler = xoops_getHandler('module');
 			$mModule = $module_handler->getByDirname($mydirname);
 		} else {
 			$mModule = $xoopsModule;
@@ -71,7 +71,7 @@ class xoops_elFinder {
 		$this->xoopsModule = $mModule;
 		$this->isAdmin = (is_object($xoopsUser) && $xoopsUser->isAdmin($mModule->getVar('mid')));
 		$this->mydirname = $mydirname;
-		$this->db = & XoopsDatabaseFactory::getDatabaseConnection();
+		$this->db = XoopsDatabaseFactory::getDatabaseConnection();
 		$this->defaultVolumeOptions = array_merge($this->defaultVolumeOptions, $opt);
 		$this->mygids = is_object($this->xoopsUser)? $this->xoopsUser->getGroups() : array(XOOPS_GROUP_ANONYMOUS);
 		$this->uid = is_object($this->xoopsUser)? intval($this->xoopsUser->getVar('uid')) : 0;
@@ -122,7 +122,7 @@ class xoops_elFinder {
 				$uname = $this->getUname();
 				echo json_encode(array('uname' => $uname));
 			} else {
-				$config_handler = xoops_gethandler('config');
+				$config_handler = xoops_getHandler('config');
 				$xoopsConfig = $config_handler->getConfigsByCat(XOOPS_CONF);
 				$session->start();
 				$data = array('uname' => '');
@@ -405,11 +405,11 @@ class xoops_elFinder {
 		$ret = false;
 	
 		if (is_null($module_handler)) {
-			$module_handler =& xoops_gethandler('module');
+			$module_handler = xoops_getHandler('module');
 		}
 	
 		if ($XoopsModule = $module_handler->getByDirname($dirname)) {
-			$moduleperm_handler =& xoops_gethandler('groupperm');
+			$moduleperm_handler = xoops_getHandler('groupperm');
 			$ret = ($moduleperm_handler->checkRight('module_read', $XoopsModule->getVar('mid'), (is_object($this->xoopsUser)? $this->xoopsUser->getGroups() : XOOPS_GROUP_ANONYMOUS)));
 		}
 	
@@ -420,15 +420,15 @@ class xoops_elFinder {
 		$aGroups = array();
 		if ($dirname === '') {
 			$dirname = $this->mydirname;
-			$module_handler = xoops_gethandler('module');
+			$module_handler = xoops_getHandler('module');
 			$XoopsModule = $module_handler->getByDirname($dirname);
 		} else {
 			$XoopsModule = $this->xoopsModule;
 		}
 		if ($XoopsModule) {
 			$mid = $XoopsModule->getVar('mid');
-			$hGroupperm = xoops_gethandler('groupperm');
-			$hGroup = xoops_gethandler('group');
+			$hGroupperm = xoops_getHandler('groupperm');
+			$hGroup = xoops_getHandler('group');
 			$groups = $hGroup->getObjects(null, true);
 			foreach($groups as $gid => $group) {
 				if ($hGroupperm->checkRight('module_admin', $mid, $gid)) {
@@ -499,7 +499,7 @@ class xoops_elFinder {
 			}
 			
 			if ($mail) {
-				$config_handler = xoops_gethandler('config');
+				$config_handler = xoops_getHandler('config');
 				$xoopsConfig = $config_handler->getConfigsByCat(XOOPS_CONF);
 				
 				$sep = "\n".str_repeat('-', 40)."\n";
@@ -714,7 +714,7 @@ EOD;
 		}
 		
 		if ($uid === 0) {
-			$config_handler = xoops_gethandler('config');
+			$config_handler = xoops_getHandler('config');
 			$xoopsConfig = $config_handler->getConfigsByCat(XOOPS_CONF);
 			$uname = $xoopsConfig['anonymous'];
 			if (self::$dbCharset === 'utf8' && strtoupper(_CHARSET) !== 'UTF-8') {
@@ -767,12 +767,12 @@ EOD;
 			return $res[$dirname];
 		}
 		$ids = array(XOOPS_GROUP_ADMIN);
-		$module_handler = xoops_gethandler('module');
+		$module_handler = xoops_getHandler('module');
 		$XoopsModule = $module_handler->getByDirname($dirname);
 		if ($XoopsModule) {
 			$mid = $XoopsModule->getVar('mid');
-			$hGroupperm = xoops_gethandler('groupperm');
-			$hGroup = xoops_gethandler('group');
+			$hGroupperm = xoops_getHandler('groupperm');
+			$hGroup = xoops_getHandler('group');
 			$groups = $hGroup->getObjects(null, true);
 			foreach($groups as $gid => $group) {
 				if ($hGroupperm->checkRight('module_admin', $mid, $gid)) {
@@ -800,7 +800,7 @@ EOD;
 			$uname = mb_convert_encoding($uname, _CHARSET, 'UTF-8');
 		}
 
-		$member_handler = xoops_gethandler('member');
+		$member_handler = xoops_getHandler('member');
 		$myts = method_exists('MyTextsanitizer', 'sGetInstance')? MyTextsanitizer::sGetInstance() : MyTextsanitizer::getInstance();
 		$user = $member_handler->loginUser(addslashes($myts->stripSlashesGPC($uname)), addslashes($myts->stripSlashesGPC($pass)));
 		if ($user) {
@@ -834,7 +834,7 @@ EOD;
 			}
 			// RMV-NOTIFY
 			// Perform some maintenance of notification records
-			$notification_handler = xoops_gethandler('notification');
+			$notification_handler = xoops_getHandler('notification');
 			$notification_handler->doLoginMaintenance($user->getVar('uid'));
 		} else {
 			return false;

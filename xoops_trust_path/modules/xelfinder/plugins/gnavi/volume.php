@@ -5,9 +5,9 @@
 
 if (is_dir(XOOPS_ROOT_PATH . $path)) {
 
-	$module_handler = xoops_gethandler('module');
+	$module_handler = xoops_getHandler('module');
 	$gnaviModule = $module_handler->getByDirname($mydirname);
-	$config_handler = xoops_gethandler('config');
+	$config_handler = xoops_getHandler('config');
 	$myConfig = $config_handler->getConfigsByCat(0, $gnaviModule->mid());
 	
 	$path = '/' . trim($myConfig['gnavi_photospath'], '/') . '/';
