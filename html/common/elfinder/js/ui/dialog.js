@@ -34,8 +34,8 @@ $.fn.elfinderdialog = function(opts, fm) {
 		},
 		checkEditing = function() {
 			var cldialog = 'elfinder-dialog',
-				dialogs = elfNode.children('.'+cldialog+':visible');
-			fm[dialogs.find('.'+fm.res('class', 'editing')).length? 'disable' : 'enable']();
+				dialogs = elfNode.children('.' + cldialog + '.' + fm.res('class', 'editing') + ':visible');
+			fm[dialogs.length? 'disable' : 'enable']();
 		},
 		syncTm, dialog, elfNode;
 	
@@ -410,7 +410,8 @@ $.fn.elfinderdialog = function(opts, fm) {
 	
 						if (typeof(opts.close) == 'function') {
 							$.proxy(opts.close, self[0])();
-						} else if (opts.destroyOnClose) {
+						}
+						if (opts.destroyOnClose && dialog.parent().length) {
 							dialog.hide().remove();
 						}
 						

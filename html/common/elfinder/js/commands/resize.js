@@ -104,9 +104,10 @@ elFinder.prototype.commands.resize = function() {
 			presetSize = Array.isArray(options.presetSize)? options.presetSize : [],
 			dlcls = 'elfinder-dialog-resize',
 			clactive = 'elfinder-dialog-active',
+			clsediting = fm.res('class', 'editing'),
 			open = function(file, id) {
 				var isJpeg   = (file.mime === 'image/jpeg'),
-					dialog   = $('<div class="elfinder-dialog-resize '+fm.res('class', 'editing')+'"/>'),
+					dialog   = $('<div class="elfinder-dialog-resize"/>'),
 					input    = '<input type="number" class="ui-corner-all"/>',
 					row      = '<div class="elfinder-resize-row"/>',
 					label    = '<div class="elfinder-resize-label"/>',
@@ -1135,9 +1136,10 @@ elFinder.prototype.commands.resize = function() {
 					},
 					saveAs = function() {
 						var fail = function() {
-								dialogs.fadeIn(function() {
+								dialogs.addClass(clsediting).fadeIn(function() {
 									base.addClass(clactive);
 								});
+								fm.disable();
 							},
 							make = function() {
 								self.mime = file.mime;
@@ -1190,7 +1192,7 @@ elFinder.prototype.commands.resize = function() {
 							dialogs;
 						
 						if (checkVals()) {
-							dialogs = fmnode.children('.'+dlcls).fadeOut();
+							dialogs = fmnode.children('.' + dlcls + ':visible').removeClass(clsediting).fadeOut();
 							base.removeClass(clactive);
 							fm.enable();
 							if (fm.searchStatus.state < 2 && file.phash !== fm.cwd().hash) {
@@ -1467,7 +1469,7 @@ elFinder.prototype.commands.resize = function() {
 							dinit();
 						}
 					}
-				}).attr('id', id).closest('.ui-dialog').addClass(dlcls);
+				}).attr('id', id).closest('.ui-dialog').addClass(dlcls + ' ' + clsediting);
 				
 				// for IE < 9 dialog mising at open second+ time.
 				if (fm.UA.ltIE8) {

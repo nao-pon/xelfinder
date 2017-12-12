@@ -376,6 +376,7 @@ elFinder.prototype.commands.rm = function() {
 	
 	this.init = function() {
 		self.change(function() {
+			var targets;
 			delete self.extra;
 			self.title = fm.i18n('cmd' + self.value);
 			self.className = self.value;
@@ -385,13 +386,17 @@ elFinder.prototype.commands.rm = function() {
 					icon: 'rm',
 					node: $('<span/>')
 						.attr({title: fm.i18n('cmdrm')})
+						.on('ready', function(e, data) {
+							targets = data.targets;
+						})
 						.on('click touchstart', function(e){
 							if (e.type === 'touchstart' && e.originalEvent.touches.length > 1) {
 								return;
 							}
 							e.stopPropagation();
 							e.preventDefault();
-							fm.exec('rm', void(0), {_userAction: true, forceRm : true});
+							fm.getUI().trigger('click'); // to close the context menu immediately
+							fm.exec('rm', targets, {_userAction: true, forceRm : true});
 						})
 				};
 			}

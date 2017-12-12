@@ -458,7 +458,7 @@ $.fn.elfindercwd = function(fm, options) {
 					cwd.find('[id]:not(.'+clSelected+'):not(.elfinder-cwd-parent)').trigger(evtSelect);
 					if (fm.maxTargets && (incHashes || cwdHashes).length > fm.maxTargets) {
 						files = $.map(incHashes || cwdHashes, function(hash) { return fm.file(hash) || null });
-						files = fm.sortFiles(files).slice(0, fm.maxTargets);
+						files = files.slice(0, fm.maxTargets);
 						selectedFiles = {};
 						$.each(files, function(i, v) {
 							selectedFiles[v.hash] = true;
@@ -1621,6 +1621,13 @@ $.fn.elfindercwd = function(fm, options) {
 					buffer = $.map(incHashes || cwdHashes, function(hash) { return fm.file(hash) || null });
 					
 					buffer = fm.sortFiles(buffer);
+					
+					if (incHashes) {
+						incHashes = $.map(buffer, function(f) { return f.hash; });
+					} else {
+						cwdHashes = $.map(buffer, function(f) { return f.hash; });
+					}
+					
 					bufferExt = {
 						renderd: 0,
 						attachTmbs: {},
@@ -1665,15 +1672,12 @@ $.fn.elfindercwd = function(fm, options) {
 					if (selectCheckbox && (tgt.is('input:checkbox') || tgt.hasClass('elfinder-cwd-select'))) {
 						e.stopPropagation();
 						e.preventDefault();
-						if (! wrapper.data('touching')) {
-							p.trigger(p.hasClass(clSelected) ? evtUnselect : evtSelect);
-							trigger();
-						}
+						p.trigger(p.hasClass(clSelected) ? evtUnselect : evtSelect);
+						trigger();
 						setTimeout(function() {
 							tgt.prop('checked', p.hasClass(clSelected));
 						}, 10);
-						
-						return false;
+						return;
 					}
 					
 					if (cwd.data('longtap')) {
@@ -1732,20 +1736,24 @@ $.fn.elfindercwd = function(fm, options) {
 					}
 					var p   = this.id ? $(this) : $(this).parents('[id]:first'),
 						tgt = $(e.target),
+						nodeName = e.target.nodeName,
 						sel;
+					
+					if (nodeName === 'INPUT' || nodeName === 'TEXTAREA') {
+						e.stopPropagation();
+						return;
+					}
+					
+					// now name editing
+					if (p.find('input:text,textarea').length) {
+						e.stopPropagation();
+						e.preventDefault();
+						return;
+					}
 					
 					wrapper.data('touching', {x: e.originalEvent.touches[0].pageX, y: e.originalEvent.touches[0].pageY});
 					if (selectCheckbox && (tgt.is('input:checkbox') || tgt.hasClass('elfinder-cwd-select'))) {
-						setTimeout(function() {
-							if (wrapper.data('touching')) {
-								p.trigger(p.hasClass(clSelected) ? evtUnselect : evtSelect);
-								trigger();
-							}
-						}, 150);
-						return;
-					}
-
-					if (e.target.nodeName == 'INPUT' || e.target.nodeName == 'TEXTAREA') {
+						e.stopPropagation();
 						return;
 					}
 					
@@ -1770,6 +1778,7 @@ $.fn.elfindercwd = function(fm, options) {
 				})
 				.on('touchmove.'+fm.namespace+' touchend.'+fm.namespace, fileSelector, function(e) {
 					if (e.target.nodeName == 'INPUT' || e.target.nodeName == 'TEXTAREA' || $(e.target).hasClass('elfinder-cwd-select')) {
+						e.stopPropagation();
 						return;
 					}
 					var p = this.id ? $(this) : $(this).parents('[id]:first');
@@ -1959,6 +1968,12 @@ $.fn.elfindercwd = function(fm, options) {
 				})
 				.on('contextmenu.'+fm.namespace, function(e) {
 					var file = $(e.target).closest(fileSelector);
+					
+					// now filename editing
+					if (file.find('input:text,textarea').length) {
+						e.stopPropagation();
+						return;
+					}
 					
 					if (file.length && (e.target.nodeName != 'TD' || $.inArray(fm.cwdId2Hash(file.get(0).id), fm.selected()) > -1)) {
 						e.stopPropagation();
@@ -2318,12 +2333,16 @@ $.fn.elfindercwd = function(fm, options) {
 				fm.autoSync();
 			})
 			.bind('sortchange', function() {
-				var lastScrollLeft = wrapper.scrollLeft();
+				var lastScrollLeft = wrapper.scrollLeft(),
+					allsel = cwd.hasClass('elfinder-cwd-allselected');
 				
 				content();
 				fm.one('cwdrender', function() {
 					wrapper.scrollLeft(lastScrollLeft);
-					Object.keys(selectedFiles).length && trigger();
+					if (allsel) {
+						selectedFiles = fm.arrayFlip(incHashes || cwdHashes, true);
+					}
+					(allsel || Object.keys(selectedFiles).length) && trigger();
 					resize();
 				});
 			})
