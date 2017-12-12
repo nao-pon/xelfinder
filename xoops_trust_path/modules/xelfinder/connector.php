@@ -148,6 +148,7 @@ try {
 			} else {
 				header('Access-Control-Allow-Headers: *');
 			}
+			header('Access-Control-Expose-Headers: Content-Length');
 		}
 
 		if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS' || ! empty($_GET['keepalive'])) exit(0);
