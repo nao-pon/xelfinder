@@ -1584,8 +1584,9 @@ class elFinder {
 	protected function file($args) {
 		$target   = $args['target'];
 		$download = !empty($args['download']);
-		$h403     = 'HTTP/1.x 403 Access Denied';
-		$h404     = 'HTTP/1.x 404 Not Found';
+		$h403     = 'HTTP/1.0 403 Access Denied';
+		$h404     = 'HTTP/1.0 404 Not Found';
+		$h304     = 'HTTP/1.1 304 Not Modified';
 
 		if (($volume = $this->volume($target)) == false) { 
 			return array('error' => 'File not found', 'header' => $h404, 'raw' => true);
@@ -1647,6 +1648,7 @@ class elFinder {
 				'Content-Disposition: '.$disp.'; '.$filename,
 				'Content-Transfer-Encoding: binary',
 				'Content-Length: '.$file['size'],
+				'Last-Modified: '.gmdate('D, d M Y H:i:s T', $file['ts']),
 				'Connection: close'
 			)
 		);
@@ -2073,7 +2075,7 @@ class elFinder {
 	 * @return void
 	 */
 	protected function abort($args = array()) {
-		if (! elFinder::$connectionFlagsPath) {
+		if (! elFinder::$connectionFlagsPath || $_SERVER['REQUEST_METHOD'] === 'HEAD') {
 			return;
 		}
 		$flagFile = elFinder::$connectionFlagsPath . DIRECTORY_SEPARATOR . 'elfreq%s';
@@ -2306,24 +2308,35 @@ class elFinder {
 	 * @return array
 	 * @author Naoki Sawada
 	 */
-	protected function parse_data_scheme( $str, $extTable, $args = null) {
+	protected function parse_data_scheme($str, $extTable, $args = null) {
 		$data = $name = '';
+		// Scheme 'data://' require `allow_url_fopen` and `allow_url_include`
 		if ($fp = fopen('data://'.substr($str, 5), 'rb')) {
 			if ($data = stream_get_contents($fp)) {
 				$meta = stream_get_meta_data($fp);
-				$ext = isset($extTable[$meta['mediatype']])? '.' . $extTable[$meta['mediatype']] : '';
-				// Set name if name eq 'image.png' and $args has 'name' array, e.g. clipboard data
-				if (is_array($args['name']) && isset($args['name'][0])) {
-					$name = $args['name'][0];
-					if ($ext) {
-						$name = preg_replace('/\.[^.]*$/', '', $name);
-					}
-				} else {
-					$name = substr(md5($data), 0, 8);
-				}
-				$name .= $ext;
+				$mime = $meta['mediatype'];
 			}
 			fclose($fp);
+		} else if (preg_match('~^data:(.+?/.+?)?(?:;charset=.+?)?;base64,~', substr($str, 0, 128), $m)) {
+			$data = base64_decode(substr($str, strlen($m[0])));
+			if ($m[1]) {
+				$mime = $m[1];
+			}
+		}
+		if ($data) {
+			$ext = ($mime && isset($extTable[$mime]))? '.' . $extTable[$mime] : '';
+			// Set name if name eq 'image.png' and $args has 'name' array, e.g. clipboard data
+			if (is_array($args['name']) && isset($args['name'][0])) {
+				$name = $args['name'][0];
+				if ($ext) {
+					$name = preg_replace('/\.[^.]*$/', '', $name);
+				}
+			} else {
+				$name = substr(md5($data), 0, 8);
+			}
+			$name .= $ext;
+		} else {
+			$data = $name = '';
 		}
 		return array($data, $name);
 	}

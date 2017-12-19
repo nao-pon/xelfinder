@@ -280,10 +280,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 <?php exit();
 
 function xelfinder_detect_lang() {
-	$replaser = array(
-		'ja'    => 'jp',
-		'ja_JP' => 'jp'
-	);
+	$replaser = array();
 	if ($accept = @ $_SERVER['HTTP_ACCEPT_LANGUAGE']) {
 		if (preg_match_all("/([\w_-]+)/i",$accept,$match,PREG_PATTERN_ORDER)) {
 			foreach($match[1] as $lang) {

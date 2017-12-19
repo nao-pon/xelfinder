@@ -1,4 +1,3 @@
-"use strict";
 /**
  * @class elFinder command "rename". 
  * Rename selected file.
@@ -7,6 +6,7 @@
  * @author Naoki Sawada
  **/
 elFinder.prototype.commands.rename = function() {
+	"use strict";
 	var self = this,
 		fm = self.fm,
 		request = function(dfrd, targtes, file, name) {
@@ -161,8 +161,7 @@ elFinder.prototype.commands.rename = function() {
 					}
 				},
 				radios = checks.find('input:radio').on('change', mkPrev),
-				dialog,
-				radios;
+				dialog;
 			
 			opts.buttons[fm.i18n('btnApply')] = function() {
 				var vName = getName(),
@@ -207,10 +206,10 @@ elFinder.prototype.commands.rename = function() {
 		}
 	}];
 	
-	this.getstate = function(sel) {
-		var sel = this.files(sel),
+	this.getstate = function(select) {
+		var sel = this.files(select),
 			cnt = sel.length,
-			phash, ext, brk, state;
+			phash, ext, mime, brk, state;
 		
 		if (!cnt) {
 			return -1;
@@ -218,11 +217,12 @@ elFinder.prototype.commands.rename = function() {
 		
 		if (sel.length > 1 && sel[0].phash) {
 			phash = sel[0].phash;
-			ext = fm.splitFileExtention(sel[0].name)[1];
+			ext = fm.splitFileExtention(sel[0].name)[1].toLowerCase();
+			mime = sel[0].mime;
 		}
 
 		state = ((cnt === 1 && !sel[0].locked && !fm.isRoot(sel[0])) || (fm.api > 2.1030 && cnt === $.map(sel, function(f) {
-			if (!brk && !f.locked && f.phash === phash && !fm.isRoot(f) && ext === fm.splitFileExtention(f.name)[1]) {
+			if (!brk && !f.locked && f.phash === phash && !fm.isRoot(f) && (mime === f.mime || ext === fm.splitFileExtention(f.name)[1].toLowerCase())) {
 				return f;
 			} else {
 				brk = true;
@@ -252,13 +252,13 @@ elFinder.prototype.commands.rename = function() {
 		return state;
 	};
 	
-	this.exec = function(hashes, opts) {
+	this.exec = function(hashes, cOpts) {
 		var cwd      = fm.getUI('cwd'),
 			sel      = hashes || (fm.selected().length? fm.selected() : false) || [fm.cwd().hash],
 			cnt      = sel.length,
 			file     = fm.file(sel.shift()),
 			filename = '.elfinder-cwd-filename',
-			opts     = opts || {},
+			opts     = cOpts || {},
 			incwd    = (fm.cwd().hash == file.hash),
 			type     = opts._currentType? opts._currentType : (incwd? 'navbar' : 'files'),
 			navbar   = (type === 'navbar'),
@@ -482,7 +482,7 @@ elFinder.prototype.commands.rename = function() {
 		
 		fm.one('select', function() {
 			input.parent().length && file && $.inArray(file.hash, fm.selected()) === -1 && input.blur();
-		})
+		});
 		
 		input.trigger('keyup');
 		
