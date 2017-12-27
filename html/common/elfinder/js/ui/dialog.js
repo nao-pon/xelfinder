@@ -379,7 +379,7 @@ $.fn.elfinderdialog = function(opts, fm) {
 							}
 						});
 					}
-					checkEditing();
+					dialog.hasClass(fm.res('class', 'editing')) && checkEditing();
 				})
 				.on('close', function(e) {
 					var dialogs, dfd;
@@ -531,6 +531,10 @@ $.fn.elfinderdialog = function(opts, fm) {
 				.on('focus', '.'+cltabstop, function() {
 					$(this).addClass(clhover).parent('label').addClass(clhover);
 					this.id && $(this).parent().find('label[for='+this.id+']').addClass(clhover);
+				})
+				.on('click', 'select.'+cltabstop, function() {
+					var node = $(this);
+					node.data('keepFocus')? node.removeData('keepFocus') : node.data('keepFocus', true);
 				})
 				.on('blur', '.'+cltabstop, function() {
 					$(this).removeClass(clhover).removeData('keepFocus').parent('label').removeClass(clhover);

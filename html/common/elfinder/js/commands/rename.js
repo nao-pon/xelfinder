@@ -221,12 +221,12 @@ elFinder.prototype.commands.rename = function() {
 			mime = sel[0].mime;
 		}
 
-		state = ((cnt === 1 && !sel[0].locked && !fm.isRoot(sel[0])) || (fm.api > 2.1030 && cnt === $.map(sel, function(f) {
+		state = ((cnt === 1 && !sel[0].locked && !fm.isRoot(sel[0])) || (fm.api > 2.1030 && cnt === $.grep(sel, function(f) {
 			if (!brk && !f.locked && f.phash === phash && !fm.isRoot(f) && (mime === f.mime || ext === fm.splitFileExtention(f.name)[1].toLowerCase())) {
-				return f;
+				return true;
 			} else {
-				brk = true;
-				return null;
+				brk && (brk = true);
+				return false;
 			}
 		}).length)) ? 0 : -1;
 		
@@ -348,12 +348,12 @@ elFinder.prototype.commands.rename = function() {
 					}
 					if (!name || name === '.' || name === '..' || !valid) {
 						inError = true;
-						fm.error(file.mime === 'directory'? 'errInvDirname' : 'errInvName', {modal: true, close: select});
+						fm.error(file.mime === 'directory'? 'errInvDirname' : 'errInvName', {modal: true, close: function(){setTimeout(select, 120);}});
 						return false;
 					}
 					if (cnt === 1 && fm.fileByName(name, file.phash)) {
 						inError = true;
-						fm.error(['errExists', name], {modal: true, close: select});
+						fm.error(['errExists', name], {modal: true, close: function(){setTimeout(select, 120);}});
 						return false;
 					}
 					
@@ -418,6 +418,7 @@ elFinder.prototype.commands.rename = function() {
 					overlay.on('click', cancel).elfinderoverlay('show');
 					pnode.css('z-index', overlay.css('z-index') + 1);
 				}
+				! fm.enabled() && fm.enable();
 				if (inError) {
 					inError = false;
 					input.on('blur', blur);
