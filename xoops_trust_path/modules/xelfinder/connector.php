@@ -193,6 +193,12 @@ try {
 		define('ELFINDER_ONEDRIVE_CLIENTSECRET', $config['onedriveapi_secret']);
 	}
 
+	// zoho office editor
+	if (!empty($config['zoho_apikey'])) {
+		// https://www.zoho.com/docs/help/office-apis.html
+		define('ELFINDER_ZOHO_OFFICE_APIKEY', $config['zoho_apikey']);
+	}
+
 	/*// load xoops_elFinder
 	require_once dirname(__FILE__).'/class/xoops_elFinder.class.php';
 	$xoops_elFinder = new xoops_elFinder($mydirname);

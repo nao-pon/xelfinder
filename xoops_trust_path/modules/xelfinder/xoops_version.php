@@ -329,6 +329,14 @@ array(
 	'default'		=> ''
 ),
 array(
+	'name'			=> 'zoho_apikey' ,
+	'title'			=> $constpref.'_ZOHO_APIKEY' ,
+	'description'	=> $constpref.'_ZOHO_APIKEY_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> $_encrypt ,
+	'default'		=> ''
+),
+array(
 	'name'			=> 'jquery' ,
 	'title'			=> $constpref.'_JQUERY' ,
 	'description'	=> $constpref.'_JQUERY_DESC' ,

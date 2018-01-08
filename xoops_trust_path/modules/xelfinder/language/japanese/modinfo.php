@@ -87,6 +87,8 @@ define( $constpref.'_DROPBOX_WRITE_EXT' ,       '共有のDropbox書き込み許可ファイ
 define( $constpref.'_DROPBOX_WRITE_EXT_DESC' ,  '書き込みを許可するグループに書き込みを許可するファイル(ファイル名の後方一致)をカンマ区切りで指定します。<br />末尾を「/」とした場合はフォルダを対象とします。<br />管理者はこの制限を受けません。') ;
 define( $constpref.'_DROPBOX_UNLOCK_EXT' ,      '共有のDropbox非ロックファイル') ;
 define( $constpref.'_DROPBOX_UNLOCK_EXT_DESC' , 'ファイルをロックしない(非ロック)と、削除・移動・リネームが可能になります。<br />ロックをしないファイル(ファイル名の後方一致)をカンマ区切りで指定します。<br />末尾を「/」とした場合はフォルダを対象とします。<br />管理者には全てのファイルがロックされません。') ;
+define( $constpref.'_ZOHO_APIKEY' ,             'Zoho office editor API キー' );
+define( $constpref.'_ZOHO_APIKEY_DESC' ,        'Office アイテム編集時に Zoho office editor を使用する場合に API キーを指定します。<br/>API キーは <a href=""https://www.zoho.com/docs/help/office-apis.html#get-started" target="_blank">www.zoho.com/docs/help/office-apis.html</a> で取得できます。' );
 define( $constpref.'_JQUERY' ,                  'jQuery の URL' );
 define( $constpref.'_JQUERY_DESC' ,             'Google の CDN を利用しない場合に、jQuery の js の  URL を指定します。' );
 define( $constpref.'_JQUERY_UI' ,               'jQuery UI の URL' );
