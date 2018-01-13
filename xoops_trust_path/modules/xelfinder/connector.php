@@ -87,6 +87,14 @@ try {
 		define('ELFINDER_FFMPEG_PATH', $config['ffmpeg_path']);
 	}
 
+	define('_MD_XELFINDER_NETVOLUME_SESSION_KEY', 'xel_'.$mydirname.'_NetVolumes');
+
+	if (! defined('XOOPS_MODULE_PATH')) define('XOOPS_MODULE_PATH', XOOPS_ROOT_PATH . '/modules');
+	if (! defined('XOOPS_MODULE_URL')) define('XOOPS_MODULE_URL', XOOPS_URL . '/modules');
+
+	define('_MD_ELFINDER_MYDIRNAME', $mydirname);
+	define('_MD_XELFINDER_PROXY_TOKEN_KEY', $mydirname.'_ptoken');
+
 	// load xoops_elFinder
 	require_once dirname(__FILE__).'/class/xoops_elFinder.class.php';
 	$xoops_elFinder = new xoops_elFinder($mydirname);
@@ -107,22 +115,20 @@ try {
 	if (! isset($_SESSION['XELFINDER_CTOKEN'])
 	|| ! isset($_REQUEST['ctoken'])
 	|| $_SESSION['XELFINDER_CTOKEN'] !== $_REQUEST['ctoken']) {
-		($origin && isset($allowOrigins[$origin]))
-		|| isset($_GET['logout'])
-		|| (isset($_GET['cmd']) && ($_GET['cmd'] === 'callback' || $_GET['cmd'] === 'netmount'))
-		|| (isset($_REQUEST['cmd']) && $_REQUEST['cmd'] === 'file')
-		|| exit(json_encode(array('error' => 'errPleaseReload')));
-		if ($origin && $_REQUEST['ctoken'] && ! isset($_SESSION['XELFINDER_CTOKEN'])) {
-			$_SESSION['XELFINDER_CTOKEN'] = $_REQUEST['ctoken'];
+		if (($origin && isset($allowOrigins[$origin]))
+			|| isset($_GET['logout'])
+			|| (isset($_GET['cmd']) && ($_GET['cmd'] === 'callback' || $_GET['cmd'] === 'netmount'))
+			|| (isset($_REQUEST['cmd']) && $_REQUEST['cmd'] === 'file')
+			|| !empty($_REQUEST[_MD_XELFINDER_PROXY_TOKEN_KEY])
+		) {
+			if ($origin && $_REQUEST['ctoken'] && ! isset($_SESSION['XELFINDER_CTOKEN'])) {
+				$_SESSION['XELFINDER_CTOKEN'] = $_REQUEST['ctoken'];
+			}
+		} else {
+			header('HTTP', true, 403);
+			exit(json_encode(array('error' => 'errPleaseReload')));
 		}
 	}
-
-	define('_MD_XELFINDER_NETVOLUME_SESSION_KEY', 'xel_'.$mydirname.'_NetVolumes');
-
-	if (! defined('XOOPS_MODULE_PATH')) define('XOOPS_MODULE_PATH', XOOPS_ROOT_PATH . '/modules');
-	if (! defined('XOOPS_MODULE_URL')) define('XOOPS_MODULE_URL', XOOPS_URL . '/modules');
-
-	define('_MD_ELFINDER_MYDIRNAME', $mydirname);
 
 	if (empty($_REQUEST['xoopsUrl']) && !$origin) {
 		define('_MD_XELFINDER_SITEURL', XOOPS_URL);
@@ -210,10 +216,6 @@ try {
 	// custom session handler
 	require_once dirname(__FILE__) . '/class/xelFinderSession.class.php';
 	
-	// get user roll
-	$userRoll = $xoops_elFinder->getUserRoll();
-	$isAdmin = $userRoll['isAdmin'];
-
 	// make sesstion handler
 	$session = new xelFinderSession(array(
 		'base64encode' => $xoops_elFinder->base64encodeSessionData,
@@ -226,6 +228,10 @@ try {
 	// Check command login/logout/status
 	$xoops_elFinder->checkLogin($session);
 	
+	// get user roll
+	$userRoll = $xoops_elFinder->getUserRoll();
+	$isAdmin = $userRoll['isAdmin'];
+
 	// set netmount data to session
 	$netVolumeData = null;
 	if ($userRoll['uid'] && $session->get('netvolume') === null) {
@@ -436,6 +442,7 @@ try {
 				'Plugin.AutoResize.onUpLoadPreSave',
 				'Plugin.Watermark.onUpLoadPreSave'
 			),
+			'editor.pre' => array($xoops_elFinder, 'editorPreCallback'),
 		),
 		'plugin' => array(
 			//'Sanitizer' => array(
