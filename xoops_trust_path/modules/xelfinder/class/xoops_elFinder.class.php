@@ -78,8 +78,7 @@ class xoops_elFinder {
 		$this->myOrigin = ($https? 'https://' : 'http://')
 			.$_SERVER['SERVER_NAME'] // host
 			.(((! $https && $_SERVER['SERVER_PORT'] == 80) || ($https && $_SERVER['SERVER_PORT'] == 443)) ? '' : (':' . $_SERVER['SERVER_PORT']));  // port
-		$this->tokeDataPrefix = XOOPS_MODULE_PATH.'/'._MD_ELFINDER_MYDIRNAME.'/cache/tokendata_';
-		
+		$this->tokeDataPrefix = XOOPS_MODULE_PATH.'/'.$mydirname.'/cache/tokendata_';
 	}
 	
 	public function getMyOrigin() {
