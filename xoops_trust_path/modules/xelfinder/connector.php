@@ -1,7 +1,7 @@
 <?php
 
 try {
-
+	//debug($_REQUEST);
 	// for keep alive
 	if (! empty($_GET['keepalive']) && $_SERVER['REQUEST_METHOD'] !== 'OPTIONS') exit(0);
 
