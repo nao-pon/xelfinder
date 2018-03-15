@@ -458,6 +458,7 @@ try {
 		'debug' => $debug,
 		'uploadTempPath' => XOOPS_TRUST_PATH . '/cache',
 		'commonTempPath' => XOOPS_TRUST_PATH . '/cache',
+		'tmpLinkPath' => XOOPS_MODULE_PATH . '/'.$mydirname.'/cache',
 		'roots' => $rootVolumes,
 		'callbackWindowURL' => !empty($_REQUEST['myUrl'])? ($_REQUEST['myUrl'] . 'connector.php?cmd=callback') : ''
 	);
