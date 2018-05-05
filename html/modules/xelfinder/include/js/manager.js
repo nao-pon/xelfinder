@@ -115,21 +115,25 @@ $(document).ready(function() {
 			}
 		},
 		commandsOptions : {
-			  getfile : {
-			    onlyURL : false,
-			    multiple : false,
-			    folders : false,
-			    getImgSize: true
-			  },
-			  edit : {
-			      dialogWidth: '80%',
-			      extraOptions : {
-			    	  creativeCloudApiKey : creativeCloudApikey
-			      }
-			  },
-			  quicklook : {
-				  googleDocsMimes : useGoogleDocsPreview? ['application/pdf', 'image/tiff', 'application/vnd.ms-office', 'application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'] : []
-			  }
+			getfile : {
+				onlyURL : false,
+				multiple : false,
+				folders : false,
+				getImgSize: true
+			},
+			edit : {
+				dialogWidth: '80%',
+				extraOptions : {
+					creativeCloudApiKey : creativeCloudApikey
+				}
+			},
+			quicklook : {
+				googleDocsMimes : useGoogleDocsPreview? ['application/pdf', 'image/tiff', 'application/vnd.ms-office', 'application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'] : []
+			},
+			opennew : {
+				url : myUrl + 'manager.php',
+				useOriginQuery : false
+			}
 		}
 	}).elfinder('instance');
 	

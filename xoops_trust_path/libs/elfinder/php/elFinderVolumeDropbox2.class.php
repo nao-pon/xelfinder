@@ -1,11 +1,11 @@
 <?php
 
-use \Kunnu\Dropbox\DropboxApp;
-use \Kunnu\Dropbox\Dropbox;
-use \Kunnu\Dropbox\DropboxFile;
-use \Kunnu\Dropbox\Models\FolderMetadata;
-use \Kunnu\Dropbox\Models\FileMetadata;
-use \Kunnu\Dropbox\Exceptions\DropboxClientException;
+use Kunnu\Dropbox\DropboxApp;
+use Kunnu\Dropbox\Dropbox;
+use Kunnu\Dropbox\DropboxFile;
+use Kunnu\Dropbox\Models\FolderMetadata;
+use Kunnu\Dropbox\Models\FileMetadata;
+use Kunnu\Dropbox\Exceptions\DropboxClientException;
 
 elFinder::$netDrivers['dropbox2'] = 'Dropbox2';
 
@@ -631,7 +631,8 @@ class elFinderVolumeDropbox2 extends elFinderVolumeDriver
      **/
     protected function doSearch($path, $q, $mimes)
     {
-        if ($mimes) {
+        if (!empty($this->doSearchCurrentQuery['matchMethod']) || $mimes) {
+            // has custom match method or mimes, use elFinderVolumeDriver::doSearch()
             return parent::doSearch($path, $q, $mimes);
         }
 
