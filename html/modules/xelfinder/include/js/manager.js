@@ -58,34 +58,34 @@ $(document).ready(function() {
 				mes_en.errPleaseReload = 'Not found access token.<br />Please reload on browser, or re-open popup window.';
 				mes_en.errAccessReload = 'There are no token necessary to a connection, so reload this file manager.';
 
-				if (typeof fm.i18.jp !== "undefined") {
-					mes_jp = fm.i18.jp.messages;
-					mes_jp.read    = '読取'; // over write
-					mes_jp.write   = '書込'; // over write
-					mes_jp.ntfperm = 'アイテム属性を変更しています';
-					mes_jp.cmdperm = '属性変更';
-					mes_jp.newitem = '新規アイテム';
-					mes_jp.guest   = 'ゲスト';
-					mes_jp.unlock  = 'ロック解除';
-					mes_jp.hidden  = '非表示';
-					mes_jp.targetgroups  = '対象グループ';
-					mes_jp.mimeserach    = 'MIMEタイプで検索';
-					mes_jp.nowrap        = '回り込みなし';
-					mes_jp.wraparound    = '回り込みあり';
-					mes_jp.inline        = 'インライン';
-					mes_jp.fullsize      = 'フルサイズ';
-					mes_jp.thumbnail     = 'サムネイル';
-					mes_jp.continues     = 'さらに続ける';
-					mes_jp.imageinsert   = '画像挿入オプション';
-					mes_jp.CannotUploadOldIE = '<p>あなたがお使いの IE ブラウザでは、このマネージャーではファイルをアップロードすることができません。</p><p>ファイルをアップロードする場合は、最新のブラウザをご利用下さい。</p>';
-					mes_jp.errPleaseReload = '接続に必要なトークンがありません。<br />ブラウザでリロードするかポップアップウィンドウを開きなおしてください。';
-					mes_jp.errAccessReload = '接続に必要なトークンがないので、ファイルマネージャーを再読込します。';
-					mes_jp.cmdlogin = 'ログイン/ログアウト';
-					mes_jp.login    = 'ログイン';
-					mes_jp.logout   = '$1: ログアウト';
-					mes_jp.username = 'ユーザー名';
-					mes_jp.password = 'パスワード';
-					mes_jp.loginFaild = 'ログインできません。';
+				if (typeof fm.i18.ja !== "undefined") {
+					var mes_ja = fm.i18.ja.messages;
+					mes_ja.read    = '読取'; // over write
+					mes_ja.write   = '書込'; // over write
+					mes_ja.ntfperm = 'アイテム属性を変更しています';
+					mes_ja.cmdperm = '属性変更';
+					mes_ja.newitem = '新規アイテム';
+					mes_ja.guest   = 'ゲスト';
+					mes_ja.unlock  = 'ロック解除';
+					mes_ja.hidden  = '非表示';
+					mes_ja.targetgroups  = '対象グループ';
+					mes_ja.mimeserach    = 'MIMEタイプで検索';
+					mes_ja.nowrap        = '回り込みなし';
+					mes_ja.wraparound    = '回り込みあり';
+					mes_ja.inline        = 'インライン';
+					mes_ja.fullsize      = 'フルサイズ';
+					mes_ja.thumbnail     = 'サムネイル';
+					mes_ja.continues     = 'さらに続ける';
+					mes_ja.imageinsert   = '画像挿入オプション';
+					mes_ja.CannotUploadOldIE = '<p>あなたがお使いの IE ブラウザでは、このマネージャーではファイルをアップロードすることができません。</p><p>ファイルをアップロードする場合は、最新のブラウザをご利用下さい。</p>';
+					mes_ja.errPleaseReload = '接続に必要なトークンがありません。<br />ブラウザでリロードするかポップアップウィンドウを開きなおしてください。';
+					mes_ja.errAccessReload = '接続に必要なトークンがないので、ファイルマネージャーを再読込します。';
+					mes_ja.cmdlogin = 'ログイン/ログアウト';
+					mes_ja.login    = 'ログイン';
+					mes_ja.logout   = '$1: ログアウト';
+					mes_ja.username = 'ユーザー名';
+					mes_ja.password = 'パスワード';
+					mes_ja.loginFaild = 'ログインできません。';
 				}
 			}
 		},
@@ -115,21 +115,25 @@ $(document).ready(function() {
 			}
 		},
 		commandsOptions : {
-			  getfile : {
-			    onlyURL : false,
-			    multiple : false,
-			    folders : false,
-			    getImgSize: true
-			  },
-			  edit : {
-			      dialogWidth: '80%',
-			      extraOptions : {
-			    	  creativeCloudApiKey : creativeCloudApikey
-			      }
-			  },
-			  quicklook : {
-				  googleDocsMimes : useGoogleDocsPreview? ['application/pdf', 'image/tiff', 'application/vnd.ms-office', 'application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'] : []
-			  }
+			getfile : {
+				onlyURL : false,
+				multiple : false,
+				folders : false,
+				getImgSize: true
+			},
+			edit : {
+				dialogWidth: '80%',
+				extraOptions : {
+					creativeCloudApiKey : creativeCloudApikey
+				}
+			},
+			quicklook : {
+				googleDocsMimes : useGoogleDocsPreview? ['application/pdf', 'image/tiff', 'application/vnd.ms-office', 'application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'] : []
+			},
+			opennew : {
+				url : myUrl + 'manager.php',
+				useOriginQuery : false
+			}
 		}
 	}).elfinder('instance');
 	

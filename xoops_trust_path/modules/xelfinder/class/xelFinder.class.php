@@ -44,7 +44,7 @@ class xelFinder extends elFinder {
 				}
 
 				$uid = ($this->isAdmin && is_numeric($args['uid']))? intval($args['uid']) : null;
-				// @todo uid ���݂��邩�H�Ó�������
+				// @todo uid 存在するか？妥当性検査
 				
 				if ($args['perm'] === 'getgroups') {
 					$groups = $volume->getGroups($targets[0]);

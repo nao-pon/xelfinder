@@ -12,7 +12,7 @@ $constpref = '_MI_' . strtoupper( $mydirname ) ;
 $modversion['name'] = 'xelFinder' ;
 //$modversion['name'] = $constpref.'_NAME') ;
 $modversion['description'] = constant($constpref.'_DESC');
-$modversion['version'] = 2.26 ;
+$modversion['version'] = 2.36 ;
 $modversion['credits'] = "Hypweb.net";
 $modversion['author'] = "nao-pon" ;
 $modversion['help'] = "" ;
@@ -326,6 +326,14 @@ array(
 	'description'	=> $constpref.'_DROPBOX_UNLOCK_EXT_DESC' ,
 	'formtype'		=> 'textbox' ,
 	'valuetype'		=> 'string' ,
+	'default'		=> ''
+),
+array(
+	'name'			=> 'zoho_apikey' ,
+	'title'			=> $constpref.'_ZOHO_APIKEY' ,
+	'description'	=> $constpref.'_ZOHO_APIKEY_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> $_encrypt ,
 	'default'		=> ''
 ),
 array(

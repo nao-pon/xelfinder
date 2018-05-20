@@ -1,4 +1,3 @@
-"use strict";
 /**
  * @class  elFinder command "help"
  * "About" dialog
@@ -6,6 +5,7 @@
  * @author Dmitry (dio) Levashov
  **/
 (elFinder.prototype.commands.help = function() {
+	"use strict";
 	var fm   = this.fm,
 		self = this,
 		linktpl = '<div class="elfinder-help-link"> <a href="{url}">{link}</a></div>',
@@ -46,9 +46,9 @@
 			html.push('<div class="'+prim+'">'+fm.i18n('team')+'</div>');
 			
 			html.push(atpl[r](author, 'Dmitry "dio" Levashov &lt;dio@std42.ru&gt;')[r](work, fm.i18n('chiefdev')));
+			html.push(atpl[r](author, 'Naoki Sawada &lt;hypweb+elfinder@gmail.com&gt;')[r](work, fm.i18n('developer')));
 			html.push(atpl[r](author, 'Troex Nevelin &lt;troex@fury.scancode.ru&gt;')[r](work, fm.i18n('maintainer')));
 			html.push(atpl[r](author, 'Alexey Sukhotin &lt;strogg@yandex.ru&gt;')[r](work, fm.i18n('contributor')));
-			html.push(atpl[r](author, 'Naoki Sawada &lt;hypweb@gmail.com&gt;')[r](work, fm.i18n('contributor')));
 			
 			if (fm.i18[fm.lang].translator) {
 				$.each(fm.i18[fm.lang].translator.split(', '), function() {
@@ -91,15 +91,6 @@
 			html.push('<a href="https://github.com/Studio-42/elFinder/wiki" target="_blank" class="elfinder-dont-panic"><span>DON\'T PANIC</span></a>');
 			html.push('</div>');
 			// end help
-		},
-		usePref = false,
-		preference = function() {
-			usePref = true;
-			// preference tab
-			html.push('<div id="'+fm.namespace+'-help-preference" class="ui-tabs-panel ui-widget-content ui-corner-bottom">');
-			html.push('<div class="ui-widget-content elfinder-help-preference"></div>');
-			html.push('</div>');
-			// end preference
 		},
 		useDebug = false,
 		debug = function() {
@@ -171,18 +162,7 @@
 			}
 		},
 		content = '',
-		initCallbacks = [],
-		init = function(fn) {
-			if (fn && typeof fn === 'function') {
-				initCallbacks.push(fn);
-			} else if (initCallbacks.length) {
-				$.each(initCallbacks, function() {
-					this.call(self);
-				});
-				initCallbacks = [];
-			}
-		},
-		loaded, opened, tabDebug, debugDIV, debugUL;
+		opened, tabDebug, debugDIV, debugUL;
 	
 	this.alwaysEnabled  = true;
 	this.updateOnSelect = false;
@@ -194,173 +174,17 @@
 	}];
 	
 	fm.bind('load', function() {
-		var setupPref = function() {
-				var tab = content.find('.elfinder-help-preference'),
-					forms = self.options.prefs || ['language', 'toolbarPref', 'selectAction', 'useStoredEditor', 'autoFocusDialog', 'clearBrowserData'],
-					dls = $();
-				
-				forms = fm.arrayFlip(forms, true);
-				
-				if (fm.options.getFileCallback) {
-					delete forms.selectAction;
-				}
-				
-				forms.language && (forms.language = (function() {
-					var node = $('<div/>');
-					init(function() {
-						var langSel = $('<select/>').on('change', function() {
-								var lang = $(this).val();
-								fm.storage('lang', lang);
-								$('#'+fm.id).elfinder('reload');
-							}),
-							optTags = [],
-							langs = self.options.langs || {
-								ar: 'اللغة العربية',
-								bg: 'Български',
-								ca: 'Català',
-								cs: 'Čeština',
-								da: 'Dansk',
-								de: 'Deutsch',
-								el: 'Ελληνικά',
-								en: 'English',
-								es: 'Español',
-								fa: 'فارسی‌‎, پارسی‌',
-								fo: 'Føroyskt',
-								fr: 'Français',
-								he: 'עברית‎',
-								hr: 'Hrvatski',
-								hu: 'Magyar',
-								id: 'Bahasa Indonesia',
-								it: 'Italiano',
-								jp: '日本語',
-								ko: '한국어',
-								nl: 'Nederlands',
-								no: 'Norsk',
-								pl: 'Polski',
-								pt_BR: 'Português',
-								ro: 'Română',
-								ru: 'Pусский',
-								si: 'සිංහල',
-								sk: 'Slovenčina',
-								sl: 'Slovenščina',
-								sr: 'Srpski',
-								sv: 'Svenska',
-								tr: 'Türkçe',
-								ug_CN: 'ئۇيغۇرچە',
-								uk: 'Український',
-								vi: 'Tiếng Việt',
-								zh_CN: '简体中文',
-								zh_TW: '正體中文'
-							};
-						$.each(langs, function(lang, name) {
-							optTags.push('<option value="'+lang+'">'+name+'</option>');
-						});
-						node.replaceWith(langSel.append(optTags.join('')).val(fm.lang));
-					});
-					return node;
-				})());
-				
-				forms.toolbarPref && (forms.toolbarPref = (function() {
-					var node = $('<div/>');
-					init(function() {
-						var pnls = $.map(fm.options.uiOptions.toolbar, function(v) {
-								return $.isArray(v)? v : null
-							}),
-							tags = [],
-							hides = fm.storage('toolbarhides') || {};
-						$.each(pnls, function() {
-							var cmd = this,
-								name = fm.i18n('cmd'+cmd);
-							if (name === 'cmd'+cmd) {
-								name = fm.i18n(cmd);
-							}
-							tags.push('<span class="elfinder-help-toolbar-item"><label><input type="checkbox" value="'+cmd+'" '+(hides[cmd]? '' : 'checked')+'/>'+name+'</label></span>');
-						});
-						node.replaceWith($(tags.join(' ')).on('change', 'input', function() {
-							var v = $(this).val(),
-								o = $(this).is(':checked');
-							if (!o && !hides[v]) {
-								hides[v] = true;
-							} else if (o && hides[v]) {
-								delete hides[v];
-							}
-							fm.storage('toolbarhides', hides);
-							fm.trigger('toolbarpref');
-						}));
-					});
-					return node;
-				})());
-				
-				forms.selectAction && (forms.selectAction = (function() {
-					var node = $('<div/>');
-					init(function() {
-						var actSel = $('<select/>').on('change', function() {
-								var act = $(this).val();
-								fm.storage('selectAction', act === 'default'? null : act);
-							}),
-							optTags = [],
-							acts = self.options.selectActions;
-						
-						if (acts.indexOf('open') === -1) {
-							acts.unshift('open');
-						}
-						$.each(acts, function(i, act) {
-							var names = $.map(act.split('/'), function(cmd) {
-								var name = fm.i18n('cmd'+cmd);
-								if (name === 'cmd'+cmd) {
-									name = fm.i18n(cmd);
-								}
-								return name;
-							});
-							optTags.push('<option value="'+act+'">'+names.join('/')+'</option>');
-						});
-						node.replaceWith(actSel.append(optTags.join('')).val(fm.storage('selectAction') || 'open'));
-					});
-					return node;
-				})());
-				
-				forms.useStoredEditor && (forms.useStoredEditor = $('<input type="checkbox"/>').prop('checked', (function() {
-					var s = fm.storage('useStoredEditor');
-					return s? (s > 0) : fm.options.commandsOptions.edit.useStoredEditor;
-				})()).on('change', function(e) {
-					e.preventDefault();
-					fm.storage('useStoredEditor', $(this).is(':checked')? 1 : -1);
-					fm.trigger('selectfiles', {files : fm.selected()});
-				}));
-				
-				forms.autoFocusDialog && (forms.autoFocusDialog = $('<input type="checkbox"/>').prop('checked', (function() {
-					var s = fm.storage('autoFocusDialog');
-					return s? (s > 0) : fm.options.uiOptions.dialog.focusOnMouseOver;
-				})()).on('change', function(e) {
-					e.preventDefault();
-					fm.storage('autoFocusDialog', $(this).is(':checked')? 1 : -1);
-				}));
-				
-				forms.clearBrowserData && (forms.clearBrowserData = $('<button/>').text(fm.i18n('reset')).button().on('click', function(e) {
-					e.preventDefault();
-					fm.storage();
-					$('#'+fm.id).elfinder('reload');
-				}));
-				
-				$.each(forms, function(n, f) {
-					if (f && f !== true) {
-						dls = dls.add($('<dt>'+fm.i18n(n)+'</dt>')).add($('<dd class="elfinder-help-'+n+'"/>').append(f));
-					}
-				});
-				
-				tab.append($('<dl/>').append(dls));
-			},
-			parts = self.options.view || ['about', 'shortcuts', 'help', 'preference', 'debug'],
+		var parts = self.options.view || ['about', 'shortcuts', 'help', 'debug'],
 			i, helpSource, tabBase, tabNav, tabs, delta;
 		
-		// force enable 'preference' tab
-		if ($.inArray('preference', parts) === -1) {
-			parts.push('preference');
+		// remove 'preference' tab, it moved to command 'preference'
+		if ((i = $.inArray('preference', parts)) !== -1) {
+			parts.splice(i, 1);
 		}
 		
 		// debug tab require jQueryUI Tabs Widget
 		if (! $.fn.tabs) {
-			if ((i = $.inArray(parts, 'debug')) !== false) {
+			if ((i = $.inArray(parts, 'debug')) !== -1) {
 				parts.splice(i, 1);
 			}
 		}
@@ -377,14 +201,13 @@
 			helpSource = fm.baseUrl+'js/i18n/help/%s.html.js';
 			help();
 		}
-		$.inArray('preference', parts) !== -1 && preference();
 		$.inArray('debug', parts) !== -1 && debug();
 		
 		html.push('</div>');
 		content = $(html.join(''));
 		
 		content.find('.ui-tabs-nav li')
-			.hover(function() {
+			.on('mouseenter mouseleave', function() {
 				$(this).toggleClass('ui-state-hover');
 			})
 			.children()
@@ -400,10 +223,7 @@
 				}
 				
 			})
-			.filter(':first').click();
-		
-		// preference
-		usePref && setupPref();
+			.filter(':first').trigger('click');
 		
 		// debug
 		if (useDebug) {
@@ -482,14 +302,14 @@
 		fm.one('backenddebug', function() {
 			debug =true;
 		}).one('opendone', function() {
-			setTimeout(function() {
+			requestAnimationFrame(function() {
 				if (! debug && useDebug) {
 					useDebug = false;
 					tabDebug.hide();
 					debugDIV.hide();
 					debugUL.hide();
 				}
-			}, 0);
+			});
 		});
 	});
 	
@@ -507,29 +327,9 @@
 					opened = true;
 				}
 			};
-		if (! loaded) {
-			loaded = true;
-			fm.lazy(init).done(debugShow);
-		} else {
-			debugShow();
-		}
-		this.dialog.trigger('initContents').elfinderdialog('open').find((tab? '.elfinder-help-tab-'+tab : '.ui-tabs-nav li') + ' a:first').click();
+		debugShow();
+		this.dialog.trigger('initContents').elfinderdialog('open').find((tab? '.elfinder-help-tab-'+tab : '.ui-tabs-nav li') + ' a:first').trigger('click');
 		return $.Deferred().resolve();
 	};
 
 }).prototype = { forceLoad : true }; // this is required command
-
-elFinder.prototype.commands.preference = function() {
-	
-	this.linkedCmds = ['help'];
-	this.alwaysEnabled  = true;
-	
-	this.getstate = function() {
-		return 0;
-	};
-	
-	this.exec = function() {
-		return this.fm.exec('help', void(0), {tab: 'preference'});
-	};
-};
-

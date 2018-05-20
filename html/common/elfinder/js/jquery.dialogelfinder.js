@@ -1,4 +1,3 @@
-"use strict";
 /**
  * @class dialogelfinder - open elFinder in dialog window
  *
@@ -14,8 +13,10 @@
  * @author Dmitry (dio) Levashov
  **/
 $.fn.dialogelfinder = function(opts) {
+	"use strict";
 	var position = 'elfinderPosition',
-		destroy  = 'elfinderDestroyOnClose';
+		destroy  = 'elfinderDestroyOnClose',
+		node;
 	
 	this.not('.elfinder').each(function() {
 
@@ -24,7 +25,7 @@ $.fn.dialogelfinder = function(opts) {
 			toolbar = $('<div class="ui-widget-header dialogelfinder-drag ui-corner-top">'+(opts.title || 'Files')+'</div>'),
 			button  = $('<a href="#" class="dialogelfinder-drag-close ui-corner-all"><span class="ui-icon ui-icon-closethick"> </span></a>')
 				.appendTo(toolbar)
-				.click(function(e) {
+				.on('click', function(e) {
 					e.preventDefault();
 					
 					node.dialogelfinder('close');
@@ -57,7 +58,7 @@ $.fn.dialogelfinder = function(opts) {
 	});
 	
 	if (opts == 'open') {
-		var node = $(this),
+		node = $(this),
 			pos  = node.data(position) || {
 				top  : parseInt($(document).scrollTop() + ($(window).height() < node.height() ? 2 : ($(window).height() - node.height())/2)),
 				left : parseInt($(document).scrollLeft() + ($(window).width() < node.width()  ? 2 : ($(window).width()  - node.width())/2))
@@ -68,11 +69,11 @@ $.fn.dialogelfinder = function(opts) {
 
 			setTimeout(function() {
 				// fix resize icon position and make elfinder active
-				node.trigger('resize').mousedown();
+				node.trigger('resize').trigger('mousedown');
 			}, 200);
 		}
 	} else if (opts == 'close') {
-		var node = $(this).removeClass('ui-front');
+		node = $(this).removeClass('ui-front');
 			
 		if (node.is(':visible')) {
 			!!node.data(destroy)

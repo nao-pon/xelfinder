@@ -1,4 +1,3 @@
-"use strict";
 /**
  * @class  elFinder command "search"
  * Find files
@@ -6,8 +5,9 @@
  * @author Dmitry (dio) Levashov
  **/
 elFinder.prototype.commands.search = function() {
+	"use strict";
 	this.title          = 'Find files';
-	this.options        = {ui : 'searchbutton'}
+	this.options        = {ui : 'searchbutton'};
 	this.alwaysEnabled  = true;
 	this.updateOnSelect = false;
 	
@@ -19,7 +19,7 @@ elFinder.prototype.commands.search = function() {
 	 **/
 	this.getstate = function() {
 		return 0;
-	}
+	};
 	
 	/**
 	 * Send search request to backend.
@@ -27,11 +27,18 @@ elFinder.prototype.commands.search = function() {
 	 * @param  String  search string
 	 * @return $.Deferred
 	 **/
-	this.exec = function(q, target, mime) {
+	this.exec = function(q, target, mime, type) {
 		var fm = this.fm,
 			reqDef = [],
+			sType = type || '',
 			onlyMimes = fm.options.onlyMimes,
-			phash, targetVolids = [];
+			phash, targetVolids = [],
+			setType = function(data) {
+				if (sType && sType !== 'SearchName' && sType !== 'SearchMime') {
+					data.type = sType;
+				}
+				return data;
+			};
 		
 		if (typeof q == 'string' && q) {
 			if (typeof target == 'object') {
@@ -45,21 +52,21 @@ elFinder.prototype.commands.search = function() {
 					mime = $.map(mime, function(m){ 
 						m = $.trim(m);
 						return m && ($.inArray(m, onlyMimes) !== -1
-									|| $.map(onlyMimes, function(om) { return m.indexOf(om) === 0? true : null }).length
-									)? m : null 
+									|| $.grep(onlyMimes, function(om) { return m.indexOf(om) === 0? true : false; }).length
+									)? m : null;
 					});
 				}
 			} else {
 				mime = [].concat(onlyMimes);
 			}
 
-			fm.trigger('searchstart', {query : q, target : target, mimes : mime});
+			fm.trigger('searchstart', setType({query : q, target : target, mimes : mime}));
 			
 			if (! onlyMimes.length || mime.length) {
 				if (target === '' && fm.api >= 2.1) {
 					$.each(fm.roots, function(id, hash) {
 						reqDef.push(fm.request({
-							data   : {cmd : 'search', q : q, target : hash, mimes : mime},
+							data   : setType({cmd : 'search', q : q, target : hash, mimes : mime}),
 							notify : {type : 'search', cnt : 1, hideCnt : (reqDef.length? false : true)},
 							cancel : true,
 							preventDone : true
@@ -67,7 +74,7 @@ elFinder.prototype.commands.search = function() {
 					});
 				} else {
 					reqDef.push(fm.request({
-						data   : {cmd : 'search', q : q, target : target, mimes : mime},
+						data   : setType({cmd : 'search', q : q, target : target, mimes : mime}),
 						notify : {type : 'search', cnt : 1, hideCnt : true},
 						cancel : true,
 						preventDone : true
@@ -81,7 +88,7 @@ elFinder.prototype.commands.search = function() {
 										var f = fm.file(this);
 										f && f.volumeid && targetVolids.push(f.volumeid);
 										reqDef.push(fm.request({
-											data   : {cmd : 'search', q : q, target : this, mimes : mime},
+											data   : setType({cmd : 'search', q : q, target : this, mimes : mime}),
 											notify : {type : 'search', cnt : 1, hideCnt : false},
 											cancel : true,
 											preventDone : true
@@ -132,8 +139,8 @@ elFinder.prototype.commands.search = function() {
 				});
 			});
 		}
-		fm.getUI('toolbar').find('.'+fm.res('class', 'searchbtn')+' :text').focus();
+		fm.getUI('toolbar').find('.'+fm.res('class', 'searchbtn')+' :text').trigger('focus');
 		return $.Deferred().reject();
-	}
+	};
 
 };

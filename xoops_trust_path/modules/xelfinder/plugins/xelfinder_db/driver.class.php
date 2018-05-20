@@ -656,8 +656,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 	 * @return false
 	 * @author Dmitry(dio) Levashov
 	 **/
-	protected function setError($error) {
-	
+	protected function setError() {
 		if (! is_array($this->error)) {
 			$this->error = array();
 		}

@@ -86,6 +86,8 @@ define( $constpref.'_DROPBOX_WRITE_EXT' ,       'Shared Dropbox Writable files')
 define( $constpref.'_DROPBOX_WRITE_EXT_DESC' ,  'The backward match of the file name which permits writing to the group which permits writing. It specifies by comma separated values. <br />It is aimed at a folder when an end is "/".<br />Administrators are not restricted.') ;
 define( $constpref.'_DROPBOX_UNLOCK_EXT' ,      'Shared Dropbox unlocked files') ;
 define( $constpref.'_DROPBOX_UNLOCK_EXT_DESC' , 'Unlocking file can be deleted, moved and renamed.<br />The file (backward match of a file name) which does not lock is specified by comma separated values.<br />It is aimed at a folder when an end is "/".<br />All the files are unlocking at administrators.') ;
+define( $constpref.'_ZOHO_APIKEY' ,             'Zoho office editor API Key' );
+define( $constpref.'_ZOHO_APIKEY_DESC' ,        'Specify the API key when using Zoho office editor when editing Office items. You can to get API key in <a href=""https://www.zoho.com/docs/help/office-apis.html#get-started" target="_blank">www.zoho.com/docs/help/office-apis.html</a>.' );
 define( $constpref.'_JQUERY' ,                  'URL of jQuery' );
 define( $constpref.'_JQUERY_DESC' ,             'When not using CDN of Google, URL of "js" of jQuery is specified.' );
 define( $constpref.'_JQUERY_UI' ,               'URL of jQuery UI' );

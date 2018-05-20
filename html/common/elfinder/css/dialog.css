@@ -20,6 +20,9 @@
 .elfinder-rtl .std42-dialog.elfinder-dialog-minimized {
 	float: right;
 }
+.std42-dialog input {
+	border:1px solid;
+}
 
 /* titlebar */
 .std42-dialog .ui-dialog-titlebar {
@@ -89,11 +92,11 @@
 	background-color: transparent;
 	background-image: none;
 }
-.elfinder-touch .std42-dialog/*:not(.elfinder-dialog-minimized)*/ .ui-dialog-titlebar .elfinder-titlebar-button {
-	transform: scale(1.1);
+.elfinder-touch .std42-dialog .ui-dialog-titlebar .elfinder-titlebar-button {
+	transform: scale(1.2);
 	zoom: 1.1;
-	margin-left: 5px;
-	margin-right: 5px;
+	padding-left: 6px;
+	padding-right: 6px;
 }
 .std42-dialog .ui-dialog-titlebar .elfinder-titlebar-button-right {
 	float: right;
@@ -313,9 +316,22 @@
 	min-width:200px;
 	border:0 solid;
 	margin:1em .2em 1em .2em;
+	width: 100%;
 }
 
-.elfinder-info-tb td { white-space:nowrap; padding:2px; }
+.elfinder-info-tb td {
+	white-space: pre-wrap;
+	padding: 2px;
+}
+
+.elfinder-info-tb td.elfinder-info-label {
+	white-space: nowrap;
+}
+
+.elfinder-info-tb td.elfinder-info-hash {
+	word-break: break-word;
+	max-width: 32em;
+}
 
 .elfinder-info-tb tr td:first-child { text-align:right;  }
 
@@ -332,7 +348,6 @@
 
 .elfinder-netmount-tb { margin:0 auto; }
 .elfinder-netmount-tb select,
-.elfinder-netmount-tb input { border:1px solid #ccc; }
 .elfinder-netmount-tb .elfinder-button-icon { cursor: pointer; }
 
 button.elfinder-info-button {

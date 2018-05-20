@@ -1,4 +1,3 @@
-"use strict";
 /**
  * @class elFinder command "upload"
  * Upload files using iframe or XMLHttpRequest & FormData.
@@ -8,6 +7,7 @@
  * @author  Dmitry (dio) Levashov
  */
 elFinder.prototype.commands.upload = function() {
+	"use strict";
 	var hover = this.fm.res('class', 'hover');
 	
 	this.disableOnSearch = true;
@@ -23,9 +23,9 @@ elFinder.prototype.commands.upload = function() {
 	 *
 	 * @return Number
 	 **/
-	this.getstate = function(sel) {
+	this.getstate = function(select) {
 		var fm = this.fm, f,
-		sel = (sel || [fm.cwd().hash]);
+		sel = (select || [fm.cwd().hash]);
 		if (!this._disabled && sel.length == 1) {
 			f = fm.file(sel[0]);
 		}
@@ -39,10 +39,10 @@ elFinder.prototype.commands.upload = function() {
 			getTargets = function() {
 				var tgts = data && (data instanceof Array)? data : null,
 					sel;
-				if (! data) {
+				if (! data || data instanceof Array) {
 					if (! tgts && (sel = fm.selected()).length === 1 && fm.file(sel[0]).mime === 'directory') {
 						tgts = sel;
-					} else {
+					} else if (!tgts || tgts.length !== 1 || fm.file(tgts[0]).mime !== 'directory') {
 						tgts = [ cwdHash ];
 					}
 				}
@@ -84,6 +84,9 @@ elFinder.prototype.commands.upload = function() {
 								fm.toast({msg: fm.i18n(['complete', fm.i18n('cmdupload')]), extNode: node});
 							}
 						}
+					})
+					.progress(function() {
+						dfrd.notifyWith(this, Array.from(arguments));
 					});
 			},
 			upload = function(data) {
@@ -120,20 +123,20 @@ elFinder.prototype.commands.upload = function() {
 									var title = base.children('.ui-dialog-titlebar:first').find('span.elfinder-upload-target');
 									targets = [ f.hash ];
 									title.html(' - ' + fm.escape(f.i18 || f.name));
-									$this.focus();
+									$this.trigger('focus');
 								},
 								options  : {
 									className : (targets && targets.length && f.hash === targets[0])? 'ui-state-active' : '',
 									iconClass : f.csscls || '',
 									iconImg   : f.icon   || ''
 								}
-							}
+							};
 						},
 						raw = [ getRaw(targetDir, 'opendir'), '|' ];
 					$.each(dirs, function(i, f) {
 						raw.push(getRaw(f, 'dir'));
 					});
-					$this.blur();
+					$this.trigger('blur');
 					fm.trigger('contextmenu', {
 						raw: raw,
 						x: e.pageX || $(this).offset().left,
@@ -146,7 +149,7 @@ elFinder.prototype.commands.upload = function() {
 			inputButton = function(type, caption) {
 				var button,
 					input = $('<input type="file" ' + type + '/>')
-					.change(function() {
+					.on('change', function() {
 						upload({input : input.get(0), type : 'files'});
 					})
 					.on('dragover', function(e) {
@@ -162,8 +165,8 @@ elFinder.prototype.commands.upload = function() {
 							input.click();
 						}
 					})
-					.hover(function() {
-						$(this).toggleClass(hover)
+					.on('mouseenter mouseleave', function(e) {
+						$(this).toggleClass(hover, e.type === 'mouseenter');
 					});
 			},
 			dfrd = $.Deferred(),
@@ -235,8 +238,8 @@ elFinder.prototype.commands.upload = function() {
 			return dfrd;
 		}
 		
-		paste = function(e) {
-			var e = e.originalEvent || e;
+		paste = function(ev) {
+			var e = ev.originalEvent || ev;
 			var files = [], items = [];
 			var file;
 			if (e.clipboardData) {
@@ -257,7 +260,7 @@ elFinder.prototype.commands.upload = function() {
 				}
 			}
 			var my = e.target || e.srcElement;
-			setTimeout(function () {
+			requestAnimationFrame(function() {
 				var type = 'text',
 					src;
 				if (my.innerHTML) {
@@ -277,7 +280,7 @@ elFinder.prototype.commands.upload = function() {
 					my.innerHTML = '';
 					upload({files : [ src ], type : type});
 				}
-			}, 1);
+			});
 		};
 		
 		dialog = $('<div class="elfinder-upload-dialog-wrapper"/>')
@@ -314,7 +317,7 @@ elFinder.prototype.commands.upload = function() {
 					paste(e);
 				})
 				.on('mousedown click', function(){
-					$(this).focus();
+					$(this).trigger('focus');
 				})
 				.on('focus', function(){
 					this.innerHTML = '';
@@ -355,7 +358,7 @@ elFinder.prototype.commands.upload = function() {
 					paste(e);
 				})
 				.on('mousedown click', function(){
-					$(this).focus();
+					$(this).trigger('focus');
 				})
 				.on('focus', function(){
 					this.innerHTML = '';

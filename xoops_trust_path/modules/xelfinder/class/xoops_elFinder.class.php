@@ -18,7 +18,8 @@ class xoops_elFinder {
 	protected $uid;
 	protected $inSpecialGroup;
 	protected $myOrigin;
-	
+	protected $tokeDataPrefix;
+
 	public $base64encodeSessionData;
 	
 	protected static $dbCharset = '';
@@ -67,20 +68,17 @@ class xoops_elFinder {
 			$mModule = $xoopsModule;
 		}
 		
-		$this->xoopsUser = $xoopsUser;
 		$this->xoopsModule = $mModule;
-		$this->isAdmin = (is_object($xoopsUser) && $xoopsUser->isAdmin($mModule->getVar('mid')));
+		$this->setXoopsUser($xoopsUser);
 		$this->mydirname = $mydirname;
 		$this->db = XoopsDatabaseFactory::getDatabaseConnection();
 		$this->defaultVolumeOptions = array_merge($this->defaultVolumeOptions, $opt);
-		$this->mygids = is_object($this->xoopsUser)? $this->xoopsUser->getGroups() : array(XOOPS_GROUP_ANONYMOUS);
-		$this->uid = is_object($this->xoopsUser)? intval($this->xoopsUser->getVar('uid')) : 0;
 		$this->base64encodeSessionData = ((!defined('_CHARSET') || _CHARSET !== 'UTF-8') && substr($this->getSessionTableType(), -4) !== 'blob');
 		$https = (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off');
 		$this->myOrigin = ($https? 'https://' : 'http://')
 			.$_SERVER['SERVER_NAME'] // host
 			.(((! $https && $_SERVER['SERVER_PORT'] == 80) || ($https && $_SERVER['SERVER_PORT'] == 443)) ? '' : (':' . $_SERVER['SERVER_PORT']));  // port
-		
+		$this->tokeDataPrefix = XOOPS_MODULE_PATH.'/'.$mydirname.'/cache/tokendata_';
 	}
 	
 	public function getMyOrigin() {
@@ -128,11 +126,7 @@ class xoops_elFinder {
 				$data = array('uname' => '');
 				if (isset($_GET['logout'])) {
 					$this->destroySessionVar();
-					$this->xoopsUser = null;
-					$this->isAdmin = false;
-					$this->mygids = array(XOOPS_GROUP_ANONYMOUS);
-					$this->inSpecialGroup = false;
-					$this->uid = 0;
+					$this->setXoopsUser();
 				} else {
 					$data = array();
 					if ($this->login($session, $xoopsConfig)) {
@@ -155,6 +149,37 @@ class xoops_elFinder {
 				echo json_encode($data);
 			}
 			exit();
+		} else if (! empty($_GET[_MD_XELFINDER_PROXY_TOKEN_KEY])) {
+			$this->tokenDataGC();
+			// check token
+			$token = preg_replace('/[^0-9a-f]/', '', $_GET[_MD_XELFINDER_PROXY_TOKEN_KEY]);
+			$file = $this->tokeDataPrefix . $token . '.dat';
+			if (file_exists($file) && ($data = unserialize(file_get_contents($file)))) {
+				if (!empty($data['require']) && !empty($data['uid'])) {
+					$args = $_GET;
+					if (! empty($_POST)) {
+						$args = array_merge($_POST, $args);
+					}
+					$ok = true;
+					foreach($data['require'] as $key => $val) {
+						if (! isset($args[$key]) || $args[$key] != $val) {
+							$ok = false;
+							break;
+						}
+					}
+					if ($ok) {
+						$member_handler = xoops_getHandler('member');
+						$this->setXoopsUser($member_handler->getUser($data['uid']));
+						if ($this->xoopsUser) {
+							global $xoopsUser;
+							$xoopsUser = $this->xoopsUser;
+						}
+					} else {
+						header('HTTP', true, 403);
+						exit();
+					}
+				}
+			}
 		}
 	}
 	
@@ -485,6 +510,46 @@ class xoops_elFinder {
 		}
 	}
 	
+	protected function tokenDataGC() {
+		$files = glob($this->tokeDataPrefix . '*', GLOB_NOSORT);
+		if ($files) {
+			$now = time();
+			foreach($files as $_f) {
+				if (filemtime($_f) < $now) {
+					unlink($_f);
+				}
+			}
+		}
+	}
+
+	public function editorPreCallback($cmd, &$args, $elfinder, $volume) {
+		if ($args['name'] === 'ZohoOffice') {
+			if (! empty($args['method']) && $args['method'] === 'init') {
+				$token = $this->setTokenData(array(
+					'require' => array(
+						'cmd' => 'editor',
+						'id' => $args['args']['target'],
+						'name' => 'ZohoOffice',
+						'method' => 'save'
+					),
+					'uid' => $this->uid
+				));
+				$cdata = empty($args['args']['cdata']) ? '' : $args['args']['cdata'];
+				$args['args']['cdata'] = $cdata . '&' . _MD_XELFINDER_PROXY_TOKEN_KEY . '=' . $token;
+			}
+		}
+	}
+	
+	public function setTokenData($data, $expires = 43200/* 12h */) {
+		$this->tokenDataGC();
+		$serData = serialize($data);
+		$token = md5(_MD_XELFINDER_PROXY_TOKEN_KEY . $serData);
+		$file = $this->tokeDataPrefix . $token . '.dat';
+		file_put_contents($file, $serData);
+		touch($file, time() + $expires);
+		return $token;
+	}
+
 	public function notifyMail($cmd, &$result, $args, $elfinder) {
 		if (!empty($result['added'])) {
 			$mail = false;
@@ -840,12 +905,26 @@ EOD;
 			return false;
 		}
 		
-		$this->xoopsUser = $user;
-		$this->isAdmin = (is_object($user) && $user->isAdmin($this->xoopsModule->getVar('mid')));
-		$this->mygids = is_object($user)? $user->getGroups() : array(XOOPS_GROUP_ANONYMOUS);
-		$this->uid = is_object($user)? intval($user->getVar('uid')) : 0;
-		$this->inSpecialGroup = (array_intersect($this->mygids, ( isset($this->config['special_groups'])? $this->config['special_groups'] : array() )));
+		$this->setXoopsUser($user);
 		
 		return true;
+	}
+
+	protected function setXoopsUser($user = null) {
+		if (is_object($user)) {
+			$this->xoopsUser = $user;
+			$this->isAdmin = (is_object($user) && $user->isAdmin($this->xoopsModule->getVar('mid')));
+			$this->mygids = is_object($user)? $user->getGroups() : array(XOOPS_GROUP_ANONYMOUS);
+			$this->uid = is_object($user)? intval($user->getVar('uid')) : 0;
+			if ($this->config) {
+				$this->inSpecialGroup = (array_intersect($this->mygids, ( isset($this->config['special_groups'])? $this->config['special_groups'] : array() )));
+			}
+		} else {
+			$this->xoopsUser = null;
+			$this->isAdmin = false;
+			$this->mygids = array(XOOPS_GROUP_ANONYMOUS);
+			$this->uid = 0;
+			$this->inSpecialGroup = false;
+		}
 	}
 }

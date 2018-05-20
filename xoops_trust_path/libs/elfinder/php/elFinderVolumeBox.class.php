@@ -205,7 +205,7 @@ class elFinderVolumeBox extends elFinderVolumeDriver
      */
     protected function _bd_refreshToken()
     {
-        if ($this->token->expires < time()) {
+        if (!property_exists($this->token, 'expires') || $this->token->expires < time()) {
             if (!$token = $this->session->get('BoxTokens')) {
                 $token = $this->token;
             }
@@ -820,6 +820,9 @@ class elFinderVolumeBox extends elFinderVolumeDriver
         // 'lsPlSleep' minmum 10 sec
         $this->options['lsPlSleep'] = max(10, $this->options['lsPlSleep']);
 
+        // enable command archive
+        $this->options['useRemoteArchive'] = true;
+
         return true;
     }
 
@@ -836,9 +839,6 @@ class elFinderVolumeBox extends elFinderVolumeDriver
         if (!$this->tmp && $this->tmbPathWritable) {
             $this->tmp = $this->tmbPath;
         }
-
-        $this->disabled[] = 'archive';
-        $this->disabled[] = 'extract';
     }
 
     /*********************************************************************/

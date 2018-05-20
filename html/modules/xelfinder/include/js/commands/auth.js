@@ -41,7 +41,7 @@ elFinder.prototype.commands.login = function() {
 		},
 		makeAopt = function(data) {
 			aopt['data'] = {};
-			$.each(fm.options.customData, function(key, val) {
+			$.each(fm.customData, function(key, val) {
 				aopt['data'][key] = val;
 			});
 			data && Object.assign(aopt['data'], data);
@@ -88,7 +88,7 @@ elFinder.prototype.commands.login = function() {
 							fm.options.uiOptions.places.suffix = res.xoopsUid;
 						}
 						if (typeof res.cToken !== 'undefined') {
-							fm.options.customData.ctoken = res.cToken;
+							fm.options.customData.ctoken = fm.customData.ctoken = res.cToken;
 						}
 						dfd = fm.sync().always(function() { 
 							tm && clearTimeout(tm); 

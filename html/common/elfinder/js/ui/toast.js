@@ -1,4 +1,3 @@
-"use strict";
 /**
  * @class  elFinder toast
  * 
@@ -8,7 +7,8 @@
  * @author Naoki Sawada
  **/
 $.fn.elfindertoast = function(opts, fm) {
-	var defOpts = {
+	"use strict";
+	var defOpts = Object.assign({
 		mode: 'success',
 		msg: '',
 		showMethod: 'fadeIn', //fadeIn, slideDown, and show are built into jQuery
@@ -21,7 +21,7 @@ $.fn.elfindertoast = function(opts, fm) {
 		onHidden: undefined,
 		timeOut: 3000,
 		extNode: undefined
-	};
+	}, $.isPlainObject(fm.options.uiOptions.toast.defaults)? fm.options.uiOptions.toast.defaults : {});
 	return this.each(function() {
 		opts = Object.assign({}, defOpts, opts || {});
 		
@@ -54,6 +54,8 @@ $.fn.elfindertoast = function(opts, fm) {
 		self.on('click', function(e) {
 			e.stopPropagation();
 			e.preventDefault();
+			rmTm && clearTimeout(rmTm);
+			opts.onHidden && opts.onHidden();
 			self.stop().remove();
 		}).on('mouseenter mouseleave', function(e) {
 			if (opts.timeOut) {
@@ -65,7 +67,9 @@ $.fn.elfindertoast = function(opts, fm) {
 					rmTm = setTimeout(rm, opts.timeOut);
 				}
 			}
-		}).hide().addClass('toast-' + opts.mode).append($('<div class="elfinder-toast-msg"/>').html(opts.msg));
+		}).hide().addClass('toast-' + opts.mode).append($('<div class="elfinder-toast-msg"/>').html(opts.msg.replace(/%([a-zA-Z0-9]+)%/g, function(m, m1) {
+			return fm.i18n(m1);
+		})));
 		
 		if (opts.extNode) {
 			self.append(opts.extNode);

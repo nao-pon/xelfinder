@@ -284,6 +284,10 @@
 .elfinder-touch .elfinder-file-edit {
 	font-size: 16px;
 }
+/* edit area */
+.ui-dialog .ui-dialog-content.elfinder-edit-editor {
+	background-color: #fff;
+}
 /* bottom margen for softkeyboard on fullscreen mode */
 .elfinder-touch.elfinder-fullscreen-native textarea.elfinder-file-edit {
 	padding-bottom: 20em;
@@ -313,7 +317,10 @@ div.elfinder-cwd-wrapper-list tr.ui-state-default td span.ui-icon {
 }
 /********************** COMMAND "HELP" ****************************/
 /* help dialog */
-.elfinder-help { margin-bottom:.5em; }
+.elfinder-help { 
+	margin-bottom:.5em;
+	-webkit-overflow-scrolling: touch;
+}
 
 /* fix tabs */
 .elfinder-help .ui-tabs-panel {
@@ -321,7 +328,16 @@ div.elfinder-cwd-wrapper-list tr.ui-state-default td span.ui-icon {
 	overflow: auto;
 	padding: 10px;
 }
-.elfinder-dialog .ui-tabs .ui-tabs-nav li a { padding:.2em 1em;}
+.elfinder-dialog .ui-tabs .ui-tabs-nav li a {
+	padding:.2em .8em;
+	display: inline-block;
+}
+.elfinder-touch .elfinder-dialog .ui-tabs .ui-tabs-nav li a {
+	padding:.5em .5em;
+}
+.elfinder-dialog .ui-tabs-selected a {
+	background: inherit;
+}
 
 .elfinder-help-shortcuts {
 	height: auto;
@@ -457,35 +473,55 @@ div.elfinder-cwd-wrapper-list tr.ui-state-default td span.ui-icon {
   /*font-size: 1.2em;*/
 }
 
-.elfinder-help-preference {
-	padding: 10px;
-	height: auto;
-	min-height: 100%;
+/********************** COMMAND "PREFERENCE" ****************************/
+/* fix tabs */
+.elfinder-preference .ui-tabs-panel {
+	padding: 0 10px;
+	overflow: auto;
 	box-sizing: border-box;
+	-webkit-overflow-scrolling: touch;
 }
-
-.elfinder-help-preference dl {
+.elfinder-preference a.ui-state-hover,
+.elfinder-preference label.ui-state-hover {
+	border: none;
+}
+.elfinder-preference dl {
 	width: 100%;
+	display: inline-block;
+	margin: .5em 0;
 }
-.elfinder-help-preference dt {
+.elfinder-preference dt {
 	display: block;
 	width: 200px;
 	clear: left;
 	float: left;
 	max-width: 50%;
 }
-.elfinder-rtl .elfinder-help-preference dt {
+.elfinder-rtl .elfinder-preference dt {
 	clear: right;
 	float: right;
 }
-.elfinder-help-preference dd {
+.elfinder-preference dd {
 	margin-bottom: 1em;
 }
-.elfinder-help-preference dd label,
-.elfinder-help-preference dd input[type=checkbox] {
+.elfinder-preference dt label {
+	cursor: pointer;
+}
+.elfinder-preference dd label,
+.elfinder-preference dd input[type=checkbox] {
 	white-space: nowrap;
 	display: inline-block;
 	cursor: pointer;
+}
+.elfinder-preference dt.elfinder-preference-checkboxes {
+	width: 100%;
+	max-width: none;
+}
+.elfinder-preference dd.elfinder-preference-checkboxes {
+	padding-top: 3ex;
+}
+.elfinder-preference select {
+	max-width: 100%;
 }
 
 /********************** COMMAND "INFO" ****************************/
@@ -526,3 +562,25 @@ div.elfinder-cwd-wrapper-list tr.ui-state-default td span.ui-icon {
 .elfinder-rm-title .elfinder-cwd-icon.elfinder-cwd-bgurl:after {
 	content: none;
 }
+
+/********************** COMMAND "RENAME" ****************************/
+.elfinder-rename-batch div {
+	margin: 5px 8px;
+}
+.elfinder-rename-batch .elfinder-rename-batch-name input {
+	width: 100%;
+	font-size: 1.6em;
+}
+.elfinder-rename-batch-type {
+	text-align: center;
+}
+.elfinder-rename-batch .elfinder-rename-batch-type label {
+	margin: 2px;
+	font-size: .9em;
+}
+.elfinder-rename-batch-preview {
+	padding: 0 8px;
+	font-size: 1.1em;
+	min-height: 4ex;
+}
+

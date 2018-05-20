@@ -209,8 +209,10 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/commands/netmount.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/open.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/opendir.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/opennew.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/paste.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/places.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/preference.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/quicklook.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/quicklook.plugins.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/reload.js" charset="UTF-8"></script>
@@ -280,10 +282,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 <?php exit();
 
 function xelfinder_detect_lang() {
-	$replaser = array(
-		'ja'    => 'jp',
-		'ja_JP' => 'jp'
-	);
+	$replaser = array();
 	if ($accept = @ $_SERVER['HTTP_ACCEPT_LANGUAGE']) {
 		if (preg_match_all("/([\w_-]+)/i",$accept,$match,PREG_PATTERN_ORDER)) {
 			foreach($match[1] as $lang) {

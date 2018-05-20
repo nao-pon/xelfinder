@@ -672,7 +672,7 @@ class elFinderVolumeGoogleDrive extends elFinderVolumeDriver
                 }
             }
 
-            if ($options['user'] === 'init') {
+            if (isset($options['user']) && $options['user'] === 'init') {
                 if (empty($options['url'])) {
                     $options['url'] = elFinder::getConnectorUrl();
                 }
@@ -994,6 +994,9 @@ class elFinderVolumeGoogleDrive extends elFinderVolumeDriver
             $this->options['tmbPath'] = '';
         }
 
+        // enable command archive
+        $this->options['useRemoteArchive'] = true;
+
         return true;
     }
 
@@ -1010,9 +1013,6 @@ class elFinderVolumeGoogleDrive extends elFinderVolumeDriver
         if (!$this->tmp && $this->tmbPathWritable) {
             $this->tmp = $this->tmbPath;
         }
-
-        $this->disabled[] = 'archive';
-        $this->disabled[] = 'extract';
 
         if ($this->isMyReload()) {
             $this->_gd_getDirectoryData(false);
@@ -1089,6 +1089,11 @@ class elFinderVolumeGoogleDrive extends elFinderVolumeDriver
      **/
     protected function doSearch($path, $q, $mimes)
     {
+        if (!empty($this->doSearchCurrentQuery['matchMethod'])) {
+            // has custom match method use elFinderVolumeDriver::doSearch()
+            return parent::doSearch($path, $q, $mimes);
+        }
+
         list(, $itemId) = $this->_gd_splitPath($path);
 
         $path = $this->_normpath($path.'/');
