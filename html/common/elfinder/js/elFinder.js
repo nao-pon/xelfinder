@@ -1721,7 +1721,7 @@ var elFinder = function(elm, opts, bootCallback) {
 				url = file.tmb;
 			}
 			if (url) {
-				if (file.ts) {
+				if (file.ts && tmbUrl !== 'self') {
 					url += (url.match(/\?/)? '&' : '?') + '_t=' + file.ts;
 				}
 				return { url: url, className: cls };
@@ -2200,6 +2200,10 @@ var elFinder = function(elm, opts, bootCallback) {
 						}
 					}
 					xhrAbort();
+					if (isOpen) {
+						openDir = self.file(data.target);
+						openDir && openDir.volumeid && self.isRoot(openDir) && delete self.volumeExpires[openDir.volumeid];
+					}
 					self.trigger(cmd + 'fail', response);
 					if (error) {
 						deffail ? self.error(error) : self.debug('error', self.i18n(error));
@@ -2336,7 +2340,8 @@ var elFinder = function(elm, opts, bootCallback) {
 					return dfrd;
 				}
 			},
-			bindData = {opts: opts, result: true};
+			bindData = {opts: opts, result: true},
+			openDir;
 		
 		// prevent request initial request is completed
 		if (!self.api && !data.init) {
@@ -4058,6 +4063,8 @@ var elFinder = function(elm, opts, bootCallback) {
 	 */
 	this.leafRoots = {};
 	
+	this.volumeExpires = {};
+
 	/**
 	 * Loaded commands
 	 *
@@ -4366,7 +4373,7 @@ var elFinder = function(elm, opts, bootCallback) {
 		self.messages = i18n.messages;
 		
 		// check jquery ui
-		if (!($.fn.selectable && $.fn.draggable && $.fn.droppable && $.fn.resizable)) {
+		if (!($.fn.selectable && $.fn.draggable && $.fn.droppable && $.fn.resizable && $.fn.slider)) {
 			return alert(self.i18n('errJqui'));
 		}
 		
@@ -4563,7 +4570,7 @@ var elFinder = function(elm, opts, bootCallback) {
 					if (! helper.data('droped')) {
 						files = $.grep(helper.data('files')||[], function(h) { return h? true : false ;});
 						self.trigger('unlockfiles', {files : files});
-						self.trigger('selectfiles', {files : files});
+						self.trigger('selectfiles', {files : self.selected()});
 					}
 					self.enable();
 					
@@ -5033,7 +5040,9 @@ var elFinder = function(elm, opts, bootCallback) {
 						node.data('cssautoloadHide').remove();
 						node.removeData('cssautoloadHide');
 						self.cssloaded = true;
-						self.trigger('cssloaded');
+						requestAnimationFrame(function() {
+							self.trigger('cssloaded');
+						});
 					},
 					cnt, fi;
 				if (node.css('visibility') === 'hidden') {
@@ -5187,6 +5196,7 @@ elFinder.prototype = {
 	UA : (function(){
 		var self = this,
 			webkit = !document.unqueID && !window.opera && !window.sidebar && window.localStorage && 'WebkitAppearance' in document.documentElement.style,
+			chrome = webkit && window.chrome,
 			/*setRotated = function() {
 				var a = ((screen && screen.orientation && screen.orientation.angle) || window.orientation || 0) + 0;
 				if (a === -90) {
@@ -5212,7 +5222,8 @@ elFinder.prototype = {
 				Firefox : window.sidebar,
 				Opera   : window.opera,
 				Webkit  : webkit,
-				Chrome  : webkit && window.chrome,
+				Chrome  : chrome,
+				Edge    : (chrome && window.msCredentials)? true : false,
 				Safari  : webkit && !window.chrome,
 				Mobile  : typeof window.orientation != "undefined",
 				Touch   : typeof window.ontouchstart != "undefined",
@@ -7272,6 +7283,11 @@ elFinder.prototype = {
 								if (type !== 'cwd') {
 									self.roots[vid] = file.hash;
 								}
+
+								// regist fm.volumeExpires
+								if (file.expires) {
+									self.volumeExpires[vid] = file.expires;
+								}
 							}
 							
 							if (prevId !== vid) {
@@ -8494,7 +8510,9 @@ elFinder.prototype = {
 				if (cnt) {
 					select = $('<select class="ui-corner-all elfinder-tabstop" style="max-width:200px;">').append(
 						$($.map(folders, function(n,i){return '<option value="'+fm.escape((i+'').trim())+'">'+fm.escape(n)+'</option>';}).join(''))
-					).on('change click', function(e){
+					).on('mousedown', function(e) {
+						e.stopPropagation();
+					}).on('change click', function(e){
 						var node = $(this),
 							path = node.val(),
 							spn;
@@ -9220,6 +9238,15 @@ elFinder.prototype = {
 			xhr.abort();
 			xhr = void 0;
 		}
+	},
+
+	/**
+	 * Gets the request identifier
+	 *
+	 * @return  String  The request identifier.
+	 */
+	getRequestId : function() {
+		return (+ new Date()).toString(16) + Math.floor(1000 * Math.random()).toString(16);
 	},
 	
 	/**

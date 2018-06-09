@@ -17,17 +17,6 @@ try {
 	sheet.insertRule('.elfinder-button-icon.elfinder-button-icon-login { background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAgCAYAAAAbifjMAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3wwODgkfXMcF3gAAA0ZJREFUSMftlVFo1VUYwH/nf+/uvW4O3NA23R0uHdPV1qJ6CwwiCgKfJNCXIiuxKAipoIdi9Bb1WA8rCcKXJMQgjIweTCgUdWipTMttuEWhbd61sf3/5/u+c3rYdrcbblhvQQcO39P3+w7nfN/vOP7FunjwlXdDsANmOp3/J4mXP3n15xCss7ChlZHRSzQnBa0C+vv7YwiBxW1m1bi3J5IQKKxvYe3dnQQLxJGfEMmoAsyMcrkMgHOuJsZ4kaaHHgYc2cwEJhkxBkSUZDkA4ER6nEjEOVfdZkYwI62MI7NTBPHEYIhktQDnHH9kN/mq8kUNQNUTTDD1BPUEzYgh4H1KfucHj8VggQt6isFbP9DR1oGqcXTsMLva9szD1RNVCeIx9RAdMQRUUvKmxlOP7kKCoaZoUMSEM+k5Phs+xJ6tTyMLlU0yoqa0bLjBL1HxPiOvYngVJtNJvAliAji679nOYHqer0eP0VEPpor5jMaGWzSvm6AuN8e0pCSqRmaeQlKkmCtRzJXIuRxnzw1SGf+TJ7fsRCQlaIZJRmUyx+joejJfN/+MKsrhLz9HxTA1yuU2NBhT49M8f99+nHN4nxFUCJJhIkxkeQgBEU9y8u3T7vt3zrru3/p4+d4DTP06w8T1Ci/0vbj0CpLO34EKpguwEFD1S42kqjjniBbZf/9LNc3kJZtPlowgHucCMa4A2Nu3r1p5ESAyX7W+qZ2ggmazEH/HTHEDAwNxaGiIsbGxmv5fHndvGaWhsZFiqYFCqZ66QpHpmQrXrwzedHcyhR8/136XmW41k24z7QrBykm+sNskm3L/+6B2nCORE+nxavKd+KDmBN/OHWPKV3D1rqYX/u4DcEs+WAQMNZ9nU8tGmmwdh4YPYmrV+fiw/YGVfQDwxPuP/Ni6qZXerl40KNs7tyELXjhy5OjqPnj8vR2fbt64ube3q4dKWmFWZhETfBAa8mtRNUT8yj745vWTz1wZvnrp9IUzJC5HMVeilF9DKbeGzDwqtroPAL5761TPjjdcnEvnUFWuXRvBNGBqBAur+qB6iVtubGPEXSWJOV578M2aXtDLH9X4wLl81QfJ8nF+tnsf0Wr/hNv5IIi/vQ+SJPkP+uAvyoJNfRlNM5QAAAAASUVORK5CYII="); background-position: 0 0; }', 0);
 	sheet.insertRule('.elfinder-button-icon.elfinder-button-icon-logout { background-position: 0 -16px; }', 1);
 })();
-$.fn.elfinderloginbutton = function(cmd) {
-	return this.each(function() {
-		var button = $(this).elfinderbutton(cmd),
-			icon   = button.children('.elfinder-button-icon');
-		cmd.change(function() {
-			var logined = cmd.value? true : false;
-			icon.toggleClass('elfinder-button-icon-logout', logined);
-			button.attr('title', logined? cmd.fm.i18n('logout', cmd.value) : cmd.fm.i18n('login'));
-		});
-	});
-}
 elFinder.prototype.commands.login = function() {
 	var self = this,
 		fm   = this.fm,
@@ -48,8 +37,9 @@ elFinder.prototype.commands.login = function() {
 		};
 	this.alwaysEnabled  = true;
 	this.updateOnSelect = false;
+	this.syncTitleOnChange = true;
 	this.options = {
-		ui       : 'loginbutton',
+		ui       : 'button',
 		loginUrl : url+'?login',
 		logoutUrl: url+'?logout',
 		statusUrl: url+'?status'
@@ -61,8 +51,10 @@ elFinder.prototype.commands.login = function() {
 				self.value = '';
 				makeAopt();
 				$.ajax(self.options.statusUrl, aopt).done(function(res){
-					self.value = res.uname? res.uname : '';
-					self.update(void(0), self.value);
+					var val = res.uname? res.uname : '';
+					self.title = val? fm.i18n('logout', val) : fm.i18n('cmdlogin');
+					self.className = val? 'login elfinder-button-icon-logout' : 'login';
+					self.update(void(0), val);
 				});
 			}
 		} 
@@ -79,8 +71,11 @@ elFinder.prototype.commands.login = function() {
 					if (res.error) {
 						fm.error(res.error);
 					} else {
-						var tm, dfd;
-						self.update(void(0), res.uname? res.uname : '');
+						var tm, dfd,
+							val = res.uname? res.uname : '';
+						self.title = val? fm.i18n('logout', val) : fm.i18n('cmdlogin');
+						self.className = val? 'login elfinder-button-icon-logout' : 'login';
+						self.update(void(0), val);
 						if (typeof res.autoSyncSec !== 'undefined') {
 							fm.options.sync = res.autoSyncSec * 1000;
 						}
@@ -144,12 +139,12 @@ elFinder.prototype.commands.login = function() {
 						}
 					}
 				});
-			btn[fm.i18n('login')] = req;
+			btn[fm.i18n('cmdlogin')] = req;
 			btn[fm.i18n('btnCancel')] = function() {
 				dialog.elfinderdialog('destroy');
 			};
 			dialog = fm.dialog(form, {
-				title: fm.i18n('login'),
+				title: fm.i18n('cmdlogin'),
 				buttons: btn,
 				allowMinimize: false,
 				destroyOnClose: true,
@@ -165,13 +160,12 @@ elFinder.prototype.commands.login = function() {
 			return getAjax(aopt);
 		}
 	};
-}
+};
 var _opts = elFinder.prototype._options;
 var _msgs = elFinder.prototype.i18.en.messages;
 _opts.commands.push('login');
 _opts.uiOptions.toolbar.push(['login']);
-_msgs.cmdlogin = 'Login/Logout';
-_msgs.login = 'Login';
+_msgs.cmdlogin = 'Login';
 _msgs.logout = '$1: Logout';
 _msgs.username = 'UserName';
 _msgs.password = 'Password';

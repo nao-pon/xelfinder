@@ -80,8 +80,7 @@ $(document).ready(function() {
 					mes_ja.CannotUploadOldIE = '<p>あなたがお使いの IE ブラウザでは、このマネージャーではファイルをアップロードすることができません。</p><p>ファイルをアップロードする場合は、最新のブラウザをご利用下さい。</p>';
 					mes_ja.errPleaseReload = '接続に必要なトークンがありません。<br />ブラウザでリロードするかポップアップウィンドウを開きなおしてください。';
 					mes_ja.errAccessReload = '接続に必要なトークンがないので、ファイルマネージャーを再読込します。';
-					mes_ja.cmdlogin = 'ログイン/ログアウト';
-					mes_ja.login    = 'ログイン';
+					mes_ja.cmdlogin = 'ログイン';
 					mes_ja.logout   = '$1: ログアウト';
 					mes_ja.username = 'ユーザー名';
 					mes_ja.password = 'パスワード';
