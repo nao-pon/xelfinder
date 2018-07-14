@@ -263,7 +263,9 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var startPathHash = '<?php echo $start?>';
 			var autoSyncSec = <?php echo $xoops_elFinder->getAutoSyncSec()?>;
 			var autoSyncStart = <?php echo (empty($config['autosync_start'])? 'false' : 'true')?>;
+			var useSharecadPreview = <?php echo (empty($config['use_sharecad_preview'])? 'false' : 'true')?>;
 			var useGoogleDocsPreview = <?php echo (empty($config['use_google_preview'])? 'false' : 'true')?>;
+			var useOfficePreview = <?php echo (empty($config['use_office_preview'])? 'false' : 'true')?>;
 			var creativeCloudApikey = <?php echo (empty($config['creative_cloud_apikey'])? 'void 0' : '\''.$config['creative_cloud_apikey'].'\'')?>;
 		</script>
 		<script src="<?php echo $myurl ?>/include/js/commands/perm.js?v=<?php echo $xelfVer?>"></script>

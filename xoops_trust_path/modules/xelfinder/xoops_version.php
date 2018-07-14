@@ -113,9 +113,25 @@ array(
 	'default'		=> '0'
 ),
 array(
+	'name'			=> 'use_sharecad_preview' ,
+	'title'			=> $constpref.'_USE_SHARECAD_PREVIEW' ,
+	'description'	=> $constpref.'_USE_SHARECAD_PREVIEW_DESC' ,
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> '1'
+),
+array(
 	'name'			=> 'use_google_preview' ,
 	'title'			=> $constpref.'_USE_GOOGLE_PREVIEW' ,
 	'description'	=> $constpref.'_USE_GOOGLE_PREVIEW_DESC' ,
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> '1'
+),
+array(
+	'name'			=> 'use_office_preview' ,
+	'title'			=> $constpref.'_USE_OFFICE_PREVIEW' ,
+	'description'	=> $constpref.'_USE_OFFICE_PREVIEW_DESC' ,
 	'formtype'		=> 'yesno' ,
 	'valuetype'		=> 'int' ,
 	'default'		=> '1'
@@ -373,6 +389,14 @@ array(
 	'name'			=> 'creative_cloud_apikey' ,
 	'title'			=> $constpref.'_CREATIVE_CLOUD_APIKEY' ,
 	'description'	=> $constpref.'_CREATIVE_CLOUD_APIKEY_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> ''
+),
+array(
+	'name'			=> 'online_convert_apikey' ,
+	'title'			=> $constpref.'_ONLINE_CONVERT_APIKEY' ,
+	'description'	=> $constpref.'_ONLINE_CONVERT_APIKEY_DESC' ,
 	'formtype'		=> 'textbox' ,
 	'valuetype'		=> 'string' ,
 	'default'		=> ''

@@ -24,21 +24,21 @@ elFinder.prototype.commands.perm = function() {
 	this.tpl = {
 		main       : '<div class="ui-helper-clearfix elfinder-info-title elfinder-perm-dialog"><span class="elfinder-cwd-icon {class} ui-corner-all"/>{title}</div>'
 					+'{filter}{dataTable}{targetGroups}',
-		filter     : '<div>'+fm.i18n('mimeserach')+': <input id="{id}-filter" type="textbox" name="filter" size="30" value="{value}"></div>',
+		filter     : '<div>'+fm.i18n('mimeserach')+': <input class="elfinder-tabstop" id="{id}-filter" type="textbox" name="filter" size="30" value="{value}"></div>',
 		itemTitle  : '<strong>{name}</strong><span id="elfinder-info-kind">{kind}</span> ('+fm.i18n('owner')+':<span id="{id}-owner-name">{owner}{uidinput}</span>)',
 		groupTitle : '<strong>{items}: {num}</strong>',
 		dataTable  : '<table id="{id}-table-{type}"><tr><td>{0}</td><td>{1}</td><td>{2}</td></tr></table>'
-					+'<div class="">'+msg.perm+': <input id="{id}-{type}" type="text" size="4" maxlength="3" value="{value}"></div>',
+					+'<div class="">'+msg.perm+': <input class="elfinder-tabstop elfinder-focus" id="{id}-{type}" type="text" size="4" maxlength="3" value="{value}"></div>',
 		fieldset   : '<fieldset id="{id}-fieldset-{level}"><legend>{f_title}</legend>'
-					+'<input type="checkbox" value="4" id="{id}-read-{level}-{type}"{checked-r}> <label for="{id}-read-{level}-{type}">'+msg.read+'</label><br>'
-					+'<input type="checkbox" value="6" id="{id}-write-{level}-{type}"{checked-w}{disabled-w}> <label for="{id}-write-{level}-{type}">'+msg.write+'</label><br>'
-					+'<input type="checkbox" value="5" id="{id}-unlock-{level}-{type}"{checked-u}> <label for="{id}-unlock-{level}-{type}">'+msg.unlock+'</label><br>'
-					+'<input type="checkbox" value="8" id="{id}-hidden-{level}-{type}"{checked-h}{disabled-h}> <label for="{id}-hidden-{level}-{type}">'+msg.hidden+'</label></fieldset>',
+					+'<input type="checkbox" value="4" class="elfinder-tabstop" id="{id}-read-{level}-{type}"{checked-r}> <label for="{id}-read-{level}-{type}">'+msg.read+'</label><br>'
+					+'<input type="checkbox" value="6" class="elfinder-tabstop" id="{id}-write-{level}-{type}"{checked-w}{disabled-w}> <label for="{id}-write-{level}-{type}">'+msg.write+'</label><br>'
+					+'<input type="checkbox" value="5" class="elfinder-tabstop" id="{id}-unlock-{level}-{type}"{checked-u}> <label for="{id}-unlock-{level}-{type}">'+msg.unlock+'</label><br>'
+					+'<input type="checkbox" value="8" class="elfinder-tabstop" id="{id}-hidden-{level}-{type}"{checked-h}{disabled-h}> <label for="{id}-hidden-{level}-{type}">'+msg.hidden+'</label></fieldset>',
 		tab        : '<div id="{id}-tab"><ul><li><a href="#{id}-tab-perm">'+msg.perms+'</a></li><li><a href="#{id}-tab-umask">'+msg.newitem+'</a></li></ul>'
 					+'<div id="{id}-tab-perm">{permTable}</div><div id="{id}-tab-umask">{umaskTable}</div></div>',
 		groups     : '<fieldset id="{id}-fieldset-groups"><legend>'+fm.i18n('targetgroups')+'</legend><div id="{id}-groups"><span class="'+spclass+'"/></div></fieldset>',
-		groupCheck : '<input type="checkbox" id="{id}-group-{gid}" name="gids" value="{gid}"{checked} /><label for="{id}-group-{gid}">{gname}</label>',
-		uidInput   : ' uid: <input type="text" id="{id}-uid" class="perm-uid" value="{uid}">'
+		groupCheck : '<input type="checkbox" class="elfinder-tabstop" id="{id}-group-{gid}" name="gids" value="{gid}"{checked} /><label for="{id}-group-{gid}">{gname}</label>',
+		uidInput   : ' uid: <input type="text" class="elfinder-tabstop" id="{id}-uid" class="perm-uid" value="{uid}">'
 	};
 
 	this.shortcuts = [{
@@ -294,29 +294,29 @@ elFinder.prototype.commands.perm = function() {
 		$('#' + id + '-table-perm :checkbox').on('click', function(){setperm('perm');});
 		$('#' + id + '-perm').on('keydown', function(e) {
 			var c = e.keyCode;
-			e.stopPropagation();
-			if (c == 13) {
+			if (c == $.ui.keyCode.ENTER) {
+				e.stopPropagation();
 				save();
 				return;
 			}
 		}).on('focus', function(e){
 			$(this).select();
 		}).on('keyup', function(e) {
-			if ($(this).val().length == 3) {
+			if ($(this).val().length === 3) {
 				$(this).select();
 				setcheck($(this).val(), 'perm');
 			}
 		});
 		$('#' + id + '-filter,#' + id + '-uid').keydown(function(e) {
-			e.stopPropagation();
+			e.keyCode !== $.ui.keyCode.TAB && e.stopPropagation();
 		});
 		if (file.mime == 'directory') {
 			$('#' + id + '-tab').tabs();
 			$('#' + id + '-table-umask :checkbox').on('click', function(){setperm('umask');});
 			$('#' + id + '-umask').on('keydown', function(e) {
 				var c = e.keyCode;
-				e.stopPropagation();
-				if (c == 13) {
+				if (c == $.ui.keyCode.ENTER) {
+					e.stopPropagation();
 					save();
 					return;
 				}

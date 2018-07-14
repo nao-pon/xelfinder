@@ -205,6 +205,12 @@ try {
 		define('ELFINDER_ZOHO_OFFICE_APIKEY', $config['zoho_apikey']);
 	}
 
+	// ONLINE-CONVERT.COM API
+	if (!empty($config['online_convert_apikey'])) {
+		// https://apiv2.online-convert.com/docs/getting_started/api_key.html
+		define('ELFINDER_ONLINE_CONVERT_APIKEY', $config['online_convert_apikey']);
+	}
+
 	/*// load xoops_elFinder
 	require_once dirname(__FILE__).'/class/xoops_elFinder.class.php';
 	$xoops_elFinder = new xoops_elFinder($mydirname);
@@ -430,8 +436,7 @@ try {
 			'netmount.pre' => array($xoops_elFinder, 'netmountPreCallback'),
 			'netmount' => array($xoops_elFinder, 'netmountCallback'),
 			'mkdir mkfile put upload extract' => array($xoops_elFinder, 'notifyMail'),
-			'mkdir mkfile put paste upload extract resize' => array($xoops_elFinder, 'changeAddParent'),
-			'upload.pre mkdir.pre mkfile.pre rename.pre archive.pre' => array(
+			'upload.pre mkdir.pre mkfile.pre rename.pre archive.pre ls.pre' => array(
 				'Plugin.Sanitizer.cmdPreprocess',
 				'Plugin.Normalizer.cmdPreprocess'
 			),

@@ -33,8 +33,12 @@ define( $constpref.'_DISABLE_WRITES_GUEST' ,    'Disable writing cmds to guest' 
 define( $constpref.'_DISABLE_WRITES_GUEST_DESC','All writing commands are added to the disabled commands to guests.' );
 define( $constpref.'_DISABLE_WRITES_USER' ,     'Disable writing cmds to user' );
 define( $constpref.'_DISABLE_WRITES_USER_DESC', 'All writing commands are added to the disabled commands to registed users.' );
-define( $constpref.'_USE_GOOGLE_PREVIEW' ,      'Enable Google Docs preview' );
+ddefine( $constpref.'_USE_SHARECAD_PREVIEW' ,      'Enable ShareCAD preview' );
+define( $constpref.'_USE_SHARECAD_PREVIEW_DESC',  'Use ShareCAD to expand previewable file types. When ShareCAD Preview is used, it notifies the content URL to ShareCAD.org.' );
+efine( $constpref.'_USE_GOOGLE_PREVIEW' ,      'Enable Google Docs preview' );
 define( $constpref.'_USE_GOOGLE_PREVIEW_DESC',  'Use Google Docs to expand previewable file types. When Google Docs Preview is used, it notifies the content URL to Google Docs.' );
+define( $constpref.'_USE_OFFICE_PREVIEW' ,      'Enable Office Online preview' );
+define( $constpref.'_USE_OFFICE_PREVIEW_DESC',  'Use Office Online to expand previewable file types. When Office Online Preview is used, it notifies the content URL to products.office.com.' );
 define( $constpref.'_MAIL_NOTIFY_GUEST' ,       'E-Mail Notify (Guest)' );
 define( $constpref.'_MAIL_NOTIFY_GUEST_DESC',   'Mailing notifies an administrator of file addition by a guest.' );
 define( $constpref.'_MAIL_NOTIFY_GROUP' ,       'E-Mail Notify (Groups)' );
@@ -97,7 +101,9 @@ define( $constpref.'_JQUERY_UI_CSS_DESC' ,      'When not using CDN of Google, U
 define( $constpref.'_JQUERY_UI_THEME' ,         'jQuery UI Theme' );
 define( $constpref.'_JQUERY_UI_THEME_DESC' ,    'When CDN of Google is used, Theme name or URL to jQuery Theme CSS (Default: smoothness)' );
 define( $constpref.'_CREATIVE_CLOUD_APIKEY' ,   'Creative SDK API Key' );
-define( $constpref.'_CREATIVE_CLOUD_APIKEY_DESC','Specify the Creative Cloud API key when using Creative SDK image editor of Creative Cloud. <br /> API key can be obtained at https://console.adobe.io/.' );
+define( $constpref.'_CREATIVE_CLOUD_APIKEY_DESC','Specify the Creative Cloud API key when using Creative SDK image editor of Creative Cloud. <br /> API key can be obtained at https://console.adobe.io/ .' );
+define( $constpref.'_ONLINE_CONVERT_APIKEY' ,   'ONLINE-CONVERT.COM API Key' );
+define( $constpref.'_ONLINE_CONVERT_APIKEY_DESC','Specify the ONLINE-CONVERT.COM API key when using the content converter API of ONLINE-CONVERT.COM.<br />API key can be obtained at https://apiv2.online-convert.com/docs/getting_started/api_key.html .' );
 define( $constpref.'_EDITORS_JS',               'URL of editors.js' );
 define( $constpref.'_EDITORS_JS_DESC',          'Specify the URL of JavaScript when customizing "common/elfinder/js/extras/editors.default.js".' );
 define( $constpref.'_THUMBNAIL_SIZE' ,          '[xelfinder_db] Thumbnail size of image insertion' );

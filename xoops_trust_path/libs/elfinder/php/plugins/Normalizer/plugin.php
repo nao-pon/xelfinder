@@ -121,7 +121,6 @@ class elFinderPluginNormalizer extends elFinderPlugin
 	}
 	
 	public function cmdPostprocess($cmd, &$result, $args, $elfinder, $volume) {
-		debug($cmd);
 		if ($cmd === 'ls') {
 			if (! empty($result['list']) && ! empty($this->replaced['ls'])) {
 				foreach($result['list'] as $hash => $name) {
@@ -156,7 +155,7 @@ class elFinderPluginNormalizer extends elFinderPlugin
 		return true;
 	}
 	
-	private function normalize($str, $opts) {
+	protected function normalize($str, $opts) {
 		if ($opts['nfc'] || $opts['nfkc']) {
 			if (class_exists('Normalizer', false)) {
 				if ($opts['nfc'] && ! Normalizer::isNormalized($str, Normalizer::FORM_C))

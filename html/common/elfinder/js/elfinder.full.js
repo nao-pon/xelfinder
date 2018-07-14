@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.39 (2.1 Nightly: 25e0ad1) (2018-06-09)
+ * Version 2.1.40 (2.1 Nightly: 88a2d17) (2018-07-14)
  * http://elfinder.org
  * 
  * Copyright 2009-2018, Studio 42
@@ -2946,6 +2946,11 @@ var elFinder = function(elm, opts, bootCallback) {
 	this.exec = function(cmd, files, opts, dstHash) {
 		var dfrd, resType;
 		
+		// apply commandMap for keyboard shortcut
+		if (!dstHash && this.commandMap[cmd] && this.commandMap[cmd] !== 'hidden') {
+			cmd = this.commandMap[cmd];
+		}
+
 		if (cmd === 'open') {
 			if (this.searchStatus.state || this.searchStatus.ininc) {
 				this.trigger('searchend', { noupdate: true });
@@ -4258,7 +4263,13 @@ var elFinder = function(elm, opts, bootCallback) {
 			if (e.target === this) {
 				tm && cancelAnimationFrame(tm);
 				tm = requestAnimationFrame(function() {
-					self.trigger('resize', {width : node.width(), height : node.height()});
+					var prv = node.data('resizeSize') || {w: 0, h: 0},
+						size = {w: Math.round(node.width()), h: Math.round(node.height())};
+					node.data('resizeSize', size);
+					if (size.w !== prv.w || size.h !== prv.h) {
+						node.trigger('resize');
+						self.trigger('resize', {width : size.w, height : size.h});
+					}
 				});
 			}
 		})
@@ -5896,15 +5907,15 @@ elFinder.prototype = {
 					});
 					atag = $('a[href]', tmp);
 					atag.each(function(){
-						var loc,
+						var text, loc,
 							parseUrl = function(url) {
 								var a = document.createElement('a');
 								a.href = url;
 								return a;
 							};
-						if ($(this).text()) {
+						if (text = $(this).text()) {
 							loc = parseUrl($(this).attr('href'));
-							if (loc.href && (atag.length === 1 || ! loc.pathname.match(/(?:\.html?|\/[^\/.]*)$/i))) {
+							if (loc.href && (atag.length === 1 || ! loc.pathname.match(/(?:\.html?|\/[^\/.]*)$/i) || $.trim(text).match(/\.[a-z0-9-]{1,10}$/i))) {
 								if ($.inArray(loc.href, ret) == -1 && $.inArray(loc.href, check) == -1) ret.push(loc.href);
 							}
 						}
@@ -6566,7 +6577,7 @@ elFinder.prototype = {
 								data.overwrite = 0;
 								formData.append('name[]', fm.date(fm.nonameDateFormat) + '.png');
 							}
-							if (fm.UA.iOS) {
+							if (file.name && fm.UA.iOS) {
 								if (file.name.match(/^image\.jpe?g$/i)) {
 									data.overwrite = 0;
 									formData.append('name[]', fm.date(fm.nonameDateFormat) + '.jpg');
@@ -8541,9 +8552,7 @@ elFinder.prototype = {
 				if (cnt) {
 					select = $('<select class="ui-corner-all elfinder-tabstop" style="max-width:200px;">').append(
 						$($.map(folders, function(n,i){return '<option value="'+fm.escape((i+'').trim())+'">'+fm.escape(n)+'</option>';}).join(''))
-					).on('mousedown', function(e) {
-						e.stopPropagation();
-					}).on('change click', function(e){
+					).on('change click', function(e){
 						var node = $(this),
 							path = node.val(),
 							spn;
@@ -8688,7 +8697,8 @@ elFinder.prototype = {
 			fail: function(fm, err){
 				$(this.inputs.host[0]).removeData('inrequest');
 				this.protocol.trigger('change', 'reset');
-			}
+			},
+			integrateInfo: opts.integrate
 		};
 	},
 	
@@ -9221,13 +9231,13 @@ elFinder.prototype = {
 			};
 		}
 		// set lock
+		dir.locked = 1;
 		if (!prev.locked) {
-			dir.locked = 1;
 			change = true;
 		}
 		// has leaf root to `dirs: 1`
+		dir.dirs = 1;
 		if (!prev.dirs) {
-			dir.dirs = 1;
 			change = true;
 		}
 		// set ts
@@ -9309,7 +9319,7 @@ elFinder.prototype = {
 	 */
 	splitFileExtention : function(name) {
 		var m;
-		if (m = name.match(/^(.+?)?\.((?:tar\.(?:gz|bz|bz2|z|lzo))|cpio\.gz|ps\.gz|xcf\.(?:gz|bz2)|[a-z0-9]{1,4})$/i)) {
+		if (m = name.match(/^(.+?)?\.((?:tar\.(?:gz|bz|bz2|z|lzo))|cpio\.gz|ps\.gz|xcf\.(?:gz|bz2)|[a-z0-9]{1,10})$/i)) {
 			if (typeof m[1] === 'undefined') {
 				m[1] = '';
 			}
@@ -9524,7 +9534,7 @@ if (!window.cancelAnimationFrame) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.39 (2.1 Nightly: 25e0ad1)';
+elFinder.prototype.version = '2.1.40 (2.1 Nightly: 88a2d17)';
 
 
 
@@ -9933,7 +9943,7 @@ if (! $.fn.scrollBottom) {
  * File: /js/elFinder.mimetypes.js
  */
 
-elFinder.prototype.mimeTypes = {"application\/postscript":"ai","application\/x-executable":"exe","application\/msword":"doc","application\/vnd.ms-excel":"xls","application\/vnd.ms-powerpoint":"ppt","application\/pdf":"pdf","text\/xml":"xml","application\/x-shockwave-flash":"swf","application\/x-bittorrent":"torrent","application\/x-jar":"jar","application\/vnd.oasis.opendocument.text":"odt","application\/vnd.oasis.opendocument.text-template":"ott","application\/vnd.oasis.opendocument.text-web":"oth","application\/vnd.oasis.opendocument.text-master":"odm","application\/vnd.oasis.opendocument.graphics":"odg","application\/vnd.oasis.opendocument.graphics-template":"otg","application\/vnd.oasis.opendocument.presentation":"odp","application\/vnd.oasis.opendocument.presentation-template":"otp","application\/vnd.oasis.opendocument.spreadsheet":"ods","application\/vnd.oasis.opendocument.spreadsheet-template":"ots","application\/vnd.oasis.opendocument.chart":"odc","application\/vnd.oasis.opendocument.formula":"odf","application\/vnd.oasis.opendocument.database":"odb","application\/vnd.oasis.opendocument.image":"odi","application\/vnd.openofficeorg.extension":"oxt","application\/vnd.openxmlformats-officedocument.wordprocessingml.document":"docx","application\/vnd.ms-word.document.macroEnabled.12":"docm","application\/vnd.openxmlformats-officedocument.wordprocessingml.template":"dotx","application\/vnd.ms-word.template.macroEnabled.12":"dotm","application\/vnd.openxmlformats-officedocument.spreadsheetml.sheet":"xlsx","application\/vnd.ms-excel.sheet.macroEnabled.12":"xlsm","application\/vnd.openxmlformats-officedocument.spreadsheetml.template":"xltx","application\/vnd.ms-excel.template.macroEnabled.12":"xltm","application\/vnd.ms-excel.sheet.binary.macroEnabled.12":"xlsb","application\/vnd.ms-excel.addin.macroEnabled.12":"xlam","application\/vnd.openxmlformats-officedocument.presentationml.presentation":"pptx","application\/vnd.ms-powerpoint.presentation.macroEnabled.12":"pptm","application\/vnd.openxmlformats-officedocument.presentationml.slideshow":"ppsx","application\/vnd.ms-powerpoint.slideshow.macroEnabled.12":"ppsm","application\/vnd.openxmlformats-officedocument.presentationml.template":"potx","application\/vnd.ms-powerpoint.template.macroEnabled.12":"potm","application\/vnd.ms-powerpoint.addin.macroEnabled.12":"ppam","application\/vnd.openxmlformats-officedocument.presentationml.slide":"sldx","application\/vnd.ms-powerpoint.slide.macroEnabled.12":"sldm","application\/x-gzip":"gz","application\/x-bzip2":"bz","application\/x-xz":"xz","application\/zip":"zip","application\/x-rar":"rar","application\/x-tar":"tar","application\/x-7z-compressed":"7z","text\/plain":"txt","text\/x-php":"php","text\/html":"html","text\/javascript":"js","text\/css":"css","application\/rtf":"rtf","application\/rtfd":"rtfd","text\/x-python":"py","text\/x-java-source":"java","text\/x-ruby":"rb","text\/x-shellscript":"sh","text\/x-perl":"pl","text\/x-sql":"sql","text\/x-csrc":"c","text\/x-chdr":"h","text\/x-c++src":"cpp","text\/x-c++hdr":"hh","text\/csv":"csv","text\/x-markdown":"md","image\/x-ms-bmp":"bmp","image\/jpeg":"jpg","image\/gif":"gif","image\/png":"png","image\/tiff":"tif","image\/x-targa":"tga","image\/vnd.adobe.photoshop":"psd","image\/xbm":"xbm","image\/pxm":"pxm","audio\/mpeg":"mp3","audio\/midi":"mid","audio\/ogg":"ogg","audio\/mp4":"m4a","audio\/wav":"wav","audio\/x-ms-wma":"wma","video\/x-msvideo":"avi","video\/x-dv":"dv","video\/mp4":"mp4","video\/mpeg":"mpeg","video\/quicktime":"mov","video\/x-ms-wmv":"wm","video\/x-flv":"flv","video\/x-matroska":"mkv","video\/webm":"webm","video\/ogg":"ogv","video\/MP2T":"m2ts","application\/x-mpegURL":"m3u8","application\/dash+xml":"mpd","application\/andrew-inset":"ez","application\/applixware":"aw","application\/atom+xml":"atom","application\/atomcat+xml":"atomcat","application\/atomsvc+xml":"atomsvc","application\/ccxml+xml":"ccxml","application\/cdmi-capability":"cdmia","application\/cdmi-container":"cdmic","application\/cdmi-domain":"cdmid","application\/cdmi-object":"cdmio","application\/cdmi-queue":"cdmiq","application\/cu-seeme":"cu","application\/davmount+xml":"davmount","application\/docbook+xml":"dbk","application\/dssc+der":"dssc","application\/dssc+xml":"xdssc","application\/ecmascript":"ecma","application\/emma+xml":"emma","application\/epub+zip":"epub","application\/exi":"exi","application\/font-tdpfr":"pfr","application\/gml+xml":"gml","application\/gpx+xml":"gpx","application\/gxf":"gxf","application\/hyperstudio":"stk","application\/inkml+xml":"ink","application\/ipfix":"ipfix","application\/java-serialized-object":"ser","application\/java-vm":"class","application\/json":"json","application\/jsonml+json":"jsonml","application\/lost+xml":"lostxml","application\/mac-binhex40":"hqx","application\/mac-compactpro":"cpt","application\/mads+xml":"mads","application\/marc":"mrc","application\/marcxml+xml":"mrcx","application\/mathematica":"ma","application\/mathml+xml":"mathml","application\/mbox":"mbox","application\/mediaservercontrol+xml":"mscml","application\/metalink+xml":"metalink","application\/metalink4+xml":"meta4","application\/mets+xml":"mets","application\/mods+xml":"mods","application\/mp21":"m21","application\/mp4":"mp4s","application\/mxf":"mxf","application\/octet-stream":"bin","application\/oda":"oda","application\/oebps-package+xml":"opf","application\/ogg":"ogx","application\/omdoc+xml":"omdoc","application\/onenote":"onetoc","application\/oxps":"oxps","application\/patch-ops-error+xml":"xer","application\/pgp-encrypted":"pgp","application\/pgp-signature":"asc","application\/pics-rules":"prf","application\/pkcs10":"p10","application\/pkcs7-mime":"p7m","application\/pkcs7-signature":"p7s","application\/pkcs8":"p8","application\/pkix-attr-cert":"ac","application\/pkix-cert":"cer","application\/pkix-crl":"crl","application\/pkix-pkipath":"pkipath","application\/pkixcmp":"pki","application\/pls+xml":"pls","application\/prs.cww":"cww","application\/pskc+xml":"pskcxml","application\/rdf+xml":"rdf","application\/reginfo+xml":"rif","application\/relax-ng-compact-syntax":"rnc","application\/resource-lists+xml":"rl","application\/resource-lists-diff+xml":"rld","application\/rls-services+xml":"rs","application\/rpki-ghostbusters":"gbr","application\/rpki-manifest":"mft","application\/rpki-roa":"roa","application\/rsd+xml":"rsd","application\/rss+xml":"rss","application\/sbml+xml":"sbml","application\/scvp-cv-request":"scq","application\/scvp-cv-response":"scs","application\/scvp-vp-request":"spq","application\/scvp-vp-response":"spp","application\/sdp":"sdp","application\/set-payment-initiation":"setpay","application\/set-registration-initiation":"setreg","application\/shf+xml":"shf","application\/smil+xml":"smi","application\/sparql-query":"rq","application\/sparql-results+xml":"srx","application\/srgs":"gram","application\/srgs+xml":"grxml","application\/sru+xml":"sru","application\/ssdl+xml":"ssdl","application\/ssml+xml":"ssml","application\/tei+xml":"tei","application\/thraud+xml":"tfi","application\/timestamped-data":"tsd","application\/vnd.3gpp.pic-bw-large":"plb","application\/vnd.3gpp.pic-bw-small":"psb","application\/vnd.3gpp.pic-bw-var":"pvb","application\/vnd.3gpp2.tcap":"tcap","application\/vnd.3m.post-it-notes":"pwn","application\/vnd.accpac.simply.aso":"aso","application\/vnd.accpac.simply.imp":"imp","application\/vnd.acucobol":"acu","application\/vnd.acucorp":"atc","application\/vnd.adobe.air-application-installer-package+zip":"air","application\/vnd.adobe.formscentral.fcdt":"fcdt","application\/vnd.adobe.fxp":"fxp","application\/vnd.adobe.xdp+xml":"xdp","application\/vnd.adobe.xfdf":"xfdf","application\/vnd.ahead.space":"ahead","application\/vnd.airzip.filesecure.azf":"azf","application\/vnd.airzip.filesecure.azs":"azs","application\/vnd.amazon.ebook":"azw","application\/vnd.americandynamics.acc":"acc","application\/vnd.amiga.ami":"ami","application\/vnd.android.package-archive":"apk","application\/vnd.anser-web-certificate-issue-initiation":"cii","application\/vnd.anser-web-funds-transfer-initiation":"fti","application\/vnd.antix.game-component":"atx","application\/vnd.apple.installer+xml":"mpkg","application\/vnd.aristanetworks.swi":"swi","application\/vnd.astraea-software.iota":"iota","application\/vnd.audiograph":"aep","application\/vnd.blueice.multipass":"mpm","application\/vnd.bmi":"bmi","application\/vnd.businessobjects":"rep","application\/vnd.chemdraw+xml":"cdxml","application\/vnd.chipnuts.karaoke-mmd":"mmd","application\/vnd.cinderella":"cdy","application\/vnd.claymore":"cla","application\/vnd.cloanto.rp9":"rp9","application\/vnd.clonk.c4group":"c4g","application\/vnd.cluetrust.cartomobile-config":"c11amc","application\/vnd.cluetrust.cartomobile-config-pkg":"c11amz","application\/vnd.commonspace":"csp","application\/vnd.contact.cmsg":"cdbcmsg","application\/vnd.cosmocaller":"cmc","application\/vnd.crick.clicker":"clkx","application\/vnd.crick.clicker.keyboard":"clkk","application\/vnd.crick.clicker.palette":"clkp","application\/vnd.crick.clicker.template":"clkt","application\/vnd.crick.clicker.wordbank":"clkw","application\/vnd.criticaltools.wbs+xml":"wbs","application\/vnd.ctc-posml":"pml","application\/vnd.cups-ppd":"ppd","application\/vnd.curl.car":"car","application\/vnd.curl.pcurl":"pcurl","application\/vnd.dart":"dart","application\/vnd.data-vision.rdz":"rdz","application\/vnd.dece.data":"uvf","application\/vnd.dece.ttml+xml":"uvt","application\/vnd.dece.unspecified":"uvx","application\/vnd.dece.zip":"uvz","application\/vnd.denovo.fcselayout-link":"fe_launch","application\/vnd.dna":"dna","application\/vnd.dolby.mlp":"mlp","application\/vnd.dpgraph":"dpg","application\/vnd.dreamfactory":"dfac","application\/vnd.ds-keypoint":"kpxx","application\/vnd.dvb.ait":"ait","application\/vnd.dvb.service":"svc","application\/vnd.dynageo":"geo","application\/vnd.ecowin.chart":"mag","application\/vnd.enliven":"nml","application\/vnd.epson.esf":"esf","application\/vnd.epson.msf":"msf","application\/vnd.epson.quickanime":"qam","application\/vnd.epson.salt":"slt","application\/vnd.epson.ssf":"ssf","application\/vnd.eszigno3+xml":"es3","application\/vnd.ezpix-album":"ez2","application\/vnd.ezpix-package":"ez3","application\/vnd.fdf":"fdf","application\/vnd.fdsn.mseed":"mseed","application\/vnd.fdsn.seed":"seed","application\/vnd.flographit":"gph","application\/vnd.fluxtime.clip":"ftc","application\/vnd.framemaker":"fm","application\/vnd.frogans.fnc":"fnc","application\/vnd.frogans.ltf":"ltf","application\/vnd.fsc.weblaunch":"fsc","application\/vnd.fujitsu.oasys":"oas","application\/vnd.fujitsu.oasys2":"oa2","application\/vnd.fujitsu.oasys3":"oa3","application\/vnd.fujitsu.oasysgp":"fg5","application\/vnd.fujitsu.oasysprs":"bh2","application\/vnd.fujixerox.ddd":"ddd","application\/vnd.fujixerox.docuworks":"xdw","application\/vnd.fujixerox.docuworks.binder":"xbd","application\/vnd.fuzzysheet":"fzs","application\/vnd.genomatix.tuxedo":"txd","application\/vnd.geogebra.file":"ggb","application\/vnd.geogebra.tool":"ggt","application\/vnd.geometry-explorer":"gex","application\/vnd.geonext":"gxt","application\/vnd.geoplan":"g2w","application\/vnd.geospace":"g3w","application\/vnd.gmx":"gmx","application\/vnd.google-earth.kml+xml":"kml","application\/vnd.google-earth.kmz":"kmz","application\/vnd.grafeq":"gqf","application\/vnd.groove-account":"gac","application\/vnd.groove-help":"ghf","application\/vnd.groove-identity-message":"gim","application\/vnd.groove-injector":"grv","application\/vnd.groove-tool-message":"gtm","application\/vnd.groove-tool-template":"tpl","application\/vnd.groove-vcard":"vcg","application\/vnd.hal+xml":"hal","application\/vnd.handheld-entertainment+xml":"zmm","application\/vnd.hbci":"hbci","application\/vnd.hhe.lesson-player":"les","application\/vnd.hp-hpgl":"hpgl","application\/vnd.hp-hpid":"hpid","application\/vnd.hp-hps":"hps","application\/vnd.hp-jlyt":"jlt","application\/vnd.hp-pcl":"pcl","application\/vnd.hp-pclxl":"pclxl","application\/vnd.hydrostatix.sof-data":"sfd-hdstx","application\/vnd.ibm.minipay":"mpy","application\/vnd.ibm.modcap":"afp","application\/vnd.ibm.rights-management":"irm","application\/vnd.ibm.secure-container":"sc","application\/vnd.iccprofile":"icc","application\/vnd.igloader":"igl","application\/vnd.immervision-ivp":"ivp","application\/vnd.immervision-ivu":"ivu","application\/vnd.insors.igm":"igm","application\/vnd.intercon.formnet":"xpw","application\/vnd.intergeo":"i2g","application\/vnd.intu.qbo":"qbo","application\/vnd.intu.qfx":"qfx","application\/vnd.ipunplugged.rcprofile":"rcprofile","application\/vnd.irepository.package+xml":"irp","application\/vnd.is-xpr":"xpr","application\/vnd.isac.fcs":"fcs","application\/vnd.jam":"jam","application\/vnd.jcp.javame.midlet-rms":"rms","application\/vnd.jisp":"jisp","application\/vnd.joost.joda-archive":"joda","application\/vnd.kahootz":"ktz","application\/vnd.kde.karbon":"karbon","application\/vnd.kde.kchart":"chrt","application\/vnd.kde.kformula":"kfo","application\/vnd.kde.kivio":"flw","application\/vnd.kde.kontour":"kon","application\/vnd.kde.kpresenter":"kpr","application\/vnd.kde.kspread":"ksp","application\/vnd.kde.kword":"kwd","application\/vnd.kenameaapp":"htke","application\/vnd.kidspiration":"kia","application\/vnd.kinar":"kne","application\/vnd.koan":"skp","application\/vnd.kodak-descriptor":"sse","application\/vnd.las.las+xml":"lasxml","application\/vnd.llamagraphics.life-balance.desktop":"lbd","application\/vnd.llamagraphics.life-balance.exchange+xml":"lbe","application\/vnd.lotus-1-2-3":123,"application\/vnd.lotus-approach":"apr","application\/vnd.lotus-freelance":"pre","application\/vnd.lotus-notes":"nsf","application\/vnd.lotus-organizer":"org","application\/vnd.lotus-screencam":"scm","application\/vnd.lotus-wordpro":"lwp","application\/vnd.macports.portpkg":"portpkg","application\/vnd.mcd":"mcd","application\/vnd.medcalcdata":"mc1","application\/vnd.mediastation.cdkey":"cdkey","application\/vnd.mfer":"mwf","application\/vnd.mfmp":"mfm","application\/vnd.micrografx.flo":"flo","application\/vnd.micrografx.igx":"igx","application\/vnd.mif":"mif","application\/vnd.mobius.daf":"daf","application\/vnd.mobius.dis":"dis","application\/vnd.mobius.mbk":"mbk","application\/vnd.mobius.mqy":"mqy","application\/vnd.mobius.msl":"msl","application\/vnd.mobius.plc":"plc","application\/vnd.mobius.txf":"txf","application\/vnd.mophun.application":"mpn","application\/vnd.mophun.certificate":"mpc","application\/vnd.mozilla.xul+xml":"xul","application\/vnd.ms-artgalry":"cil","application\/vnd.ms-cab-compressed":"cab","application\/vnd.ms-fontobject":"eot","application\/vnd.ms-htmlhelp":"chm","application\/vnd.ms-ims":"ims","application\/vnd.ms-lrm":"lrm","application\/vnd.ms-officetheme":"thmx","application\/vnd.ms-pki.seccat":"cat","application\/vnd.ms-pki.stl":"stl","application\/vnd.ms-project":"mpp","application\/vnd.ms-works":"wps","application\/vnd.ms-wpl":"wpl","application\/vnd.ms-xpsdocument":"xps","application\/vnd.mseq":"mseq","application\/vnd.musician":"mus","application\/vnd.muvee.style":"msty","application\/vnd.mynfc":"taglet","application\/vnd.neurolanguage.nlu":"nlu","application\/vnd.nitf":"ntf","application\/vnd.noblenet-directory":"nnd","application\/vnd.noblenet-sealer":"nns","application\/vnd.noblenet-web":"nnw","application\/vnd.nokia.n-gage.data":"ngdat","application\/vnd.nokia.n-gage.symbian.install":"n-gage","application\/vnd.nokia.radio-preset":"rpst","application\/vnd.nokia.radio-presets":"rpss","application\/vnd.novadigm.edm":"edm","application\/vnd.novadigm.edx":"edx","application\/vnd.novadigm.ext":"ext","application\/vnd.oasis.opendocument.chart-template":"otc","application\/vnd.oasis.opendocument.formula-template":"odft","application\/vnd.oasis.opendocument.image-template":"oti","application\/vnd.olpc-sugar":"xo","application\/vnd.oma.dd2+xml":"dd2","application\/vnd.osgeo.mapguide.package":"mgp","application\/vnd.osgi.dp":"dp","application\/vnd.osgi.subsystem":"esa","application\/vnd.palm":"pdb","application\/vnd.pawaafile":"paw","application\/vnd.pg.format":"str","application\/vnd.pg.osasli":"ei6","application\/vnd.picsel":"efif","application\/vnd.pmi.widget":"wg","application\/vnd.pocketlearn":"plf","application\/vnd.powerbuilder6":"pbd","application\/vnd.previewsystems.box":"box","application\/vnd.proteus.magazine":"mgz","application\/vnd.publishare-delta-tree":"qps","application\/vnd.pvi.ptid1":"ptid","application\/vnd.quark.quarkxpress":"qxd","application\/vnd.realvnc.bed":"bed","application\/vnd.recordare.musicxml":"mxl","application\/vnd.recordare.musicxml+xml":"musicxml","application\/vnd.rig.cryptonote":"cryptonote","application\/vnd.rim.cod":"cod","application\/vnd.rn-realmedia":"rm","application\/vnd.rn-realmedia-vbr":"rmvb","application\/vnd.route66.link66+xml":"link66","application\/vnd.sailingtracker.track":"st","application\/vnd.seemail":"see","application\/vnd.sema":"sema","application\/vnd.semd":"semd","application\/vnd.semf":"semf","application\/vnd.shana.informed.formdata":"ifm","application\/vnd.shana.informed.formtemplate":"itp","application\/vnd.shana.informed.interchange":"iif","application\/vnd.shana.informed.package":"ipk","application\/vnd.simtech-mindmapper":"twd","application\/vnd.smaf":"mmf","application\/vnd.smart.teacher":"teacher","application\/vnd.solent.sdkm+xml":"sdkm","application\/vnd.spotfire.dxp":"dxp","application\/vnd.spotfire.sfs":"sfs","application\/vnd.stardivision.calc":"sdc","application\/vnd.stardivision.draw":"sda","application\/vnd.stardivision.impress":"sdd","application\/vnd.stardivision.math":"smf","application\/vnd.stardivision.writer":"sdw","application\/vnd.stardivision.writer-global":"sgl","application\/vnd.stepmania.package":"smzip","application\/vnd.stepmania.stepchart":"sm","application\/vnd.sun.xml.calc":"sxc","application\/vnd.sun.xml.calc.template":"stc","application\/vnd.sun.xml.draw":"sxd","application\/vnd.sun.xml.draw.template":"std","application\/vnd.sun.xml.impress":"sxi","application\/vnd.sun.xml.impress.template":"sti","application\/vnd.sun.xml.math":"sxm","application\/vnd.sun.xml.writer":"sxw","application\/vnd.sun.xml.writer.global":"sxg","application\/vnd.sun.xml.writer.template":"stw","application\/vnd.sus-calendar":"sus","application\/vnd.svd":"svd","application\/vnd.symbian.install":"sis","application\/vnd.syncml+xml":"xsm","application\/vnd.syncml.dm+wbxml":"bdm","application\/vnd.syncml.dm+xml":"xdm","application\/vnd.tao.intent-module-archive":"tao","application\/vnd.tcpdump.pcap":"pcap","application\/vnd.tmobile-livetv":"tmo","application\/vnd.trid.tpt":"tpt","application\/vnd.triscape.mxs":"mxs","application\/vnd.trueapp":"tra","application\/vnd.ufdl":"ufd","application\/vnd.uiq.theme":"utz","application\/vnd.umajin":"umj","application\/vnd.unity":"unityweb","application\/vnd.uoml+xml":"uoml","application\/vnd.vcx":"vcx","application\/vnd.visio":"vsd","application\/vnd.visionary":"vis","application\/vnd.vsf":"vsf","application\/vnd.wap.wbxml":"wbxml","application\/vnd.wap.wmlc":"wmlc","application\/vnd.wap.wmlscriptc":"wmlsc","application\/vnd.webturbo":"wtb","application\/vnd.wolfram.player":"nbp","application\/vnd.wordperfect":"wpd","application\/vnd.wqd":"wqd","application\/vnd.wt.stf":"stf","application\/vnd.xara":"xar","application\/vnd.xfdl":"xfdl","application\/vnd.yamaha.hv-dic":"hvd","application\/vnd.yamaha.hv-script":"hvs","application\/vnd.yamaha.hv-voice":"hvp","application\/vnd.yamaha.openscoreformat":"osf","application\/vnd.yamaha.openscoreformat.osfpvg+xml":"osfpvg","application\/vnd.yamaha.smaf-audio":"saf","application\/vnd.yamaha.smaf-phrase":"spf","application\/vnd.yellowriver-custom-menu":"cmp","application\/vnd.zul":"zir","application\/vnd.zzazz.deck+xml":"zaz","application\/voicexml+xml":"vxml","application\/widget":"wgt","application\/winhlp":"hlp","application\/wsdl+xml":"wsdl","application\/wspolicy+xml":"wspolicy","application\/x-abiword":"abw","application\/x-ace-compressed":"ace","application\/x-apple-diskimage":"dmg","application\/x-authorware-bin":"aab","application\/x-authorware-map":"aam","application\/x-authorware-seg":"aas","application\/x-bcpio":"bcpio","application\/x-blorb":"blb","application\/x-cbr":"cbr","application\/x-cdlink":"vcd","application\/x-cfs-compressed":"cfs","application\/x-chat":"chat","application\/x-chess-pgn":"pgn","application\/x-conference":"nsc","application\/x-cpio":"cpio","application\/x-csh":"csh","application\/x-debian-package":"deb","application\/x-dgc-compressed":"dgc","application\/x-director":"dir","application\/x-doom":"wad","application\/x-dtbncx+xml":"ncx","application\/x-dtbook+xml":"dtb","application\/x-dtbresource+xml":"res","application\/x-dvi":"dvi","application\/x-envoy":"evy","application\/x-eva":"eva","application\/x-font-bdf":"bdf","application\/x-font-ghostscript":"gsf","application\/x-font-linux-psf":"psf","application\/x-font-pcf":"pcf","application\/x-font-snf":"snf","application\/x-font-type1":"pfa","application\/x-freearc":"arc","application\/x-futuresplash":"spl","application\/x-gca-compressed":"gca","application\/x-glulx":"ulx","application\/x-gnumeric":"gnumeric","application\/x-gramps-xml":"gramps","application\/x-gtar":"gtar","application\/x-hdf":"hdf","application\/x-install-instructions":"install","application\/x-iso9660-image":"iso","application\/x-java-jnlp-file":"jnlp","application\/x-latex":"latex","application\/x-lzh-compressed":"lzh","application\/x-mie":"mie","application\/x-mobipocket-ebook":"prc","application\/x-ms-application":"application","application\/x-ms-shortcut":"lnk","application\/x-ms-wmd":"wmd","application\/x-ms-wmz":"wmz","application\/x-ms-xbap":"xbap","application\/x-msaccess":"mdb","application\/x-msbinder":"obd","application\/x-mscardfile":"crd","application\/x-msclip":"clp","application\/x-msdownload":"dll","application\/x-msmediaview":"mvb","application\/x-msmetafile":"wmf","application\/x-msmoney":"mny","application\/x-mspublisher":"pub","application\/x-msschedule":"scd","application\/x-msterminal":"trm","application\/x-mswrite":"wri","application\/x-netcdf":"nc","application\/x-nzb":"nzb","application\/x-pkcs12":"p12","application\/x-pkcs7-certificates":"p7b","application\/x-pkcs7-certreqresp":"p7r","application\/x-research-info-systems":"ris","application\/x-shar":"shar","application\/x-silverlight-app":"xap","application\/x-stuffit":"sit","application\/x-stuffitx":"sitx","application\/x-subrip":"srt","application\/x-sv4cpio":"sv4cpio","application\/x-sv4crc":"sv4crc","application\/x-t3vm-image":"t3","application\/x-tads":"gam","application\/x-tcl":"tcl","application\/x-tex":"tex","application\/x-tex-tfm":"tfm","application\/x-texinfo":"texinfo","application\/x-tgif":"obj","application\/x-ustar":"ustar","application\/x-wais-source":"src","application\/x-x509-ca-cert":"der","application\/x-xfig":"fig","application\/x-xliff+xml":"xlf","application\/x-xpinstall":"xpi","application\/x-zmachine":"z1","application\/xaml+xml":"xaml","application\/xcap-diff+xml":"xdf","application\/xenc+xml":"xenc","application\/xhtml+xml":"xhtml","application\/xml":"xsl","application\/xml-dtd":"dtd","application\/xop+xml":"xop","application\/xproc+xml":"xpl","application\/xslt+xml":"xslt","application\/xspf+xml":"xspf","application\/xv+xml":"mxml","application\/yang":"yang","application\/yin+xml":"yin","audio\/adpcm":"adp","audio\/basic":"au","audio\/s3m":"s3m","audio\/silk":"sil","audio\/vnd.dece.audio":"uva","audio\/vnd.digital-winds":"eol","audio\/vnd.dra":"dra","audio\/vnd.dts":"dts","audio\/vnd.dts.hd":"dtshd","audio\/vnd.lucent.voice":"lvp","audio\/vnd.ms-playready.media.pya":"pya","audio\/vnd.nuera.ecelp4800":"ecelp4800","audio\/vnd.nuera.ecelp7470":"ecelp7470","audio\/vnd.nuera.ecelp9600":"ecelp9600","audio\/vnd.rip":"rip","audio\/webm":"weba","audio\/x-aac":"aac","audio\/x-aiff":"aif","audio\/x-caf":"caf","audio\/x-flac":"flac","audio\/x-matroska":"mka","audio\/x-mpegurl":"m3u","audio\/x-ms-wax":"wax","audio\/x-pn-realaudio":"ram","audio\/x-pn-realaudio-plugin":"rmp","audio\/xm":"xm","chemical\/x-cdx":"cdx","chemical\/x-cif":"cif","chemical\/x-cmdf":"cmdf","chemical\/x-cml":"cml","chemical\/x-csml":"csml","chemical\/x-xyz":"xyz","font\/collection":"ttc","font\/otf":"otf","font\/ttf":"ttf","font\/woff":"woff","font\/woff2":"woff2","image\/cgm":"cgm","image\/g3fax":"g3","image\/ief":"ief","image\/ktx":"ktx","image\/prs.btif":"btif","image\/sgi":"sgi","image\/svg+xml":"svg","image\/vnd.dece.graphic":"uvi","image\/vnd.djvu":"djvu","image\/vnd.dvb.subtitle":"sub","image\/vnd.dwg":"dwg","image\/vnd.dxf":"dxf","image\/vnd.fastbidsheet":"fbs","image\/vnd.fpx":"fpx","image\/vnd.fst":"fst","image\/vnd.fujixerox.edmics-mmr":"mmr","image\/vnd.fujixerox.edmics-rlc":"rlc","image\/vnd.ms-modi":"mdi","image\/vnd.ms-photo":"wdp","image\/vnd.net-fpx":"npx","image\/vnd.wap.wbmp":"wbmp","image\/vnd.xiff":"xif","image\/webp":"webp","image\/x-3ds":"3ds","image\/x-cmu-raster":"ras","image\/x-cmx":"cmx","image\/x-freehand":"fh","image\/x-icon":"ico","image\/x-mrsid-image":"sid","image\/x-pcx":"pcx","image\/x-pict":"pic","image\/x-portable-anymap":"pnm","image\/x-portable-bitmap":"pbm","image\/x-portable-graymap":"pgm","image\/x-portable-pixmap":"ppm","image\/x-rgb":"rgb","image\/x-xpixmap":"xpm","image\/x-xwindowdump":"xwd","message\/rfc822":"eml","model\/iges":"igs","model\/mesh":"msh","model\/vnd.collada+xml":"dae","model\/vnd.dwf":"dwf","model\/vnd.gdl":"gdl","model\/vnd.gtw":"gtw","model\/vnd.vtu":"vtu","model\/vrml":"wrl","model\/x3d+binary":"x3db","model\/x3d+vrml":"x3dv","model\/x3d+xml":"x3d","text\/cache-manifest":"appcache","text\/calendar":"ics","text\/n3":"n3","text\/prs.lines.tag":"dsc","text\/richtext":"rtx","text\/sgml":"sgml","text\/tab-separated-values":"tsv","text\/troff":"t","text\/turtle":"ttl","text\/uri-list":"uri","text\/vcard":"vcard","text\/vnd.curl":"curl","text\/vnd.curl.dcurl":"dcurl","text\/vnd.curl.mcurl":"mcurl","text\/vnd.curl.scurl":"scurl","text\/vnd.fly":"fly","text\/vnd.fmi.flexstor":"flx","text\/vnd.graphviz":"gv","text\/vnd.in3d.3dml":"3dml","text\/vnd.in3d.spot":"spot","text\/vnd.sun.j2me.app-descriptor":"jad","text\/vnd.wap.wml":"wml","text\/vnd.wap.wmlscript":"wmls","text\/x-asm":"s","text\/x-c":"cc","text\/x-fortran":"f","text\/x-nfo":"nfo","text\/x-opml":"opml","text\/x-pascal":"p","text\/x-setext":"etx","text\/x-sfv":"sfv","text\/x-uuencode":"uu","text\/x-vcalendar":"vcs","text\/x-vcard":"vcf","video\/3gpp":"3gp","video\/3gpp2":"3g2","video\/h261":"h261","video\/h263":"h263","video\/h264":"h264","video\/jpeg":"jpgv","video\/jpm":"jpm","video\/mj2":"mj2","video\/vnd.dece.hd":"uvh","video\/vnd.dece.mobile":"uvm","video\/vnd.dece.pd":"uvp","video\/vnd.dece.sd":"uvs","video\/vnd.dece.video":"uvv","video\/vnd.dvb.file":"dvb","video\/vnd.fvt":"fvt","video\/vnd.mpegurl":"mxu","video\/vnd.ms-playready.media.pyv":"pyv","video\/vnd.uvvu.mp4":"uvu","video\/vnd.vivo":"viv","video\/x-f4v":"f4v","video\/x-fli":"fli","video\/x-m4v":"m4v","video\/x-mng":"mng","video\/x-ms-asf":"asf","video\/x-ms-vob":"vob","video\/x-ms-wmx":"wmx","video\/x-ms-wvx":"wvx","video\/x-sgi-movie":"movie","video\/x-smv":"smv","x-conference\/x-cooltalk":"ice","text\/x-httpd-cgi":"cgi","text\/x-asap":"asp","text\/x-jsp":"jsp"};
+elFinder.prototype.mimeTypes = {"application\/x-executable":"exe","application\/x-jar":"jar","application\/x-gzip":"gz","application\/x-bzip2":"tbz","application\/x-rar":"rar","text\/x-php":"php","text\/javascript":"js","application\/rtfd":"rtfd","text\/x-python":"py","text\/x-ruby":"rb","text\/x-shellscript":"sh","text\/x-perl":"pl","text\/xml":"xml","text\/x-csrc":"c","text\/x-chdr":"h","text\/x-c++src":"cpp","text\/x-c++hdr":"hh","text\/x-markdown":"md","text\/x-yaml":"yml","image\/x-ms-bmp":"bmp","image\/x-targa":"tga","image\/xbm":"xbm","image\/pxm":"pxm","audio\/wav":"wav","video\/x-dv":"dv","video\/x-ms-wmv":"wm","video\/ogg":"ogm","video\/MP2T":"m2ts","application\/x-mpegURL":"m3u8","application\/dash+xml":"mpd","application\/andrew-inset":"ez","application\/applixware":"aw","application\/atom+xml":"atom","application\/atomcat+xml":"atomcat","application\/atomsvc+xml":"atomsvc","application\/ccxml+xml":"ccxml","application\/cdmi-capability":"cdmia","application\/cdmi-container":"cdmic","application\/cdmi-domain":"cdmid","application\/cdmi-object":"cdmio","application\/cdmi-queue":"cdmiq","application\/cu-seeme":"cu","application\/davmount+xml":"davmount","application\/docbook+xml":"dbk","application\/dssc+der":"dssc","application\/dssc+xml":"xdssc","application\/ecmascript":"ecma","application\/emma+xml":"emma","application\/epub+zip":"epub","application\/exi":"exi","application\/font-tdpfr":"pfr","application\/gml+xml":"gml","application\/gpx+xml":"gpx","application\/gxf":"gxf","application\/hyperstudio":"stk","application\/inkml+xml":"ink","application\/ipfix":"ipfix","application\/java-serialized-object":"ser","application\/java-vm":"class","application\/json":"json","application\/jsonml+json":"jsonml","application\/lost+xml":"lostxml","application\/mac-binhex40":"hqx","application\/mac-compactpro":"cpt","application\/mads+xml":"mads","application\/marc":"mrc","application\/marcxml+xml":"mrcx","application\/mathematica":"ma","application\/mathml+xml":"mathml","application\/mbox":"mbox","application\/mediaservercontrol+xml":"mscml","application\/metalink+xml":"metalink","application\/metalink4+xml":"meta4","application\/mets+xml":"mets","application\/mods+xml":"mods","application\/mp21":"m21","application\/mp4":"mp4s","application\/msword":"doc","application\/mxf":"mxf","application\/octet-stream":"bin","application\/oda":"oda","application\/oebps-package+xml":"opf","application\/ogg":"ogx","application\/omdoc+xml":"omdoc","application\/onenote":"onetoc","application\/oxps":"oxps","application\/patch-ops-error+xml":"xer","application\/pdf":"pdf","application\/pgp-encrypted":"pgp","application\/pgp-signature":"asc","application\/pics-rules":"prf","application\/pkcs10":"p10","application\/pkcs7-mime":"p7m","application\/pkcs7-signature":"p7s","application\/pkcs8":"p8","application\/pkix-attr-cert":"ac","application\/pkix-cert":"cer","application\/pkix-crl":"crl","application\/pkix-pkipath":"pkipath","application\/pkixcmp":"pki","application\/pls+xml":"pls","application\/postscript":"ai","application\/prs.cww":"cww","application\/pskc+xml":"pskcxml","application\/rdf+xml":"rdf","application\/reginfo+xml":"rif","application\/relax-ng-compact-syntax":"rnc","application\/resource-lists+xml":"rl","application\/resource-lists-diff+xml":"rld","application\/rls-services+xml":"rs","application\/rpki-ghostbusters":"gbr","application\/rpki-manifest":"mft","application\/rpki-roa":"roa","application\/rsd+xml":"rsd","application\/rss+xml":"rss","application\/rtf":"rtf","application\/sbml+xml":"sbml","application\/scvp-cv-request":"scq","application\/scvp-cv-response":"scs","application\/scvp-vp-request":"spq","application\/scvp-vp-response":"spp","application\/sdp":"sdp","application\/set-payment-initiation":"setpay","application\/set-registration-initiation":"setreg","application\/shf+xml":"shf","application\/smil+xml":"smi","application\/sparql-query":"rq","application\/sparql-results+xml":"srx","application\/srgs":"gram","application\/srgs+xml":"grxml","application\/sru+xml":"sru","application\/ssdl+xml":"ssdl","application\/ssml+xml":"ssml","application\/tei+xml":"tei","application\/thraud+xml":"tfi","application\/timestamped-data":"tsd","application\/vnd.3gpp.pic-bw-large":"plb","application\/vnd.3gpp.pic-bw-small":"psb","application\/vnd.3gpp.pic-bw-var":"pvb","application\/vnd.3gpp2.tcap":"tcap","application\/vnd.3m.post-it-notes":"pwn","application\/vnd.accpac.simply.aso":"aso","application\/vnd.accpac.simply.imp":"imp","application\/vnd.acucobol":"acu","application\/vnd.acucorp":"atc","application\/vnd.adobe.air-application-installer-package+zip":"air","application\/vnd.adobe.formscentral.fcdt":"fcdt","application\/vnd.adobe.fxp":"fxp","application\/vnd.adobe.xdp+xml":"xdp","application\/vnd.adobe.xfdf":"xfdf","application\/vnd.ahead.space":"ahead","application\/vnd.airzip.filesecure.azf":"azf","application\/vnd.airzip.filesecure.azs":"azs","application\/vnd.amazon.ebook":"azw","application\/vnd.americandynamics.acc":"acc","application\/vnd.amiga.ami":"ami","application\/vnd.android.package-archive":"apk","application\/vnd.anser-web-certificate-issue-initiation":"cii","application\/vnd.anser-web-funds-transfer-initiation":"fti","application\/vnd.antix.game-component":"atx","application\/vnd.apple.installer+xml":"mpkg","application\/vnd.aristanetworks.swi":"swi","application\/vnd.astraea-software.iota":"iota","application\/vnd.audiograph":"aep","application\/vnd.blueice.multipass":"mpm","application\/vnd.bmi":"bmi","application\/vnd.businessobjects":"rep","application\/vnd.chemdraw+xml":"cdxml","application\/vnd.chipnuts.karaoke-mmd":"mmd","application\/vnd.cinderella":"cdy","application\/vnd.claymore":"cla","application\/vnd.cloanto.rp9":"rp9","application\/vnd.clonk.c4group":"c4g","application\/vnd.cluetrust.cartomobile-config":"c11amc","application\/vnd.cluetrust.cartomobile-config-pkg":"c11amz","application\/vnd.commonspace":"csp","application\/vnd.contact.cmsg":"cdbcmsg","application\/vnd.cosmocaller":"cmc","application\/vnd.crick.clicker":"clkx","application\/vnd.crick.clicker.keyboard":"clkk","application\/vnd.crick.clicker.palette":"clkp","application\/vnd.crick.clicker.template":"clkt","application\/vnd.crick.clicker.wordbank":"clkw","application\/vnd.criticaltools.wbs+xml":"wbs","application\/vnd.ctc-posml":"pml","application\/vnd.cups-ppd":"ppd","application\/vnd.curl.car":"car","application\/vnd.curl.pcurl":"pcurl","application\/vnd.dart":"dart","application\/vnd.data-vision.rdz":"rdz","application\/vnd.dece.data":"uvf","application\/vnd.dece.ttml+xml":"uvt","application\/vnd.dece.unspecified":"uvx","application\/vnd.dece.zip":"uvz","application\/vnd.denovo.fcselayout-link":"fe_launch","application\/vnd.dna":"dna","application\/vnd.dolby.mlp":"mlp","application\/vnd.dpgraph":"dpg","application\/vnd.dreamfactory":"dfac","application\/vnd.ds-keypoint":"kpxx","application\/vnd.dvb.ait":"ait","application\/vnd.dvb.service":"svc","application\/vnd.dynageo":"geo","application\/vnd.ecowin.chart":"mag","application\/vnd.enliven":"nml","application\/vnd.epson.esf":"esf","application\/vnd.epson.msf":"msf","application\/vnd.epson.quickanime":"qam","application\/vnd.epson.salt":"slt","application\/vnd.epson.ssf":"ssf","application\/vnd.eszigno3+xml":"es3","application\/vnd.ezpix-album":"ez2","application\/vnd.ezpix-package":"ez3","application\/vnd.fdf":"fdf","application\/vnd.fdsn.mseed":"mseed","application\/vnd.fdsn.seed":"seed","application\/vnd.flographit":"gph","application\/vnd.fluxtime.clip":"ftc","application\/vnd.framemaker":"fm","application\/vnd.frogans.fnc":"fnc","application\/vnd.frogans.ltf":"ltf","application\/vnd.fsc.weblaunch":"fsc","application\/vnd.fujitsu.oasys":"oas","application\/vnd.fujitsu.oasys2":"oa2","application\/vnd.fujitsu.oasys3":"oa3","application\/vnd.fujitsu.oasysgp":"fg5","application\/vnd.fujitsu.oasysprs":"bh2","application\/vnd.fujixerox.ddd":"ddd","application\/vnd.fujixerox.docuworks":"xdw","application\/vnd.fujixerox.docuworks.binder":"xbd","application\/vnd.fuzzysheet":"fzs","application\/vnd.genomatix.tuxedo":"txd","application\/vnd.geogebra.file":"ggb","application\/vnd.geogebra.tool":"ggt","application\/vnd.geometry-explorer":"gex","application\/vnd.geonext":"gxt","application\/vnd.geoplan":"g2w","application\/vnd.geospace":"g3w","application\/vnd.gmx":"gmx","application\/vnd.google-earth.kml+xml":"kml","application\/vnd.google-earth.kmz":"kmz","application\/vnd.grafeq":"gqf","application\/vnd.groove-account":"gac","application\/vnd.groove-help":"ghf","application\/vnd.groove-identity-message":"gim","application\/vnd.groove-injector":"grv","application\/vnd.groove-tool-message":"gtm","application\/vnd.groove-tool-template":"tpl","application\/vnd.groove-vcard":"vcg","application\/vnd.hal+xml":"hal","application\/vnd.handheld-entertainment+xml":"zmm","application\/vnd.hbci":"hbci","application\/vnd.hhe.lesson-player":"les","application\/vnd.hp-hpgl":"hpgl","application\/vnd.hp-hpid":"hpid","application\/vnd.hp-hps":"hps","application\/vnd.hp-jlyt":"jlt","application\/vnd.hp-pcl":"pcl","application\/vnd.hp-pclxl":"pclxl","application\/vnd.hydrostatix.sof-data":"sfd-hdstx","application\/vnd.ibm.minipay":"mpy","application\/vnd.ibm.modcap":"afp","application\/vnd.ibm.rights-management":"irm","application\/vnd.ibm.secure-container":"sc","application\/vnd.iccprofile":"icc","application\/vnd.igloader":"igl","application\/vnd.immervision-ivp":"ivp","application\/vnd.immervision-ivu":"ivu","application\/vnd.insors.igm":"igm","application\/vnd.intercon.formnet":"xpw","application\/vnd.intergeo":"i2g","application\/vnd.intu.qbo":"qbo","application\/vnd.intu.qfx":"qfx","application\/vnd.ipunplugged.rcprofile":"rcprofile","application\/vnd.irepository.package+xml":"irp","application\/vnd.is-xpr":"xpr","application\/vnd.isac.fcs":"fcs","application\/vnd.jam":"jam","application\/vnd.jcp.javame.midlet-rms":"rms","application\/vnd.jisp":"jisp","application\/vnd.joost.joda-archive":"joda","application\/vnd.kahootz":"ktz","application\/vnd.kde.karbon":"karbon","application\/vnd.kde.kchart":"chrt","application\/vnd.kde.kformula":"kfo","application\/vnd.kde.kivio":"flw","application\/vnd.kde.kontour":"kon","application\/vnd.kde.kpresenter":"kpr","application\/vnd.kde.kspread":"ksp","application\/vnd.kde.kword":"kwd","application\/vnd.kenameaapp":"htke","application\/vnd.kidspiration":"kia","application\/vnd.kinar":"kne","application\/vnd.koan":"skp","application\/vnd.kodak-descriptor":"sse","application\/vnd.las.las+xml":"lasxml","application\/vnd.llamagraphics.life-balance.desktop":"lbd","application\/vnd.llamagraphics.life-balance.exchange+xml":"lbe","application\/vnd.lotus-1-2-3":123,"application\/vnd.lotus-approach":"apr","application\/vnd.lotus-freelance":"pre","application\/vnd.lotus-notes":"nsf","application\/vnd.lotus-organizer":"org","application\/vnd.lotus-screencam":"scm","application\/vnd.lotus-wordpro":"lwp","application\/vnd.macports.portpkg":"portpkg","application\/vnd.mcd":"mcd","application\/vnd.medcalcdata":"mc1","application\/vnd.mediastation.cdkey":"cdkey","application\/vnd.mfer":"mwf","application\/vnd.mfmp":"mfm","application\/vnd.micrografx.flo":"flo","application\/vnd.micrografx.igx":"igx","application\/vnd.mif":"mif","application\/vnd.mobius.daf":"daf","application\/vnd.mobius.dis":"dis","application\/vnd.mobius.mbk":"mbk","application\/vnd.mobius.mqy":"mqy","application\/vnd.mobius.msl":"msl","application\/vnd.mobius.plc":"plc","application\/vnd.mobius.txf":"txf","application\/vnd.mophun.application":"mpn","application\/vnd.mophun.certificate":"mpc","application\/vnd.mozilla.xul+xml":"xul","application\/vnd.ms-artgalry":"cil","application\/vnd.ms-cab-compressed":"cab","application\/vnd.ms-excel":"xls","application\/vnd.ms-excel.addin.macroenabled.12":"xlam","application\/vnd.ms-excel.sheet.binary.macroenabled.12":"xlsb","application\/vnd.ms-excel.sheet.macroenabled.12":"xlsm","application\/vnd.ms-excel.template.macroenabled.12":"xltm","application\/vnd.ms-fontobject":"eot","application\/vnd.ms-htmlhelp":"chm","application\/vnd.ms-ims":"ims","application\/vnd.ms-lrm":"lrm","application\/vnd.ms-officetheme":"thmx","application\/vnd.ms-pki.seccat":"cat","application\/vnd.ms-pki.stl":"stl","application\/vnd.ms-powerpoint":"ppt","application\/vnd.ms-powerpoint.addin.macroenabled.12":"ppam","application\/vnd.ms-powerpoint.presentation.macroenabled.12":"pptm","application\/vnd.ms-powerpoint.slide.macroenabled.12":"sldm","application\/vnd.ms-powerpoint.slideshow.macroenabled.12":"ppsm","application\/vnd.ms-powerpoint.template.macroenabled.12":"potm","application\/vnd.ms-project":"mpp","application\/vnd.ms-word.document.macroenabled.12":"docm","application\/vnd.ms-word.template.macroenabled.12":"dotm","application\/vnd.ms-works":"wps","application\/vnd.ms-wpl":"wpl","application\/vnd.ms-xpsdocument":"xps","application\/vnd.mseq":"mseq","application\/vnd.musician":"mus","application\/vnd.muvee.style":"msty","application\/vnd.mynfc":"taglet","application\/vnd.neurolanguage.nlu":"nlu","application\/vnd.nitf":"ntf","application\/vnd.noblenet-directory":"nnd","application\/vnd.noblenet-sealer":"nns","application\/vnd.noblenet-web":"nnw","application\/vnd.nokia.n-gage.data":"ngdat","application\/vnd.nokia.n-gage.symbian.install":"n-gage","application\/vnd.nokia.radio-preset":"rpst","application\/vnd.nokia.radio-presets":"rpss","application\/vnd.novadigm.edm":"edm","application\/vnd.novadigm.edx":"edx","application\/vnd.novadigm.ext":"ext","application\/vnd.oasis.opendocument.chart":"odc","application\/vnd.oasis.opendocument.chart-template":"otc","application\/vnd.oasis.opendocument.database":"odb","application\/vnd.oasis.opendocument.formula":"odf","application\/vnd.oasis.opendocument.formula-template":"odft","application\/vnd.oasis.opendocument.graphics":"odg","application\/vnd.oasis.opendocument.graphics-template":"otg","application\/vnd.oasis.opendocument.image":"odi","application\/vnd.oasis.opendocument.image-template":"oti","application\/vnd.oasis.opendocument.presentation":"odp","application\/vnd.oasis.opendocument.presentation-template":"otp","application\/vnd.oasis.opendocument.spreadsheet":"ods","application\/vnd.oasis.opendocument.spreadsheet-template":"ots","application\/vnd.oasis.opendocument.text":"odt","application\/vnd.oasis.opendocument.text-master":"odm","application\/vnd.oasis.opendocument.text-template":"ott","application\/vnd.oasis.opendocument.text-web":"oth","application\/vnd.olpc-sugar":"xo","application\/vnd.oma.dd2+xml":"dd2","application\/vnd.openofficeorg.extension":"oxt","application\/vnd.openxmlformats-officedocument.presentationml.presentation":"pptx","application\/vnd.openxmlformats-officedocument.presentationml.slide":"sldx","application\/vnd.openxmlformats-officedocument.presentationml.slideshow":"ppsx","application\/vnd.openxmlformats-officedocument.presentationml.template":"potx","application\/vnd.openxmlformats-officedocument.spreadsheetml.sheet":"xlsx","application\/vnd.openxmlformats-officedocument.spreadsheetml.template":"xltx","application\/vnd.openxmlformats-officedocument.wordprocessingml.document":"docx","application\/vnd.openxmlformats-officedocument.wordprocessingml.template":"dotx","application\/vnd.osgeo.mapguide.package":"mgp","application\/vnd.osgi.dp":"dp","application\/vnd.osgi.subsystem":"esa","application\/vnd.palm":"pdb","application\/vnd.pawaafile":"paw","application\/vnd.pg.format":"str","application\/vnd.pg.osasli":"ei6","application\/vnd.picsel":"efif","application\/vnd.pmi.widget":"wg","application\/vnd.pocketlearn":"plf","application\/vnd.powerbuilder6":"pbd","application\/vnd.previewsystems.box":"box","application\/vnd.proteus.magazine":"mgz","application\/vnd.publishare-delta-tree":"qps","application\/vnd.pvi.ptid1":"ptid","application\/vnd.quark.quarkxpress":"qxd","application\/vnd.realvnc.bed":"bed","application\/vnd.recordare.musicxml":"mxl","application\/vnd.recordare.musicxml+xml":"musicxml","application\/vnd.rig.cryptonote":"cryptonote","application\/vnd.rim.cod":"cod","application\/vnd.rn-realmedia":"rm","application\/vnd.rn-realmedia-vbr":"rmvb","application\/vnd.route66.link66+xml":"link66","application\/vnd.sailingtracker.track":"st","application\/vnd.seemail":"see","application\/vnd.sema":"sema","application\/vnd.semd":"semd","application\/vnd.semf":"semf","application\/vnd.shana.informed.formdata":"ifm","application\/vnd.shana.informed.formtemplate":"itp","application\/vnd.shana.informed.interchange":"iif","application\/vnd.shana.informed.package":"ipk","application\/vnd.simtech-mindmapper":"twd","application\/vnd.smaf":"mmf","application\/vnd.smart.teacher":"teacher","application\/vnd.solent.sdkm+xml":"sdkm","application\/vnd.spotfire.dxp":"dxp","application\/vnd.spotfire.sfs":"sfs","application\/vnd.stardivision.calc":"sdc","application\/vnd.stardivision.draw":"sda","application\/vnd.stardivision.impress":"sdd","application\/vnd.stardivision.math":"smf","application\/vnd.stardivision.writer":"sdw","application\/vnd.stardivision.writer-global":"sgl","application\/vnd.stepmania.package":"smzip","application\/vnd.stepmania.stepchart":"sm","application\/vnd.sun.xml.calc":"sxc","application\/vnd.sun.xml.calc.template":"stc","application\/vnd.sun.xml.draw":"sxd","application\/vnd.sun.xml.draw.template":"std","application\/vnd.sun.xml.impress":"sxi","application\/vnd.sun.xml.impress.template":"sti","application\/vnd.sun.xml.math":"sxm","application\/vnd.sun.xml.writer":"sxw","application\/vnd.sun.xml.writer.global":"sxg","application\/vnd.sun.xml.writer.template":"stw","application\/vnd.sus-calendar":"sus","application\/vnd.svd":"svd","application\/vnd.symbian.install":"sis","application\/vnd.syncml+xml":"xsm","application\/vnd.syncml.dm+wbxml":"bdm","application\/vnd.syncml.dm+xml":"xdm","application\/vnd.tao.intent-module-archive":"tao","application\/vnd.tcpdump.pcap":"pcap","application\/vnd.tmobile-livetv":"tmo","application\/vnd.trid.tpt":"tpt","application\/vnd.triscape.mxs":"mxs","application\/vnd.trueapp":"tra","application\/vnd.ufdl":"ufd","application\/vnd.uiq.theme":"utz","application\/vnd.umajin":"umj","application\/vnd.unity":"unityweb","application\/vnd.uoml+xml":"uoml","application\/vnd.vcx":"vcx","application\/vnd.visio":"vsd","application\/vnd.visionary":"vis","application\/vnd.vsf":"vsf","application\/vnd.wap.wbxml":"wbxml","application\/vnd.wap.wmlc":"wmlc","application\/vnd.wap.wmlscriptc":"wmlsc","application\/vnd.webturbo":"wtb","application\/vnd.wolfram.player":"nbp","application\/vnd.wordperfect":"wpd","application\/vnd.wqd":"wqd","application\/vnd.wt.stf":"stf","application\/vnd.xara":"xar","application\/vnd.xfdl":"xfdl","application\/vnd.yamaha.hv-dic":"hvd","application\/vnd.yamaha.hv-script":"hvs","application\/vnd.yamaha.hv-voice":"hvp","application\/vnd.yamaha.openscoreformat":"osf","application\/vnd.yamaha.openscoreformat.osfpvg+xml":"osfpvg","application\/vnd.yamaha.smaf-audio":"saf","application\/vnd.yamaha.smaf-phrase":"spf","application\/vnd.yellowriver-custom-menu":"cmp","application\/vnd.zul":"zir","application\/vnd.zzazz.deck+xml":"zaz","application\/voicexml+xml":"vxml","application\/widget":"wgt","application\/winhlp":"hlp","application\/wsdl+xml":"wsdl","application\/wspolicy+xml":"wspolicy","application\/x-7z-compressed":"7z","application\/x-abiword":"abw","application\/x-ace-compressed":"ace","application\/x-apple-diskimage":"dmg","application\/x-authorware-bin":"aab","application\/x-authorware-map":"aam","application\/x-authorware-seg":"aas","application\/x-bcpio":"bcpio","application\/x-bittorrent":"torrent","application\/x-blorb":"blb","application\/x-bzip":"bz","application\/x-cbr":"cbr","application\/x-cdlink":"vcd","application\/x-cfs-compressed":"cfs","application\/x-chat":"chat","application\/x-chess-pgn":"pgn","application\/x-conference":"nsc","application\/x-cpio":"cpio","application\/x-csh":"csh","application\/x-debian-package":"deb","application\/x-dgc-compressed":"dgc","application\/x-director":"dir","application\/x-doom":"wad","application\/x-dtbncx+xml":"ncx","application\/x-dtbook+xml":"dtb","application\/x-dtbresource+xml":"res","application\/x-dvi":"dvi","application\/x-envoy":"evy","application\/x-eva":"eva","application\/x-font-bdf":"bdf","application\/x-font-ghostscript":"gsf","application\/x-font-linux-psf":"psf","application\/x-font-pcf":"pcf","application\/x-font-snf":"snf","application\/x-font-type1":"pfa","application\/x-freearc":"arc","application\/x-futuresplash":"spl","application\/x-gca-compressed":"gca","application\/x-glulx":"ulx","application\/x-gnumeric":"gnumeric","application\/x-gramps-xml":"gramps","application\/x-gtar":"gtar","application\/x-hdf":"hdf","application\/x-install-instructions":"install","application\/x-iso9660-image":"iso","application\/x-java-jnlp-file":"jnlp","application\/x-latex":"latex","application\/x-lzh-compressed":"lzh","application\/x-mie":"mie","application\/x-mobipocket-ebook":"prc","application\/x-ms-application":"application","application\/x-ms-shortcut":"lnk","application\/x-ms-wmd":"wmd","application\/x-ms-wmz":"wmz","application\/x-ms-xbap":"xbap","application\/x-msaccess":"mdb","application\/x-msbinder":"obd","application\/x-mscardfile":"crd","application\/x-msclip":"clp","application\/x-msdownload":"dll","application\/x-msmediaview":"mvb","application\/x-msmetafile":"wmf","application\/x-msmoney":"mny","application\/x-mspublisher":"pub","application\/x-msschedule":"scd","application\/x-msterminal":"trm","application\/x-mswrite":"wri","application\/x-netcdf":"nc","application\/x-nzb":"nzb","application\/x-pkcs12":"p12","application\/x-pkcs7-certificates":"p7b","application\/x-pkcs7-certreqresp":"p7r","application\/x-research-info-systems":"ris","application\/x-shar":"shar","application\/x-shockwave-flash":"swf","application\/x-silverlight-app":"xap","application\/x-sql":"sql","application\/x-stuffit":"sit","application\/x-stuffitx":"sitx","application\/x-subrip":"srt","application\/x-sv4cpio":"sv4cpio","application\/x-sv4crc":"sv4crc","application\/x-t3vm-image":"t3","application\/x-tads":"gam","application\/x-tar":"tar","application\/x-tcl":"tcl","application\/x-tex":"tex","application\/x-tex-tfm":"tfm","application\/x-texinfo":"texinfo","application\/x-tgif":"obj","application\/x-ustar":"ustar","application\/x-wais-source":"src","application\/x-x509-ca-cert":"der","application\/x-xfig":"fig","application\/x-xliff+xml":"xlf","application\/x-xpinstall":"xpi","application\/x-xz":"xz","application\/x-zmachine":"z1","application\/xaml+xml":"xaml","application\/xcap-diff+xml":"xdf","application\/xenc+xml":"xenc","application\/xhtml+xml":"xhtml","application\/xml":"xsl","application\/xml-dtd":"dtd","application\/xop+xml":"xop","application\/xproc+xml":"xpl","application\/xslt+xml":"xslt","application\/xspf+xml":"xspf","application\/xv+xml":"mxml","application\/yang":"yang","application\/yin+xml":"yin","application\/zip":"zip","audio\/adpcm":"adp","audio\/basic":"au","audio\/midi":"mid","audio\/mp4":"m4a","audio\/mpeg":"mpga","audio\/ogg":"oga","audio\/s3m":"s3m","audio\/silk":"sil","audio\/vnd.dece.audio":"uva","audio\/vnd.digital-winds":"eol","audio\/vnd.dra":"dra","audio\/vnd.dts":"dts","audio\/vnd.dts.hd":"dtshd","audio\/vnd.lucent.voice":"lvp","audio\/vnd.ms-playready.media.pya":"pya","audio\/vnd.nuera.ecelp4800":"ecelp4800","audio\/vnd.nuera.ecelp7470":"ecelp7470","audio\/vnd.nuera.ecelp9600":"ecelp9600","audio\/vnd.rip":"rip","audio\/webm":"weba","audio\/x-aac":"aac","audio\/x-aiff":"aif","audio\/x-caf":"caf","audio\/x-flac":"flac","audio\/x-matroska":"mka","audio\/x-mpegurl":"m3u","audio\/x-ms-wax":"wax","audio\/x-ms-wma":"wma","audio\/x-pn-realaudio":"ram","audio\/x-pn-realaudio-plugin":"rmp","audio\/xm":"xm","chemical\/x-cdx":"cdx","chemical\/x-cif":"cif","chemical\/x-cmdf":"cmdf","chemical\/x-cml":"cml","chemical\/x-csml":"csml","chemical\/x-xyz":"xyz","font\/collection":"ttc","font\/otf":"otf","font\/ttf":"ttf","font\/woff":"woff","font\/woff2":"woff2","image\/cgm":"cgm","image\/g3fax":"g3","image\/gif":"gif","image\/ief":"ief","image\/jpeg":"jpeg","image\/ktx":"ktx","image\/png":"png","image\/prs.btif":"btif","image\/sgi":"sgi","image\/svg+xml":"svg","image\/tiff":"tiff","image\/vnd.adobe.photoshop":"psd","image\/vnd.dece.graphic":"uvi","image\/vnd.djvu":"djvu","image\/vnd.dvb.subtitle":"sub","image\/vnd.dwg":"dwg","image\/vnd.dxf":"dxf","image\/vnd.fastbidsheet":"fbs","image\/vnd.fpx":"fpx","image\/vnd.fst":"fst","image\/vnd.fujixerox.edmics-mmr":"mmr","image\/vnd.fujixerox.edmics-rlc":"rlc","image\/vnd.ms-modi":"mdi","image\/vnd.ms-photo":"wdp","image\/vnd.net-fpx":"npx","image\/vnd.wap.wbmp":"wbmp","image\/vnd.xiff":"xif","image\/webp":"webp","image\/x-3ds":"3ds","image\/x-cmu-raster":"ras","image\/x-cmx":"cmx","image\/x-freehand":"fh","image\/x-icon":"ico","image\/x-mrsid-image":"sid","image\/x-pcx":"pcx","image\/x-pict":"pic","image\/x-portable-anymap":"pnm","image\/x-portable-bitmap":"pbm","image\/x-portable-graymap":"pgm","image\/x-portable-pixmap":"ppm","image\/x-rgb":"rgb","image\/x-xpixmap":"xpm","image\/x-xwindowdump":"xwd","message\/rfc822":"eml","model\/iges":"igs","model\/mesh":"msh","model\/vnd.collada+xml":"dae","model\/vnd.dwf":"dwf","model\/vnd.gdl":"gdl","model\/vnd.gtw":"gtw","model\/vnd.vtu":"vtu","model\/vrml":"wrl","model\/x3d+binary":"x3db","model\/x3d+vrml":"x3dv","model\/x3d+xml":"x3d","text\/cache-manifest":"appcache","text\/calendar":"ics","text\/css":"css","text\/csv":"csv","text\/html":"html","text\/n3":"n3","text\/plain":"txt","text\/prs.lines.tag":"dsc","text\/richtext":"rtx","text\/sgml":"sgml","text\/tab-separated-values":"tsv","text\/troff":"t","text\/turtle":"ttl","text\/uri-list":"uri","text\/vcard":"vcard","text\/vnd.curl":"curl","text\/vnd.curl.dcurl":"dcurl","text\/vnd.curl.mcurl":"mcurl","text\/vnd.curl.scurl":"scurl","text\/vnd.fly":"fly","text\/vnd.fmi.flexstor":"flx","text\/vnd.graphviz":"gv","text\/vnd.in3d.3dml":"3dml","text\/vnd.in3d.spot":"spot","text\/vnd.sun.j2me.app-descriptor":"jad","text\/vnd.wap.wml":"wml","text\/vnd.wap.wmlscript":"wmls","text\/x-asm":"s","text\/x-c":"cc","text\/x-fortran":"f","text\/x-java-source":"java","text\/x-nfo":"nfo","text\/x-opml":"opml","text\/x-pascal":"p","text\/x-setext":"etx","text\/x-sfv":"sfv","text\/x-uuencode":"uu","text\/x-vcalendar":"vcs","text\/x-vcard":"vcf","video\/3gpp":"3gp","video\/3gpp2":"3g2","video\/h261":"h261","video\/h263":"h263","video\/h264":"h264","video\/jpeg":"jpgv","video\/jpm":"jpm","video\/mj2":"mj2","video\/mp4":"mp4","video\/mpeg":"mpeg","video\/quicktime":"qt","video\/vnd.dece.hd":"uvh","video\/vnd.dece.mobile":"uvm","video\/vnd.dece.pd":"uvp","video\/vnd.dece.sd":"uvs","video\/vnd.dece.video":"uvv","video\/vnd.dvb.file":"dvb","video\/vnd.fvt":"fvt","video\/vnd.mpegurl":"mxu","video\/vnd.ms-playready.media.pyv":"pyv","video\/vnd.uvvu.mp4":"uvu","video\/vnd.vivo":"viv","video\/webm":"webm","video\/x-f4v":"f4v","video\/x-fli":"fli","video\/x-flv":"flv","video\/x-m4v":"m4v","video\/x-matroska":"mkv","video\/x-mng":"mng","video\/x-ms-asf":"asf","video\/x-ms-vob":"vob","video\/x-ms-wmx":"wmx","video\/x-ms-wvx":"wvx","video\/x-msvideo":"avi","video\/x-sgi-movie":"movie","video\/x-smv":"smv","x-conference\/x-cooltalk":"ice","text\/x-sql":"sql","audio\/amr":"amr","application\/plt":"plt","application\/sat":"sat","application\/step":"step","text\/x-httpd-cgi":"cgi","text\/x-asap":"asp","text\/x-jsp":"jsp"};
 
 /*
  * File: /js/elFinder.options.js
@@ -9954,16 +9964,16 @@ elFinder.prototype._options = {
 	cdns : {
 		// for editor etc.
 		ace        : '//cdnjs.cloudflare.com/ajax/libs/ace/1.3.3',
-		codemirror : '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.38.0',
-		ckeditor   : '//cdnjs.cloudflare.com/ajax/libs/ckeditor/4.9.2',
-		ckeditor5  : '//cdn.ckeditor.com/ckeditor5/10.0.1',
-		tinymce    : '//cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.13',
+		codemirror : '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.39.0',
+		ckeditor   : '//cdnjs.cloudflare.com/ajax/libs/ckeditor/4.10.0',
+		ckeditor5  : '//cdn.ckeditor.com/ckeditor5/10.1.0',
+		tinymce    : '//cdnjs.cloudflare.com/ajax/libs/tinymce/4.8.0',
 		simplemde  : '//cdnjs.cloudflare.com/ajax/libs/simplemde/1.11.2',
 		// for quicklook etc.
-		hls        : '//cdnjs.cloudflare.com/ajax/libs/hls.js/0.9.1/hls.min.js',
-		dash       : '//cdnjs.cloudflare.com/ajax/libs/dashjs/2.6.8/dash.all.min.js',
+		hls        : '//cdnjs.cloudflare.com/ajax/libs/hls.js/0.10.1/hls.min.js',
+		dash       : '//cdnjs.cloudflare.com/ajax/libs/dashjs/2.8.0/dash.all.min.js',
 		flv        : '//cdnjs.cloudflare.com/ajax/libs/flv.js/1.4.2/flv.min.js',
-		prettify   : '//cdn.rawgit.com/google/code-prettify/fbd527e9f76914e36f730ec9849f2115473a65d8/loader/run_prettify.js',
+		prettify   : '//cdn.rawgit.com/google/code-prettify/453bd5f51e61245339b738b1bbdd42d7848722ba/loader/run_prettify.js',
 		psd        : '//cdnjs.cloudflare.com/ajax/libs/psd.js/3.2.0/psd.min.js',
 		rar        : '//cdn.rawgit.com/nao-pon/rar.js/6cef13ec66dd67992fc7f3ea22f132d770ebaf8b/rar.min.js',
 		zlibUnzip  : '//cdn.rawgit.com/imaya/zlib.js/0.3.1/bin/unzip.min.js', // need check unzipFiles() in quicklook.plugins.js when update
@@ -10245,9 +10255,16 @@ elFinder.prototype._options = {
 			dockHeight : 'auto',
 			// media auto play when docked
 			dockAutoplay : false,
+			// MIME types to CAD-Files and 3D-Models online viewer on sharecad.org
+			// Example ['image/vnd.dwg', 'image/vnd.dxf', 'model/vnd.dwf', 'application/vnd.hp-hpgl', 'application/plt', 'application/step', 'model/iges', 'application/vnd.ms-pki.stl', 'application/sat', 'image/cgm', 'application/x-msmetafile']
+			sharecadMimes : [],
 			// MIME types to use Google Docs online viewer
-			// Example ['application/pdf', 'image/tiff', 'application/vnd.ms-office', 'application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+			// Example ['application/pdf', 'image/tiff', 'application/vnd.ms-office', 'application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/postscript', 'application/rtf']
 			googleDocsMimes : [],
+			// MIME types to use Microsoft Office Online viewer
+			// Example ['application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.text', 'application/vnd.oasis.opendocument.spreadsheet', 'application/vnd.oasis.opendocument.presentation']
+			// These MIME types override "googleDocsMimes"
+			officeOnlineMimes : [],
 			// File size (byte) threshold when using the dim command for obtain the image size necessary to image preview
 			getDimThreshold : 200000,
 			// MIME-Type regular expression that does not check empty files
@@ -10260,9 +10277,12 @@ elFinder.prototype._options = {
 			// list of allowed mimetypes to edit of text files
 			// if empty - any text files can be edited
 			mimes : [],
-			// Use the editor stored in the browser (do not display the choices)
+			// Use the editor stored in the browser
 			// This value allowd overwrite with user preferences
 			useStoredEditor : false,
+			// Open the maximized editor window
+			// This value allowd overwrite with user preferences
+			editorMaximized : false,
 			// edit files in wysisyg's
 			editors : [
 				// {
@@ -10365,7 +10385,13 @@ elFinder.prototype._options = {
 				//managerUrl : 'elfinder.html'
 				managerUrl : null,
 				// CKEditor5' builds mode - 'classic', 'inline' or 'balloon' 
-				ckeditor5Mode : 'balloon'
+				ckeditor5Mode : 'balloon',
+				// Setting for Online-Convert.com
+				onlineConvert : {
+					'fix%20' : true,// fix '%20' bug of input URL of online-convert.com
+					maxSize  : 100, // (MB) Max 100MB on free account
+					showLink : true // It must be enabled with free account
+				}
 			}
 		},
 		search : {
@@ -10475,7 +10501,7 @@ elFinder.prototype._options = {
 		},
 		help : {
 			// Tabs to show
-			view : ['about', 'shortcuts', 'help', 'debug'],
+			view : ['about', 'shortcuts', 'help', 'integrations', 'debug'],
 			// HTML source URL of the heip tab
 			helpSource : ''
 		},
@@ -11123,10 +11149,33 @@ elFinder.prototype._options.commandsOptions.netmount = {
 			locale   : $('<input type="text" placeholder="Optional" class="elfinder-input-optional"/>')
 		}
 	},
-	dropbox2: elFinder.prototype.makeNetmountOptionOauth('dropbox2', 'Dropbox', 'Dropbox', {noOffline : true, root : '/', pathI18n : 'path'}),
-	googledrive: elFinder.prototype.makeNetmountOptionOauth('googledrive', 'Google Drive', 'Google'),
-	onedrive: elFinder.prototype.makeNetmountOptionOauth('onedrive', 'One Drive', 'OneDrive'),
-	box: elFinder.prototype.makeNetmountOptionOauth('box', 'Box', 'Box', {noOffline : true})
+	dropbox2: elFinder.prototype.makeNetmountOptionOauth('dropbox2', 'Dropbox', 'Dropbox', {noOffline : true,
+		root : '/',
+		pathI18n : 'path',
+		integrate : {
+			title: 'Dropbox.com',
+			link: 'https://www.dropbox.com'
+		}
+	}),
+	googledrive: elFinder.prototype.makeNetmountOptionOauth('googledrive', 'Google Drive', 'Google', {
+		integrate : {
+			title: 'Google Drive',
+			link: 'https://www.google.com/drive/'
+		}
+	}),
+	onedrive: elFinder.prototype.makeNetmountOptionOauth('onedrive', 'One Drive', 'OneDrive', {
+		integrate : {
+			title: 'Microsoft OneDrive',
+			link: 'https://onedrive.live.com'
+		}
+	}),
+	box: elFinder.prototype.makeNetmountOptionOauth('box', 'Box', 'Box', {
+		noOffline : true,
+		integrate : {
+			title: 'Box.com',
+			link: 'https://www.box.com'
+		}
+	})
 };
 
 
@@ -11406,6 +11455,13 @@ elFinder.prototype.command = function(fm) {
 	 */
 	this.options = {ui : 'button'};
 	
+	/**
+	 * Callback functions on `change` event
+	 * 
+	 * @type  Array
+	 */
+	this.listeners = [];
+
 	/**
 	 * Prepare object -
 	 * bind events and shortcuts
@@ -11711,14 +11767,21 @@ elFinder.prototype.resources = {
 				sel  = fm.selected(),
 				move = this.move || false,
 				empty= wz.hasClass('elfinder-cwd-wrapper-empty'),
+				unselect = function() {
+					requestAnimationFrame(function() {
+						input && input.trigger('blur');
+					});
+				},
 				rest = function(){
 					if (!overlay.is(':hidden')) {
 						overlay.elfinderoverlay('hide').off('click close', cancel);
 					}
-					node.removeClass('ui-front').css('position', '');
+					pnode.removeClass('ui-front')
+						.css('position', '')
+						.off('unselect.'+fm.namespace, unselect);
 					if (tarea) {
 						nnode && nnode.css('max-height', '');
-					} else if (pnode) {
+					} else if (!tree) {
 						pnode.css('width', '')
 							.parent('td').css('overflow', '');
 					}
@@ -11753,12 +11816,7 @@ elFinder.prototype.resources = {
 					move  : move
 				},
 				data = this.data || {},
-				node = ui.trigger('create.'+fm.namespace, file).find('#'+fm[find](id))
-					.on('unselect.'+fm.namespace, function() {
-						requestAnimationFrame(function() {
-							input && input.trigger('blur');
-						});
-					}),
+				node = ui.trigger('create.'+fm.namespace, file).find('#'+fm[find](id)),
 				nnode, pnode,
 				overlay = fm.getUI('overlay'),
 				cleanup = function() {
@@ -11869,7 +11927,16 @@ elFinder.prototype.resources = {
 										fm.unlockfiles({files : [id]});
 										inError = true;
 										input.show().prev().remove();
-										fm.error(error, {modal: true, close: function(){setTimeout(select, 120);}});
+										fm.error(error,　{
+											modal: true,
+											close: function() {
+												if (Array.isArray(error) && $.inArray('errUploadMime', error) !== -1) {
+													dfrd.notify('errUploadMime').reject();
+												} else {
+													setTimeout(select, 120);
+												}
+											}
+										});
 									})
 									.done(function(data) {
 										if (data && data.added && data.added[0]) {
@@ -11958,12 +12025,12 @@ elFinder.prototype.resources = {
 					});
 				}
 				nnode = node.contents().filter(function(){ return this.nodeType==3 && $(this).parent().attr('id') === fm.navHash2Id(file.hash); });
+				pnode = nnode.parent();
 				nnode.replaceWith(input.val(file.name));
 			} else {
 				empty && wz.removeClass('elfinder-cwd-wrapper-empty');
 				nnode = node.find('.elfinder-cwd-filename');
 				pnode = nnode.parent();
-				node.css('position', 'relative').addClass('ui-front');
 				if (tarea) {
 					nnode.css('max-height', 'none');
 				} else {
@@ -11973,6 +12040,9 @@ elFinder.prototype.resources = {
 				}
 				nnode.empty().append(input.val(file.name));
 			}
+			pnode.addClass('ui-front')
+				.css('position', 'relative')
+				.on('unselect.'+fm.namespace, unselect);
 			
 			fm.bind('resize', resize).one('open', openCallback);
 			
@@ -12099,7 +12169,7 @@ $.fn.dialogelfinder = function(opts) {
  * English translation
  * @author Troex Nevelin <troex@fury.scancode.ru>
  * @author Naoki Sawada <hypweb+elfinder@gmail.com>
- * @version 2018-05-22
+ * @version 2018-07-11
  */
 // elfinder.en.js is integrated into elfinder.(full|min).js by jake build
 if (typeof elFinder === 'function' && elFinder.prototype.i18) {
@@ -12551,7 +12621,13 @@ if (typeof elFinder === 'function' && elFinder.prototype.i18) {
 			'workspace'       : 'Work Space', // from v2.1.38 added 4.4.2018
 			'dialog'          : 'Dialog', // from v2.1.38 added 4.4.2018
 			'all'             : 'All', // from v2.1.38 added 4.4.2018
-			'iconSize'        : 'Icon Size (Icons view)', // form v2.1.39 added 7.5.2018
+			'iconSize'        : 'Icon Size (Icons view)', // from v2.1.39 added 7.5.2018
+			'editorMaximized' : 'Open the maximized editor window', // from v2.1.40 added 30.6.2018
+			'editorConvNoApi' : 'Because conversion by API is not currently available, please convert on the website.', //from v2.1.40 added 8.7.2018
+			'editorConvNeedUpload' : 'After conversion, you must be upload with the item URL or a downloaded file to save the converted file.', //from v2.1.40 added 8.7.2018
+			'convertOn'       : 'Convert on the site of $1', // from v2.1.40 added 10.7.2018
+			'integrations'    : 'Integrations', // from v2.1.40 added 11.7.2018
+			'integrationWith' : 'This elFinder has the following external services integrated. Please check the terms of use, privacy policy, etc. before using it.', // from v2.1.40 added 11.7.2018
 
 			/********************************** mimetypes **********************************/
 			'kindUnknown'     : 'Unknown',
@@ -16413,6 +16489,7 @@ $.fn.elfinderdialog = function(opts, fm) {
 				dialogs = elfNode.children('.' + cldialog + '.' + fm.res('class', 'editing') + ':visible');
 			fm[dialogs.length? 'disable' : 'enable']();
 		},
+		propagationEvents = {},
 		syncTm, dialog, elfNode, restoreStyle;
 	
 	if (fm && fm.ui) {
@@ -16428,8 +16505,9 @@ $.fn.elfinderdialog = function(opts, fm) {
 		if ((dialog = this.closest('.ui-dialog')).length) {
 			if (opts === 'open') {
 				if (dialog.css('display') === 'none') {
-					dialog.trigger('posinit').fadeIn(120, function() {
-						dialog.trigger('open');
+					// Need dialog.show() and hide() to detect elements size in open() callbacks
+					dialog.trigger('posinit').show().trigger('open').hide();
+					dialog.fadeIn(120, function() {
 						fm.trigger('dialogopened', {dialog: dialog});
 					});
 				}
@@ -16464,6 +16542,7 @@ $.fn.elfinderdialog = function(opts, fm) {
 	if (opts.allowMinimize && opts.allowMinimize === 'auto') {
 		opts.allowMinimize = this.find('textarea,input').length? true : false; 
 	}
+	opts.openMaximized = opts.allowMinimize && opts.openMaximized;
 	if (opts.headerBtnPos && opts.headerBtnPos === 'auto') {
 		opts.headerBtnPos = platformWin? 'right' : 'left';
 	}
@@ -16484,6 +16563,8 @@ $.fn.elfinderdialog = function(opts, fm) {
 			syncSize.enabled = true;
 		}
 	}
+
+	propagationEvents = fm.arrayFlip(opts.propagationEvents, true);
 	
 	this.filter(':not(.ui-dialog-content)').each(function() {
 		var self       = $(this).addClass('ui-dialog-content ui-widget-content'),
@@ -16521,7 +16602,7 @@ $.fn.elfinderdialog = function(opts, fm) {
 				}
 			},
 			tabstopNext = function(cur) {
-				var elms = tabstops.filter(':visible'),
+				var elms = tabstops.filter(':visible:enabled'),
 					node = cur? null : elms.filter('.'+cl1stfocus+':first');
 					
 				if (! node || ! node.length) {
@@ -16538,7 +16619,7 @@ $.fn.elfinderdialog = function(opts, fm) {
 				return node;
 			},
 			tabstopPrev = function(cur) {
-				var elms = tabstops.filter(':visible'),
+				var elms = tabstops.filter(':visible:enabled'),
 					node = elms.last();
 				$.each(elms, function(i, elm) {
 					if (elm === cur && elms[i-1]) {
@@ -16593,7 +16674,7 @@ $.fn.elfinderdialog = function(opts, fm) {
 										dialog.hasClass('ui-resizable') && dialog.resizable('enable');
 									} catch(e) {}
 								}
-								dialog.trigger('resize');
+								dialog.trigger('resize', {init: true});
 							}
 						});
 						titlebar.prepend($('<span class="ui-widget-header ui-corner-all elfinder-titlebar-button elfinder-titlebar-full"><span class="ui-icon ui-icon-plusthick"/></span>')
@@ -16662,7 +16743,9 @@ $.fn.elfinderdialog = function(opts, fm) {
 										dialog.show();
 										fm.toFront(dialog);
 										mnode.remove();
+										posCheck();
 										checkEditing();
+										dialog.trigger('resize', {init: true});
 									});
 								}
 							})
@@ -16708,11 +16791,12 @@ $.fn.elfinderdialog = function(opts, fm) {
 					maxWidth  : opts.maxWidth,
 					maxHeight : opts.maxHeight
 				})
-				.on('touchstart touchmove touchend', function(e) {
-					// stopPropagation of touch events
-					e.stopPropagation();
+				.on('touchstart touchmove touchend click dblclick mouseup mouseenter mouseleave mouseout mouseover mousemove', function(e) {
+					// stopPropagation of user action events
+					!propagationEvents[e.type] && e.stopPropagation();
 				})
 				.on('mousedown', function(e) {
+					!propagationEvents[e.type] && e.stopPropagation();
 					requestAnimationFrame(function() {
 						if (dialog.is(':visible') && !dialog.hasClass('elfinder-frontmost')) {
 							toFocusNode = $(':focus');
@@ -16724,8 +16808,6 @@ $.fn.elfinderdialog = function(opts, fm) {
 					});
 				})
 				.on('open', function() {
-					var d = $(this);
-
 					if (syncSize.enabled) {
 						if (opts.height && opts.height !== 'auto') {
 							dialog.trigger('resize', {init: true});
@@ -16763,6 +16845,10 @@ $.fn.elfinderdialog = function(opts, fm) {
 					}
 					
 					dialog.trigger('totop');
+					
+					opts.openMaximized && fm.toggleMaximize(dialog);
+
+					fm.trigger('dialogopen', {dialog: dialog});
 
 					typeof(opts.open) == 'function' && $.proxy(opts.open, self[0])();
 					
@@ -17058,7 +17144,7 @@ $.fn.elfinderdialog = function(opts, fm) {
 			overflow   : dialog.css('overflow')
 		};
 		
-		dialog.trigger('posinit').data('margin-y', self.outerHeight(true) - self.height());
+		dialog.data('margin-y', self.outerHeight(true) - self.height());
 		
 		if (opts.resizable) {
 			dialog.resizable({
@@ -17085,13 +17171,21 @@ $.fn.elfinderdialog = function(opts, fm) {
 			}).data('hasResizable', true);
 		} 
 		
-		typeof(opts.create) == 'function' && $.proxy(opts.create, this)();
-		
 		numberToTel();
 		
 		tabstopsInit();
 		
-		opts.autoOpen && self.elfinderdialog('open');
+		typeof(opts.create) == 'function' && $.proxy(opts.create, this)();
+		
+		if (opts.autoOpen) {
+			if (opts.open) {
+				requestAnimationFrame(function() {
+					self.elfinderdialog('open');
+				});
+			} else {
+				self.elfinderdialog('open');
+			}
+		}
 
 	});
 	
@@ -17118,9 +17212,11 @@ $.fn.elfinderdialog.defaults = {
 	maxHeight : null,
 	allowMinimize : 'auto',
 	allowMaximize : false,
+	openMaximized : false,
 	headerBtnPos : 'auto',
 	headerBtnOrder : 'auto',
-	optimizeNumber : true
+	optimizeNumber : true,
+	propagationEvents : ['mousemove', 'mouseup']
 };
 
 
@@ -18945,7 +19041,8 @@ $.fn.elfindertoast = function(opts, fm) {
 		hideEasing: 'swing',
 		onHidden: undefined,
 		timeOut: 3000,
-		extNode: undefined
+		extNode: undefined,
+		width: null
 	}, $.isPlainObject(fm.options.uiOptions.toast.defaults)? fm.options.uiOptions.toast.defaults : {});
 	return this.each(function() {
 		opts = Object.assign({}, defOpts, opts || {});
@@ -18953,6 +19050,7 @@ $.fn.elfindertoast = function(opts, fm) {
 		var self = $(this),
 			show = function(notm) {
 				self.stop();
+				fm.toFront(self);
 				self[opts.showMethod]({
 					duration: opts.showDuration,
 					easing: opts.showEasing,
@@ -18998,6 +19096,10 @@ $.fn.elfindertoast = function(opts, fm) {
 		
 		if (opts.extNode) {
 			self.append(opts.extNode);
+		}
+
+		if (opts.width) {
+			self.css('width', opts.width);
 		}
 		
 		show();
@@ -19225,7 +19327,7 @@ $.fn.elfindertoolbar = function(fm, opts) {
 							btn = buttons[from];
 							if (btn) {
 								if (! buttons[to] && $.fn[button]) {
-									buttons[to] = $('<div/>')[button](fm._commands[to]);
+									buttons[to] = $('<div/>')[button](cmd);
 									if (buttons[to]) {
 										buttons[to].children('.elfinder-button-text')[textLabel? 'show' : 'hide']();
 										if (cmd.extendsCmd) {
@@ -21151,11 +21253,11 @@ elFinder.prototype.commands.chmod = function() {
 		itemTitle  : '<strong>{name}</strong><span id="elfinder-info-kind">{kind}</span>',
 		groupTitle : '<strong>{items}: {num}</strong>',
 		dataTable  : '<table id="{id}-table-perm"><tr><td>{0}</td><td>{1}</td><td>{2}</td></tr></table>'
-					+'<div class="">'+msg.perm+': <input id="{id}-perm" type="text" size="4" maxlength="3" value="{value}"></div>',
+					+'<div class="">'+msg.perm+': <input class="elfinder-tabstop elfinder-focus" id="{id}-perm" type="text" size="4" maxlength="3" value="{value}"></div>',
 		fieldset   : '<fieldset id="{id}-fieldset-{level}"><legend>{f_title}{name}</legend>'
-					+'<input type="checkbox" value="4" id="{id}-read-{level}-perm"{checked-r}> <label for="{id}-read-{level}-perm">'+msg.read+'</label><br>'
-					+'<input type="checkbox" value="6" id="{id}-write-{level}-perm"{checked-w}> <label for="{id}-write-{level}-perm">'+msg.write+'</label><br>'
-					+'<input type="checkbox" value="5" id="{id}-execute-{level}-perm"{checked-x}> <label for="{id}-execute-{level}-perm">'+msg.execute+'</label><br>'
+					+'<input type="checkbox" value="4" class="elfinder-tabstop" id="{id}-read-{level}-perm"{checked-r}> <label for="{id}-read-{level}-perm">'+msg.read+'</label><br>'
+					+'<input type="checkbox" value="6" class="elfinder-tabstop" id="{id}-write-{level}-perm"{checked-w}> <label for="{id}-write-{level}-perm">'+msg.write+'</label><br>'
+					+'<input type="checkbox" value="5" class="elfinder-tabstop" id="{id}-execute-{level}-perm"{checked-x}> <label for="{id}-execute-{level}-perm">'+msg.execute+'</label><br>'
 	};
 
 	this.shortcuts = [{
@@ -21420,8 +21522,8 @@ elFinder.prototype.commands.chmod = function() {
 		$('#' + id + '-table-perm :checkbox').on('click', function(){setperm('perm');});
 		$('#' + id + '-perm').on('keydown', function(e) {
 			var c = e.keyCode;
-			e.stopPropagation();
 			if (c == $.ui.keyCode.ENTER) {
+				e.stopPropagation();
 				save();
 				return;
 			}
@@ -22069,8 +22171,10 @@ elFinder.prototype.commands.edit = function() {
 		var self  = this,
 		fm    = this.fm,
 		dlcls = 'elfinder-dialog-edit',
+		clsEditing = fm.res('class', 'editing'),
 		mimesSingle = [],
 		mimes = [],
+		allowAll = false,
 		rtrim = function(str){
 			return str.replace(/\s+$/, '');
 		},
@@ -22114,14 +22218,16 @@ elFinder.prototype.commands.edit = function() {
 			}
 			return $.grep(files, function(file) {
 				var res;
-				if (skip) {
+				if (skip || file.mime === 'directory') {
 					return false;
 				}
-				res = (fm.mimeIsText(file.mime) || $.inArray(file.mime, cnt === 1? mimesSingle : mimes) !== -1) 
+				res = file.read
+					&& (allowAll || fm.mimeIsText(file.mime) || $.inArray(file.mime, cnt === 1? mimesSingle : mimes) !== -1) 
 					&& (!self.onlyMimes.length || $.inArray(file.mime, self.onlyMimes) !== -1)
-					&& file.read && file.write
 					&& (cnt === 1 || (file.mime === mime && file.name.substr(ext.length * -1) === ext))
-					&& fm.uploadMimeCheck(file.mime, file.phash)? true : false;
+					&& (fm.uploadMimeCheck(file.mime, file.phash)? true : false)
+					&& setEditors(file, cnt)
+					&& Object.keys(editors).length;
 				if (!res) {
 					skip = true;
 				}
@@ -22199,8 +22305,8 @@ elFinder.prototype.commands.edit = function() {
 							fm.disable();
 						},
 						make = function() {
-							self.mime = file.mime;
-							self.prefix = file.name.replace(/ \d+(\.[^.]+)?$/, '$1');
+							self.mime = saveAsFile.mime || file.mime;
+							self.prefix = (saveAsFile.name || file.name).replace(/ \d+(\.[^.]+)?$/, '$1');
 							self.requestCmd = 'mkfile';
 							self.nextAction = {};
 							self.data = {target : phash};
@@ -22215,6 +22321,11 @@ elFinder.prototype.commands.edit = function() {
 										fail();
 									}
 									dialogs.fadeIn();
+								})
+								.progress(function(err) {
+									if (err && err === 'errUploadMime') {
+										ta.trigger('saveAsFail');
+									}
 								})
 								.fail(fail)
 								.always(function() {
@@ -22250,41 +22361,50 @@ elFinder.prototype.commands.edit = function() {
 					title   : fm.escape(file.name),
 					width   : getDlgWidth(),
 					buttons : {},
+					cssClass  : dlcls  + ' ' + clsEditing,
 					maxWidth  : 'window',
 					maxHeight : 'window',
 					allowMinimize : true,
 					allowMaximize : true,
+					openMaximized : editorMaximized(),
 					btnHoverFocus : false,
 					closeOnEscape : false,
 					close   : function() {
 						var close = function() {
-							var conf;
-							dfrd.resolve();
-							if (ta.editor) {
-								ta.editor.close(ta[0], ta.editor.instance);
-								conf = ta.editor.confObj;
-								if (conf.info && conf.info.syncInterval) {
-									fileSync(file.hash);
+								var conf;
+								dfrd.resolve();
+								if (ta.editor) {
+									ta.editor.close(ta[0], ta.editor.instance);
+									conf = ta.editor.confObj;
+									if (conf.info && conf.info.syncInterval) {
+										fileSync(file.hash);
+									}
 								}
-							}
-							ta.elfinderdialog('destroy');
-						};
+								ta.elfinderdialog('destroy');
+							},
+							onlySaveAs = (typeof saveAsFile.name !== 'undefined'),
+							accept = onlySaveAs? {
+								label    : 'btnSaveAs',
+								callback : function() {
+									requestAnimationFrame(saveAs);
+								}
+							} : {
+								label    : 'btnSaveClose',
+								callback : function() {
+									save();
+									close();
+								}
+							};
 						if (changed()) {
 							fm.confirm({
 								title  : self.title,
 								text   : 'confirmNotSave',
-								accept : {
-									label    : 'btnSaveClose',
-									callback : function() {
-										save();
-										close();
-									}
-								},
+								accept : accept,
 								cancel : {
 									label    : 'btnClose',
 									callback : close
 								},
-								buttons : [{
+								buttons : onlySaveAs? null : [{
 									label    : 'btnSaveAs',
 									callback : function() {
 										requestAnimationFrame(saveAs);
@@ -22346,7 +22466,7 @@ elFinder.prototype.commands.edit = function() {
 						}, interval);
 					}
 				},
-				clsEditing = fm.res('class', 'editing'),
+				saveAsFile = {},
 				ta, old, dialogNode, selEncoding, extEditor, maxW, syncInterval;
 				
 			if (editor) {
@@ -22502,7 +22622,18 @@ elFinder.prototype.commands.edit = function() {
 				})
 				.css({ overflow: 'hidden', minHeight: '7em' })
 				.addClass('elfinder-edit-editor')
-				.closest('.ui-dialog').addClass(dlcls  + ' ' + clsEditing);
+				.closest('.ui-dialog')
+				.on('changeType', function(e, data) {
+					if (data.extention && data.mime) {
+						var ext = data.extention,
+							mime = data.mime,
+							btnSet = $(this).children('.ui-dialog-buttonpane').children('.ui-dialog-buttonset');
+						btnSet.children('.elfinder-btncnt-0,.elfinder-btncnt-1').hide();
+						saveAsFile.name = fm.splitFileExtention(file.name)[0] + '.' + data.extention;
+						saveAsFile.mime = data.mime;
+						btnSet.children('.elfinder-btncnt-2').trigger('click');
+					}
+				});
 			
 			// care to viewport scale change with mobile devices
 			maxW = (fm.options.dialogContained? elfNode : $(window)).width();
@@ -22533,9 +22664,8 @@ elFinder.prototype.commands.edit = function() {
 				return dfrd.resolve();
 			}
 			
-			if (!file.read || !file.write) {
+			if (!file.read || (!file.write && (!editor.info || !editor.info.converter))) {
 				error = ['errOpen', file.name, 'errPerm'];
-				fm.error(error);
 				return dfrd.reject(error);
 			}
 			
@@ -22707,7 +22837,7 @@ elFinder.prototype.commands.edit = function() {
 					if (!editorMimes) {
 						return fm.mimeIsText(fileMime);
 					} else {
-						if ($.inArray(fileMime, editorMimes) !== -1 ) {
+						if (editorMimes[0] === '*' || $.inArray(fileMime, editorMimes) !== -1) {
 							return true;
 						}
 						var i, l;
@@ -22734,7 +22864,8 @@ elFinder.prototype.commands.edit = function() {
 					}
 					return false;
 				},
-				optEditors = self.options.editors || [];
+				optEditors = self.options.editors || [],
+				cwdWrite = fm.cwd().write;
 			
 			stored = fm.storage('storedEditors') || {};
 			editors = {};
@@ -22744,6 +22875,9 @@ elFinder.prototype.commands.edit = function() {
 			$.each(optEditors, function(i, editor) {
 				var name;
 				if ((cnt === 1 || !editor.info || !editor.info.single)
+						&& ((!editor.info || !editor.info.converter)? file.write : cwdWrite)
+						&& (!editor.info.converter || file.size > 0)
+						&& (!editor.info.maxSize || file.size <= editor.info.maxSize)
 						&& mimeMatch(file.mime, editor.mimes || null)
 						&& extMatch(file.name, editor.exts || null)
 						&& typeof editor.load == 'function'
@@ -22756,6 +22890,7 @@ elFinder.prototype.commands.edit = function() {
 					editors[editor.id] = editor;
 				}
 			});
+			return Object.keys(editors).length? true : false;
 		},
 		store = function(mime, editor) {
 			if (mime && editor) {
@@ -22770,6 +22905,10 @@ elFinder.prototype.commands.edit = function() {
 		useStoredEditor = function() {
 			var d = fm.storage('useStoredEditor');
 			return d? (d > 0) : self.options.useStoredEditor;
+		},
+		editorMaximized = function() {
+			var d = fm.storage('editorMaximized');
+			return d? (d > 0) : self.options.editorMaximized;
 		},
 		getSubMenuRaw = function(files, callback) {
 			var subMenuRaw = [];
@@ -22866,6 +23005,12 @@ elFinder.prototype.commands.edit = function() {
 									mimes = mimes.concat(editor.mimes);
 								}
 							}
+							if (!allowAll && editor.mimes && editor.mimes[0] === '*') {
+								allowAll = true;
+							}
+							if (editor.info && editor.info.integrate) {
+								fm.trigger('helpIntegration', Object.assign({cmd: 'edit'}, editor.info.integrate));
+							}
 						}
 					});
 					
@@ -22894,42 +23039,43 @@ elFinder.prototype.commands.edit = function() {
 			
 			if (e.data.type === 'files' && self.enabled()) {
 				file = fm.file(e.data.targets[0]);
-				setEditors(file, e.data.targets.length);
-				if (Object.keys(editors).length > 1) {
-					if (!useStoredEditor() || !(editor = getStoredEditor(file.mime))) {
-						delete self.extra;
-						self.variants = [];
-						$.each(editors, function(id, editor) {
-							self.variants.push([{ editor: editor }, editor.i18n, editor.info && editor.info.iconImg? fm.baseUrl + editor.info.iconImg : 'edit']);
-						});
+				if (setEditors(file, e.data.targets.length)) {
+					if (Object.keys(editors).length > 1) {
+						if (!useStoredEditor() || !(editor = getStoredEditor(file.mime))) {
+							delete self.extra;
+							self.variants = [];
+							$.each(editors, function(id, editor) {
+								self.variants.push([{ editor: editor }, editor.i18n, editor.info && editor.info.iconImg? fm.baseUrl + editor.info.iconImg : 'edit']);
+							});
+						} else {
+							single(editor);
+							self.extra = {
+								icon: 'menu',
+								node: $('<span/>')
+									.attr({title: fm.i18n('select')})
+									.on('click touchstart', function(e){
+										if (e.type === 'touchstart' && e.originalEvent.touches.length > 1) {
+											return;
+										}
+										var node = $(this);
+										e.stopPropagation();
+										e.preventDefault();
+										fm.trigger('contextmenu', {
+											raw: getSubMenuRaw(fm.selectedFiles(), function() {
+												var hashes = fm.selected();
+												fm.exec('edit', hashes, {editor: this});
+												fm.trigger('selectfiles', {files : hashes});
+											}),
+											x: node.offset().left,
+											y: node.offset().top
+										});
+									})
+							};
+						}
 					} else {
-						single(editor);
-						self.extra = {
-							icon: 'menu',
-							node: $('<span/>')
-								.attr({title: fm.i18n('select')})
-								.on('click touchstart', function(e){
-									if (e.type === 'touchstart' && e.originalEvent.touches.length > 1) {
-										return;
-									}
-									var node = $(this);
-									e.stopPropagation();
-									e.preventDefault();
-									fm.trigger('contextmenu', {
-										raw: getSubMenuRaw(fm.selectedFiles(), function() {
-											var hashes = fm.selected();
-											fm.exec('edit', hashes, {editor: this});
-											fm.trigger('selectfiles', {files : hashes});
-										}),
-										x: node.offset().left,
-										y: node.offset().top
-									});
-								})
-						};
+						single(editors[Object.keys(editors)[0]]);
+						delete self.extra;
 					}
-				} else {
-					single(editors[Object.keys(editors)[0]]);
-					delete self.extra;
 				}
 			}
 		});
@@ -23031,8 +23177,7 @@ elFinder.prototype.commands.edit = function() {
  * @author  Naoki Sawada
  */
 elFinder.prototype.commands.empty = function() {
-		var fm = this.fm,
-		self = this,
+		var self, fm,
 		selFiles = function(select) {
 			var sel = self.files(select);
 			if (!sel.length) {
@@ -23043,6 +23188,12 @@ elFinder.prototype.commands.empty = function() {
 	
 	this.linkedCmds = ['rm'];
 	
+	this.init = function() {
+		// lazy assign to make possible to become superclass
+		self = this;
+		fm = this.fm;
+	};
+
 	this.getstate = function(select) {
 		var sel = selFiles(select),
 			cnt;
@@ -23627,12 +23778,13 @@ elFinder.prototype.commands.fullscreen = function() {
 			html.push('<div id="'+fm.namespace+'-help-about" class="ui-tabs-panel ui-widget-content ui-corner-bottom"><div class="elfinder-help-logo"/>');
 			html.push('<h3>elFinder</h3>');
 			html.push('<div class="'+prim+'">'+fm.i18n('webfm')+'</div>');
-			html.push('<div class="'+sec+'">'+fm.i18n('ver')+': '+fm.version+', '+fm.i18n('protocolver')+': <span class="apiver"></span></div>');
+			html.push('<div class="'+sec+'">'+fm.i18n('ver')+': '+fm.version+'</div>');
+			html.push('<div class="'+sec+'">'+fm.i18n('protocolver')+': <span class="apiver"></span></div>');
 			html.push('<div class="'+sec+'">jQuery/jQuery UI: '+$().jquery+'/'+$.ui.version+'</div>');
 
 			html.push(sep);
 			
-			html.push(linktpltgt[r](url, 'http://elfinder.org/')[r](link, fm.i18n('homepage')));
+			html.push(linktpltgt[r](url, 'https://studio-42.github.io/elFinder/')[r](link, fm.i18n('homepage')));
 			html.push(linktpltgt[r](url, 'https://github.com/Studio-42/elFinder/wiki')[r](link, fm.i18n('docs')));
 			html.push(linktpltgt[r](url, 'https://github.com/Studio-42/elFinder')[r](link, fm.i18n('github')));
 			//html.push(linktpltgt[r](url, 'http://twitter.com/elrte_elfinder')[r](link, fm.i18n('twitter')));
@@ -23657,7 +23809,7 @@ elFinder.prototype.commands.fullscreen = function() {
 			
 			html.push(sep);
 			html.push('<div class="'+lic+'">Licence: 3-clauses BSD Licence</div>');
-			html.push('<div class="'+lic+'">Copyright © 2009-2017, Studio 42</div>');
+			html.push('<div class="'+lic+'">Copyright © 2009-2018, Studio 42</div>');
 			html.push('<div class="'+lic+'">„ …'+fm.i18n('dontforget')+' ”</div>');
 			html.push('</div>');
 		},
@@ -23687,6 +23839,11 @@ elFinder.prototype.commands.fullscreen = function() {
 			html.push('<a href="https://github.com/Studio-42/elFinder/wiki" target="_blank" class="elfinder-dont-panic"><span>DON\'T PANIC</span></a>');
 			html.push('</div>');
 			// end help
+		},
+		useInteg = false,
+		integrations = function() {
+			useInteg = true;
+			html.push('<div id="'+fm.namespace+'-help-integrations" class="ui-tabs-panel ui-widget-content ui-corner-bottom"/>');
 		},
 		useDebug = false,
 		debug = function() {
@@ -23758,7 +23915,7 @@ elFinder.prototype.commands.fullscreen = function() {
 			}
 		},
 		content = '',
-		opened, tabDebug, debugDIV, debugUL;
+		opened, tabInteg, integDIV, tabDebug, debugDIV, debugUL;
 	
 	this.alwaysEnabled  = true;
 	this.updateOnSelect = false;
@@ -23770,7 +23927,7 @@ elFinder.prototype.commands.fullscreen = function() {
 	}];
 	
 	fm.bind('load', function() {
-		var parts = self.options.view || ['about', 'shortcuts', 'help', 'debug'],
+		var parts = self.options.view || ['about', 'shortcuts', 'help', 'integrations', 'debug'],
 			i, helpSource, tabBase, tabNav, tabs, delta;
 		
 		// remove 'preference' tab, it moved to command 'preference'
@@ -23797,6 +23954,7 @@ elFinder.prototype.commands.fullscreen = function() {
 			helpSource = fm.baseUrl+'js/i18n/help/%s.html.js';
 			help();
 		}
+		$.inArray('integrations', parts) !== -1 && integrations();
 		$.inArray('debug', parts) !== -1 && debug();
 		
 		html.push('</div>');
@@ -23821,6 +23979,62 @@ elFinder.prototype.commands.fullscreen = function() {
 			})
 			.filter(':first').trigger('click');
 		
+		if (useInteg) {
+			tabInteg = content.find('.elfinder-help-tab-integrations').hide();
+			integDIV = content.find('#'+fm.namespace+'-help-integrations').hide().append($('<div class="elfinder-help-integrations-desc"/>').html(fm.i18n('integrationWith')));
+			fm.bind('helpIntegration', function(e) {
+				var ul = integDIV.children('ul:first'),
+					data, elm, cmdUL, cmdCls;
+				if (e.data) {
+					if ($.isPlainObject(e.data)) {
+						data = Object.assign({
+							link: '',
+							title: '',
+							banner: ''
+						}, e.data);
+						if (data.title || data.link) {
+							if (!data.title) {
+								data.title = data.link;
+							}
+							if (data.link) {
+								elm = $('<a/>').attr('href', data.link).attr('target', '_blank').text(data.title);
+							} else {
+								elm = $('<span/>').text(data.title);
+							}
+							if (data.banner) {
+								elm = $('<span/>').append($('<img/>').attr(data.banner), elm);
+							}
+						}
+					} else {
+						elm = $(e.data);
+						elm.filter('a').each(function() {
+							var tgt = $(this);
+							if (!tgt.attr('target')) {
+								tgt.attr('target', '_blank');;
+							}
+						});
+					}
+					if (elm) {
+						tabInteg.show();
+						if (!ul.length) {
+							ul = $('<ul class="elfinder-help-integrations"/>').appendTo(integDIV);
+						}
+						if (data && data.cmd) {
+							cmdCls = 'elfinder-help-integration-' + data.cmd;
+							cmdUL = ul.find('ul.' + cmdCls);
+							if (!cmdUL.length) {
+								cmdUL = $('<ul class="'+cmdCls+'"/>');
+								ul.append($('<li/>').append($('<span/>').html(fm.i18n('cmd'+data.cmd))).append(cmdUL));
+							}
+							elm = cmdUL.append($('<li/>').append(elm));
+						} else {
+							ul.append($('<li/>').append(elm));
+						}
+					}
+				}
+			});
+		}
+
 		// debug
 		if (useDebug) {
 			tabDebug = content.find('.elfinder-help-tab-debug').hide();
@@ -23893,6 +24107,8 @@ elFinder.prototype.commands.fullscreen = function() {
 		}
 		
 		self.state = 0;
+
+		fm.trigger('helpBuilded', self.dialog);
 	}).one('open', function() {
 		var debug = false;
 		fm.one('backenddebug', function() {
@@ -24454,7 +24670,18 @@ elFinder.prototype.commands.netmount = function() {
 	
 	this.handlers = {
 		load : function() {
-			this.drivers = this.fm.netDrivers;
+			var fm = self.fm;
+			self.drivers = fm.netDrivers;
+			if (self.drivers.length) {
+				requestAnimationFrame(function() {
+					$.each(self.drivers, function() {
+						var d = self.options[this];
+						if (d && d.integrateInfo) {
+							fm.trigger('helpIntegration', Object.assign({cmd: 'netmount'}, d.integrateInfo));
+						}
+					});
+				});
+			}
 		}
 	};
 
@@ -24472,14 +24699,11 @@ elFinder.prototype.commands.netmount = function() {
 					},
 					inputs = {
 						protocol : $('<select/>')
-						.on('mousedown', function(e) {
-							e.stopPropagation();
-						})
 						.on('change', function(e, data){
 							var protocol = this.value;
 							content.find('.elfinder-netmount-tr').hide();
 							content.find('.elfinder-netmount-tr-'+protocol).show();
-							dialogNode.children('.ui-dialog-buttonpane:first').find('button').show();
+							dialogNode && dialogNode.children('.ui-dialog-buttonpane:first').find('button').show();
 							if (typeof o[protocol].select == 'function') {
 								o[protocol].select(fm, e, data);
 							}
@@ -25588,13 +25812,13 @@ elFinder.prototype.commands.preference = function() {
 			var cats = self.options.categories || {
 					'language' : ['language'],
 					'toolbar' : ['toolbarPref'],
-					'workspace' : ['iconSize','columnPref', 'selectAction', 'useStoredEditor'],
+					'workspace' : ['iconSize','columnPref', 'selectAction', 'useStoredEditor', 'editorMaximized'],
 					'dialog' : ['autoFocusDialog'],
 					'selectionInfo' : ['infoItems', 'hashChecker'],
 					'reset' : ['clearBrowserData'],
 					'all' : true
 				},
-				forms = self.options.prefs || ['language', 'toolbarPref', 'iconSize', 'columnPref', 'selectAction', 'useStoredEditor', 'infoItems', 'hashChecker', 'autoFocusDialog', 'clearBrowserData'];
+				forms = self.options.prefs || ['language', 'toolbarPref', 'iconSize', 'columnPref', 'selectAction', 'useStoredEditor', 'editorMaximized', 'infoItems', 'hashChecker', 'autoFocusDialog', 'clearBrowserData'];
 			
 			forms = fm.arrayFlip(forms, true);
 			
@@ -25749,7 +25973,13 @@ elFinder.prototype.commands.preference = function() {
 				return s? (s > 0) : fm.options.commandsOptions.edit.useStoredEditor;
 			})()).on('change', function(e) {
 				fm.storage('useStoredEditor', $(this).is(':checked')? 1 : -1);
-				fm.trigger('selectfiles', {files : fm.selected()});
+			}));
+
+			forms.editorMaximized && (forms.editorMaximized = $('<input type="checkbox"/>').prop('checked', (function() {
+				var s = fm.storage('editorMaximized');
+				return s? (s > 0) : fm.options.commandsOptions.edit.editorMaximized;
+			})()).on('change', function(e) {
+				fm.storage('editorMaximized', $(this).is(':checked')? 1 : -1);
 			}));
 			
 			forms.infoItems && (forms.infoItems = (function() {
@@ -26598,7 +26828,7 @@ elFinder.prototype.commands.preference = function() {
 			webm : support('video/webm;'),
 			mp4  : support('video/mp4;'),
 			mkv  : support('video/x-matroska;') || support('video/webm;'),
-			'3gp': support('video/3gpp;'),
+			'3gp': support('video/3gpp;') || support('video/mp4;'), // try as mp4
 			m3u8 : support('application/x-mpegURL', 'video') || support('application/vnd.apple.mpegURL', 'video'),
 			mpd  : support('application/dash+xml', 'video')
 		}
@@ -26633,6 +26863,17 @@ elFinder.prototype.commands.preference = function() {
 		return state == docked;
 	};
 	
+	/**
+	 * Adds an integration into help dialog.
+	 *
+	 * @param Object opts  options
+	 */
+	this.addIntegration = function(opts) {
+		requestAnimationFrame(function() {
+			fm.trigger('helpIntegration', Object.assign({cmd: 'quicklook'}, opts));
+		});
+	};
+
 	/**
 	 * Init command.
 	 * Add default plugins and init other plugins
@@ -27343,13 +27584,16 @@ elFinder.prototype.commands.quicklook.plugins = [
 			setNavi = function() {
 				navi.css('bottom', win.hasClass('elfinder-quicklook-fullscreen')? '50px' : '');
 			},
-			getNode = function(src) {
+			getNode = function(src, hash) {
 				return $('<audio class="elfinder-quicklook-preview-audio ui-front" controls preload="auto" autobuffer><source src="'+src+'" /></audio>')
 					.on('change', function(e) {
 						// Firefox fire change event on seek or volume change
 						e.stopPropagation();
 					})
-					.on('error', reset)
+					.on('error', function(e) {
+						node && node.data('hash') === hash && reset();
+					})
+					.data('hash', hash)
 					.appendTo(preview);
 			},
 			amrToWavUrl = function(hash) {
@@ -27397,6 +27641,18 @@ elFinder.prototype.commands.quicklook.plugins = [
 				}
 				return dfd;
 			},
+			play = function(player) {
+				var hash = node.data('hash'),
+					playPromise;
+				autoplay && (playPromise = player.play());
+				if (playPromise && playPromise.catch) {
+					playPromise.catch(function(e) {
+						if (!player.paused) {
+							node && node.data('hash') === hash && reset();
+						}
+					});
+				}
+			},
 			reset = function() {
 				if (node && node.parent().length) {
 					var elm = node[0],
@@ -27428,7 +27684,7 @@ elFinder.prototype.commands.quicklook.plugins = [
 				if (!html5) {
 					if (fm.options.cdns.amr && type === 'amr' && AMR !== false) {
 						e.stopImmediatePropagation();
-						node = getNode(srcUrl);
+						node = getNode(srcUrl, curHash);
 						amrToWavUrl(file.hash).done(function(url) {
 							if (curHash === file.hash) {
 								var elm = node[0];
@@ -27436,7 +27692,7 @@ elFinder.prototype.commands.quicklook.plugins = [
 									node.children('source').attr('src', url);
 									elm.pause();
 									elm.load();
-									autoplay && elm.play();
+									play(elm);
 									win.on('viewchange.audio', setNavi);
 									setNavi();
 								} catch(e) {
@@ -27452,8 +27708,8 @@ elFinder.prototype.commands.quicklook.plugins = [
 					}
 				} else {
 					e.stopImmediatePropagation();
-					node = getNode(srcUrl);
-					autoplay && node[0].play();
+					node = getNode(srcUrl, curHash);
+					play(node[0]);
 					win.on('viewchange.audio', setNavi);
 					setNavi();
 				}
@@ -27486,7 +27742,7 @@ elFinder.prototype.commands.quicklook.plugins = [
 			node,
 			win  = ql.window,
 			navi = ql.navbar,
-			cHls, cDash, cFlv, autoplay,
+			cHls, cDash, pDash, cFlv, autoplay, tm,
 			setNavi = function() {
 				if (fm.UA.iOS) {
 					if (win.hasClass('elfinder-quicklook-fullscreen')) {
@@ -27509,7 +27765,9 @@ elFinder.prototype.commands.quicklook.plugins = [
 						}
 					},
 					err = 0, 
-					canPlay, tm;
+					canPlay;
+				//reset();
+				pDash = null;
 				opts = opts || {};
 				ql.hideinfo();
 				node = $('<video class="elfinder-quicklook-preview-video" controls preload="auto" autobuffer playsinline>'
@@ -27521,7 +27779,8 @@ elFinder.prototype.commands.quicklook.plugins = [
 					.on('timeupdate progress', errTm)
 					.on('canplay', function() {
 						canPlay = true;
-					});
+					})
+					.data('hash', file.hash);
 				// can not handling error event with jQuery `on` event handler
 				node[0].addEventListener('error', function(e) {
 					if (opts.src && fm.convAbsUrl(opts.src) === fm.convAbsUrl(e.target.src)) {
@@ -27546,16 +27805,19 @@ elFinder.prototype.commands.quicklook.plugins = [
 				hls.loadSource(fm.openUrl(file.hash));
 				hls.attachMedia(node[0]);
 				if (autoplay) {
-					hls.on(cHls.Events.MANIFEST_PARSED,function() {
-						node[0].play();
+					hls.on(cHls.Events.MANIFEST_PARSED, function() {
+						play(node[0]);
 					});
 				}
 			},
 			loadDash = function(file) {
-				var player;
 				render(file);
-				player = window.dashjs.MediaPlayer().create();
-				player.initialize(node[0], fm.openUrl(file.hash), autoplay);
+				pDash = window.dashjs.MediaPlayer().create();
+				pDash.getDebug().setLogToBrowserConsole(false);
+				pDash.initialize(node[0], fm.openUrl(file.hash), autoplay);
+				pDash.on('error', function(e) {
+					reset(true);
+				});
 			},
 			loadFlv = function(file) {
 				if (!cFlv.isSupported()) {
@@ -27573,12 +27835,26 @@ elFinder.prototype.commands.quicklook.plugins = [
 				});
 				player.attachMediaElement(node[0]);
 				player.load();
-				autoplay && player.play();
+				play(player);
+			},
+			play = function(player) {
+				var hash = node.data('hash'),
+					playPromise;
+				autoplay && (playPromise = player.play());
+				if (playPromise && playPromise.catch) {
+					playPromise.catch(function(e) {
+						if (!player.paused) {
+							node && node.data('hash') === hash && reset(true);
+						}
+					});
+				}
 			},
 			reset = function(showInfo) {
+				tm && clearTimeout(tm);
 				if (node && node.parent().length) {
 					var elm = node[0];
 					win.off('viewchange.video');
+					pDash && pDash.reset();
 					try {
 						elm.pause();
 						node.empty();
@@ -27586,7 +27862,7 @@ elFinder.prototype.commands.quicklook.plugins = [
 						elm.load();
 					} catch(e) {}
 					node.remove();
-					node= null;
+					node = null;
 				}
 				showInfo && ql.info.show();
 			};
@@ -27595,14 +27871,14 @@ elFinder.prototype.commands.quicklook.plugins = [
 			var file = e.file,
 				mime = file.mime.toLowerCase(),
 				type = mimes[mime],
-				stock;
+				stock, playPromise;
 			
-			if (mimes[mime] && ql.dispInlineRegex.test(file.mime) && (((type === 'm3u8' || type === 'mpd' || type === 'flv') && !fm.UA.ltIE10) || ql.support.video[type])) {
+			if (mimes[mime] && ql.dispInlineRegex.test(file.mime) && (((type === 'm3u8' || (type === 'mpd' && !fm.UA.iOS) || type === 'flv') && !fm.UA.ltIE10) || ql.support.video[type])) {
 				autoplay = ql.autoPlay();
 				if (ql.support.video[type] && (type !== 'm3u8' || fm.UA.Safari)) {
 					e.stopImmediatePropagation();
 					render(file, { src: fm.openUrl(file.hash) });
-					autoplay && node[0].play();
+					play(node[0]);
 				} else {
 					if (cHls !== false && fm.options.cdns.hls && type === 'm3u8') {
 						e.stopImmediatePropagation();
@@ -28002,27 +28278,148 @@ elFinder.prototype.commands.quicklook.plugins = [
 	},
 
 	/**
-	 * Any supported files preview plugin using Google docs online viewer
+	 * CAD-Files and 3D-Models online viewer on sharecad.org
 	 *
 	 * @param elFinder.commands.quicklook
 	 **/
 	function(ql) {
 				var fm      = ql.fm,
-			mimes   = fm.arrayFlip(ql.options.googleDocsMimes || []),
+			mimes   = fm.arrayFlip(ql.options.sharecadMimes || []),
+			preview = ql.preview,
+			win     = ql.window,
+			node;
+			
+		if (ql.options.sharecadMimes.length) {
+			ql.addIntegration({
+				title: 'ShareCAD.org CAD and 3D-Models viewer',
+				link: 'https://sharecad.org/DWGOnlinePlugin'
+			});
+		}
+
+		preview.on(ql.evUpdate, function(e) {
+			var file = e.file;
+			if (mimes[file.mime.toLowerCase()]) {
+				var win     = ql.window,
+					loading, url;
+				
+				if (file.url == '1') {
+					preview.hide();
+					$('<div class="elfinder-quicklook-info-data"><button class="elfinder-info-button">'+fm.i18n('getLink')+'</button></div>').appendTo(ql.info.find('.elfinder-quicklook-info'))
+					.on('click', function() {
+						var self = $(this);
+						self.html('<span class="elfinder-info-spinner">');
+						fm.request({
+							data : {cmd : 'url', target : file.hash},
+							preventDefault : true
+						})
+						.always(function() {
+							self.html('');
+						})
+						.done(function(data) {
+							var rfile = fm.file(file.hash);
+							file.url = rfile.url = data.url || '';
+							if (file.url) {
+								preview.trigger({
+									type: ql.evUpdate,
+									file: file,
+									forceUpdate: true
+								});
+							}
+						});
+					});
+				}
+				if (file.url !== '' && file.url != '1') {
+					e.stopImmediatePropagation();
+					preview.one('change', function() {
+						loading.remove();
+						node.off('load').remove();
+						node = null;
+					}).addClass('elfinder-overflow-auto');
+					
+					loading = $('<div class="elfinder-quicklook-info-data"> '+fm.i18n('nowLoading')+'<span class="elfinder-info-spinner"></div>').appendTo(ql.info.find('.elfinder-quicklook-info'));
+					
+					url = fm.convAbsUrl(fm.url(file.hash));
+					node = $('<iframe class="elfinder-quicklook-preview-iframe" scrolling="no"/>')
+						.css('background-color', 'transparent')
+						.appendTo(preview)
+						.on('load', function() {
+							ql.hideinfo();
+							loading.remove();
+							ql.preview.after(ql.info);
+							$(this).css('background-color', '#fff').show();
+						})
+						.on('error', function() {
+							loading.remove();
+							ql.preview.after(ql.info);
+						})
+						.attr('src', '//sharecad.org/cadframe/load?url=' + encodeURIComponent(url));
+					
+					ql.info.after(ql.preview);
+				}
+			}
+			
+		});
+	},
+
+	/**
+	 * Any supported files preview plugin using (Google docs | MS Office) online viewer
+	 *
+	 * @param elFinder.commands.quicklook
+	 **/
+	function(ql) {
+				var fm      = ql.fm,
+			mimes   = Object.assign(fm.arrayFlip(ql.options.googleDocsMimes || [], 'g'), fm.arrayFlip(ql.options.officeOnlineMimes || [], 'm')),
 			preview = ql.preview,
 			win     = ql.window,
 			navi    = ql.navbar,
+			urls    = {
+				g: 'docs.google.com/gview?embedded=true&url=',
+				m: 'view.officeapps.live.com/op/embed.aspx?wdStartOn=0&src='
+			},
+			navBottom = {
+				g: '56px',
+				m: '24px'
+			},
+			mLimits = {
+				xls  : 5242880, // 5MB
+				xlsb : 5242880,
+				xlsx : 5242880,
+				xlsm : 5242880,
+				other: 10485760 // 10MB
+			},
 			node;
-			
+		
+		if (ql.options.googleDocsMimes.length) {
+			ql.addIntegration({
+				title: 'Google Docs Viewer',
+				link: 'https://docs.google.com/'
+			});
+		}
+		if (ql.options.officeOnlineMimes.length) {
+			ql.addIntegration({
+				title: 'MS Online Doc Viewer',
+				link: 'https://products.office.com/office-online/view-office-documents-online'
+			});
+		}
+
+
 		preview.on(ql.evUpdate, function(e) {
-			var file = e.file;
-			if (mimes[file.mime]) {
+			var file = e.file,
+				type;
+			// 25MB is maximum filesize of Google Docs prevew
+			if (file.size <= 26214400 && (type = mimes[file.mime])) {
 				var win     = ql.window,
 					setNavi = function() {
-						navi.css('bottom', win.hasClass('elfinder-quicklook-fullscreen')? '56px' : '');
+						navi.css('bottom', win.hasClass('elfinder-quicklook-fullscreen')? navBottom[type] : '');
 					},
-					loading;
+					ext     = fm.mimeTypes[file.mime],
+					loading, url;
 				
+				if (type === 'm') {
+					if ((mLimits[ext] && file.size > mLimits[ext]) || file.size > mLimits.other) {
+						type = 'g';
+					}
+				}
 				if (file.url == '1') {
 					preview.hide();
 					$('<div class="elfinder-quicklook-info-data"><button class="elfinder-info-button">'+fm.i18n('getLink')+'</button></div>').appendTo(ql.info.find('.elfinder-quicklook-info'))
@@ -28060,6 +28457,10 @@ elFinder.prototype.commands.quicklook.plugins = [
 					
 					loading = $('<div class="elfinder-quicklook-info-data"> '+fm.i18n('nowLoading')+'<span class="elfinder-info-spinner"></div>').appendTo(ql.info.find('.elfinder-quicklook-info'));
 					
+					url = fm.convAbsUrl(fm.url(file.hash));
+					if (file.ts) {
+						url += (url.match(/\?/)? '&' : '?') + '_t=' + file.ts;
+					}
 					node = $('<iframe class="elfinder-quicklook-preview-iframe"/>')
 						.css('background-color', 'transparent')
 						.appendTo(preview)
@@ -28073,7 +28474,7 @@ elFinder.prototype.commands.quicklook.plugins = [
 							loading.remove();
 							ql.preview.after(ql.info);
 						})
-						.attr('src', '//docs.google.com/gview?embedded=true&url=' + encodeURIComponent(fm.convAbsUrl(fm.url(file.hash))));
+						.attr('src', 'https://' + urls[type] + encodeURIComponent(url));
 					
 					win.on('viewchange.googledocs', setNavi);
 					setNavi();
@@ -28176,7 +28577,8 @@ elFinder.prototype.commands.quicklook.plugins = [
  * @author Naoki Sawada
  **/
 elFinder.prototype.commands.rename = function() {
-	
+	"use strict";
+
 	// set alwaysEnabled to allow root rename on client size
 	this.alwaysEnabled = true;
 
@@ -28985,7 +29387,7 @@ elFinder.prototype.commands.resize = function() {
 								width.val(w);
 								height.val(h);
 							}
-						}),
+						}).addClass('elfinder-focus'),
 					height  = $(input)
 						.on('change', function() {
 							var h = round(parseInt(height.val())),
@@ -29401,7 +29803,7 @@ elFinder.prototype.commands.resize = function() {
 						rfile.height = dim[1];
 					},
 					init    = function() {
-						var elm, memSize, r_scale, inputFirst, imgRatio;
+						var elm, memSize, r_scale, imgRatio;
 						
 						if (inited) {
 							return;
@@ -29473,7 +29875,7 @@ elFinder.prototype.commands.resize = function() {
 						setupimg();
 						
 						uitype[ctrgrup]('enable');
-						inputFirst = control.find('input,select').prop('disabled', false)
+						control.find('input,select').prop('disabled', false)
 							.filter(':text').on('keydown', function(e) {
 								var cOpts;
 								if (e.keyCode == $.ui.keyCode.ENTER) {
@@ -29519,7 +29921,7 @@ elFinder.prototype.commands.resize = function() {
 							.filter(':first');
 						
 						setStep8();
-						!fm.UA.Mobile && inputFirst.trigger('focus');
+						!fm.UA.Mobile && width.trigger('focus');
 						resizable();
 					},
 					img     = $('<img/>')
@@ -30168,7 +30570,7 @@ elFinder.prototype.commands.resize = function() {
 						if (api2) {
 							imgr.on('mousedown touchstart', rotate.start)
 								.on('touchend', rotate.stop);
-							$(document).on('mouseup', rotate.stop);
+							base.on('mouseup', rotate.stop);
 						}
 						if (hasSize && !substituteImg) {
 							return init();
@@ -30660,12 +31062,18 @@ elFinder.prototype.commands.resize = function() {
 			});
 		};
 	
+	// for to be able to overwrite
+	this.restore = restore;
+
 	this.linkedCmds = ['copy', 'paste', 'mkdir', 'rm'];
 	this.updateOnSelect = false;
-	//this.shortcuts = [{
-	//	pattern     : 'ctrl+z'
-	//}];
 	
+	this.init = function() {
+		// re-assign for extended command
+		self = this;
+		fm = this.fm;
+	};
+
 	this.getstate = function(sel, e) {
 		sel = sel || fm.selected();
 		return sel.length && $.grep(sel, function(h) {var f = fm.file(h); return f && ! f.locked && ! fm.isRoot(f)? true : false; }).length == sel.length
@@ -30693,7 +31101,7 @@ elFinder.prototype.commands.resize = function() {
 		});
 
 		if (dfrd.state() === 'pending') {
-			restore(dfrd, files, hashes, opts);
+			this.restore(dfrd, files, hashes, opts);
 		}
 			
 		return dfrd;
@@ -30764,7 +31172,7 @@ elFinder.prototype.commands.rm = function() {
 					label    : 'btnRm',
 					callback : function() {  
 						if (tHash) {
-							toTrash(dfrd, targets, tHash);
+							self.toTrash(dfrd, targets, tHash);
 						} else {
 							remove(dfrd, targets);
 						}
@@ -30809,7 +31217,7 @@ elFinder.prototype.commands.rm = function() {
 				req, dirs, cnt;
 			
 			if (itemCnt > maxCnt) {
-				confirm(dfrd, targets, self.files(targets), null, [fm.i18n('tooManyToTrash')]);
+				self.confirm(dfrd, targets, self.files(targets), null, [fm.i18n('tooManyToTrash')]);
 				return;
 			}
 			
@@ -31028,7 +31436,7 @@ elFinder.prototype.commands.rm = function() {
 					fm.unlockfiles({files : targets});
 				}
 			}).fail(function() {
-				confirm(dfrd, targets, self.files(targets), null, [fm.i18n('tooManyToTrash')]);
+				self.confirm(dfrd, targets, self.files(targets), null, [fm.i18n('tooManyToTrash')]);
 			});
 		},
 		remove = function(dfrd, targets, quiet) {
@@ -31069,6 +31477,11 @@ elFinder.prototype.commands.rm = function() {
 		},
 		getSize = false;
 	
+	// for to be able to overwrite
+	this.confirm = confirm;
+	this.toTrash = toTrash;
+	this.remove = remove;
+
 	this.syncTitleOnChange = true;
 	this.updateOnSelect = false;
 	this.shortcuts = [{
@@ -31077,6 +31490,10 @@ elFinder.prototype.commands.rm = function() {
 	this.value = 'rm';
 	
 	this.init = function() {
+		// re-assign for extended command
+		self = this;
+		fm = this.fm;
+		// bind function of change
 		self.change(function() {
 			var targets;
 			delete self.extra;
@@ -31162,12 +31579,12 @@ elFinder.prototype.commands.rm = function() {
 			fm.lockfiles({files : targets});
 			
 			if (tHash && self.options.quickTrash) {
-				toTrash(dfrd, targets, tHash);
+				self.toTrash(dfrd, targets, tHash);
 			} else {
 				if (quiet) {
 					remove(dfrd, targets, quiet);
 				} else {
-					confirm(dfrd, targets, files, tHash, addTexts);
+					self.confirm(dfrd, targets, files, tHash, addTexts);
 				}
 			}
 		}
