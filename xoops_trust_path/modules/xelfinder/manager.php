@@ -202,6 +202,8 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/commands/fullscreen.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/getfile.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/help.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/hidden.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/hide.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/home.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/info.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/mkdir.js" charset="UTF-8"></script>
@@ -218,6 +220,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/commands/reload.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/rename.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/resize.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/restore.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/rm.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/search.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/selectall.js" charset="UTF-8"></script>
