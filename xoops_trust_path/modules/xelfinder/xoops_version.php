@@ -345,14 +345,6 @@ array(
 	'default'		=> ''
 ),
 array(
-	'name'			=> 'zoho_apikey' ,
-	'title'			=> $constpref.'_ZOHO_APIKEY' ,
-	'description'	=> $constpref.'_ZOHO_APIKEY_DESC' ,
-	'formtype'		=> 'textbox' ,
-	'valuetype'		=> $_encrypt ,
-	'default'		=> ''
-),
-array(
 	'name'			=> 'jquery' ,
 	'title'			=> $constpref.'_JQUERY' ,
 	'description'	=> $constpref.'_JQUERY_DESC' ,
@@ -384,6 +376,22 @@ array(
 	'valuetype'		=> 'string' ,
 	'default'		=> 'smoothness' ,
 	'options'		=> array('black-tie'=>'black-tie','blitzer'=>'blitzer','cupertino'=>'cupertino','dark-hive'=>'dark-hive','dot-luv'=>'dot-luv','eggplant'=>'eggplant','excite-bike'=>'excite-bike','flick'=>'flick','hot-sneaks'=>'hot-sneaks','humanity'=>'humanity','le-frog'=>'le-frog','mint-choc'=>'mint-choc','overcast'=>'overcast','pepper-grinder','redmond'=>'redmond','smoothness'=>'smoothness','south-street'=>'south-street','start'=>'start','sunny'=>'sunny','swanky-purse'=>'swanky-purse','trontastic'=>'trontastic','ui-darkness'=>'ui-darkness','ui-lightness'=>'ui-lightness','vader'=>'vader')
+),
+array(
+	'name'			=> 'gmaps_apikey' ,
+	'title'			=> $constpref.'_GMAPS_APIKEY' ,
+	'description'	=> $constpref.'_GMAPS_APIKEY_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> $_encrypt ,
+	'default'		=> ''
+),
+array(
+	'name'			=> 'zoho_apikey' ,
+	'title'			=> $constpref.'_ZOHO_APIKEY' ,
+	'description'	=> $constpref.'_ZOHO_APIKEY_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> $_encrypt ,
+	'default'		=> ''
 ),
 array(
 	'name'			=> 'creative_cloud_apikey' ,
