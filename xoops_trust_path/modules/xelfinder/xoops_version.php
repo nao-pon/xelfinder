@@ -113,6 +113,14 @@ array(
 	'default'		=> '0'
 ),
 array(
+	'name'			=> 'enable_imagemagick_ps' ,
+	'title'			=> $constpref.'_ENABLE_IMAGICK_PS' ,
+	'description'	=> $constpref.'_ENABLE_IMAGICK_PS_DESC' ,
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> '0'
+),
+array(
 	'name'			=> 'use_sharecad_preview' ,
 	'title'			=> $constpref.'_USE_SHARECAD_PREVIEW' ,
 	'description'	=> $constpref.'_USE_SHARECAD_PREVIEW_DESC' ,

@@ -83,6 +83,10 @@ try {
 		error_reporting(0);
 	}
 
+	if (! empty($config['enable_imagemagick_ps'])) {
+		define('ELFINDER_IMAGEMAGICK_PS', true);
+	}
+
 	if (! empty($config['ffmpeg_path'])) {
 		define('ELFINDER_FFMPEG_PATH', $config['ffmpeg_path']);
 	}

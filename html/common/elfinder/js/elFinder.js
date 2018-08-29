@@ -854,8 +854,15 @@ var elFinder = function(elm, opts, bootCallback) {
 			return self.options.baseUrl;
 		} else {
 			baseUrl = '';
-			myTag = $('head > script[src$="js/elfinder.min.js"],script[src$="js/elfinder.full.js"]:first');
-			if (myTag.length) {
+			//myTag = $('head > script[src$="js/elfinder.min.js"],script[src$="js/elfinder.full.js"]:first');
+			myTag = null;
+			$('head > script').each(function() {
+				if (this.src && this.src.match(/js\/elfinder(?:-[a-z0-9_-]+)?\.(?:min|full)\.js$/i)) {
+					myTag = $(this);
+					return false;
+				}
+			});
+			if (myTag) {
 				myCss = $('head > link[href$="css/elfinder.min.css"],link[href$="css/elfinder.full.css"]:first').length;
 				if (! myCss) {
 					// to request CSS auto loading
@@ -5149,8 +5156,10 @@ var elFinder = function(elm, opts, bootCallback) {
 			// check css loaded and remove hide
 			(function() {
 				var loaded = function() {
-						node.data('cssautoloadHide').remove();
-						node.removeData('cssautoloadHide');
+						if (node.data('cssautoloadHide')) {
+							node.data('cssautoloadHide').remove();
+							node.removeData('cssautoloadHide');
+						}
 						self.cssloaded = true;
 						requestAnimationFrame(function() {
 							self.trigger('cssloaded');
@@ -5344,13 +5353,16 @@ elFinder.prototype = {
 				Angle   : 0,
 				Rotated : false,
 				CSS : (function() {
-					var mStyle = document.createElement('a').style, css;
+					var aStyle = document.createElement('a').style,
+						pStyle = document.createElement('p').style,
+						css;
 					css = 'position:sticky;position:-webkit-sticky;';
 					css += 'width:-webkit-max-content;width:-moz-max-content;width:-ms-max-content;width:max-content;';
-					mStyle.cssText = css;
+					aStyle.cssText = css;
 					return {
-						positionSticky : mStyle.position.indexOf('sticky')!==-1,
-						widthMaxContent : mStyle.width.indexOf('max-content')!==-1
+						positionSticky : aStyle.position.indexOf('sticky')!==-1,
+						widthMaxContent : aStyle.width.indexOf('max-content')!==-1,
+						flex : typeof pStyle.flex !== 'undefined'
 					};
 				})()
 			};

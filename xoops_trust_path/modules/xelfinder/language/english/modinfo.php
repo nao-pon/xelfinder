@@ -33,6 +33,8 @@ define( $constpref.'_DISABLE_WRITES_GUEST' ,    'Disable writing cmds to guest' 
 define( $constpref.'_DISABLE_WRITES_GUEST_DESC','All writing commands are added to the disabled commands to guests.' );
 define( $constpref.'_DISABLE_WRITES_USER' ,     'Disable writing cmds to user' );
 define( $constpref.'_DISABLE_WRITES_USER_DESC', 'All writing commands are added to the disabled commands to registed users.' );
+define( $constpref.'_ENABLE_IMAGICK_PS' ,      'Enable PostScript of ImageMagick' );
+define( $constpref.'_ENABLE_IMAGICK_PS_DESC',  'If <a href="https://www.kb.cert.org/vuls/id/332928" target="_blank">Ghostscript vulnerabilities</a> has been fixed, you can enable PostScript related processing with ImageMagick by selecting "Yes".' );
 define( $constpref.'_USE_SHARECAD_PREVIEW' ,      'Enable ShareCAD preview' );
 define( $constpref.'_USE_SHARECAD_PREVIEW_DESC',  'Use ShareCAD to expand previewable file types. When ShareCAD Preview is used, it notifies the content URL to ShareCAD.org.' );
 define( $constpref.'_USE_GOOGLE_PREVIEW' ,      'Enable Google Docs preview' );
