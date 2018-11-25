@@ -426,6 +426,14 @@ array(
 	'default'		=> ''
 ),
 array(
+	'name'			=> 'ui_options_js' ,
+	'title'			=> $constpref.'_UI_OPTIONS_JS' ,
+	'description'	=> $constpref.'_UI_OPTIONS_JS_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> ''
+),
+array(
 	'name'			=> 'thumbnail_size' ,
 	'title'			=> $constpref.'_THUMBNAIL_SIZE' ,
 	'description'	=> $constpref.'_THUMBNAIL_SIZE_DESC' ,

@@ -110,6 +110,8 @@ define( $constpref.'_ONLINE_CONVERT_APIKEY' ,   'ONLINE-CONVERT.COM API Key' );
 define( $constpref.'_ONLINE_CONVERT_APIKEY_DESC','Specify the ONLINE-CONVERT.COM API key when using the content converter API of ONLINE-CONVERT.COM.<br />API key can be obtained at https://apiv2.online-convert.com/docs/getting_started/api_key.html .' );
 define( $constpref.'_EDITORS_JS',               'URL of editors.js' );
 define( $constpref.'_EDITORS_JS_DESC',          'Specify the URL of JavaScript when customizing "common/elfinder/js/extras/editors.default.js".' );
+define( $constpref.'_UI_OPTIONS_JS',            'URL of xelfinderUiOptions.js' );
+define( $constpref.'_UI_OPTIONS_JS_DESC',       'Specify the URL of JavaScript when customizing "modules/'.$mydirname.'/include/js/xelfinderUiOptions.default.js".' );
 define( $constpref.'_THUMBNAIL_SIZE' ,          '[xelfinder_db] Thumbnail size of image insertion' );
 define( $constpref.'_THUMBNAIL_SIZE_DESC' ,     'The default value (px) of the thumbnail size at picture insertion by BBcode.' );
 define( $constpref.'_DEFAULT_ITEM_PERM' ,       '[xelfinder_db] Permission of new items' );

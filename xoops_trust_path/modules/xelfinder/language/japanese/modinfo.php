@@ -111,6 +111,8 @@ define( $constpref.'_ONLINE_CONVERT_APIKEY' ,   'ONLINE-CONVERT.COM APIキー' );
 define( $constpref.'_ONLINE_CONVERT_APIKEY_DESC','ONLINE-CONVERT.COM のコンテンツコンバーター API を利用する場合の ONLINE-CONVERT.COM APIキーを指定します。<br />APIキー は https://apiv2.online-convert.com/docs/getting_started/api_key.html で取得できます。' );
 define( $constpref.'_EDITORS_JS',               'editors.js の URL' );
 define( $constpref.'_EDITORS_JS_DESC',          'common/elfinder/js/extras/editors.default.js をカスタマイズした場合の JavaScript の URL を指定します。' );
+define( $constpref.'_UI_OPTIONS_JS',            'xelfinderUiOptions.js の URL' );
+define( $constpref.'_UI_OPTIONS_JS_DESC',       'modules/'.$mydirname.'/include/js/xelfinderUiOptions.default.js をカスタマイズした場合の JavaScript の URL を指定します。' );
 define( $constpref.'_THUMBNAIL_SIZE' ,          '[xelfinder_db] 画像挿入時のサムネイルサイズ' );
 define( $constpref.'_THUMBNAIL_SIZE_DESC' ,     'BBコードでの画像挿入時のサムネイルサイズの規定値(px)' );
 define( $constpref.'_DEFAULT_ITEM_PERM' ,       '[xelfinder_db] 作成されるアイテムのパーミッション' );

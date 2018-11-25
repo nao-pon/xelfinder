@@ -34,7 +34,7 @@ $(document).ready(function() {
 		}
 	}
 	
-	var elfinderInstance = $('#elfinder').elfinder({
+	var opts = {
 		handlers : {
 			// set extra messages
 			i18load : function(e, fm) {
@@ -102,13 +102,7 @@ $(document).ready(function() {
 		startPathHash : startPathHash,
 		sync : autoSyncSec * 1000,
 		syncStart : autoSyncStart,
-		ui : ['toolbar', 'places', 'tree', 'path', 'stat'],
 		uiOptions : {
-			cwd : {
-				listView : {
-					columns : ['perm', 'date', 'size', 'kind', 'owner'],
-				}
-			},
 			places : {
 				suffix : xoopsUid
 			}
@@ -121,7 +115,6 @@ $(document).ready(function() {
 				getImgSize: true
 			},
 			edit : {
-				dialogWidth: '80%',
 				extraOptions : {
 					creativeCloudApiKey : creativeCloudApikey
 				}
@@ -137,7 +130,30 @@ $(document).ready(function() {
 				useOriginQuery : false
 			}
 		}
-	}).elfinder('instance');
+	};
+
+	if (typeof xelfinderUiOptions !== 'undefined' && $.isPlainObject(xelfinderUiOptions)) {
+		// Overwrite if opts value is an array
+		(function() {
+			var arrOv = function(obj, base) {
+				if ($.isPlainObject(obj)) {
+					$.each(obj, function(k, v) {
+						if ($.isPlainObject(v)) {
+							if (!base[k]) {
+								base[k] = {};
+							}
+							arrOv(v, base[k]);
+						} else {
+							base[k] = v;
+						}
+					});
+				}
+			};
+			arrOv(xelfinderUiOptions, opts);
+		})();
+	}
+
+	var elfinderInstance = $('#elfinder').elfinder(opts).elfinder('instance');
 	
 	// Easy refer on file upload
 	if (target || elfinderInstance.options.getFileCallback) {
