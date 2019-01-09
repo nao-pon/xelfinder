@@ -17,4 +17,4 @@ html/modules/xelfinder/cache/lastupdate.dat
 html/modules/xelfinder/cache/tokendata_*
 html/modules/xelfinder/cache/temp_*
 html/modules/xelfinder/cache/tmb/*.png
-
+html/modules/xelfinder/include/js/xelfinderUiOptions.js

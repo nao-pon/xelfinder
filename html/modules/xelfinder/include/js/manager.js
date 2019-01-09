@@ -129,6 +129,14 @@ $(document).ready(function() {
 				url : myUrl + 'manager.php',
 				useOriginQuery : false
 			}
+		},
+		themes : {
+			default: {
+				'name': 'default',
+				'cssurls': 'css/theme.css',
+				'author': 'elFinder Project',
+				'license': '3-clauses BSD'
+			}
 		}
 	};
 
