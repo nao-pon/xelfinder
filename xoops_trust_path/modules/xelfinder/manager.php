@@ -114,7 +114,7 @@ if (empty($config['jquery_ui_css'])) {
 $editorsJs = !empty($config['editors_js']) ? trim($config['editors_js']) : ($elfurl.'/js/extras/editors.default'.($debug? '' : '.min').'.js?v='.$xelfVer);
 
 $optionsJs = !empty($config['ui_options_js']) ? trim($config['ui_options_js']) : ($myurl.'/include/js/xelfinderUiOptions.default.js?v='.$xelfVer);
-if (!preg_match('~^/|http~i', $optionsJs)) {
+if (!preg_match('~^(?:/|http)~i', $optionsJs)) {
 	$optionsJs = XOOPS_URL . '/' . $optionsJs;
 }
 
