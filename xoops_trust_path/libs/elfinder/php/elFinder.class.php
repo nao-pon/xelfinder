@@ -32,7 +32,7 @@ class elFinder
      *
      * @var integer
      */
-    protected static $ApiRevision = 45;
+    protected static $ApiRevision = 46;
 
     /**
      * Storages (root dirs)
@@ -191,6 +191,16 @@ class elFinder
      * @default "./.tmp" or sys_get_temp_dir()
      **/
     protected static $commonTempPath = '';
+
+    /**
+     * Callable function for URL upload filter
+     * The first argument is a URL and the second argument is an instance of the elFinder class
+     * A filter should be return true (to allow) / false (to disallow)
+     *
+     * @var callable
+     * @default null
+     */
+    protected $urlUploadFilter = null;
 
     /**
      * Connection flag files path that connection check of current request
@@ -650,6 +660,9 @@ class elFinder
         }
         if (!empty($opts['textMimes']) && is_array($opts['textMimes'])) {
             elfinder::$textMimes = $opts['textMimes'];
+        }
+        if (!empty($opts['urlUploadFilter'])) {
+            $this->urlUploadFilter = $opts['urlUploadFilter'];
         }
         $this->maxArcFilesSize = isset($opts['maxArcFilesSize']) ? intval($opts['maxArcFilesSize']) : 0;
         $this->optionsNetVolumes = (isset($opts['optionsNetVolumes']) && is_array($opts['optionsNetVolumes'])) ? $opts['optionsNetVolumes'] : array();
@@ -2395,7 +2408,49 @@ class elFinder
      **/
     protected function get_remote_contents(&$url, $timeout = 30, $redirect_max = 5, $ua = 'Mozilla/5.0', $fp = null)
     {
-        if (preg_match('~^(?:ht|f)tps?://[-_.!\~*\'()a-z0-9;/?:\@&=+\$,%#\*]+~i', $url)) {
+        if (preg_match('~^(?:ht|f)tps?://[-_.!\~*\'()a-z0-9;/?:\@&=+\$,%#\*\[\]]+~i', $url)) {
+            $info = parse_url($url);
+            $host = trim(strtolower($info['host']), '.');
+            // do not support IPv6 address
+            if (preg_match('/^\[.*\]$/', $host)) {
+                return false;
+            }
+            // do not support non dot host
+            if (strpos($host, '.') === false) {
+                return false;
+            }
+            // do not support URL-encoded host
+            if (strpos($host, '%') !== false) {
+                return false;
+            }
+            // disallow including "localhost" and "localdomain"
+            if (preg_match('/\b(?:localhost|localdomain)\b/', $host)) {
+                return false;
+            }
+            // check IPv4 local loopback, private network and link local
+            if (preg_match('/^0x[0-9a-f]+|[0-9]+(?:\.(?:0x[0-9a-f]+|[0-9]+)){1,3}$/', $host, $m)) {
+                $long = (int)sprintf('%u', ip2long($host));
+                if (!$long) {
+                    return false;
+                }
+                $local = (int)sprintf('%u', ip2long('127.255.255.255')) >> 24;
+                $prv1 = (int)sprintf('%u', ip2long('10.255.255.255')) >> 24;
+                $prv2 = (int)sprintf('%u', ip2long('172.31.255.255')) >> 20;
+                $prv3 = (int)sprintf('%u', ip2long('192.168.255.255')) >> 16;
+                $link = (int)sprintf('%u', ip2long('169.254.255.255')) >> 16;
+
+                if ($long >> 24 === $local || $long >> 24 === $prv1 || $long >> 20 === $prv2 || $long >> 16 === $prv3 || $long >> 16 === $link) {
+                    return false;
+                }
+            }
+            // dose not support 'user' and 'pass' for security reasons
+            $url = $info['scheme'].'://'.$host.(!empty($info['port'])? (':'.$info['port']) : '').$info['path'].(!empty($info['query'])? ('?'.$info['query']) : '').(!empty($info['fragment'])? ('#'.$info['fragment']) : '');
+            // check by URL upload filter
+            if ($this->urlUploadFilter && is_callable($this->urlUploadFilter)) {
+                if (!call_user_func_array($this->urlUploadFilter, array($url, $this))) {
+                    return false;
+                }
+            }
             $method = (function_exists('curl_exec') && !ini_get('safe_mode') && !ini_get('open_basedir')) ? 'curl_get_contents' : 'fsock_get_contents';
             return $this->$method($url, $timeout, $redirect_max, $ua, $fp);
         }
@@ -2512,6 +2567,10 @@ class elFinder
                 throw new elFinderAbortException();
             }
             sleep(1); // wait 1sec
+        }
+
+        if (!$fp) {
+            return false;
         }
 
         $fwrite = 0;

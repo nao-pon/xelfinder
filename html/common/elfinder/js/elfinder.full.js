@@ -1,6 +1,6 @@
 /*!
  * elFinder - file manager for web
- * Version 2.1.45 (2.1 Nightly: 43de543) (2019-01-09)
+ * Version 2.1.46 (2.1 Nightly: acf3746) (2019-01-14)
  * http://elfinder.org
  * 
  * Copyright 2009-2019, Studio 42
@@ -6209,7 +6209,7 @@ elFinder.prototype = {
 					});
 				} else {
 					var regex, m, url;
-					regex = /(http[^<>"{}|\\^\[\]`\s]+)/ig;
+					regex = /((?:ht|f)tps?:\/\/[-_.!~*\'()a-z0-9;/?:\@&=+\$,%#\*\[\]]+)/ig;
 					while (m = regex.exec(str)) {
 						url = m[1].replace(/&amp;/g, '&');
 						if ($.inArray(url, ret) == -1) ret.push(url);
@@ -10085,7 +10085,7 @@ if (!window.cancelAnimationFrame) {
  *
  * @type String
  **/
-elFinder.prototype.version = '2.1.45 (2.1 Nightly: 43de543)';
+elFinder.prototype.version = '2.1.46 (2.1 Nightly: acf3746)';
 
 
 
@@ -13487,8 +13487,8 @@ $.fn.elfinderbutton = function(cmd) {
 			},
 			getMenuOffset = function() {
 				var fmNode = fm.getUI(),
-					baseOffset = fm.getUI().offset(),
-					buttonOffset = fmNode.offset();
+					baseOffset = fmNode.offset(),
+					buttonOffset = button.offset();
 				return {
 					top : buttonOffset.top - baseOffset.top,
 					left : buttonOffset.left - baseOffset.left,
@@ -19287,6 +19287,7 @@ $.fn.elfindersearchbutton = function(cmd) {
 		return this.each(function() {
 		var result = false,
 			fm     = cmd.fm,
+			disabled = fm.res('class', 'disabled'),
 			isopts = cmd.options.incsearch || { enable: false },
 			sTypes = cmd.options.searchTypes,
 			id     = function(name){return fm.namespace + fm.escape(name);},
@@ -19298,6 +19299,15 @@ $.fn.elfindersearchbutton = function(cmd) {
 				.on('click', function(e) {
 					e.stopPropagation();
 				}),
+			getMenuOffset = function() {
+				var fmNode = fm.getUI(),
+					baseOffset = fmNode.offset(),
+					buttonOffset = button.offset();
+				return {
+					top : buttonOffset.top - baseOffset.top,
+					maxHeight : fmNode.height() - 40
+				};
+			},
 			search = function() {
 				input.data('inctm') && clearTimeout(input.data('inctm'));
 				var val = $.trim(input.val()),
@@ -19344,11 +19354,13 @@ $.fn.elfindersearchbutton = function(cmd) {
 			incVal = '',
 			input  = $('<input type="text" size="42"/>')
 				.on('focus', function() {
+					// close other menus
+					!button.hasClass('ui-state-active') && fm.getUI().click();
 					inFocus = true;
 					incVal = '';
 					button.addClass('ui-state-active');
 					fm.trigger('uiresize');
-					opts && opts.slideDown(function() {
+					opts && opts.css(getMenuOffset()).slideDown(function() {
 						// Care for on browser window re-active
 						button.addClass('ui-state-active');
 						fm.toFront(opts);
@@ -19483,7 +19495,7 @@ $.fn.elfindersearchbutton = function(cmd) {
 				});
 			})
 			.one('open', function() {
-				opts = (fm.api < 2.1)? null : $('<div class="ui-front ui-widget ui-widget-content elfinder-button-search-menu ui-corner-all"/>')
+				opts = (fm.api < 2.1)? null : $('<div class="ui-front ui-widget ui-widget-content elfinder-button-menu elfinder-button-search-menu ui-corner-all"/>')
 					.append(
 						$('<div class="buttonset"/>')
 							.append(
