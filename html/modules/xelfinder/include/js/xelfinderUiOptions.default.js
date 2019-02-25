@@ -20,5 +20,6 @@ var xelfinderUiOptions = {
 		'bootstrap'     : 'https://nao-pon.github.io/elfinder-theme-manifests/bootstrap.json',
 		'moono'         : 'https://nao-pon.github.io/elfinder-theme-manifests/moono.json',
 		'win10'         : 'https://nao-pon.github.io/elfinder-theme-manifests/win10.json'
-	}
+	},
+	theme : 'default'
 };
