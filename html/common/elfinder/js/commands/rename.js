@@ -11,6 +11,8 @@ elFinder.prototype.commands.rename = function() {
 	// set alwaysEnabled to allow root rename on client size
 	this.alwaysEnabled = true;
 
+	this.syncTitleOnChange = true;
+
 	var self = this,
 		fm = self.fm,
 		request = function(dfrd, targtes, file, name) {
@@ -72,8 +74,9 @@ elFinder.prototype.commands.rename = function() {
 					navigate : {}
 				})
 				.fail(function(error) {
+					var err = fm.parseError(error);
 					dfrd && dfrd.reject();
-					if (! error || ! Array.isArray(error) || error[0] !== 'errRename') {
+					if (! err || ! Array.isArray(err) || err[0] !== 'errRename') {
 						fm.sync();
 					}
 				})
@@ -232,7 +235,7 @@ elFinder.prototype.commands.rename = function() {
 					}
 				});
 			}
-			dialog = fm.dialog(node, opts);
+			dialog = self.fmDialog(node, opts);
 		};
 	
 	this.noChangeDirOnRemovedCwd = true;
@@ -311,7 +314,7 @@ elFinder.prototype.commands.rename = function() {
 			incwd    = (fm.cwd().hash == file.hash),
 			type     = (opts._currentType === 'navbar' || opts._currentType === 'files')? opts._currentType : (incwd? 'navbar' : 'files'),
 			navbar   = (type !== 'files'),
-			target   = $('#'+fm[navbar? 'navHash2Id' : 'cwdHash2Id'](file.hash)),
+			target   = fm[navbar? 'navHash2Elm' : 'cwdHash2Elm'](file.hash),
 			tarea    = (!navbar && fm.storage('view') != 'list'),
 			split    = function(name) {
 				var ext = fm.splitFileExtention(name)[1];
@@ -551,7 +554,22 @@ elFinder.prototype.commands.rename = function() {
 		return dfrd;
 	};
 
-	fm.remove(function(e) {
+	fm.bind('select contextmenucreate closecontextmenu', function(e) {
+		var sel = (e.data? (e.data.selected || e.data.targets) : null) || fm.selected(),
+			file;
+		if (sel && sel.length === 1 && (file = fm.file(sel[0])) && fm.isRoot(file)) {
+			self.title = fm.i18n('kindAlias') + ' (' + fm.i18n('preference') + ')';
+		} else {
+			self.title = fm.i18n('cmdrename');
+		}
+		if (e.type !== 'closecontextmenu') {
+			self.update(void(0), self.title);
+		} else {
+			requestAnimationFrame(function() {
+				self.update(void(0), self.title);
+			});
+		}
+	}).remove(function(e) {
 		var rootNames;
 		if (e.data && e.data.removed && (rootNames = fm.storage('rootNames'))) {
 			$.each(e.data.removed, function(i, h) {

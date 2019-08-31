@@ -12,7 +12,7 @@ $constpref = '_MI_' . strtoupper( $mydirname ) ;
 $modversion['name'] = 'xelFinder' ;
 //$modversion['name'] = $constpref.'_NAME') ;
 $modversion['description'] = constant($constpref.'_DESC');
-$modversion['version'] = 2.37 ;
+$modversion['version'] = 2.49 ;
 $modversion['credits'] = "Hypweb.net";
 $modversion['author'] = "nao-pon" ;
 $modversion['help'] = "" ;
@@ -113,9 +113,33 @@ array(
 	'default'		=> '0'
 ),
 array(
+	'name'			=> 'enable_imagemagick_ps' ,
+	'title'			=> $constpref.'_ENABLE_IMAGICK_PS' ,
+	'description'	=> $constpref.'_ENABLE_IMAGICK_PS_DESC' ,
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> '0'
+),
+array(
+	'name'			=> 'use_sharecad_preview' ,
+	'title'			=> $constpref.'_USE_SHARECAD_PREVIEW' ,
+	'description'	=> $constpref.'_USE_SHARECAD_PREVIEW_DESC' ,
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> '1'
+),
+array(
 	'name'			=> 'use_google_preview' ,
 	'title'			=> $constpref.'_USE_GOOGLE_PREVIEW' ,
 	'description'	=> $constpref.'_USE_GOOGLE_PREVIEW_DESC' ,
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> '1'
+),
+array(
+	'name'			=> 'use_office_preview' ,
+	'title'			=> $constpref.'_USE_OFFICE_PREVIEW' ,
+	'description'	=> $constpref.'_USE_OFFICE_PREVIEW_DESC' ,
 	'formtype'		=> 'yesno' ,
 	'valuetype'		=> 'int' ,
 	'default'		=> '1'
@@ -329,14 +353,6 @@ array(
 	'default'		=> ''
 ),
 array(
-	'name'			=> 'zoho_apikey' ,
-	'title'			=> $constpref.'_ZOHO_APIKEY' ,
-	'description'	=> $constpref.'_ZOHO_APIKEY_DESC' ,
-	'formtype'		=> 'textbox' ,
-	'valuetype'		=> $_encrypt ,
-	'default'		=> ''
-),
-array(
 	'name'			=> 'jquery' ,
 	'title'			=> $constpref.'_JQUERY' ,
 	'description'	=> $constpref.'_JQUERY_DESC' ,
@@ -370,6 +386,22 @@ array(
 	'options'		=> array('black-tie'=>'black-tie','blitzer'=>'blitzer','cupertino'=>'cupertino','dark-hive'=>'dark-hive','dot-luv'=>'dot-luv','eggplant'=>'eggplant','excite-bike'=>'excite-bike','flick'=>'flick','hot-sneaks'=>'hot-sneaks','humanity'=>'humanity','le-frog'=>'le-frog','mint-choc'=>'mint-choc','overcast'=>'overcast','pepper-grinder','redmond'=>'redmond','smoothness'=>'smoothness','south-street'=>'south-street','start'=>'start','sunny'=>'sunny','swanky-purse'=>'swanky-purse','trontastic'=>'trontastic','ui-darkness'=>'ui-darkness','ui-lightness'=>'ui-lightness','vader'=>'vader')
 ),
 array(
+	'name'			=> 'gmaps_apikey' ,
+	'title'			=> $constpref.'_GMAPS_APIKEY' ,
+	'description'	=> $constpref.'_GMAPS_APIKEY_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> $_encrypt ,
+	'default'		=> ''
+),
+array(
+	'name'			=> 'zoho_apikey' ,
+	'title'			=> $constpref.'_ZOHO_APIKEY' ,
+	'description'	=> $constpref.'_ZOHO_APIKEY_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> $_encrypt ,
+	'default'		=> ''
+),
+array(
 	'name'			=> 'creative_cloud_apikey' ,
 	'title'			=> $constpref.'_CREATIVE_CLOUD_APIKEY' ,
 	'description'	=> $constpref.'_CREATIVE_CLOUD_APIKEY_DESC' ,
@@ -378,9 +410,25 @@ array(
 	'default'		=> ''
 ),
 array(
+	'name'			=> 'online_convert_apikey' ,
+	'title'			=> $constpref.'_ONLINE_CONVERT_APIKEY' ,
+	'description'	=> $constpref.'_ONLINE_CONVERT_APIKEY_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> ''
+),
+array(
 	'name'			=> 'editors_js' ,
 	'title'			=> $constpref.'_EDITORS_JS' ,
 	'description'	=> $constpref.'_EDITORS_JS_DESC' ,
+	'formtype'		=> 'textbox' ,
+	'valuetype'		=> 'string' ,
+	'default'		=> ''
+),
+array(
+	'name'			=> 'ui_options_js' ,
+	'title'			=> $constpref.'_UI_OPTIONS_JS' ,
+	'description'	=> $constpref.'_UI_OPTIONS_JS_DESC' ,
 	'formtype'		=> 'textbox' ,
 	'valuetype'		=> 'string' ,
 	'default'		=> ''

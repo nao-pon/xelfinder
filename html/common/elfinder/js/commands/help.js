@@ -19,24 +19,35 @@
 		prim    = 'ui-priority-primary',
 		sec     = 'ui-priority-secondary',
 		lic     = 'elfinder-help-license',
-		tab     = '<li class="ui-state-default ui-corner-top elfinder-help-tab-{id}"><a href="#'+fm.namespace+'-help-{id}">{title}</a></li>',
+		tab     = '<li class="' + fm.res('class', 'tabstab') + ' elfinder-help-tab-{id}"><a href="#'+fm.namespace+'-help-{id}" class="ui-tabs-anchor">{title}</a></li>',
 		html    = ['<div class="ui-tabs ui-widget ui-widget-content ui-corner-all elfinder-help">', 
-				'<ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all">'],
+				'<ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-top">'],
 		stpl    = '<div class="elfinder-help-shortcut"><div class="elfinder-help-shortcut-pattern">{pattern}</div> {descrip}</div>',
 		sep     = '<div class="elfinder-help-separator"/>',
 		selfUrl = $('base').length? document.location.href.replace(/#.*$/, '') : '',
+		clTabActive = fm.res('class', 'tabsactive'),
 		
-		
+		getTheme = function() {
+			var src;
+			if (fm.theme && fm.theme.author) {
+				src = atpl[r]('elfinder-help-team', 'elfinder-help-team elfinder-help-term-theme')[r](author, fm.i18n(fm.theme.author) + (fm.theme.email? ' &lt;'+fm.theme.email+'&gt;' : ''))[r](work, fm.i18n('theme') + ' ('+fm.i18n(fm.theme.name)+')');
+			} else {
+				src = '<div class="elfinder-help-team elfinder-help-term-theme" style="display:none"></div>';
+			}
+			return src;
+		},
+
 		about = function() {
 			html.push('<div id="'+fm.namespace+'-help-about" class="ui-tabs-panel ui-widget-content ui-corner-bottom"><div class="elfinder-help-logo"/>');
 			html.push('<h3>elFinder</h3>');
 			html.push('<div class="'+prim+'">'+fm.i18n('webfm')+'</div>');
-			html.push('<div class="'+sec+'">'+fm.i18n('ver')+': '+fm.version+', '+fm.i18n('protocolver')+': <span class="apiver"></span></div>');
+			html.push('<div class="'+sec+'">'+fm.i18n('ver')+': '+fm.version+'</div>');
+			html.push('<div class="'+sec+'">'+fm.i18n('protocolver')+': <span class="apiver"></span></div>');
 			html.push('<div class="'+sec+'">jQuery/jQuery UI: '+$().jquery+'/'+$.ui.version+'</div>');
 
 			html.push(sep);
 			
-			html.push(linktpltgt[r](url, 'http://elfinder.org/')[r](link, fm.i18n('homepage')));
+			html.push(linktpltgt[r](url, 'https://studio-42.github.io/elFinder/')[r](link, fm.i18n('homepage')));
 			html.push(linktpltgt[r](url, 'https://github.com/Studio-42/elFinder/wiki')[r](link, fm.i18n('docs')));
 			html.push(linktpltgt[r](url, 'https://github.com/Studio-42/elFinder')[r](link, fm.i18n('github')));
 			//html.push(linktpltgt[r](url, 'http://twitter.com/elrte_elfinder')[r](link, fm.i18n('twitter')));
@@ -56,12 +67,14 @@
 				});	
 			}
 			
+			html.push(getTheme());
+
 			html.push(sep);
-			html.push('<div class="'+lic+'">'+fm.i18n('icons')+': Pixelmixer, <a href="http://p.yusukekamiyamane.com" target="_blank">Fugue</a></div>');
+			html.push('<div class="'+lic+'">'+fm.i18n('icons')+': Pixelmixer, <a href="http://p.yusukekamiyamane.com" target="_blank">Fugue</a>, <a href="https://icons8.com" target="_blank">Icons8</a></div>');
 			
 			html.push(sep);
 			html.push('<div class="'+lic+'">Licence: 3-clauses BSD Licence</div>');
-			html.push('<div class="'+lic+'">Copyright © 2009-2017, Studio 42</div>');
+			html.push('<div class="'+lic+'">Copyright © 2009-2019, Studio 42</div>');
 			html.push('<div class="'+lic+'">„ …'+fm.i18n('dontforget')+' ”</div>');
 			html.push('</div>');
 		},
@@ -91,6 +104,11 @@
 			html.push('<a href="https://github.com/Studio-42/elFinder/wiki" target="_blank" class="elfinder-dont-panic"><span>DON\'T PANIC</span></a>');
 			html.push('</div>');
 			// end help
+		},
+		useInteg = false,
+		integrations = function() {
+			useInteg = true;
+			html.push('<div id="'+fm.namespace+'-help-integrations" class="ui-tabs-panel ui-widget-content ui-corner-bottom"/>');
 		},
 		useDebug = false,
 		debug = function() {
@@ -162,7 +180,7 @@
 			}
 		},
 		content = '',
-		opened, tabDebug, debugDIV, debugUL;
+		opened, tabInteg, integDIV, tabDebug, debugDIV, debugUL;
 	
 	this.alwaysEnabled  = true;
 	this.updateOnSelect = false;
@@ -174,7 +192,7 @@
 	}];
 	
 	fm.bind('load', function() {
-		var parts = self.options.view || ['about', 'shortcuts', 'help', 'debug'],
+		var parts = self.options.view || ['about', 'shortcuts', 'help', 'integrations', 'debug'],
 			i, helpSource, tabBase, tabNav, tabs, delta;
 		
 		// remove 'preference' tab, it moved to command 'preference'
@@ -198,17 +216,21 @@
 		$.inArray('about', parts) !== -1 && about();
 		$.inArray('shortcuts', parts) !== -1 && shortcuts();
 		if ($.inArray('help', parts) !== -1) {
-			helpSource = fm.baseUrl+'js/i18n/help/%s.html.js';
+			helpSource = fm.i18nBaseUrl + 'help/%s.html.js';
 			help();
 		}
+		$.inArray('integrations', parts) !== -1 && integrations();
 		$.inArray('debug', parts) !== -1 && debug();
 		
 		html.push('</div>');
 		content = $(html.join(''));
 		
 		content.find('.ui-tabs-nav li')
-			.on('mouseenter mouseleave', function() {
-				$(this).toggleClass('ui-state-hover');
+			.on('mouseenter mouseleave', function(e) {
+				$(this).toggleClass('ui-state-hover', e.type === 'mouseenter');
+			})
+			.on('focus blur', 'a', function(e) {
+				$(e.delegateTarget).toggleClass('ui-state-focus', e.type === 'focusin');
 			})
 			.children()
 			.on('click', function(e) {
@@ -217,14 +239,69 @@
 				e.preventDefault();
 				e.stopPropagation();
 				
-				if (!link.hasClass('ui-tabs-selected')) {
-					link.parent().addClass('ui-tabs-selected ui-state-active').siblings().removeClass('ui-tabs-selected').removeClass('ui-state-active');
-					content.children('.ui-tabs-panel').hide().filter(link.attr('href')).show();
-				}
-				
+				link.parent().addClass(clTabActive).siblings().removeClass(clTabActive);
+				content.children('.ui-tabs-panel').hide().filter(link.attr('href')).show();
 			})
 			.filter(':first').trigger('click');
 		
+		if (useInteg) {
+			tabInteg = content.find('.elfinder-help-tab-integrations').hide();
+			integDIV = content.find('#'+fm.namespace+'-help-integrations').hide().append($('<div class="elfinder-help-integrations-desc"/>').html(fm.i18n('integrationWith')));
+			fm.bind('helpIntegration', function(e) {
+				var ul = integDIV.children('ul:first'),
+					data, elm, cmdUL, cmdCls;
+				if (e.data) {
+					if ($.isPlainObject(e.data)) {
+						data = Object.assign({
+							link: '',
+							title: '',
+							banner: ''
+						}, e.data);
+						if (data.title || data.link) {
+							if (!data.title) {
+								data.title = data.link;
+							}
+							if (data.link) {
+								elm = $('<a/>').attr('href', data.link).attr('target', '_blank').text(data.title);
+							} else {
+								elm = $('<span/>').text(data.title);
+							}
+							if (data.banner) {
+								elm = $('<span/>').append($('<img/>').attr(data.banner), elm);
+							}
+						}
+					} else {
+						elm = $(e.data);
+						elm.filter('a').each(function() {
+							var tgt = $(this);
+							if (!tgt.attr('target')) {
+								tgt.attr('target', '_blank');;
+							}
+						});
+					}
+					if (elm) {
+						tabInteg.show();
+						if (!ul.length) {
+							ul = $('<ul class="elfinder-help-integrations"/>').appendTo(integDIV);
+						}
+						if (data && data.cmd) {
+							cmdCls = 'elfinder-help-integration-' + data.cmd;
+							cmdUL = ul.find('ul.' + cmdCls);
+							if (!cmdUL.length) {
+								cmdUL = $('<ul class="'+cmdCls+'"/>');
+								ul.append($('<li/>').append($('<span/>').html(fm.i18n('cmd'+data.cmd))).append(cmdUL));
+							}
+							elm = cmdUL.append($('<li/>').append(elm));
+						} else {
+							ul.append($('<li/>').append(elm));
+						}
+					}
+				}
+			}).bind('themechange', function() {
+				content.find('div.elfinder-help-term-theme').replaceWith(getTheme());
+			});
+		}
+
 		// debug
 		if (useDebug) {
 			tabDebug = content.find('.elfinder-help-tab-debug').hide();
@@ -248,7 +325,7 @@
 		}
 
 		content.find('#'+fm.namespace+'-help-about').find('.apiver').text(fm.api);
-		self.dialog = fm.dialog(content, {
+		self.dialog = self.fmDialog(content, {
 				title : self.title,
 				width : 530,
 				maxWidth: 'window',
@@ -297,6 +374,8 @@
 		}
 		
 		self.state = 0;
+
+		fm.trigger('helpBuilded', self.dialog);
 	}).one('open', function() {
 		var debug = false;
 		fm.one('backenddebug', function() {

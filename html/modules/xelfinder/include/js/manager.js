@@ -34,7 +34,7 @@ $(document).ready(function() {
 		}
 	}
 	
-	var elfinderInstance = $('#elfinder').elfinder({
+	var opts = {
 		handlers : {
 			// set extra messages
 			i18load : function(e, fm) {
@@ -102,13 +102,7 @@ $(document).ready(function() {
 		startPathHash : startPathHash,
 		sync : autoSyncSec * 1000,
 		syncStart : autoSyncStart,
-		ui : ['toolbar', 'places', 'tree', 'path', 'stat'],
 		uiOptions : {
-			cwd : {
-				listView : {
-					columns : ['perm', 'date', 'size', 'kind', 'owner'],
-				}
-			},
 			places : {
 				suffix : xoopsUid
 			}
@@ -121,20 +115,53 @@ $(document).ready(function() {
 				getImgSize: true
 			},
 			edit : {
-				dialogWidth: '80%',
 				extraOptions : {
 					creativeCloudApiKey : creativeCloudApikey
 				}
 			},
 			quicklook : {
-				googleDocsMimes : useGoogleDocsPreview? ['application/pdf', 'image/tiff', 'application/vnd.ms-office', 'application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'] : []
+				googleMapsApiKey : googleMapsApiKey,
+				sharecadMimes : useSharecadPreview? ['image/vnd.dwg', 'image/vnd.dxf', 'model/vnd.dwf', 'application/vnd.hp-hpgl', 'application/plt', 'application/step', 'model/iges', 'application/vnd.ms-pki.stl', 'application/sat', 'image/cgm', 'application/x-msmetafile'] : [],
+				googleDocsMimes : useGoogleDocsPreview? ['application/pdf', 'image/tiff', 'application/vnd.ms-office', 'application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/postscript', 'application/rtf'] : [],
+				officeOnlineMimes : useOfficePreview? ['application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.text', 'application/vnd.oasis.opendocument.spreadsheet', 'application/vnd.oasis.opendocument.presentation'] : []
 			},
 			opennew : {
 				url : myUrl + 'manager.php',
 				useOriginQuery : false
 			}
+		},
+		themes : {
+			default: {
+				'name': 'default',
+				'cssurls': 'css/theme.css',
+				'author': 'elFinder Project',
+				'license': '3-clauses BSD'
+			}
 		}
-	}).elfinder('instance');
+	};
+
+	if (typeof xelfinderUiOptions !== 'undefined' && $.isPlainObject(xelfinderUiOptions)) {
+		// Overwrite if opts value is an array
+		(function() {
+			var arrOv = function(obj, base) {
+				if ($.isPlainObject(obj)) {
+					$.each(obj, function(k, v) {
+						if ($.isPlainObject(v)) {
+							if (!base[k]) {
+								base[k] = {};
+							}
+							arrOv(v, base[k]);
+						} else {
+							base[k] = v;
+						}
+					});
+				}
+			};
+			arrOv(xelfinderUiOptions, opts);
+		})();
+	}
+
+	var elfinderInstance = $('#elfinder').elfinder(opts).elfinder('instance');
 	
 	// Easy refer on file upload
 	if (target || elfinderInstance.options.getFileCallback) {

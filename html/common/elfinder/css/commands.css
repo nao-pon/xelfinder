@@ -3,7 +3,7 @@
 /******************************************************************/
 
 /********************** COMMAND "RESIZE" ****************************/
-.elfinder-dialog-resize {
+.elfinder-resize-container {
     margin-top: .3em;
 }
 
@@ -169,7 +169,17 @@
     margin-left: -5px;
 }
 
-.elfinder-resize-spinner {
+.elfinder-dialog.elfinder-dialog-resize .ui-resizable-e {
+    width: 10px;
+    height: 100%;
+}
+
+.elfinder-dialog.elfinder-dialog-resize .ui-resizable-s {
+    width: 100%;
+    height: 10px;
+}
+
+.elfinder-resize-loading {
     position: absolute;
     width: 200px;
     height: 30px;
@@ -196,55 +206,55 @@
     border: 1px solid transparent;
 }
 
-.elfinder-dialog .elfinder-dialog-resize .elfinder-resize-whctrls {
+.elfinder-dialog-resize .elfinder-resize-whctrls {
     margin: -20px 5px 0 5px;
 }
 
-.elfinder-ltr .elfinder-dialog .elfinder-dialog-resize .elfinder-resize-whctrls {
+.elfinder-ltr .elfinder-dialog-resize .elfinder-resize-whctrls {
     float: right;
 }
 
-.elfinder-rtl .elfinder-dialog .elfinder-dialog-resize .elfinder-resize-whctrls {
+.elfinder-rtl .elfinder-dialog-resize .elfinder-resize-whctrls {
     float: left;
 }
 
-.elfinder-dialog .elfinder-dialog-resize .ui-resizable-e,
-.elfinder-dialog .elfinder-dialog-resize .ui-resizable-w {
+.elfinder-dialog-resize .ui-resizable-e,
+.elfinder-dialog-resize .ui-resizable-w {
     height: 100%;
     width: 10px;
 }
 
-.elfinder-dialog .elfinder-dialog-resize .ui-resizable-s,
-.elfinder-dialog .elfinder-dialog-resize .ui-resizable-n {
+.elfinder-dialog-resize .ui-resizable-s,
+.elfinder-dialog-resize .ui-resizable-n {
     width: 100%;
     height: 10px;
 }
 
-.elfinder-dialog .elfinder-dialog-resize .ui-resizable-e {
+.elfinder-dialog-resize .ui-resizable-e {
     margin-right: -7px;
 }
 
-.elfinder-dialog .elfinder-dialog-resize .ui-resizable-w {
+.elfinder-dialog-resize .ui-resizable-w {
     margin-left: -7px;
 }
 
-.elfinder-dialog .elfinder-dialog-resize .ui-resizable-s {
+.elfinder-dialog-resize .ui-resizable-s {
     margin-bottom: -7px;
 }
 
-.elfinder-dialog .elfinder-dialog-resize .ui-resizable-n {
+.elfinder-dialog-resize .ui-resizable-n {
     margin-top: -7px;
 }
 
-.elfinder-dialog .elfinder-dialog-resize .ui-resizable-se,
-.elfinder-dialog .elfinder-dialog-resize .ui-resizable-sw,
-.elfinder-dialog .elfinder-dialog-resize .ui-resizable-ne,
-.elfinder-dialog .elfinder-dialog-resize .ui-resizable-nw {
+.elfinder-dialog-resize .ui-resizable-se,
+.elfinder-dialog-resize .ui-resizable-sw,
+.elfinder-dialog-resize .ui-resizable-ne,
+.elfinder-dialog-resize .ui-resizable-nw {
     width: 10px;
     height: 10px;
 }
 
-.elfinder-dialog .elfinder-dialog-resize .ui-resizable-se {
+.elfinder-dialog-resize .ui-resizable-se {
     background: transparent;
     bottom: 0;
     right: 0;
@@ -252,40 +262,40 @@
     margin-bottom: -7px;
 }
 
-.elfinder-dialog .elfinder-dialog-resize .ui-resizable-sw {
+.elfinder-dialog-resize .ui-resizable-sw {
     margin-left: -7px;
     margin-bottom: -7px;
 }
 
-.elfinder-dialog .elfinder-dialog-resize .ui-resizable-ne {
+.elfinder-dialog-resize .ui-resizable-ne {
     margin-right: -7px;
     margin-top: -7px;
 }
 
-.elfinder-dialog .elfinder-dialog-resize .ui-resizable-nw {
+.elfinder-dialog-resize .ui-resizable-nw {
     margin-left: -7px;
     margin-top: -7px;
 }
 
-.elfinder-touch .elfinder-dialog .elfinder-dialog-resize .ui-resizable-s,
-.elfinder-touch .elfinder-dialog .elfinder-dialog-resize .ui-resizable-n {
+.elfinder-touch .elfinder-dialog-resize .ui-resizable-s,
+.elfinder-touch .elfinder-dialog-resize .ui-resizable-n {
     height: 20px;
 }
 
-.elfinder-touch .elfinder-dialog .elfinder-dialog-resize .ui-resizable-e,
-.elfinder-touch .elfinder-dialog .elfinder-dialog-resize .ui-resizable-w {
+.elfinder-touch .elfinder-dialog-resize .ui-resizable-e,
+.elfinder-touch .elfinder-dialog-resize .ui-resizable-w {
     width: 20px;
 }
 
-.elfinder-touch .elfinder-dialog .elfinder-dialog-resize .ui-resizable-se,
-.elfinder-touch .elfinder-dialog .elfinder-dialog-resize .ui-resizable-sw,
-.elfinder-touch .elfinder-dialog .elfinder-dialog-resize .ui-resizable-ne,
-.elfinder-touch .elfinder-dialog .elfinder-dialog-resize .ui-resizable-nw {
+.elfinder-touch .elfinder-dialog-resize .ui-resizable-se,
+.elfinder-touch .elfinder-dialog-resize .ui-resizable-sw,
+.elfinder-touch .elfinder-dialog-resize .ui-resizable-ne,
+.elfinder-touch .elfinder-dialog-resize .ui-resizable-nw {
     width: 30px;
     height: 30px;
 }
 
-.elfinder-touch .elfinder-dialog .elfinder-dialog-resize .elfinder-resize-preview .ui-resizable-se {
+.elfinder-touch .elfinder-dialog-resize .elfinder-resize-preview .ui-resizable-se {
     width: 30px;
     height: 30px;
     margin: 0;
@@ -333,7 +343,7 @@
     font-size: 90%;
 }
 
-.ui-widget-content .elfinder-dialog-resize .elfinder-resize-rotate-slider {
+.ui-widget-content .elfinder-resize-container .elfinder-resize-rotate-slider {
     width: 195px;
     margin: 10px 7px;
     background-color: #fafafa;
@@ -352,7 +362,7 @@
 /* edit text file textarea */
 .elfinder-file-edit {
     width: 100%;
-    height: 99%;
+    height: 100%;
     margin: 0;
     padding: 2px;
     border: 1px solid #ccc;
@@ -365,8 +375,42 @@
 }
 
 /* edit area */
-.ui-dialog .ui-dialog-content.elfinder-edit-editor {
+.elfinder-dialog-edit .ui-dialog-content.elfinder-edit-editor {
     background-color: #fff;
+}
+
+.elfinder-dialog-edit .ui-dialog-content.elfinder-edit-editor .elfinder-edit-imageeditor {
+    width: 100%;
+    height: 300px;
+    max-height: 100%;
+    text-align: center;
+}
+
+.elfinder-dialog-edit .ui-dialog-content.elfinder-edit-editor .elfinder-edit-imageeditor * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;
+}
+
+.elfinder-edit-imageeditor .tui-image-editor-main-container .tui-image-editor-main {
+    top: 0;
+}
+
+.elfinder-edit-imageeditor .tui-image-editor-main-container .tui-image-editor-header {
+    display: none;
+}
+
+.elfinder-edit-imageeditor .tui-image-editor-main.tui-image-editor-menu-crop .tui-image-editor-wrap,
+.elfinder-edit-imageeditor .tui-image-editor-main.tui-image-editor-menu-flip .tui-image-editor-wrap,
+.elfinder-edit-imageeditor .tui-image-editor-main.tui-image-editor-menu-rotate .tui-image-editor-wrap,
+.elfinder-edit-imageeditor .tui-image-editor-main.tui-image-editor-menu-draw .tui-image-editor-wrap,
+.elfinder-edit-imageeditor .tui-image-editor-main.tui-image-editor-menu-shape .tui-image-editor-wrap,
+.elfinder-edit-imageeditor .tui-image-editor-main.tui-image-editor-menu-icon .tui-image-editor-wrap,
+.elfinder-edit-imageeditor .tui-image-editor-main.tui-image-editor-menu-text .tui-image-editor-wrap,
+.elfinder-edit-imageeditor .tui-image-editor-main.tui-image-editor-menu-mask .tui-image-editor-wrap,
+.elfinder-edit-imageeditor .tui-image-editor-main.tui-image-editor-menu-filter .tui-image-editor-wrap {
+    height: calc(100% - 150px);
 }
 
 /* bottom margen for softkeyboard on fullscreen mode */
@@ -375,12 +419,87 @@
     margin-bottom: -20em;
 }
 
-.std42-dialog .ui-dialog-titlebar select {
+.elfinder-dialog-edit .ui-dialog-buttonpane .elfinder-dialog-confirm-encoding {
     font-size: 12px;
 }
 
-.std42-dialog .ui-dialog-buttonpane .elfinder-dialog-confirm-encoding {
+.ui-dialog-buttonpane .ui-dialog-buttonset.elfinder-edit-extras {
+    margin: 0 1em 0 .2em;
+    float: left;
+}
+
+.ui-dialog-buttonpane .ui-dialog-buttonset.elfinder-edit-extras-quality {
+    padding-top: 6px;
+}
+
+.ui-dialog-buttonpane .ui-dialog-buttonset.elfinder-edit-extras select {
     font-size: 12px;
+    margin-top: 8px;
+}
+
+.elfinder-dialog-edit .ui-dialog-buttonpane .ui-icon {
+    cursor: pointer;
+}
+
+.elfinder-edit-spinner {
+    position: absolute;
+    top: 50%;
+    text-align: center;
+    width: 100%;
+    font-size: 16pt;
+}
+
+.elfinder-dialog-edit .elfinder-edit-spinner .elfinder-spinner,
+.elfinder-dialog-edit .elfinder-edit-spinner .elfinder-spinner-text {
+    float: none;
+}
+
+.elfinder-dialog-edit .elfinder-toast > div {
+    width: 280px;
+}
+ 
+.elfinder-edit-onlineconvert-button {
+    display: inline-block;
+    width: 180px;
+    min-height: 30px;
+    vertical-align: top;
+}
+.elfinder-edit-onlineconvert-button button,
+.elfinder-edit-onlineconvert-bottom-btn button {
+    cursor: pointer;
+}
+.elfinder-edit-onlineconvert-bottom-btn button.elfinder-button-ios-multiline {
+    -webkit-appearance: none;
+    border-radius: 16px;
+    color: #000;
+    text-align: center;
+    padding: 8px;
+    background-color: #eee;
+    background-image: -webkit-linear-gradient(top, hsl(0,0%,98%) 0%,hsl(0,0%,77%) 100%);
+    background-image: linear-gradient(to bottom, hsl(0,0%,98%) 0%,hsl(0,0%,77%) 100%);
+}
+.elfinder-edit-onlineconvert-button .elfinder-button-icon {
+    margin: 0 10px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+.elfinder-edit-onlineconvert-bottom-btn {
+    text-align: center;
+    margin: 10px 0 0;
+}
+
+.elfinder-edit-onlineconvert-link {
+    margin-top: 1em;
+    text-align: center;
+}
+.elfinder-edit-onlineconvert-link .elfinder-button-icon {
+    background-image: url("../img/editor-icons.png");
+    background-repeat: no-repeat;
+    background-position: 0 -144px;
+    margin-bottom: -3px;
+}
+.elfinder-edit-onlineconvert-link a {
+    text-decoration: none;
 }
 
 /********************** COMMAND "SORT" ****************************/
@@ -419,6 +538,10 @@ div.elfinder-cwd-wrapper-list tr.ui-state-default td span.ui-icon {
     padding: 10px;
 }
 
+.elfinder-dialog .ui-tabs .ui-tabs-nav li {
+    overflow: hidden;
+}
+
 .elfinder-dialog .ui-tabs .ui-tabs-nav li a {
     padding: .2em .8em;
     display: inline-block;
@@ -428,7 +551,7 @@ div.elfinder-cwd-wrapper-list tr.ui-state-default td span.ui-icon {
     padding: .5em .5em;
 }
 
-.elfinder-dialog .ui-tabs-selected a {
+.elfinder-dialog .ui-tabs-active a {
     background: inherit;
 }
 
@@ -540,6 +663,20 @@ div.elfinder-cwd-wrapper-list tr.ui-state-default td span.ui-icon {
     top: 45px;
 }
 
+ul.elfinder-help-integrations ul {
+    margin-bottom: 1em;
+    padding: 0;
+    margin: 0 1em 1em;
+}
+
+ul.elfinder-help-integrations a {
+    text-decoration: none;
+}
+
+ul.elfinder-help-integrations a:hover {
+    text-decoration: underline;
+}
+
 .elfinder-help-debug {
     height: 100%;
     padding: 0;
@@ -591,6 +728,11 @@ div.elfinder-cwd-wrapper-list tr.ui-state-default td span.ui-icon {
 }
 
 /********************** COMMAND "PREFERENCE" ****************************/
+.elfinder-dialog .elfinder-preference .ui-tabs-nav {
+    margin-bottom: 1px;
+    height: auto;
+}
+
 /* fix tabs */
 .elfinder-preference .ui-tabs-panel {
     padding: 10px 10px 0;
@@ -656,6 +798,60 @@ div.elfinder-cwd-wrapper-list tr.ui-state-default td span.ui-icon {
     max-width: 100px;
     display: inline-block;
     margin: 0 10px;
+}
+
+.elfinder-preference button {
+    margin: 0 16px;
+}
+
+.elfinder-preference button + button {
+    margin: 0 -10px;
+}
+
+.elfinder-preference .elfinder-preference-taball .elfinder-reference-hide-taball {
+    display: none;
+}
+
+.elfinder-preference-theme fieldset {
+    margin-bottom: 10px;
+}
+
+.elfinder-preference-theme legend a {
+    font-size: 1.8em;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.elfinder-preference-theme dt {
+    width: 20%;
+    word-break: break-all;
+}
+
+.elfinder-preference-theme dt:after {
+    content: " :";
+}
+
+.elfinder-preference-theme dd {
+    margin-inline-start: 20%;
+}
+
+.elfinder-preference img.elfinder-preference-theme-image {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 90%;
+    max-height: 200px;
+    cursor: pointer;
+}
+
+.elfinder-preference-theme-btn {
+    text-align: center;
+}
+
+.elfinder-preference-theme button.elfinder-preference-theme-default {
+    display: inline;
+    margin: 0 10px;
+    font-size: 8pt;
 }
 
 /********************** COMMAND "INFO" ****************************/

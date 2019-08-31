@@ -7,8 +7,7 @@
  */
 elFinder.prototype.commands.empty = function() {
 	"use strict";
-	var fm = this.fm,
-		self = this,
+	var self, fm,
 		selFiles = function(select) {
 			var sel = self.files(select);
 			if (!sel.length) {
@@ -19,12 +18,18 @@ elFinder.prototype.commands.empty = function() {
 	
 	this.linkedCmds = ['rm'];
 	
+	this.init = function() {
+		// lazy assign to make possible to become superclass
+		self = this;
+		fm = this.fm;
+	};
+
 	this.getstate = function(select) {
 		var sel = selFiles(select),
 			cnt;
 		
 		cnt = sel.length;
-		return $.grep(sel, function(f) { return f.write && f.mime === 'directory' ? true : false; }).length == cnt ? 0 : -1;
+		return $.grep(sel, function(f) { return f.read && f.write && f.mime === 'directory' ? true : false; }).length == cnt ? 0 : -1;
 	};
 	
 	this.exec = function(hashes) {
@@ -94,7 +99,7 @@ elFinder.prototype.commands.empty = function() {
 							fm.exec('rm', targets, { _userAction : true, addTexts : [ fm.i18n('folderToEmpty', dir.name) ] })
 							.fail(function(error) {
 								fm.trigger('unselectfiles', {files: fm.selected()});
-								done(error || '');
+								done(fm.parseError(error) || '');
 							})
 							.done(function() { done(i); });
 						}
@@ -104,7 +109,7 @@ elFinder.prototype.commands.empty = function() {
 					done('');
 				}
 			}).fail(function(error) {
-				done(error || '');
+				done(fm.parseError(error) || '');
 			});
 		});
 		

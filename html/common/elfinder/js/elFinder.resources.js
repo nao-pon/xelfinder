@@ -27,36 +27,48 @@ elFinder.prototype.resources = {
 		placedir    : 'elfinder-place-dir',
 		searchbtn   : 'elfinder-button-search',
 		editing     : 'elfinder-to-editing',
-		preventback : 'elfinder-prevent-back'
+		preventback : 'elfinder-prevent-back',
+		tabstab     : 'ui-state-default ui-tabs-tab ui-corner-top ui-tab',
+		tabsactive  : 'ui-tabs-active ui-state-active'
 	},
 	tpl : {
 		perms      : '<span class="elfinder-perms"/>',
 		lock       : '<span class="elfinder-lock"/>',
 		symlink    : '<span class="elfinder-symlink"/>',
 		navicon    : '<span class="elfinder-nav-icon"/>',
-		navspinner : '<span class="elfinder-navbar-spinner"/>',
-		navdir     : '<div class="elfinder-navbar-wrapper{root}"><span id="{id}" class="ui-corner-all elfinder-navbar-dir {cssclass}"><span class="elfinder-navbar-arrow"/><span class="elfinder-navbar-icon" {style}/>{symlink}{permissions}{name}</span><div class="elfinder-navbar-subtree" style="display:none"/></div>',
-		placedir   : '<div class="elfinder-navbar-wrapper"><span id="{id}" class="ui-corner-all elfinder-navbar-dir {cssclass}" title="{title}"><span class="elfinder-navbar-arrow"/><span class="elfinder-navbar-icon" {style}/>{symlink}{permissions}{name}</span><div class="elfinder-navbar-subtree" style="display:none"/></div>'
+		navspinner : '<span class="elfinder-spinner elfinder-navbar-spinner"/>',
+		navdir     : '<div class="elfinder-navbar-wrapper{root}"><span id="{id}" class="ui-corner-all elfinder-navbar-dir {cssclass}"{title}><span class="elfinder-navbar-arrow"/><span class="elfinder-navbar-icon" {style}/>{symlink}{permissions}{name}</span><div class="elfinder-navbar-subtree" style="display:none"/></div>',
+		placedir   : '<div class="elfinder-navbar-wrapper"><span id="{id}" class="ui-corner-all elfinder-navbar-dir {cssclass}"{title}><span class="elfinder-navbar-arrow"/><span class="elfinder-navbar-icon" {style}/>{symlink}{permissions}{name}</span><div class="elfinder-navbar-subtree" style="display:none"/></div>'
 		
 	},
 	// mimes.text will be overwritten with connector config if `textMimes` is included in initial response
 	// @see php/elFInder.class.php `public static $textMimes`
 	mimes : {
 		text : [
-			'application/x-empty',
-			'application/javascript', 
-			'application/json',
-			'application/xhtml+xml', 
-			'audio/x-mp3-playlist', 
-			'application/x-web-config',
+			'application/dash+xml',
 			'application/docbook+xml',
-			'application/x-php',
-			'application/x-perl',
+			'application/javascript',
+			'application/json',
+			'application/plt',
+			'application/sat',
+			'application/sql',
+			'application/step',
+			'application/vnd.hp-hpgl',
 			'application/x-awk',
 			'application/x-config',
 			'application/x-csh',
+			'application/x-empty',
+			'application/x-mpegurl',
+			'application/x-perl',
+			'application/x-php',
+			'application/x-web-config',
+			'application/xhtml+xml',
 			'application/xml',
-			'application/sql'
+			'audio/x-mp3-playlist',
+			'image/cgm',
+			'image/svg+xml',
+			'image/vnd.dxf',
+			'model/iges'
 		]
 	},
 	
@@ -69,23 +81,31 @@ elFinder.prototype.resources = {
 				req  = this.requestCmd || cmd,
 				wz   = fm.getUI('workzone'),
 				org  = (this.origin && this.origin === 'navbar')? 'tree' : 'cwd',
-				ui   = fm.getUI(org),
 				tree = (org === 'tree'),
-				find = tree? 'navHash2Id' : 'cwdHash2Id',
+				find = tree? 'navHash2Elm' : 'cwdHash2Elm',
 				tarea= (! tree && fm.storage('view') != 'list'),
 				sel  = fm.selected(),
 				move = this.move || false,
 				empty= wz.hasClass('elfinder-cwd-wrapper-empty'),
+				unselect = function() {
+					requestAnimationFrame(function() {
+						input && input.trigger('blur');
+					});
+				},
 				rest = function(){
 					if (!overlay.is(':hidden')) {
 						overlay.elfinderoverlay('hide').off('click close', cancel);
 					}
-					node.removeClass('ui-front').css('position', '');
-					if (tarea) {
-						nnode && nnode.css('max-height', '');
-					} else if (pnode) {
-						pnode.css('width', '')
-							.parent('td').css('overflow', '');
+					if (nnode) {
+						pnode.removeClass('ui-front')
+							.css('position', '')
+							.off('unselect.'+fm.namespace, unselect);
+						if (tarea) {
+							nnode && nnode.css('max-height', '');
+						} else if (!tree) {
+							pnode.css('width', '')
+								.parent('td').css('overflow', '');
+						}
 					}
 				}, colwidth,
 				dfrd = $.Deferred()
@@ -117,13 +137,9 @@ elFinder.prototype.resources = {
 					date  : 'Today '+date.getHours()+':'+date.getMinutes(),
 					move  : move
 				},
+				dum = fm.getUI(org).trigger('create.'+fm.namespace, file),
 				data = this.data || {},
-				node = ui.trigger('create.'+fm.namespace, file).find('#'+fm[find](id))
-					.on('unselect.'+fm.namespace, function() {
-						requestAnimationFrame(function() {
-							input && input.trigger('blur');
-						});
-					}),
+				node = fm[find](id),
 				nnode, pnode,
 				overlay = fm.getUI('overlay'),
 				cleanup = function() {
@@ -170,6 +186,7 @@ elFinder.prototype.resources = {
 						if (e.keyCode == $.ui.keyCode.ESCAPE) {
 							dfrd.reject();
 						} else if (e.keyCode == $.ui.keyCode.ENTER) {
+							e.preventDefault();
 							input.trigger('blur');
 						}
 					})
@@ -234,25 +251,41 @@ elFinder.prototype.resources = {
 										fm.unlockfiles({files : [id]});
 										inError = true;
 										input.show().prev().remove();
-										fm.error(error, {modal: true, close: function(){setTimeout(select, 120);}});
+										fm.error(error, {
+											modal: true,
+											close: function() {
+												if (Array.isArray(error) && $.inArray('errUploadMime', error) !== -1) {
+													dfrd.notify('errUploadMime').reject();
+												} else {
+													setTimeout(select, 120);
+												}
+											}
+										});
 									})
 									.done(function(data) {
 										if (data && data.added && data.added[0]) {
 											var item    = data.added[0],
 												dirhash = item.hash,
-												newItem = ui.find('#'+fm[find](dirhash)),
+												newItem = fm[find](dirhash),
 												acts    = {
 													'directory' : { cmd: 'open', msg: 'cmdopendir' },
 													'text'      : { cmd: 'edit', msg: 'cmdedit' },
 													'default'   : { cmd: 'open', msg: 'cmdopen' }
-												};
+												},
+												tmpMimes;
 											if (sel && move) {
 												fm.one(req+'done', function() {
 													fm.exec('paste', dirhash);
 												});
 											}
 											if (!move) {
-												Object.assign(nextAct, nextAction || acts[item.mime] || acts[item.mime.split('/')[0]] || acts[$.inArray(item.mime, fm.resources.mimes.text) !== -1 ? 'text' : 'none'] || acts['default']);
+												if (fm.mimeIsText(item.mime) && !fm.mimesCanMakeEmpty[item.mime] && fm.mimeTypes[item.mime]) {
+													fm.trigger('canMakeEmptyFile', {mimes: [item.mime], unshift: true});
+													tmpMimes = {};
+													tmpMimes[item.mime] = fm.mimeTypes[item.mime];
+													fm.storage('mkfileTextMimes', Object.assign(tmpMimes, fm.storage('mkfileTextMimes') || {}));
+												}
+												Object.assign(nextAct, nextAction || acts[item.mime] || acts[item.mime.split('/')[0]] || acts[(fm.mimesCanMakeEmpty[item.mime] || $.inArray(item.mime, fm.resources.mimes.text) !== -1) ? 'text' : 'none'] || acts['default']);
 												Object.assign(toast, nextAct.cmd ? {
 													incwd    : {msg: fm.i18n(['complete', fm.i18n('cmd'+cmd)]), action: nextAct},
 													inbuffer : {msg: fm.i18n(['complete', fm.i18n('cmd'+cmd)]), action: nextAct}
@@ -304,7 +337,7 @@ elFinder.prototype.resources = {
 			}
 			
 			if (tree) {
-				dst = $('#'+fm[find](phash));
+				dst = fm[find](phash);
 				collapsed = fm.res('class', 'navcollapse');
 				expanded  = fm.res('class', 'navexpand');
 				arrow = fm.res('class', 'navarrow');
@@ -323,12 +356,12 @@ elFinder.prototype.resources = {
 					});
 				}
 				nnode = node.contents().filter(function(){ return this.nodeType==3 && $(this).parent().attr('id') === fm.navHash2Id(file.hash); });
+				pnode = nnode.parent();
 				nnode.replaceWith(input.val(file.name));
 			} else {
 				empty && wz.removeClass('elfinder-cwd-wrapper-empty');
 				nnode = node.find('.elfinder-cwd-filename');
 				pnode = nnode.parent();
-				node.css('position', 'relative').addClass('ui-front');
 				if (tarea) {
 					nnode.css('max-height', 'none');
 				} else {
@@ -338,6 +371,9 @@ elFinder.prototype.resources = {
 				}
 				nnode.empty().append(input.val(file.name));
 			}
+			pnode.addClass('ui-front')
+				.css('position', 'relative')
+				.on('unselect.'+fm.namespace, unselect);
 			
 			fm.bind('resize', resize).one('open', openCallback);
 			

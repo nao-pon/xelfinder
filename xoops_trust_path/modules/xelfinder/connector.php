@@ -83,6 +83,10 @@ try {
 		error_reporting(0);
 	}
 
+	if (! empty($config['enable_imagemagick_ps'])) {
+		define('ELFINDER_IMAGEMAGICK_PS', true);
+	}
+
 	if (! empty($config['ffmpeg_path'])) {
 		define('ELFINDER_FFMPEG_PATH', $config['ffmpeg_path']);
 	}
@@ -203,6 +207,12 @@ try {
 	if (!empty($config['zoho_apikey'])) {
 		// https://www.zoho.com/docs/help/office-apis.html
 		define('ELFINDER_ZOHO_OFFICE_APIKEY', $config['zoho_apikey']);
+	}
+
+	// ONLINE-CONVERT.COM API
+	if (!empty($config['online_convert_apikey'])) {
+		// https://apiv2.online-convert.com/docs/getting_started/api_key.html
+		define('ELFINDER_ONLINE_CONVERT_APIKEY', $config['online_convert_apikey']);
 	}
 
 	/*// load xoops_elFinder
@@ -430,8 +440,7 @@ try {
 			'netmount.pre' => array($xoops_elFinder, 'netmountPreCallback'),
 			'netmount' => array($xoops_elFinder, 'netmountCallback'),
 			'mkdir mkfile put upload extract' => array($xoops_elFinder, 'notifyMail'),
-			'mkdir mkfile put paste upload extract resize' => array($xoops_elFinder, 'changeAddParent'),
-			'upload.pre mkdir.pre mkfile.pre rename.pre archive.pre' => array(
+			'upload.pre mkdir.pre mkfile.pre rename.pre archive.pre ls.pre' => array(
 				'Plugin.Sanitizer.cmdPreprocess',
 				'Plugin.Normalizer.cmdPreprocess'
 			),

@@ -12,25 +12,27 @@ elFinder.prototype._options = {
 	 */
 	cdns : {
 		// for editor etc.
-		ace        : '//cdnjs.cloudflare.com/ajax/libs/ace/1.3.3',
-		codemirror : '//cdnjs.cloudflare.com/ajax/libs/codemirror/5.38.0',
-		ckeditor   : '//cdnjs.cloudflare.com/ajax/libs/ckeditor/4.9.2',
-		ckeditor5  : '//cdn.ckeditor.com/ckeditor5/10.0.1',
-		tinymce    : '//cdnjs.cloudflare.com/ajax/libs/tinymce/4.7.13',
-		simplemde  : '//cdnjs.cloudflare.com/ajax/libs/simplemde/1.11.2',
+		ace        : 'https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.5',
+		codemirror : 'https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4',
+		ckeditor   : 'https://cdnjs.cloudflare.com/ajax/libs/ckeditor/4.12.1',
+		ckeditor5  : 'https://cdn.ckeditor.com/ckeditor5/12.3.1',
+		tinymce    : 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/5.0.14',
+		simplemde  : 'https://cdnjs.cloudflare.com/ajax/libs/simplemde/1.11.2',
+		fabric16   : 'https://cdnjs.cloudflare.com/ajax/libs/fabric.js/1.6.7',
+		tui        : 'https://uicdn.toast.com',
 		// for quicklook etc.
-		hls        : '//cdnjs.cloudflare.com/ajax/libs/hls.js/0.9.1/hls.min.js',
-		dash       : '//cdnjs.cloudflare.com/ajax/libs/dashjs/2.6.8/dash.all.min.js',
-		flv        : '//cdnjs.cloudflare.com/ajax/libs/flv.js/1.4.2/flv.min.js',
-		prettify   : '//cdn.rawgit.com/google/code-prettify/fbd527e9f76914e36f730ec9849f2115473a65d8/loader/run_prettify.js',
-		psd        : '//cdnjs.cloudflare.com/ajax/libs/psd.js/3.2.0/psd.min.js',
-		rar        : '//cdn.rawgit.com/nao-pon/rar.js/6cef13ec66dd67992fc7f3ea22f132d770ebaf8b/rar.min.js',
-		zlibUnzip  : '//cdn.rawgit.com/imaya/zlib.js/0.3.1/bin/unzip.min.js', // need check unzipFiles() in quicklook.plugins.js when update
-		zlibGunzip : '//cdn.rawgit.com/imaya/zlib.js/0.3.1/bin/gunzip.min.js',
-		marked     : '//cdnjs.cloudflare.com/ajax/libs/marked/0.4.0/marked.min.js',
-		sparkmd5   : '//cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.0/spark-md5.min.js',
-		jssha      : '//cdnjs.cloudflare.com/ajax/libs/jsSHA/2.3.1/sha.js',
-		amr        : '//cdn.rawgit.com/yxl/opencore-amr-js/dcf3d2b5f384a1d9ded2a54e4c137a81747b222b/js/amrnb.js'
+		hls        : 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/0.12.4/hls.min.js',
+		dash       : 'https://cdnjs.cloudflare.com/ajax/libs/dashjs/3.0.0/dash.all.min.js',
+		flv        : 'https://cdnjs.cloudflare.com/ajax/libs/flv.js/1.5.0/flv.min.js',
+		prettify   : 'https://cdn.jsdelivr.net/gh/google/code-prettify@453bd5f51e61245339b738b1bbdd42d7848722ba/loader/run_prettify.js',
+		psd        : 'https://cdnjs.cloudflare.com/ajax/libs/psd.js/3.2.0/psd.min.js',
+		rar        : 'https://cdn.jsdelivr.net/gh/nao-pon/rar.js@6cef13ec66dd67992fc7f3ea22f132d770ebaf8b/rar.min.js',
+		zlibUnzip  : 'https://cdn.jsdelivr.net/gh/imaya/zlib.js@0.3.1/bin/unzip.min.js', // need check unzipFiles() in quicklook.plugins.js when update
+		zlibGunzip : 'https://cdn.jsdelivr.net/gh/imaya/zlib.js@0.3.1/bin/gunzip.min.js',
+		marked     : 'https://cdnjs.cloudflare.com/ajax/libs/marked/0.7.0/marked.min.js',
+		sparkmd5   : 'https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.0/spark-md5.min.js',
+		jssha      : 'https://cdnjs.cloudflare.com/ajax/libs/jsSHA/2.3.1/sha.js',
+		amr        : 'https://cdn.jsdelivr.net/gh/yxl/opencore-amr-js@dcf3d2b5f384a1d9ded2a54e4c137a81747b222b/js/amrnb.js'
 	},
 	
 	/**
@@ -183,12 +185,21 @@ elFinder.prototype._options = {
 
 	/**
 	 * Base URL of elfFinder library starting from Manager HTML
-	 * Auto detect when empty value`
+	 * Auto detect when empty value
 	 * 
 	 * @type String
 	 * @default ""
 	 */
 	baseUrl : '',
+
+	/**
+	 * Base URL of i18n js files
+	 * baseUrl + "js/i18n/" when empty value
+	 * 
+	 * @type String
+	 * @default ""
+	 */
+	i18nBaseUrl : '',
 	
 	/**
 	 * Auto load required CSS
@@ -199,7 +210,43 @@ elFinder.prototype._options = {
 	 * @default true
 	 */
 	cssAutoLoad : true,
-	
+
+	/**
+	 * Theme to load
+	 * {"themeid" : "Theme CSS URL"} or
+	 * {"themeid" : "Theme manifesto.json URL"} or
+	 * Theme manifesto.json Object
+	 * {
+	 *   "themeid" : {
+	 *     "name":"Theme Name",
+	 *     "cssurls":"Theme CSS URL",
+	 *     "author":"Author Name",
+	 *     "email":"Author Email",
+	 *     "license":"License",
+	 *     "link":"Web Site URL",
+	 *     "image":"Screen Shot URL",
+	 *     "description":"Description"
+	 *   }
+	 * }
+	 * 
+	 * @type Object
+	 */
+	themes : {},
+
+	/**
+	 * Theme id to initial theme
+	 * 
+	 * @type String|Null
+	 */
+	theme : null,
+
+	/**
+	 * Maximum value of error dialog open at the same time
+	 * 
+	 * @type Number
+	 */
+	maxErrorDialogs : 5,
+
 	/**
 	 * Additional css class for filemanager node.
 	 *
@@ -255,6 +302,8 @@ elFinder.prototype._options = {
 			folders  : false,
 			// action after callback (""/"close"/"destroy")
 			oncomplete : '',
+			// action when callback is fail (""/"close"/"destroy")
+			onerror : '',
 			// get path before callback call
 			getPath    : true, 
 			// get image sizes before callback call
@@ -268,7 +317,10 @@ elFinder.prototype._options = {
 			method : 'post',
 			// Where to open into : 'window'(default), 'tab' or 'tabs'
 			// 'tabs' opens in each tabs
-			into   : 'window'
+			into   : 'window',
+			// Default command list of action when select file
+			// String value that is 'Command Name' or 'Command Name1/CommandName2...'
+			selectAction : 'open'
 		},
 		opennew : {
 			// URL of to open elFinder manager
@@ -294,6 +346,11 @@ elFinder.prototype._options = {
 			autoplay : true,
 			width    : 450,
 			height   : 300,
+			// ControlsList of HTML5 audio/video preview
+			// see https://googlechrome.github.io/samples/media/controlslist.html
+			mediaControlsList : '', // e.g. 'nodownload nofullscreen noremoteplayback'
+			// Show toolbar of PDF preview (with <embed> tag)
+			pdfToolbar : true,
 			// Maximum characters length to preview
 			textMaxlen : 2000,
 			// quicklook window must be contained in elFinder node on window open (true|false)
@@ -304,9 +361,32 @@ elFinder.prototype._options = {
 			dockHeight : 'auto',
 			// media auto play when docked
 			dockAutoplay : false,
+			// Google Maps API key (Require Maps JavaScript API)
+			googleMapsApiKey : '',
+			// Google Maps API Options
+			googleMapsOpts : {
+				maps : {},
+				kml : {
+					suppressInfoWindows : false,
+					preserveViewport : false
+				}
+			},
+			// ViewerJS (https://viewerjs.org/) Options
+			// To enable this you need to place ViewerJS on the same server as elFinder and specify that URL in `url`.
+			viewerjs : {
+				url: '', // Example '/ViewerJS/index.html'
+				mimes: ['application/pdf', 'application/vnd.oasis.opendocument.text', 'application/vnd.oasis.opendocument.spreadsheet', 'application/vnd.oasis.opendocument.presentation']
+			},
+			// MIME types to CAD-Files and 3D-Models online viewer on sharecad.org
+			// Example ['image/vnd.dwg', 'image/vnd.dxf', 'model/vnd.dwf', 'application/vnd.hp-hpgl', 'application/plt', 'application/step', 'model/iges', 'application/vnd.ms-pki.stl', 'application/sat', 'image/cgm', 'application/x-msmetafile']
+			sharecadMimes : [],
 			// MIME types to use Google Docs online viewer
-			// Example ['application/pdf', 'image/tiff', 'application/vnd.ms-office', 'application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+			// Example ['application/pdf', 'image/tiff', 'application/vnd.ms-office', 'application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/postscript', 'application/rtf']
 			googleDocsMimes : [],
+			// MIME types to use Microsoft Office Online viewer
+			// Example ['application/msword', 'application/vnd.ms-word', 'application/vnd.ms-excel', 'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.oasis.opendocument.text', 'application/vnd.oasis.opendocument.spreadsheet', 'application/vnd.oasis.opendocument.presentation']
+			// These MIME types override "googleDocsMimes"
+			officeOnlineMimes : [],
 			// File size (byte) threshold when using the dim command for obtain the image size necessary to image preview
 			getDimThreshold : 200000,
 			// MIME-Type regular expression that does not check empty files
@@ -319,9 +399,14 @@ elFinder.prototype._options = {
 			// list of allowed mimetypes to edit of text files
 			// if empty - any text files can be edited
 			mimes : [],
-			// Use the editor stored in the browser (do not display the choices)
+			// MIME-types of text file to make as empty files
+			makeTextMimes : ['text/plain', 'text/css', 'text/html'],
+			// Use the editor stored in the browser
 			// This value allowd overwrite with user preferences
 			useStoredEditor : false,
+			// Open the maximized editor window
+			// This value allowd overwrite with user preferences
+			editorMaximized : false,
 			// edit files in wysisyg's
 			editors : [
 				// {
@@ -416,6 +501,21 @@ elFinder.prototype._options = {
 				'Windows-1250', 'Windows-1251', 'Windows-1252', 'Windows-1253', 'Windows-1254', 'Windows-1257'],
 			// options for extra editors
 			extraOptions : {
+				// upload command options
+				uploadOpts : {},
+				// TUI Image Editor's options
+				tuiImgEditOpts : {
+					// Path prefix of icon-a.svg, icon-b.svg, icon-c.svg and icon-d.svg in the Theme. 
+					// `iconsPath` MUST follow the same origin policy.
+					iconsPath : void(0), // default is "./img/tui-"
+					// Theme object
+					theme : {}
+				},
+				// Pixo image editor constructor options - https://pixoeditor.com/
+				// Require 'apikey' to enable it
+				pixo: {
+					apikey: ''
+				},
 				// Specify the Creative Cloud API key when using Creative SDK image editor of Creative Cloud.
 				// You can get the API key at https://console.adobe.io/.
 				creativeCloudApiKey : '',
@@ -423,9 +523,25 @@ elFinder.prototype._options = {
 				// Uses self location with the empty value or not defined.
 				//managerUrl : 'elfinder.html'
 				managerUrl : null,
-				// CKEditor5' builds mode - 'classic', 'inline' or 'balloon' 
-				ckeditor5Mode : 'balloon'
+				// CKEditor editor options
+				ckeditor: {},
+				// CKEditor 5 editor options
+				ckeditor5: {
+					// builds mode - 'classic', 'inline', 'balloon', 'balloon-block' or 'decoupled-document'
+					mode: 'decoupled-document'
+				},
+				// TinyMCE editor options
+				tinymce : {},
+				// Setting for Online-Convert.com
+				onlineConvert : {
+					maxSize  : 100, // (MB) Max 100MB on free account
+					showLink : true // It must be enabled with free account
+				}
 			}
+		},
+		fullscreen : {
+			// fullscreen mode 'screen'(When the browser supports it) or 'window'
+			mode: 'screen' // 'screen' or 'window'
 		},
 		search : {
 			// Incremental search from the current view
@@ -439,12 +555,27 @@ elFinder.prototype._options = {
 				// "SearchMime" is implemented in default
 				SearchMime : {           // The key is search type that send to the connector
 					name : 'btnMime',    // Button text to be processed in i18n()
-					title : 'searchMime' // Button title to be processed in i18n()
+					title : 'searchMime',// Button title to be processed in i18n()
+					incsearch : 'mime'   // Incremental search target filed name of the file object
+					// Or Callable function
+					/* incsearch function example
+					function(queryObject, cwdHashes, elFinderInstance) {
+						var q = queryObject.val;
+						var regex = queryObject.regex;
+						var matchedHashes = $.grep(cwdHashes, function(hash) {
+							var file = elFinderInstance.file(hash);
+							return (file && file.mime && file.mime.match(regex))? true : false;
+						});
+						return matchedHashes;
+					}
+					*/
 				}
 			}
 		},
 		// "info" command options.
 		info : {
+			// If the URL of the Directory is null,
+			// it is assumed that the link destination is a URL to open the folder in elFinder
 			nullUrlDirLinkSelf : true,
 			// Information items to be hidden by default
 			// These name are 'size', 'aliasfor', 'path', 'link', 'dim', 'modify', 'perms', 'locked', 'owner', 'group', 'perm' and your custom info items label
@@ -473,7 +604,7 @@ elFinder.prototype._options = {
 				// 	 * 
 				// 	 * @type String
 				// 	 */
-				// 	tpl : '<div class="elfinder-info-desc"><span class="elfinder-info-spinner"></span></div>',
+				// 	tpl : '<div class="elfinder-info-desc"><span class="elfinder-spinner"></span></div>',
 				// 	
 				// 	/**
 				// 	 * Restricts to mimetypes (optional)
@@ -532,13 +663,26 @@ elFinder.prototype._options = {
 			// Maximum number of items that can be placed into the Trash at one time
 			toTrashMaxItems : 1000
 		},
+		paste : {
+			moveConfirm : false // Display confirmation dialog when moving items
+		},
 		help : {
 			// Tabs to show
-			view : ['about', 'shortcuts', 'help', 'debug'],
+			view : ['about', 'shortcuts', 'help', 'integrations', 'debug'],
 			// HTML source URL of the heip tab
 			helpSource : ''
 		},
 		preference : {
+			// dialog width
+			width: 600,
+			// dialog height
+			height: 400,
+			// tabs setting see preference.js : build()
+			categories: null,
+			// preference setting see preference.js : build()
+			prefs: null,
+			// language setting  see preference.js : build()
+			langs: null,
 			// Command list of action when select file
 			// Array value are 'Command Name' or 'Command Name1/CommandName2...'
 			selectActions : ['open', 'edit/download', 'resize/edit/download', 'download', 'quicklook']
@@ -609,10 +753,10 @@ elFinder.prototype._options = {
 	 * Here set not required plugins as folders tree/toolbar/statusbar etc.
 	 *
 	 * @type Array
-	 * @default ['toolbar', 'tree', 'path', 'stat']
+	 * @default ['toolbar', 'places', 'tree', 'path', 'stat']
 	 * @full ['toolbar', 'places', 'tree', 'path', 'stat']
 	 */
-	ui : ['toolbar', 'tree', 'path', 'stat'],
+	ui : ['toolbar', 'places', 'tree', 'path', 'stat'],
 	
 	/**
 	 * Some UI plugins options.
@@ -626,7 +770,7 @@ elFinder.prototype._options = {
 			['mkdir', 'mkfile', 'upload'],
 			['open', 'download', 'getfile'],
 			['undo', 'redo'],
-			['copy', 'cut', 'paste', 'rm', 'empty'],
+			['copy', 'cut', 'paste', 'rm', 'empty', 'hide'],
 			['duplicate', 'rename', 'edit', 'resize', 'chmod'],
 			['selectall', 'selectnone', 'selectinvert'],
 			['quicklook', 'info'],
@@ -638,7 +782,7 @@ elFinder.prototype._options = {
 		],
 		// toolbar extra options
 		toolbarExtra : {
-			// also displays the text label on the button (true / false)
+			// also displays the text label on the button (true / false / 'none')
 			displayTextLabel: false,
 			// Exclude `displayTextLabel` setting UA type
 			labelExcludeUA: ['Mobile'],
@@ -648,10 +792,14 @@ elFinder.prototype._options = {
 			defaultHides: ['home', 'reload'],
 			// show Preference button ('none', 'auto', 'always')
 			// If you do not include 'preference' in the context menu you should specify 'auto' or 'always'
-			showPreferenceButton: 'none'
+			showPreferenceButton: 'none',
+			// show Preference button into contextmenu of the toolbar (true / false)
+			preferenceInContextmenu: true
 		},
 		// directories tree options
 		tree : {
+			// set path info to attr title
+			attrTitle : true,
 			// expand current root on init
 			openRootOnLoad : true,
 			// expand current work directory on open
@@ -704,6 +852,9 @@ elFinder.prototype._options = {
 			
 			// fm.UA types array to show item select checkboxes e.g. ['All'] or ['Mobile'] etc. default: ['Touch']
 			showSelectCheckboxUA : ['Touch'],
+
+			// Enable dragout by dragstart with Alt key or Shift key
+			metakeyDragout : true,
 			
 			// file info columns displayed
 			listView : {
@@ -856,9 +1007,9 @@ elFinder.prototype._options = {
 	sortStickFolders : true,
 	
 	/**
-	 * Sort also applies to the treeview
+	 * Sort also applies to the treeview (null: disable this feature)
 	 *
-	 * @type {Boolean}
+	 * @type Boolean|null
 	 * @default false
 	 */
 	sortAlsoTreeview : false,
@@ -956,10 +1107,10 @@ elFinder.prototype._options = {
 	 * Position CSS, Width of notifications dialogs
 	 *
 	 * @type Object
-	 * @default {position: {top : '12px', right : '12px'}, width : 280}
+	 * @default {position: {}, width : null} - Apply CSS definition
 	 * position: CSS object | null (null: position center & middle)
 	 */
-	notifyDialog : {position: {top : '12px', right : '12px'}, width : 280},
+	notifyDialog : {position: {}, width : null},
 	
 	/**
 	 * Dialog contained in the elFinder node
@@ -1101,11 +1252,11 @@ elFinder.prototype._options = {
 	 */
 	contextmenu : {
 		// navbarfolder menu
-		navbar : ['open', 'opennew', 'download', '|', 'upload', 'mkdir', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', 'empty', '|', 'rename', '|', 'archive', '|', 'places', 'info', 'chmod', 'netunmount'],
+		navbar : ['open', 'opennew', 'download', '|', 'upload', 'mkdir', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', 'empty', 'hide', '|', 'rename', '|', 'archive', '|', 'places', 'info', 'chmod', 'netunmount'],
 		// current directory menu
-		cwd    : ['undo', 'redo', '|', 'back', 'up', 'reload', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'empty', '|', 'view', 'sort', 'selectall', 'colwidth', '|', 'places', 'info', 'chmod', 'netunmount', '|', 'fullscreen', '|', 'preference'],
+		cwd    : ['undo', 'redo', '|', 'back', 'up', 'reload', '|', 'upload', 'mkdir', 'mkfile', 'paste', '|', 'empty', 'hide', '|', 'view', 'sort', 'selectall', 'colwidth', '|', 'places', 'info', 'chmod', 'netunmount', '|', 'fullscreen', '|', 'preference'],
 		// current directory file menu
-		files  : ['getfile', '|' ,'open', 'opennew', 'download', 'opendir', 'quicklook', '|', 'upload', 'mkdir', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', 'empty', '|', 'rename', 'edit', 'resize', '|', 'archive', 'extract', '|', 'selectall', 'selectinvert', '|', 'places', 'info', 'chmod', 'netunmount']
+		files  : ['getfile', '|' ,'open', 'opennew', 'download', 'opendir', 'quicklook', '|', 'upload', 'mkdir', '|', 'copy', 'cut', 'paste', 'duplicate', '|', 'rm', 'empty', 'hide', '|', 'rename', 'edit', 'resize', '|', 'archive', 'extract', '|', 'selectall', 'selectinvert', '|', 'places', 'info', 'chmod', 'netunmount']
 	},
 
 	/**

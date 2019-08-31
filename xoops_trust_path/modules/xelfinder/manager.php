@@ -111,7 +111,12 @@ if (empty($config['jquery_ui_css'])) {
 	$jQueryUiTheme = trim($config['jquery_ui_css']);
 }
 
-$editorsJs = !empty($config['editors_js']) ? trim($config['editors_js']) : $elfurl.'/js/extras/editors.default.js?v='.$xelfVer;
+$editorsJs = !empty($config['editors_js']) ? trim($config['editors_js']) : ($elfurl.'/js/extras/editors.default'.($debug? '' : '.min').'.js?v='.$xelfVer);
+
+$optionsJs = !empty($config['ui_options_js']) ? trim($config['ui_options_js']) : ($myurl.'/include/js/xelfinderUiOptions.default.js?v='.$xelfVer);
+if (!preg_match('~^(?:/|http)~i', $optionsJs)) {
+	$optionsJs = XOOPS_URL . '/' . $optionsJs;
+}
 
 $title = mb_convert_encoding($config['manager_title'], 'UTF-8', _CHARSET);
 
@@ -146,8 +151,6 @@ while(ob_get_level() && @ob_end_clean()) {}
 <?php } else {?>
 		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/elfinder.min.css?v=<?php echo $xelfVer?>" type="text/css" >
 <?php }?>
-
-		<link rel="stylesheet" href="<?php echo $elfurl ?>/css/theme.css?v=<?php echo $xelfVer?>" type="text/css" >
 
 		<script src="<?php echo $jQueryUrl?>"></script>
 		<script src="<?php echo $jQueryUIUrl?>"></script>
@@ -202,6 +205,8 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/commands/fullscreen.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/getfile.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/help.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/hidden.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/hide.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/home.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/info.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/mkdir.js" charset="UTF-8"></script>
@@ -218,6 +223,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 		<script src="<?php echo $elfurl ?>/js/commands/reload.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/rename.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/resize.js" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/commands/restore.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/rm.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/search.js" charset="UTF-8"></script>
 		<script src="<?php echo $elfurl ?>/js/commands/selectall.js" charset="UTF-8"></script>
@@ -237,7 +243,7 @@ while(ob_get_level() && @ob_end_clean()) {}
 <?php } else {?>
 		<script src="<?php echo $elfurl ?>/js/elfinder.min.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>
 <?php }?>
-		<script src="<?php echo $elfurl ?>/js/extras/quicklook.googledocs.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>
+		<script src="<?php echo $elfurl ?>/js/extras/quicklook.googledocs<?php if (!$debug) {?>.min<?php }?>.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>
 		<script src="<?php echo $editorsJs ?>" charset="UTF-8"></script>
 		
 		<!-- elFinder initialization (REQUIRED) -->
@@ -263,11 +269,15 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var startPathHash = '<?php echo $start?>';
 			var autoSyncSec = <?php echo $xoops_elFinder->getAutoSyncSec()?>;
 			var autoSyncStart = <?php echo (empty($config['autosync_start'])? 'false' : 'true')?>;
+			var useSharecadPreview = <?php echo (empty($config['use_sharecad_preview'])? 'false' : 'true')?>;
 			var useGoogleDocsPreview = <?php echo (empty($config['use_google_preview'])? 'false' : 'true')?>;
+			var useOfficePreview = <?php echo (empty($config['use_office_preview'])? 'false' : 'true')?>;
+			var googleMapsApiKey = <?php echo (empty($config['gmaps_apikey'])? 'void 0' : '\''.$config['gmaps_apikey'].'\'')?>;
 			var creativeCloudApikey = <?php echo (empty($config['creative_cloud_apikey'])? 'void 0' : '\''.$config['creative_cloud_apikey'].'\'')?>;
 		</script>
 		<script src="<?php echo $myurl ?>/include/js/commands/perm.js?v=<?php echo $xelfVer?>"></script>
 		<script src="<?php echo $myurl ?>/include/js/commands/auth.js?v=<?php echo $xelfVer?>"></script>
+		<script src="<?php echo $optionsJs ?>" charset="UTF-8"></script>
 		<script src="<?php echo $myurl ?>/include/js/manager.js?v=<?php echo $xelfVer?>" charset="UTF-8"></script>
 		<script type="text/javascript" charset="UTF-8">
 			var callbackFunc = <?php echo $callback ?>;
