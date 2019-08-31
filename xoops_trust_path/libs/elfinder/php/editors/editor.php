@@ -12,7 +12,7 @@ class elFinderEditor
      *
      * @var array
      */
-    protected $allowed = array();
+    protected $allowed = [];
 
     /**
      * elFinder instance

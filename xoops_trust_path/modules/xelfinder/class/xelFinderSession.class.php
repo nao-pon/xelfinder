@@ -10,14 +10,14 @@ class xelFinderSession extends elFinderSession
     public function start()
     {
         if (version_compare(PHP_VERSION, '5.3', '<')) {
-            if (! session_id()) {
+            if (!session_id()) {
                 @session_start();
             }
         } else {
             @session_start();
         }
-        $this->started = session_id()? true : false;
-        
+        $this->started = session_id() ? true : false;
+
         return $this;
     }
 }

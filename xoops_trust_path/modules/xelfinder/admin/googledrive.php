@@ -3,61 +3,60 @@
 $php54up = false;
 
 if ($php54up = version_compare(PHP_VERSION, '5.4.0', '>=')) {
-	require $mytrustdirpath . '/plugins/vendor/autoload.php';
+    require $mytrustdirpath . '/plugins/vendor/autoload.php';
 
-	$selfURL = XOOPS_MODULE_URL . '/' . $mydirname . '/admin/index.php?page=googledrive';
-	$sessTokenKey = $mydirname . 'AdminGoogledriveToken';
-	$sessClientKey = $mydirname . 'AdminGoogledriveClientKey';
-	$client = null;
-	$clientId = $clientSecret = '';
-	$config = $xoopsModuleConfig;
-	
-	if (! empty($_POST['json'])) {
-		$json = @json_decode($_POST['json'], true);
-		if ($json && isset($json['web'])) {
-			$clientId = @$json['web']['client_id'];
-			$clientSecret = @$json['web']['client_secret'];
-		}
-	}
-	if (! empty($_POST['ClientId']) && ! empty($_POST['ClientSecret'])) {
-		$clientId = trim($_POST['ClientId']);
-		$clientSecret = trim($_POST['ClientSecret']);
-	} else {
-		if (isset($config['googleapi_id'])) {
-			$clientId = $config['googleapi_id'];
-		}
-		if (isset($config['googleapi_secret'])) {
-			$clientSecret = $config['googleapi_secret'];
-		}
-	}
+    $selfURL = XOOPS_MODULE_URL . '/' . $mydirname . '/admin/index.php?page=googledrive';
+    $sessTokenKey = $mydirname . 'AdminGoogledriveToken';
+    $sessClientKey = $mydirname . 'AdminGoogledriveClientKey';
+    $client = null;
+    $clientId = $clientSecret = '';
+    $config = $xoopsModuleConfig;
 
-	if ($clientId && $clientSecret) {
-		$_SESSION[$sessClientKey] = array (
-			'ClientId' => $clientId,
-			'ClientSecret' => $clientSecret
-		);
-	} elseif (isset($_SESSION[$sessClientKey])) {
-		$clientId = $_SESSION[$sessClientKey]['ClientId'];
-		$clientSecret = $_SESSION[$sessClientKey]['ClientSecret'];
-	}
+    if (!empty($_POST['json'])) {
+        $json = @json_decode($_POST['json'], true);
+        if ($json && isset($json['web'])) {
+            $clientId = @$json['web']['client_id'];
+            $clientSecret = @$json['web']['client_secret'];
+        }
+    }
+    if (!empty($_POST['ClientId']) && !empty($_POST['ClientSecret'])) {
+        $clientId = trim($_POST['ClientId']);
+        $clientSecret = trim($_POST['ClientSecret']);
+    } else {
+        if (isset($config['googleapi_id'])) {
+            $clientId = $config['googleapi_id'];
+        }
+        if (isset($config['googleapi_secret'])) {
+            $clientSecret = $config['googleapi_secret'];
+        }
+    }
 
-	if (! empty($_SESSION[$sessClientKey]) && !isset($_GET ['start'])) {
-		
-		$client = new \Google_Client();
-		$client->setClientId($_SESSION[$sessClientKey]['ClientId']);
-		$client->setClientSecret($_SESSION[$sessClientKey]['ClientSecret']);
-		$client->setRedirectUri($selfURL);
-		
-		$service = new \Google_Service_Drive($client);
-		if (isset($_GET['code'])) {
-			$client->authenticate($_GET['code']);
-			$_SESSION[$sessTokenKey] = $client->getAccessToken();
-		}
-		
-		if (isset($_SESSION[$sessTokenKey]) && isset($_SESSION[$sessTokenKey]['access_token'])) {
-			$client->setAccessToken($_SESSION[$sessTokenKey]);
-		}
-	}
+    if ($clientId && $clientSecret) {
+        $_SESSION[$sessClientKey] = [
+            'ClientId' => $clientId,
+            'ClientSecret' => $clientSecret,
+        ];
+    } elseif (isset($_SESSION[$sessClientKey])) {
+        $clientId = $_SESSION[$sessClientKey]['ClientId'];
+        $clientSecret = $_SESSION[$sessClientKey]['ClientSecret'];
+    }
+
+    if (!empty($_SESSION[$sessClientKey]) && !isset($_GET ['start'])) {
+        $client = new \Google_Client();
+        $client->setClientId($_SESSION[$sessClientKey]['ClientId']);
+        $client->setClientSecret($_SESSION[$sessClientKey]['ClientSecret']);
+        $client->setRedirectUri($selfURL);
+
+        $service = new \Google_Service_Drive($client);
+        if (isset($_GET['code'])) {
+            $client->authenticate($_GET['code']);
+            $_SESSION[$sessTokenKey] = $client->getAccessToken();
+        }
+
+        if (isset($_SESSION[$sessTokenKey]) && isset($_SESSION[$sessTokenKey]['access_token'])) {
+            $client->setAccessToken($_SESSION[$sessTokenKey]);
+        }
+    }
 }
 
 xoops_cp_header();
@@ -66,28 +65,28 @@ include dirname(__FILE__) . '/mymenu.php';
 echo '<h3>' . xelfinderAdminLang('GOOGLEDRIVE_GET_TOKEN') . '</h3>';
 
 if ($php54up) {
-	$form = true;
-	if ($client) {
-		if (empty($_POST) && $client->getAccessToken()) {
-			try {
-				$aToken = $client->getAccessToken();
-				$token = array (
-					'client_id' => $client->getClientId(),
-					'client_secret' => $client->getClientSecret(),
-					'access_token' => $aToken['access_token']
-				);
-				if (isset($aToken['refresh_token'])) {
-					unset($token['access_token']);
-					$token['refresh_token'] = $aToken['refresh_token'];
-				}
-				$ext_token = json_encode($token);
-				echo '<h3>Google Drive API Token</h3>';
-				echo '<div><textarea class="allselect" style="width:70%;height:5em;" spellcheck="false">' . $ext_token . '</textarea></div>';
-				echo '<h3>Example to Volume Driver Setting</h3>';
-				echo '<div><p>Folder ID as root: <input type=text id="xelfinder_googledrive_folder" value="root"></input> "root" is <a href="https://drive.google.com/drive/my-drive" target="_blank">"My Drive" of your Google Drive</a>.</p>';
-				echo '<p>You can find the folder ID to the URL(folders/[Folder ID]) of the site of <a href="https://drive.google.com/drive/">GoogleDrive</a>.</p></div>';
-				echo '<div><textarea class="allselect" style="width:70%;height:7em;" id="xelfinder_googledrive_volconf" spellcheck="false">xelfinder:GoogleDrive:root:GoogleDrive:gid=1|id=gd|ext_token=' . $ext_token . '</textarea></div>';
-				echo "<script>(function($){
+    $form = true;
+    if ($client) {
+        if (empty($_POST) && $client->getAccessToken()) {
+            try {
+                $aToken = $client->getAccessToken();
+                $token = [
+                    'client_id' => $client->getClientId(),
+                    'client_secret' => $client->getClientSecret(),
+                    'access_token' => $aToken['access_token'],
+                ];
+                if (isset($aToken['refresh_token'])) {
+                    unset($token['access_token']);
+                    $token['refresh_token'] = $aToken['refresh_token'];
+                }
+                $ext_token = json_encode($token);
+                echo '<h3>Google Drive API Token</h3>';
+                echo '<div><textarea class="allselect" style="width:70%;height:5em;" spellcheck="false">' . $ext_token . '</textarea></div>';
+                echo '<h3>Example to Volume Driver Setting</h3>';
+                echo '<div><p>Folder ID as root: <input type=text id="xelfinder_googledrive_folder" value="root"></input> "root" is <a href="https://drive.google.com/drive/my-drive" target="_blank">"My Drive" of your Google Drive</a>.</p>';
+                echo '<p>You can find the folder ID to the URL(folders/[Folder ID]) of the site of <a href="https://drive.google.com/drive/">GoogleDrive</a>.</p></div>';
+                echo '<div><textarea class="allselect" style="width:70%;height:7em;" id="xelfinder_googledrive_volconf" spellcheck="false">xelfinder:GoogleDrive:root:GoogleDrive:gid=1|id=gd|ext_token=' . $ext_token . '</textarea></div>';
+                echo "<script>(function($){
 					$('#xelfinder_googledrive_folder').on('change keyup mouseup paste', function(e) {
 						var self = $(this);
 						setTimeout(function(){
@@ -98,38 +97,38 @@ if ($php54up) {
 					});
 					$('textarea.allselect').on('focus', function() { $(this).select(); });
 				})(jQuery);</script>";
-				echo '<h4><a href="' . $selfURL . '&start">Reauthorization</a></h4>';
-				$form = false;
-			} catch(Google_Exception $e) {
-				echo $e->getMessage();
-			}
-		} elseif (! empty($_POST['scopes'])) {
-			if (! empty($_POST['revoke'])) {
-				$client->revokeToken();
-			}
-			$scopes = array();
-			foreach($_POST['scopes'] as $scope) {
-				switch ($scope) {
-					case 'DRIVE' :
-					case 'DRIVE_READONLY' :
-					case 'DRIVE_FILE' :
-					case 'DRIVE_PHOTOS_READONLY' :
-					case 'DRIVE_APPS_READONLY' :
-						$scopes[] = constant('Google_Service_Drive::' . $scope);
-				}
-			}
-			$client->setScopes($scopes);
-			if (! empty($_POST['offline'])) {
-				$client->setApprovalPrompt('force');
-				$client->setAccessType('offline');
-			}
-			$authUrl = $client->createAuthUrl();
-			echo '<a href="' . $authUrl . '">Please allow the application access.</a>';
-			$form = false;
-		}
-	}
-	if ($form) {
-?>
+                echo '<h4><a href="' . $selfURL . '&start">Reauthorization</a></h4>';
+                $form = false;
+            } catch (Google_Exception $e) {
+                echo $e->getMessage();
+            }
+        } elseif (!empty($_POST['scopes'])) {
+            if (!empty($_POST['revoke'])) {
+                $client->revokeToken();
+            }
+            $scopes = [];
+            foreach ($_POST['scopes'] as $scope) {
+                switch ($scope) {
+                    case 'DRIVE':
+                    case 'DRIVE_READONLY':
+                    case 'DRIVE_FILE':
+                    case 'DRIVE_PHOTOS_READONLY':
+                    case 'DRIVE_APPS_READONLY':
+                        $scopes[] = constant('Google_Service_Drive::' . $scope);
+                }
+            }
+            $client->setScopes($scopes);
+            if (!empty($_POST['offline'])) {
+                $client->setApprovalPrompt('force');
+                $client->setAccessType('offline');
+            }
+            $authUrl = $client->createAuthUrl();
+            echo '<a href="' . $authUrl . '">Please allow the application access.</a>';
+            $form = false;
+        }
+    }
+    if ($form) {
+        ?>
 <h3>Authentication options</h3>
 <hr>
 <h4>Step by step</h4>
@@ -181,9 +180,9 @@ if ($php54up) {
 	<input type="hidden" name="auth" value="1">
 </form>
 <?php
-	}
+    }
 } else {
-?>
+    ?>
 <p>GoogleDrive Driver Require PHP >= 5.4 . Your PHP version is <?php echo PHP_VERSION; ?> .</p>
 <?php
 }

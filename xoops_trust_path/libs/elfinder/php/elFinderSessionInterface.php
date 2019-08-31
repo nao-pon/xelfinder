@@ -7,7 +7,6 @@
  * @package elfinder
  * @author  Naoki Sawada
  **/
-
 interface elFinderSessionInterface
 {
     /**
