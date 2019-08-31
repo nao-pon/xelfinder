@@ -1,19 +1,25 @@
 <?php
-if (! defined('XOOPS_TRUST_PATH')) exit;
-if (! defined('XOOPS_MODULE_PATH')) define('XOOPS_MODULE_PATH', XOOPS_ROOT_PATH . '/modules');
-if (! defined('XOOPS_MODULE_URL')) define('XOOPS_MODULE_URL', XOOPS_URL . '/modules');
-
-$target = isset($_GET['target'])? (preg_match('/^[a-zA-Z0-9_:.-]+$/', $_GET['target'])? $_GET['target'] : '') : '';
-
-if (! isset($_GET['cb']) && isset($_GET['getfile']) && $_GET['getfile'] === 'ckeditor') {
-	$_GET['cb'] = $_GET['getfile'];
+if (!defined('XOOPS_TRUST_PATH')) {
+    exit;
 }
-$callback = isset($_GET['cb'])? (preg_match('/^[a-zA-Z0-9_]+$/', $_GET['cb'])? $_GET['cb'] : '') : '';
-$callback = $callback? 'getFileCallback_' . $callback : 'void 0';
+if (!defined('XOOPS_MODULE_PATH')) {
+    define('XOOPS_MODULE_PATH', XOOPS_ROOT_PATH . '/modules');
+}
+if (!defined('XOOPS_MODULE_URL')) {
+    define('XOOPS_MODULE_URL', XOOPS_URL . '/modules');
+}
 
-$siteimg = (empty($_GET['si']) && empty($use_bbcode_siteimg))? 0 : 1;
+$target = isset($_GET['target']) ? (preg_match('/^[a-zA-Z0-9_:.-]+$/', $_GET['target']) ? $_GET['target'] : '') : '';
 
-$admin = (isset($_GET['admin']))? 1 : 0;
+if (!isset($_GET['cb']) && isset($_GET['getfile']) && 'ckeditor' === $_GET['getfile']) {
+    $_GET['cb'] = $_GET['getfile'];
+}
+$callback = isset($_GET['cb']) ? (preg_match('/^[a-zA-Z0-9_]+$/', $_GET['cb']) ? $_GET['cb'] : '') : '';
+$callback = $callback ? 'getFileCallback_' . $callback : 'void 0';
+
+$siteimg = (empty($_GET['si']) && empty($use_bbcode_siteimg)) ? 0 : 1;
+
+$admin = (isset($_GET['admin'])) ? 1 : 0;
 
 $myurl = XOOPS_MODULE_URL . '/' . $mydirname;
 $elfurl = XOOPS_URL . '/common/elfinder';
@@ -26,103 +32,106 @@ $config_handler = xoops_getHandler('config');
 $config = $config_handler->getConfigsByCat(0, $xelfinderModule->getVar('mid'));
 
 // load xoops_elFinder
-include_once dirname(__FILE__).'/class/xoops_elFinder.class.php';
+include_once dirname(__FILE__) . '/class/xoops_elFinder.class.php';
 $xoops_elFinder = new xoops_elFinder($mydirname);
 $xoops_elFinder->setConfig($config);
 
 $conector_url = $conn_is_ext = '';
 if (!empty($config['connector_url'])) {
-	$conector_url = $config['connector_url'];
-	!$config['conn_url_is_ext'] || $conn_is_ext = 1;
+    $conector_url = $config['connector_url'];
+    !$config['conn_url_is_ext'] || $conn_is_ext = 1;
 }
 $managerJs = '';
 $_plugin_dir = dirname(__FILE__) . '/plugins/';
-$_js_cache_path = $_js_cache_times = array();
-foreach(explode("\n", $config['volume_setting']) as $_vol) {
-	$_vol = trim($_vol);
-	if (! $_vol || $_vol[0] === '#') continue;
-	list(, $_plugin, $_dirname) = explode(':', $_vol);
-	$_plugin = trim($_plugin);
-	if (preg_match('#(?:uploads|'.$modules_basename.')/([^/]+)#i', trim($_dirname), $_match)) {
-		$_dirname = $_match[1];
-	} else {
-		$_dirname = $_plugin;
-	}
-	$_key = ($_dirname !== $_plugin)? ($_dirname.'!'.$_plugin) : $_dirname;
-	$_js = $_plugin_dir . $_plugin . '/manager.js';
-	if (is_file($_js)) {
-		$_js_cache_times[$_key] = filemtime($_js);
-		$_js_cache_path[$_key] = $_js;
-	}
+$_js_cache_path = $_js_cache_times = [];
+foreach (explode("\n", $config['volume_setting']) as $_vol) {
+    $_vol = trim($_vol);
+    if (!$_vol || '#' === $_vol[0]) {
+        continue;
+    }
+    list(, $_plugin, $_dirname) = explode(':', $_vol);
+    $_plugin = trim($_plugin);
+    if (preg_match('#(?:uploads|' . $modules_basename . ')/([^/]+)#i', trim($_dirname), $_match)) {
+        $_dirname = $_match[1];
+    } else {
+        $_dirname = $_plugin;
+    }
+    $_key = ($_dirname !== $_plugin) ? ($_dirname . '!' . $_plugin) : $_dirname;
+    $_js = $_plugin_dir . $_plugin . '/manager.js';
+    if (is_file($_js)) {
+        $_js_cache_times[$_key] = filemtime($_js);
+        $_js_cache_path[$_key] = $_js;
+    }
 }
 if ($_js_cache_path) {
-	ksort($_js_cache_path);
-	$_keys = array_keys($_js_cache_path);
-	$_managerJs = '/cache/' . join(',', $_keys) . '_manager.js';
-	$_js_cacahe = $mydirpath . $_managerJs;
-	if (! is_file($_js_cacahe) || filemtime($_js_cacahe) < max($_js_cache_times)) {
-		$_src = '';
-		foreach($_keys as $_key) {
-			list($_dirname) = explode('!', $_key);
-			$_src .= str_replace('$dirname', $_dirname, file_get_contents($_js_cache_path[$_key]));
-		}
-		file_put_contents($_js_cacahe, $_src);
-	}
-	$managerJs = '<script src="'.$myurl.$_managerJs.'?v='.$xelfVer.'" charset="UTF-8"></script>' . "\n";
+    ksort($_js_cache_path);
+    $_keys = array_keys($_js_cache_path);
+    $_managerJs = '/cache/' . implode(',', $_keys) . '_manager.js';
+    $_js_cacahe = $mydirpath . $_managerJs;
+    if (!is_file($_js_cacahe) || filemtime($_js_cacahe) < max($_js_cache_times)) {
+        $_src = '';
+        foreach ($_keys as $_key) {
+            list($_dirname) = explode('!', $_key);
+            $_src .= str_replace('$dirname', $_dirname, file_get_contents($_js_cache_path[$_key]));
+        }
+        file_put_contents($_js_cacahe, $_src);
+    }
+    $managerJs = '<script src="' . $myurl . $_managerJs . '?v=' . $xelfVer . '" charset="UTF-8"></script>' . "\n";
 }
 
-$default_tmbsize = isset($config['thumbnail_size'])? (int)$config['thumbnail_size'] : '160';
-$debug = (! empty($config['debug']));
+$default_tmbsize = isset($config['thumbnail_size']) ? (int)$config['thumbnail_size'] : '160';
+$debug = (!empty($config['debug']));
 // cToken uses for CSRF protection
 $cToken = $xoops_elFinder->getCToken();
 
-$viewport = (preg_match('/Mobile|Android/i', $_SERVER['HTTP_USER_AGENT']))? '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2" />' : '';
+$viewport = (preg_match('/Mobile|Android/i', $_SERVER['HTTP_USER_AGENT'])) ? '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2" />' : '';
 
 $userLang = xelfinder_detect_lang();
 
 if (empty($config['jquery'])) {
-	$jQueryVersion = (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/4.0') === false)? '3.2.1' : '1.12.4';
-	$jQueryCDN = '//cdnjs.cloudflare.com/ajax/libs/jquery/%s/jquery.min.js';
-	$jQueryUrl = sprintf($jQueryCDN, $jQueryVersion);
+    $jQueryVersion = (false === mb_strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/4.0')) ? '3.2.1' : '1.12.4';
+    $jQueryCDN = '//cdnjs.cloudflare.com/ajax/libs/jquery/%s/jquery.min.js';
+    $jQueryUrl = sprintf($jQueryCDN, $jQueryVersion);
 } else {
-	$jQueryUrl = trim($config['jquery']);
+    $jQueryUrl = trim($config['jquery']);
 }
 
 if (empty($config['jquery_ui'])) {
-	$jQueryUIVersion = '1.12.1';
-	$jQueryUICDN = '//cdnjs.cloudflare.com/ajax/libs/jqueryui/%s';
-	$jQueryUIUrl = sprintf($jQueryUICDN, $jQueryUIVersion).'/jquery-ui.min.js';
+    $jQueryUIVersion = '1.12.1';
+    $jQueryUICDN = '//cdnjs.cloudflare.com/ajax/libs/jqueryui/%s';
+    $jQueryUIUrl = sprintf($jQueryUICDN, $jQueryUIVersion) . '/jquery-ui.min.js';
 } else {
-	$jQueryUIUrl = trim($config['jquery_ui']);
+    $jQueryUIUrl = trim($config['jquery_ui']);
 }
 
 if (empty($config['jquery_ui_css'])) {
-	if (! $jQueryUiTheme = @$config['jquery_ui_theme']) {
-		$jQueryUiTheme = 'smoothness';
-	} else {
-		if ($jQueryUiTheme === 'base' && version_compare($jQueryUIVersion, '1.10.1', '>')) {
-			$jQueryUiTheme = 'smoothness';
-		}
-	}
-	if (! preg_match('#^(?:https?:)?//#i', $jQueryUiTheme)) {
-		$jQueryUiTheme = sprintf($jQueryUICDN, $jQueryUIVersion) . '/themes/'.$jQueryUiTheme.'/jquery-ui.min.css';
-	}
+    if (!$jQueryUiTheme = @$config['jquery_ui_theme']) {
+        $jQueryUiTheme = 'smoothness';
+    } else {
+        if ('base' === $jQueryUiTheme && version_compare($jQueryUIVersion, '1.10.1', '>')) {
+            $jQueryUiTheme = 'smoothness';
+        }
+    }
+    if (!preg_match('#^(?:https?:)?//#i', $jQueryUiTheme)) {
+        $jQueryUiTheme = sprintf($jQueryUICDN, $jQueryUIVersion) . '/themes/' . $jQueryUiTheme . '/jquery-ui.min.css';
+    }
 } else {
-	$jQueryUiTheme = trim($config['jquery_ui_css']);
+    $jQueryUiTheme = trim($config['jquery_ui_css']);
 }
 
-$editorsJs = !empty($config['editors_js']) ? trim($config['editors_js']) : ($elfurl.'/js/extras/editors.default'.($debug? '' : '.min').'.js?v='.$xelfVer);
+$editorsJs = !empty($config['editors_js']) ? trim($config['editors_js']) : ($elfurl . '/js/extras/editors.default' . ($debug ? '' : '.min') . '.js?v=' . $xelfVer);
 
-$optionsJs = !empty($config['ui_options_js']) ? trim($config['ui_options_js']) : ($myurl.'/include/js/xelfinderUiOptions.default.js?v='.$xelfVer);
+$optionsJs = !empty($config['ui_options_js']) ? trim($config['ui_options_js']) : ($myurl . '/include/js/xelfinderUiOptions.default.js?v=' . $xelfVer);
 if (!preg_match('~^(?:/|http)~i', $optionsJs)) {
-	$optionsJs = XOOPS_URL . '/' . $optionsJs;
+    $optionsJs = XOOPS_URL . '/' . $optionsJs;
 }
 
 $title = mb_convert_encoding($config['manager_title'], 'UTF-8', _CHARSET);
 
-$start = (!empty($_GET['start']) && preg_match('/^[a-zA-Z0-9_-]+$/', $_GET['start']))? $_GET['start'] : '';
+$start = (!empty($_GET['start']) && preg_match('/^[a-zA-Z0-9_-]+$/', $_GET['start'])) ? $_GET['start'] : '';
 
-while(ob_get_level() && @ob_end_clean()) {}
+while (ob_get_level() && @ob_end_clean()) {
+}
 
 ?>
 <!DOCTYPE html>
@@ -268,12 +277,12 @@ while(ob_get_level() && @ob_end_clean()) {}
 			var cToken = '<?php echo $cToken?>';
 			var startPathHash = '<?php echo $start?>';
 			var autoSyncSec = <?php echo $xoops_elFinder->getAutoSyncSec()?>;
-			var autoSyncStart = <?php echo (empty($config['autosync_start'])? 'false' : 'true')?>;
-			var useSharecadPreview = <?php echo (empty($config['use_sharecad_preview'])? 'false' : 'true')?>;
-			var useGoogleDocsPreview = <?php echo (empty($config['use_google_preview'])? 'false' : 'true')?>;
-			var useOfficePreview = <?php echo (empty($config['use_office_preview'])? 'false' : 'true')?>;
-			var googleMapsApiKey = <?php echo (empty($config['gmaps_apikey'])? 'void 0' : '\''.$config['gmaps_apikey'].'\'')?>;
-			var creativeCloudApikey = <?php echo (empty($config['creative_cloud_apikey'])? 'void 0' : '\''.$config['creative_cloud_apikey'].'\'')?>;
+			var autoSyncStart = <?php echo(empty($config['autosync_start']) ? 'false' : 'true')?>;
+			var useSharecadPreview = <?php echo(empty($config['use_sharecad_preview']) ? 'false' : 'true')?>;
+			var useGoogleDocsPreview = <?php echo(empty($config['use_google_preview']) ? 'false' : 'true')?>;
+			var useOfficePreview = <?php echo(empty($config['use_office_preview']) ? 'false' : 'true')?>;
+			var googleMapsApiKey = <?php echo(empty($config['gmaps_apikey']) ? 'void 0' : '\'' . $config['gmaps_apikey'] . '\'')?>;
+			var creativeCloudApikey = <?php echo(empty($config['creative_cloud_apikey']) ? 'void 0' : '\'' . $config['creative_cloud_apikey'] . '\'')?>;
 		</script>
 		<script src="<?php echo $myurl ?>/include/js/commands/perm.js?v=<?php echo $xelfVer?>"></script>
 		<script src="<?php echo $myurl ?>/include/js/commands/auth.js?v=<?php echo $xelfVer?>"></script>
@@ -291,26 +300,28 @@ while(ob_get_level() && @ob_end_clean()) {}
 </html>
 <?php exit();
 
-function xelfinder_detect_lang() {
-	$replaser = array();
-	if ($accept = @ $_SERVER['HTTP_ACCEPT_LANGUAGE']) {
-		if (preg_match_all("/([\w_-]+)/i",$accept,$match,PREG_PATTERN_ORDER)) {
-			foreach($match[1] as $lang) {
-				list($l, $c) = array_pad(preg_split('/[_-]/', $lang), 2, '');
-				$lang = strtolower($l);
-				if ($c) {
-					$lang .= '_' . strtoupper($c);
-				}
-				if (isset($replaser[$lang])) {
-					$lang = $replaser[$lang];
-				}
-				if (is_file( XOOPS_ROOT_PATH.'/common/elfinder/js/i18n/elfinder.'.$lang.'.js')) {
-					return $lang;
-				} else if (is_file( XOOPS_ROOT_PATH.'/common/elfinder/js/i18n/elfinder.'.substr($lang, 0, 2).'.js')) {
-					return substr($lang, 0, 2);
-				}
-			}
-		}
-	}
-	return 'en';
+function xelfinder_detect_lang()
+{
+    $replaser = [];
+    if ($accept = @$_SERVER['HTTP_ACCEPT_LANGUAGE']) {
+        if (preg_match_all("/([\w_-]+)/i", $accept, $match, PREG_PATTERN_ORDER)) {
+            foreach ($match[1] as $lang) {
+                list($l, $c) = array_pad(preg_split('/[_-]/', $lang), 2, '');
+                $lang = mb_strtolower($l);
+                if ($c) {
+                    $lang .= '_' . mb_strtoupper($c);
+                }
+                if (isset($replaser[$lang])) {
+                    $lang = $replaser[$lang];
+                }
+                if (is_file(XOOPS_ROOT_PATH . '/common/elfinder/js/i18n/elfinder.' . $lang . '.js')) {
+                    return $lang;
+                } elseif (is_file(XOOPS_ROOT_PATH . '/common/elfinder/js/i18n/elfinder.' . mb_substr($lang, 0, 2) . '.js')) {
+                    return mb_substr($lang, 0, 2);
+                }
+            }
+        }
+    }
+
+    return 'en';
 }

@@ -1,11 +1,11 @@
 div.xelfinder_main_menu {
-	text-align: center;
+    text-align: center;
 }
 
 div.xelfinder h2,
 div.xelfinder h3 {
-	text-align: center;
-	border:solid 1px #ddd;
+    text-align: center;
+    border:solid 1px #ddd;
     padding: 5px;
     border-radius: 5px;
     background: #eee;
@@ -18,8 +18,8 @@ div.xelfinder h3 {
 }
 div.xelfinder h2,
 div.xelfinder h3 span {
-	border-left:5px #3cf solid;
-	padding-left:10px;
+    border-left:5px #3cf solid;
+    padding-left:10px;
 }
 
 
@@ -30,18 +30,18 @@ div.xelfinder .button {
     display: inline-block;
     text-align: center;
     color: #fff;
- 
+
     border: 1px solid #9c9c9c; /* Fallback style */
-    border: 1px solid rgba(0, 0, 0, 0.3);           
- 
+    border: 1px solid rgba(0, 0, 0, 0.3);
+
     text-shadow: 0 1px 0 rgba(0,0,0,0.4);
- 
+
     box-shadow: 0 0 .05em rgba(0,0,0,0.4);
     -moz-box-shadow: 0 0 .05em rgba(0,0,0,0.4);
     -webkit-box-shadow: 0 0 .05em rgba(0,0,0,0.4);
- 
+
 }
- 
+
 div.xelfinder .button,
 div.xelfinder .button span {
     -moz-border-radius: .3em;
@@ -66,17 +66,17 @@ div.xelfinder .button span {
                       -moz-linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, 0.05) 75%);
 
 /* Pattern settings */
- 
+
     -moz-background-size: 3px 3px;
     -webkit-background-size: 3px 3px;
 }
- 
+
 div.xelfinder .button:hover {
     box-shadow: 0 0 .1em rgba(0,0,0,0.4);
     -moz-box-shadow: 0 0 .1em rgba(0,0,0,0.4);
     -webkit-box-shadow: 0 0 .1em rgba(0,0,0,0.4);
 }
- 
+
 div.xelfinder .button:active {
     /* When pressed, move it down 1px */
     position: relative;
@@ -89,14 +89,14 @@ div.xelfinder .button-blue {
     background: -moz-linear-gradient(-90deg, #81a8cb, #4477a1);
     filter:  progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#81a8cb', endColorstr='#4477a1');
 }
- 
+
 div.xelfinder .button-blue:hover {
     background: #81a8cb;
     background: -webkit-gradient(linear, left top, left bottom, from(#4477a1), to(#81a8cb) );
     background: -moz-linear-gradient(-90deg, #4477a1, #81a8cb);
     filter:  progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#4477a1', endColorstr='#81a8cb');
 }
- 
+
 div.xelfinder .button-blue:active {
     background: #4477a1;
 }
@@ -107,14 +107,14 @@ div.xelfinder .button-orange {
     background: -moz-linear-gradient(-90deg, #F8C939, #F09C15);
     filter:  progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#F8C939', endColorstr='#F09C15');
 }
- 
+
 div.xelfinder .button-orange:hover {
     background: #F8C939;
     background: -webkit-gradient(linear, left top, left bottom, from(#F09C15), to(#F8C939) );
     background: -moz-linear-gradient(-90deg, #F09C15, #F8C939);
     filter:  progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#F09C15', endColorstr='#F8C939');
 }
- 
+
 div.xelfinder .button-orange:active {
     background: #F09C15;
 }
@@ -125,14 +125,14 @@ div.xelfinder .button-green {
     background: -moz-linear-gradient(-90deg, #C8DD95, #428739);
     filter:  progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#C8DD95', endColorstr='#428739');
 }
- 
+
 div.xelfinder .button-green:hover {
     background: #C8DD95;
     background: -webkit-gradient(linear, left top, left bottom, from(#428739), to(#C8DD95) );
     background: -moz-linear-gradient(-90deg, #428739, #C8DD95);
     filter:  progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#428739', endColorstr='#C8DD95');
 }
- 
+
 div.xelfinder .button-green:active {
     background: #428739;
 }

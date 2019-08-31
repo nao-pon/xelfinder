@@ -4,7 +4,7 @@ define('ELFINDER_PHP_ROOT_PATH', dirname(__FILE__));
 
 function elFinderAutoloader($name)
 {
-    $map = array(
+    $map = [
         'elFinder' => 'elFinder.class.php',
         'elFinderConnector' => 'elFinderConnector.class.php',
         'elFinderEditor' => 'editors/editor.php',
@@ -27,23 +27,27 @@ function elFinderAutoloader($name)
         'elFinderVolumeLocalFileSystem' => 'elFinderVolumeLocalFileSystem.class.php',
         'elFinderVolumeMySQL' => 'elFinderVolumeMySQL.class.php',
         'elFinderVolumeTrash' => 'elFinderVolumeTrash.class.php',
-    );
+    ];
     if (isset($map[$name])) {
         return include_once(ELFINDER_PHP_ROOT_PATH . '/' . $map[$name]);
     }
-    $prefix = substr($name, 0, 14);
-    if (substr($prefix, 0, 8) === 'elFinder') {
-        if ($prefix === 'elFinderVolume') {
+    $prefix = mb_substr($name, 0, 14);
+    if ('elFinder' === mb_substr($prefix, 0, 8)) {
+        if ('elFinderVolume' === $prefix) {
             $file = ELFINDER_PHP_ROOT_PATH . '/' . $name . '.class.php';
+
             return (is_file($file) && include_once($file));
-        } else if ($prefix === 'elFinderPlugin') {
-            $file = ELFINDER_PHP_ROOT_PATH . '/plugins/' . substr($name, 14) . '/plugin.php';
+        } elseif ('elFinderPlugin' === $prefix) {
+            $file = ELFINDER_PHP_ROOT_PATH . '/plugins/' . mb_substr($name, 14) . '/plugin.php';
+
             return (is_file($file) && include_once($file));
-        } else if ($prefix === 'elFinderEditor') {
-            $file = ELFINDER_PHP_ROOT_PATH . '/editors/' . substr($name, 14) . '/editor.php';
+        } elseif ('elFinderEditor' === $prefix) {
+            $file = ELFINDER_PHP_ROOT_PATH . '/editors/' . mb_substr($name, 14) . '/editor.php';
+
             return (is_file($file) && include_once($file));
         }
     }
+
     return false;
 }
 
@@ -52,4 +56,3 @@ if (version_compare(PHP_VERSION, '5.3', '<')) {
 } else {
     spl_autoload_register('elFinderAutoloader', true, true);
 }
-

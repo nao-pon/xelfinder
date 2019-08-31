@@ -17,7 +17,7 @@ CREATE TABLE `file` (
   `mime_filter` varchar(255) NOT NULL DEFAULT '',
   `local_path` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`file_id`),
-  UNIQUE KEY `parent_name` (`parent_id`,`name`),
+  UNIQUE KEY `parent_name` (`parent_id`,`name`(100)),
   KEY `parent_id` (`parent_id`)
 ) ENGINE=MyISAM;
 
@@ -31,7 +31,7 @@ CREATE TABLE `link` (
   `title` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `mid_key_val` (`mid`,`param`,`val`),
-  KEY `uri` (`uri`(255)),
+  KEY `uri` (`uri`(200)),
   KEY `file_id` (`file_id`)
 ) ENGINE=MyISAM;
 
@@ -42,5 +42,5 @@ CREATE TABLE `userdat` (
   `data` blob NOT NULL,
   `mtime` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  KEY `uid_key` (`uid`,`key`)
+  KEY `uid_key` (`uid`,`key`(200))
 ) ENGINE=MyISAM;

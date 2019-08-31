@@ -69,12 +69,11 @@
  */
 class elFinderPluginWatermark extends elFinderPlugin
 {
-
     private $watermarkImgInfo = null;
 
     public function __construct($opts)
     {
-        $defaults = array(
+        $defaults = [
             'enable' => true,       // For control by volume driver
             'source' => 'logo.png', // Path to Water mark image
             'ratio' => 0.2,        // Ratio to original image (ratio > 0 and ratio <= 1)
@@ -91,11 +90,10 @@ class elFinderPluginWatermark extends elFinderPlugin
             // In case of using any key, specify it as an array
             'marginRight' => 0,          // Deprecated - marginX should be used
             'marginBottom' => 0,          // Deprecated - marginY should be used
-            'disableWithContentSaveId' => true // Disable on URL upload with post data "contentSaveId"
-        );
+            'disableWithContentSaveId' => true, // Disable on URL upload with post data "contentSaveId"
+        ];
 
         $this->opts = array_merge($defaults, $opts);
-
     }
 
     public function onUpLoadPreSave(&$thash, &$name, $src, $elfinder, $volume)
@@ -110,46 +108,46 @@ class elFinderPluginWatermark extends elFinderPlugin
         $srcImgInfo = null;
         if (extension_loaded('fileinfo') && function_exists('mime_content_type')) {
             $mime = mime_content_type($src);
-            if (substr($mime, 0, 5) !== 'image') {
+            if ('image' !== mb_substr($mime, 0, 5)) {
                 return false;
             }
         }
         if (extension_loaded('exif') && function_exists('exif_imagetype')) {
             $imageType = exif_imagetype($src);
-            if ($imageType === false) {
+            if (false === $imageType) {
                 return false;
             }
         } else {
             $srcImgInfo = getimagesize($src);
-            if ($srcImgInfo === false) {
+            if (false === $srcImgInfo) {
                 return false;
             }
             $imageType = $srcImgInfo[2];
         }
 
         // check target image type
-        $imgTypes = array(
+        $imgTypes = [
             IMAGETYPE_GIF => IMG_GIF,
             IMAGETYPE_JPEG => IMG_JPEG,
             IMAGETYPE_PNG => IMG_PNG,
             IMAGETYPE_BMP => IMG_WBMP,
-            IMAGETYPE_WBMP => IMG_WBMP
-        );
+            IMAGETYPE_WBMP => IMG_WBMP,
+        ];
         if (!isset($imgTypes[$imageType]) || !($opts['targetType'] & $imgTypes[$imageType])) {
             return false;
         }
 
         // check Animation Gif
-        if ($imageType === IMAGETYPE_GIF && elFinder::isAnimationGif($src)) {
+        if (IMAGETYPE_GIF === $imageType && elFinder::isAnimationGif($src)) {
             return false;
         }
         // check Animation Png
-        if ($imageType === IMAGETYPE_PNG && elFinder::isAnimationPng($src)) {
+        if (IMAGETYPE_PNG === $imageType && elFinder::isAnimationPng($src)) {
             return false;
         }
         // check water mark image
         if (!file_exists($opts['source'])) {
-            $opts['source'] = dirname(__FILE__) . "/" . $opts['source'];
+            $opts['source'] = dirname(__FILE__) . '/' . $opts['source'];
         }
         if (is_readable($opts['source'])) {
             $watermarkImgInfo = getimagesize($opts['source']);
@@ -184,7 +182,7 @@ class elFinderPluginWatermark extends elFinderPlugin
             if (($maxW >= $watermarkImgInfo[0] && $maxH >= $watermarkImgInfo[0]) || ($maxW <= $watermarkImgInfo[0] && $maxH <= $watermarkImgInfo[0])) {
                 $dx = abs($srcImgInfo[0] - $watermarkImgInfo[0]);
                 $dy = abs($srcImgInfo[1] - $watermarkImgInfo[1]);
-            } else if ($maxW < $watermarkImgInfo[0]) {
+            } elseif ($maxW < $watermarkImgInfo[0]) {
                 $dx = -1;
             } else {
                 $dy = -1;
@@ -202,13 +200,13 @@ class elFinderPluginWatermark extends elFinderPlugin
             $opts['ratio'] = null;
         }
 
-        $opts['position'] = strtoupper($opts['position']);
+        $opts['position'] = mb_strtoupper($opts['position']);
 
         // Set vertical position
-        if (strpos($opts['position'], 'T') !== false) {
+        if (false !== mb_strpos($opts['position'], 'T')) {
             // Top
             $dest_x = $opts['marginX'];
-        } else if (strpos($opts['position'], 'M') !== false) {
+        } elseif (false !== mb_strpos($opts['position'], 'M')) {
             // Middle
             $dest_x = ($srcImgInfo[0] - $watermarkImgInfo[0]) / 2;
         } else {
@@ -217,10 +215,10 @@ class elFinderPluginWatermark extends elFinderPlugin
         }
 
         // Set horizontal position
-        if (strpos($opts['position'], 'L') !== false) {
+        if (false !== mb_strpos($opts['position'], 'L')) {
             // Left
             $dest_y = $opts['marginY'];
-        } else if (strpos($opts['position'], 'C') !== false) {
+        } elseif (false !== mb_strpos($opts['position'], 'C')) {
             // Middle
             $dest_y = ($srcImgInfo[1] - $watermarkImgInfo[1]) / 2;
         } else {
@@ -228,23 +226,20 @@ class elFinderPluginWatermark extends elFinderPlugin
             $dest_y = $srcImgInfo[1] - $watermarkImgInfo[1] - max($opts['marginRight'], $opts['marginY']);
         }
 
-
         // check interlace
         $opts['interlace'] = ($opts['interlace'] & $imgTypes[$imageType]);
 
         if (class_exists('Imagick', false)) {
             return $this->watermarkPrint_imagick($src, $watermark, $dest_x, $dest_y, $quality, $transparency, $watermarkImgInfo, $opts);
-        } else {
-            elFinder::expandMemoryForGD(array($watermarkImgInfo, $srcImgInfo));
-            return $this->watermarkPrint_gd($src, $watermark, $dest_x, $dest_y, $quality, $transparency, $watermarkImgInfo, $srcImgInfo, $opts);
         }
+        elFinder::expandMemoryForGD([$watermarkImgInfo, $srcImgInfo]);
+
+        return $this->watermarkPrint_gd($src, $watermark, $dest_x, $dest_y, $quality, $transparency, $watermarkImgInfo, $srcImgInfo, $opts);
     }
 
     private function watermarkPrint_imagick($src, $watermark, $dest_x, $dest_y, $quality, $transparency, $watermarkImgInfo, $opts)
     {
-
         try {
-
             // Open the original image
             $img = new Imagick($src);
 
@@ -257,7 +252,7 @@ class elFinderPluginWatermark extends elFinderPlugin
             }
 
             // Set transparency
-            if (strtoupper($watermark->getImageFormat()) !== 'PNG') {
+            if ('PNG' !== mb_strtoupper($watermark->getImageFormat())) {
                 $watermark->setImageOpacity($transparency / 100);
             }
 
@@ -265,7 +260,7 @@ class elFinderPluginWatermark extends elFinderPlugin
             $img->compositeImage($watermark, imagick::COMPOSITE_OVER, $dest_x, $dest_y);
 
             // Set quality
-            if (strtoupper($img->getImageFormat()) === 'JPEG') {
+            if ('JPEG' === mb_strtoupper($img->getImageFormat())) {
                 $img->setImageCompression(imagick::COMPRESSION_JPEG);
                 $img->setCompressionQuality($quality);
             }
@@ -284,13 +279,13 @@ class elFinderPluginWatermark extends elFinderPlugin
         } catch (Exception $e) {
             $ermsg = $e->getMessage();
             $ermsg && trigger_error($ermsg);
+
             return false;
         }
     }
 
     private function watermarkPrint_gd($src, $watermark, $dest_x, $dest_y, $quality, $transparency, $watermarkImgInfo, $srcImgInfo, $opts)
     {
-
         $watermark_width = $watermarkImgInfo[0];
         $watermark_height = $watermarkImgInfo[1];
 
@@ -330,7 +325,6 @@ class elFinderPluginWatermark extends elFinderPlugin
                 break;
         }
 
-
         if (!$ermsg) {
             // zoom
             if ($opts['ratio']) {
@@ -338,7 +332,7 @@ class elFinderPluginWatermark extends elFinderPlugin
                 imagealphablending($tmpImg, false);
                 imagesavealpha($tmpImg, true);
                 imagecopyresampled($tmpImg, $oWatermarkImg, 0, 0, 0, 0, $watermarkImgInfo[0], $watermarkImgInfo[1], imagesx($oWatermarkImg), imagesy($oWatermarkImg));
-                imageDestroy($oWatermarkImg);
+                imagedestroy($oWatermarkImg);
                 $oWatermarkImg = $tmpImg;
                 $tmpImg = null;
             }
@@ -381,17 +375,18 @@ class elFinderPluginWatermark extends elFinderPlugin
 
         if ($ermsg || false === $oSrcImg || false === $oWatermarkImg) {
             $ermsg && trigger_error($ermsg);
+
             return false;
         }
 
-        if ($srcImgInfo['mime'] === 'image/png') {
+        if ('image/png' === $srcImgInfo['mime']) {
             if (function_exists('imagecolorallocatealpha')) {
                 $bg = imagecolorallocatealpha($oSrcImg, 255, 255, 255, 127);
                 imagefill($oSrcImg, 0, 0, $bg);
             }
         }
 
-        if ($watermarkImgInfo['mime'] === 'image/png') {
+        if ('image/png' === $watermarkImgInfo['mime']) {
             imagecopy($oSrcImg, $oWatermarkImg, $dest_x, $dest_y, 0, 0, $watermark_width, $watermark_height);
         } else {
             imagecopymerge($oSrcImg, $oWatermarkImg, $dest_x, $dest_y, 0, 0, $watermark_width, $watermark_height, $transparency);
@@ -419,8 +414,8 @@ class elFinderPluginWatermark extends elFinderPlugin
                 break;
         }
 
-        imageDestroy($oSrcImg);
-        imageDestroy($oWatermarkImg);
+        imagedestroy($oSrcImg);
+        imagedestroy($oWatermarkImg);
 
         return true;
     }

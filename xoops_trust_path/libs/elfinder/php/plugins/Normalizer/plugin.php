@@ -54,23 +54,23 @@
  */
 class elFinderPluginNormalizer extends elFinderPlugin
 {
-    private $replaced = array();
-    private $keyMap = array(
+    private $replaced = [];
+    private $keyMap = [
         'ls' => 'intersect',
         'upload' => 'renames',
-        'mkdir' => array('name', 'dirs')
-    );
+        'mkdir' => ['name', 'dirs'],
+    ];
 
     public function __construct($opts)
     {
-        $defaults = array(
+        $defaults = [
             'enable' => true,  // For control by volume driver
             'nfc' => true,  // Canonical Decomposition followed by Canonical Composition
             'nfkc' => true,  // Compatibility Decomposition followed by Canonical
             'umlauts' => false, // Convert umlauts with their closest 7 bit ascii equivalent
             'lowercase' => false, // Make chars lowercase
-            'convmap' => array()// Convert map ('FROM' => 'TO') array
-        );
+            'convmap' => [],// Convert map ('FROM' => 'TO') array
+        ];
 
         $this->opts = array_merge($defaults, $opts);
     }
@@ -81,54 +81,55 @@ class elFinderPluginNormalizer extends elFinderPlugin
         if (!$opts['enable']) {
             return false;
         }
-        $this->replaced[$cmd] = array();
+        $this->replaced[$cmd] = [];
         $key = (isset($this->keyMap[$cmd])) ? $this->keyMap[$cmd] : 'name';
 
         if (is_array($key)) {
             $keys = $key;
         } else {
-            $keys = array($key);
+            $keys = [$key];
         }
         foreach ($keys as $key) {
             if (isset($args[$key])) {
                 if (is_array($args[$key])) {
                     foreach ($args[$key] as $i => $name) {
-                        if ($cmd === 'mkdir' && $key === 'dirs') {
+                        if ('mkdir' === $cmd && 'dirs' === $key) {
                             // $name need '/' as prefix see #2607
                             $name = '/' . ltrim($name, '/');
                             $_names = explode('/', $name);
-                            $_res = array();
+                            $_res = [];
                             foreach ($_names as $_name) {
                                 $_res[] = $this->normalize($_name, $opts);
                             }
-                            $this->replaced[$cmd][$name] = $args[$key][$i] = join('/', $_res);
+                            $this->replaced[$cmd][$name] = $args[$key][$i] = implode('/', $_res);
                         } else {
                             $this->replaced[$cmd][$name] = $args[$key][$i] = $this->normalize($name, $opts);
                         }
                     }
-                } else if ($args[$key] !== '') {
+                } elseif ('' !== $args[$key]) {
                     $name = $args[$key];
                     $this->replaced[$cmd][$name] = $args[$key] = $this->normalize($name, $opts);
                 }
             }
         }
-        if ($cmd === 'ls' || $cmd === 'mkdir') {
+        if ('ls' === $cmd || 'mkdir' === $cmd) {
             if (!empty($this->replaced[$cmd])) {
                 // un-regist for legacy settings
-                $elfinder->unbind($cmd, array($this, 'cmdPostprocess'));
-                $elfinder->bind($cmd, array($this, 'cmdPostprocess'));
+                $elfinder->unbind($cmd, [$this, 'cmdPostprocess']);
+                $elfinder->bind($cmd, [$this, 'cmdPostprocess']);
             }
         }
+
         return true;
     }
 
     public function cmdPostprocess($cmd, &$result, $args, $elfinder, $volume)
     {
-        if ($cmd === 'ls') {
+        if ('ls' === $cmd) {
             if (!empty($result['list']) && !empty($this->replaced['ls'])) {
                 foreach ($result['list'] as $hash => $name) {
                     if ($keys = array_keys($this->replaced['ls'], $name)) {
-                        if (count($keys) === 1) {
+                        if (1 === count($keys)) {
                             $result['list'][$hash] = $keys[0];
                         } else {
                             $result['list'][$hash] = $keys;
@@ -136,7 +137,7 @@ class elFinderPluginNormalizer extends elFinderPlugin
                     }
                 }
             }
-        } else if ($cmd === 'mkdir') {
+        } elseif ('mkdir' === $cmd) {
             if (!empty($result['hashes']) && !empty($this->replaced['mkdir'])) {
                 foreach ($result['hashes'] as $name => $hash) {
                     if ($keys = array_keys($this->replaced['mkdir'], $name)) {
@@ -156,6 +157,7 @@ class elFinderPluginNormalizer extends elFinderPlugin
         }
 
         $name = $this->normalize($name, $opts);
+
         return true;
     }
 
@@ -163,25 +165,29 @@ class elFinderPluginNormalizer extends elFinderPlugin
     {
         if ($opts['nfc'] || $opts['nfkc']) {
             if (class_exists('Normalizer', false)) {
-                if ($opts['nfc'] && !Normalizer::isNormalized($str, Normalizer::FORM_C))
+                if ($opts['nfc'] && !Normalizer::isNormalized($str, Normalizer::FORM_C)) {
                     $str = Normalizer::normalize($str, Normalizer::FORM_C);
-                if ($opts['nfkc'] && !Normalizer::isNormalized($str, Normalizer::FORM_KC))
+                }
+                if ($opts['nfkc'] && !Normalizer::isNormalized($str, Normalizer::FORM_KC)) {
                     $str = Normalizer::normalize($str, Normalizer::FORM_KC);
+                }
             } else {
                 if (!class_exists('I18N_UnicodeNormalizer', false)) {
                     include_once 'I18N/UnicodeNormalizer.php';
                 }
                 if (class_exists('I18N_UnicodeNormalizer', false)) {
                     $normalizer = new I18N_UnicodeNormalizer();
-                    if ($opts['nfc'])
+                    if ($opts['nfc']) {
                         $str = $normalizer->normalize($str, 'NFC');
-                    if ($opts['nfkc'])
+                    }
+                    if ($opts['nfkc']) {
                         $str = $normalizer->normalize($str, 'NFKC');
+                    }
                 }
             }
         }
         if ($opts['umlauts']) {
-            if (strpos($str = htmlentities($str, ENT_QUOTES, 'UTF-8'), '&') !== false) {
+            if (false !== mb_strpos($str = htmlentities($str, ENT_QUOTES, 'UTF-8'), '&')) {
                 $str = html_entity_decode(preg_replace('~&([a-z]{1,2})(?:acute|cedil|circ|grave|lig|orn|ring|slash|tilde|uml);~i', '$1', $str), ENT_QUOTES, 'utf-8');
             }
         }
@@ -192,9 +198,10 @@ class elFinderPluginNormalizer extends elFinderPlugin
             if (function_exists('mb_strtolower')) {
                 $str = mb_strtolower($str, 'UTF-8');
             } else {
-                $str = strtolower($str);
+                $str = mb_strtolower($str);
             }
         }
+
         return $str;
     }
 }
