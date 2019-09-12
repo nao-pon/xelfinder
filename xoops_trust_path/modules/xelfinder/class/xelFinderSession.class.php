@@ -7,7 +7,13 @@ class xelFinderSession extends elFinderSession
     /**
      * {@inheritdoc}
      */
-    public function start()
+    public function __construct()
+    {
+        parent::__construct();
+        $this->fixCookieRegist = false;
+        return $this;
+    }
+    /*public function start()
     {
         if (version_compare(PHP_VERSION, '5.3', '<')) {
             if (! session_id()) {
@@ -19,5 +25,5 @@ class xelFinderSession extends elFinderSession
         $this->started = session_id()? true : false;
         
         return $this;
-    }
+    }*/
 }
