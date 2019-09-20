@@ -235,6 +235,9 @@ try {
 		)
 	));
 	
+	// for XOOPS uid of current session
+	$uidSessionKey = 'xel_'.$mydirname.'_Uid';
+
 	// Check command login/logout/status
 	$xoops_elFinder->checkLogin($session);
 	
@@ -243,11 +246,19 @@ try {
 	$isAdmin = $userRoll['isAdmin'];
 
 	// set netmount data to session
-	$netVolumeData = null;
-	if ($userRoll['uid'] && $session->get('netvolume') === null) {
-		$netVolumeData = $xoops_elFinder->getNetmountData();
-		$session->set('netvolume', $netVolumeData);
+	$netVolumeData = array();
+	if ($userRoll['uid'] && $userRoll['uid'] !== $session->get($uidSessionKey)) {
+		$netVolumeData = $session->get('netvolume', $netVolumeData);
+		if (count($netVolumeData) === 0) {
+			$netVolumeData = $xoops_elFinder->getNetmountData();
+			if (count($netVolumeData)) {
+				$session->set('netvolume', $netVolumeData);
+			}
+		}
 	}
+
+	// set current XOOPS uid to session
+	$session->set($uidSessionKey, $userRoll['uid']);
 	
 	// Get volumes
 	if (isset($_SESSION['XELFINDER_RF_'.$mydirname]) && $_SESSION['XELFINDER_CFG_HASH_'.$mydirname] === $config_MD5) {
