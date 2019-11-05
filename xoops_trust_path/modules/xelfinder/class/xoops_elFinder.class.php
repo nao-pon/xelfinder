@@ -618,7 +618,7 @@ EOD;
 					ini_set('default_charset', _CHARSET);
 					if (version_compare(PHP_VERSION, '5.6', '<')) {
 						ini_set('mbstring.internal_encoding', _CHARSET);
-					} else {
+					} else if (ini_get('mbstring.internal_encoding')) {
 						@ini_set('mbstring.internal_encoding', '');
 					}
 					$message = mb_convert_encoding($message, _CHARSET, 'UTF-8');
@@ -634,7 +634,12 @@ EOD;
 				$xoopsMailer->reset();
 			
 				if (strtoupper(_CHARSET) !== 'UTF-8') {
-					ini_set('mbstring.internal_encoding', 'UTF-8');
+					ini_set('default_charset', 'UTF-8');
+					if (version_compare(PHP_VERSION, '5.6', '<')) {
+						ini_set('mbstring.internal_encoding', 'UTF-8');
+					} else if (ini_get('mbstring.internal_encoding')) {
+						@ini_set('mbstring.internal_encoding', '');
+					}
 				}
 			}
 		}
