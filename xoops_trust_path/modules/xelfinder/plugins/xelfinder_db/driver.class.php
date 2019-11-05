@@ -727,7 +727,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 				FROM '.$this->tbf.' AS f
 				LEFT JOIN '.$this->tbf.' AS ch ON ch.parent_id=f.file_id AND ch.mime="directory"
 				WHERE f.parent_id="'.$path.'"
-				GROUP BY f.file_id';
+				GROUP BY f.file_id, f.parent_id, f.name, f.size, f.mtime, f.mime, f.perm, f.umask, f.uid, f.gid, f.home_of, f.width, f.height, f.gids, f.mime_filter, f.local_path, ch.file_id';
 
 		$res = $this->query($sql);
 		if ($res) {
@@ -1044,7 +1044,7 @@ class elFinderVolumeXoopsXelfinder_db extends elFinderVolumeDriver {
 				LEFT JOIN '.$this->tbf.' AS p ON p.file_id=f.parent_id
 				LEFT JOIN '.$this->tbf.' AS ch ON ch.parent_id=f.file_id AND ch.mime="directory"
 				WHERE f.file_id="'.$path.'"
-				GROUP BY f.file_id';
+				GROUP BY f.file_id, f.parent_id, f.name, f.size, f.mtime, f.mime, f.perm, f.umask, f.uid, f.gid, f.home_of, f.width, f.height, f.gids, f.mime_filter, f.local_path, ch.file_id';
 
 		$res = $this->query($sql);
 
