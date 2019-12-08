@@ -34,6 +34,41 @@ $(document).ready(function() {
 		}
 	}
 	
+	// Detect language if `lang` is empty
+	if (typeof lang !== 'string' || !lang) {
+		lang = (function() {
+			var locq = window.location.search,
+				map = {
+					'pt' : 'pt_BR',
+					'ug' : 'ug_CN',
+					'zh' : 'zh_CN'
+				},
+				full = {
+					'zh_tw' : 'zh_TW',
+					'zh_cn' : 'zh_CN',
+					'fr_ca' : 'fr_CA'
+				},
+				fullLang, locm, lang;
+			if (locq && (locm = locq.match(/lang=([a-zA-Z_-]+)/))) {
+				// detection by url query (?lang=xx)
+				fullLang = locm[1];
+			} else {
+				// detection by browser language
+				fullLang = (navigator.browserLanguage || navigator.language || navigator.userLanguage || '');
+			}
+			fullLang = fullLang.replace('-', '_').substr(0,5).toLowerCase();
+			if (full[fullLang]) {
+				lang = full[fullLang];
+			} else {
+				lang = (fullLang || 'en').substr(0,2);
+				if (map[lang]) {
+					lang = map[lang];
+				}
+			}
+			return lang;
+		})();
+	}
+
 	var opts = {
 		handlers : {
 			// set extra messages
