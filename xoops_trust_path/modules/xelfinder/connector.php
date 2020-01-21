@@ -449,7 +449,7 @@ try {
 		'bind'   => array(
 			//'*' => array($xoops_elFinder, 'log'),
 			'netmount.pre' => array($xoops_elFinder, 'netmountPreCallback'),
-			'netmount' => array($xoops_elFinder, 'netmountCallback'),
+			'netmount rename' => array($xoops_elFinder, 'netmountCallback'),
 			'mkdir mkfile put upload extract' => array($xoops_elFinder, 'notifyMail'),
 			'upload.pre mkdir.pre mkfile.pre rename.pre archive.pre ls.pre' => array(
 				'Plugin.Sanitizer.cmdPreprocess',
