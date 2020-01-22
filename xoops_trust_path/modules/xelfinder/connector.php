@@ -248,11 +248,12 @@ try {
 	// set netmount data to session
 	$netVolumeData = array();
 	if ($userRoll['uid'] && $userRoll['uid'] !== $session->get($uidSessionKey)) {
-		$netVolumeData = $session->get('netvolume', $netVolumeData);
-		if (count($netVolumeData) === 0) {
-			$netVolumeData = $xoops_elFinder->getNetmountData();
-			if (count($netVolumeData)) {
-				$session->set('netvolume', $netVolumeData);
+		$sessNetVols = $session->get('netvolume', $netVolumeData);
+		$netVolumeData = array_merge($xoops_elFinder->getNetmountData(), $sessNetVols);
+		if (count($netVolumeData)) {
+			$session->set('netvolume', $netVolumeData);
+			if (count($sessNetVols)) {
+				$xoops_elFinder->saveNetmoutData($session);
 			}
 		}
 	}

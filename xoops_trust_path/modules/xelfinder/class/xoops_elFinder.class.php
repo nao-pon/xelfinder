@@ -125,6 +125,7 @@ class xoops_elFinder {
 				$session->start();
 				$data = array('uname' => '');
 				if (isset($_GET['logout'])) {
+					$session->set('netvolume', array());
 					$this->destroySessionVar();
 					$this->setXoopsUser();
 				} else {
@@ -497,24 +498,26 @@ class xoops_elFinder {
 					return;
 				}
 			}
-			if ($uid = $this->xoopsUser->getVar('uid')) {
-				$session = $elfinder->getSession();
-				$uid = intval($uid);
-				$table = $this->db->prefix($this->mydirname.'_userdat');
-				$netVolumes = $this->db->quoteString(serialize($session->get('netvolume', array())));
-				$sql = 'SELECT `id` FROM `'.$table.'` WHERE `key`=\'netVolumes\' AND `uid`='.$uid;
-				if ($res = $this->db->query($sql)) {
-					if ($this->db->getRowsNum($res) > 0) {
-						$sql = 'UPDATE `'.$table.'` SET `data`='.$netVolumes.', `mtime`='.time().' WHERE `key`=\'netVolumes\' AND `uid`='.$uid;
-					} else {
-						$sql = 'INSERT `'.$table.'` SET `key`=\'netVolumes\', `uid` = '.$uid.', `data`='.$netVolumes.', `mtime`='.time();
-					}
-					$this->db->queryF($sql);
-				}
-			}
+			$this->saveNetmoutData($elfinder->getSession());
 		}
 	}
 	
+	public function saveNetmoutData($session) {
+		if ($uid = $this->getUserRoll()['uid']) {
+			$table = $this->db->prefix($this->mydirname.'_userdat');
+			$netVolumes = $this->db->quoteString(serialize($session->get('netvolume', array())));
+			$sql = 'SELECT `id` FROM `'.$table.'` WHERE `key`=\'netVolumes\' AND `uid`='.$uid;
+			if ($res = $this->db->query($sql)) {
+				if ($this->db->getRowsNum($res) > 0) {
+					$sql = 'UPDATE `'.$table.'` SET `data`='.$netVolumes.', `mtime`='.time().' WHERE `key`=\'netVolumes\' AND `uid`='.$uid;
+				} else {
+					$sql = 'INSERT `'.$table.'` SET `key`=\'netVolumes\', `uid` = '.$uid.', `data`='.$netVolumes.', `mtime`='.time();
+				}
+				$this->db->queryF($sql);
+			}
+		}
+	}
+
 	protected function tokenDataGC() {
 		$files = glob($this->tokeDataPrefix . '*', GLOB_NOSORT);
 		if ($files) {
