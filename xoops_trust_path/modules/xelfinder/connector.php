@@ -224,10 +224,10 @@ try {
 	// Access control
 	require_once dirname(__FILE__).'/class/xelFinderAccess.class.php';
 	// custom session handler
-	require_once dirname(__FILE__) . '/class/xelFinderSession.class.php';
+	require_once _MD_ELFINDER_LIB_PATH . '/php/elFinderSession.php';
 	
 	// make sesstion handler
-	$session = new xelFinderSession(array(
+	$session = new elFinderSession(array(
 		'base64encode' => $xoops_elFinder->base64encodeSessionData,
 		'keys' => array(
 			'default'   => 'xel_'.$mydirname.'_Caches',
