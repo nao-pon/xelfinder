@@ -114,7 +114,7 @@ elFinder.prototype.commands.edit = function() {
 		 * @param  String  content  file content
 		 * @return $.Deferred
 		 **/
-		dialog = function(id, file, content, encoding, editor) {
+		dialog = function(id, file, content, encoding, editor, toasts) {
 
 			var dfrd = $.Deferred(),
 				_loaded = false,
@@ -128,12 +128,20 @@ elFinder.prototype.commands.edit = function() {
 					}
 					return true;
 				},
+				makeToasts = function() {
+					// make toast message
+					if (toasts && Array.isArray(toasts)) {
+						$.each(toasts, function() {
+							this.msg && fm.toast(this);
+						});
+					}
+				},
 				save = function() {
 					var encord = selEncoding? selEncoding.val():void(0),
 						saveDfd = $.Deferred().fail(function(err) {
 							dialogNode.show().find('button.elfinder-btncnt-0,button.elfinder-btncnt-1').hide();
 						}),
-						conf, res;
+						conf, res, tm;
 					if (!loaded()) {
 						return saveDfd.resolve();
 					}
@@ -147,7 +155,20 @@ elFinder.prototype.commands.edit = function() {
 					res = getContent();
 					setOld(res);
 					if (res.promise) {
-						res.done(function(data) {
+						tm = setTimeout(function() {
+							fm.notify({
+								type : 'chkcontent',
+								cnt : 1,
+								hideCnt: true,
+								cancel : function() {
+									res.reject();
+								}
+							});
+						}, 100);
+						res.always(function() {
+							tm && clearTimeout(tm);
+							fm.notify({ type : 'chkcontent', cnt: -1 });
+						}).done(function(data) {
 							dfrd.notifyWith(ta, [encord, ta.data('hash'), old, saveDfd]);
 						}).fail(function(err) {
 							saveDfd.reject(err);
@@ -253,7 +274,10 @@ elFinder.prototype.commands.edit = function() {
 							fm.notify({
 								type : 'chkcontent',
 								cnt : 1,
-								hideCnt: true
+								hideCnt: true,
+								cancel : function() {
+									res.reject();
+								}
 							});
 						}, 100);
 						res.always(function() {
@@ -364,7 +388,7 @@ elFinder.prototype.commands.edit = function() {
 									error && fm.error(error);
 									ta.elfinderdialog('destroy');
 									return;
-								});
+								}).always(makeToasts);
 							} else {
 								_loaded = true;
 								if (loadRes && (typeof loadRes === 'string' || Array.isArray(loadRes))) {
@@ -378,6 +402,7 @@ elFinder.prototype.commands.edit = function() {
 								requestAnimationFrame(function() {
 									dialogNode.trigger('resize');
 								});
+								makeToasts();
 							}
 							conf = ta.editor.confObj;
 							if (conf.info && conf.info.syncInterval) {
@@ -416,6 +441,17 @@ elFinder.prototype.commands.edit = function() {
 						}, interval);
 					}
 				},
+				stateChange = function() {
+					if (selEncoding) {
+						changed().done(function(change) {
+							if (change) {
+								selEncoding.attr('title', fm.i18n('saveAsEncoding')).addClass('elfinder-edit-changed');
+							} else {
+								selEncoding.attr('title', fm.i18n('openAsEncoding')).removeClass('elfinder-edit-changed');
+							}
+						});
+					}
+				},
 				saveAsFile = {},
 				ta, old, dialogNode, selEncoding, extEditor, maxW, syncInterval;
 				
@@ -450,22 +486,10 @@ elFinder.prototype.commands.edit = function() {
 					return dfrd.reject('errEditorNotFound');
 				}
 				(function() {
-					var stateChange = function() {
-							if (selEncoding) {
-								changed().done(function(change) {
-									if (change) {
-										selEncoding.attr('title', fm.i18n('saveAsEncoding')).addClass('elfinder-edit-changed');
-									} else {
-										selEncoding.attr('title', fm.i18n('openAsEncoding')).removeClass('elfinder-edit-changed');
-									}
-								});
-							}
-						};
-						
 					ta = $('<textarea class="elfinder-file-edit" rows="20" id="'+id+'-ta"></textarea>')
 						.on('input propertychange', stateChange);
 					
-					if (!ta.editor || !ta.editor.info || ta.editor.info.useTextAreaEvent) {
+					if (!editor || !editor.info || editor.info.useTextAreaEvent) {
 						ta.on('keydown', function(e) {
 							var code = e.keyCode,
 								value, start;
@@ -500,37 +524,42 @@ elFinder.prototype.commands.edit = function() {
 					}
 
 					ta.initEditArea = function(id, file, content) {
-						var heads = (encoding && encoding !== 'unknown')? [{value: encoding}] : [],
-							wfake = $('<select/>').hide(),
-							setSelW = function(init) {
-								init && wfake.appendTo(selEncoding.parent());
-								wfake.empty().append($('<option/>').text(selEncoding.val()));
-								selEncoding.width(wfake.width());
-							};
 						// ta.hide() for performance tune. Need ta.show() in `load()` if use textarea node.
 						ta.hide().val(content);
-						if (content === '' || ! encoding || encoding !== 'UTF-8') {
-							heads.push({value: 'UTF-8'});
-						}
-						selEncoding = getEncSelect(heads).on('touchstart', function(e) {
-							// for touch punch event handler
-							e.stopPropagation();
-						}).on('change', function() {
-							// reload to change encoding if not edited
-							changed().done(function(change) {
-								if (! change && getContent() !== '') {
-									cancel();
-									edit(file, selEncoding.val(), editor).fail(function(err) { err && fm.error(err); });
-								}
-							});
-							setSelW();
-						}).on('mouseover', stateChange);
-						ta.parent().next().prepend($('<div class="ui-dialog-buttonset elfinder-edit-extras"/>').append(selEncoding));
-						setSelW(true);
+						this._setupSelEncoding(content);
 					};
 				})();
 			}
-			
+
+			// extended function to setup selector of encoding for text editor
+			ta._setupSelEncoding = function(content) {
+				var heads = (encoding && encoding !== 'unknown')? [{value: encoding}] : [],
+					wfake = $('<select/>').hide(),
+					setSelW = function(init) {
+						init && wfake.appendTo(selEncoding.parent());
+						wfake.empty().append($('<option/>').text(selEncoding.val()));
+						selEncoding.width(wfake.width());
+					};
+				if (content === '' || ! encoding || encoding !== 'UTF-8') {
+					heads.push({value: 'UTF-8'});
+				}
+				selEncoding = getEncSelect(heads).on('touchstart', function(e) {
+					// for touch punch event handler
+					e.stopPropagation();
+				}).on('change', function() {
+					// reload to change encoding if not edited
+					changed().done(function(change) {
+						if (! change && getContent() !== '') {
+							cancel();
+							edit(file, selEncoding.val(), editor).fail(function(err) { err && fm.error(err); });
+						}
+					});
+					setSelW();
+				}).on('mouseover', stateChange);
+				ta.parent().next().prepend($('<div class="ui-dialog-buttonset elfinder-edit-extras"/>').append(selEncoding));
+				setSelW(true);
+			};
+
 			ta.data('hash', file.hash);
 			
 			if (extEditor) {
@@ -655,6 +684,10 @@ elFinder.prototype.commands.edit = function() {
 						req.resolve({});
 					}
 				} else {
+					if (conv) {
+						file.encoding = conv;
+						fm.cache(file, 'change');
+					}
 					req = fm.request({
 						data           : {cmd : 'get', target : hash, conv : conv, _t : file.ts},
 						options        : {type: 'get', cache : true},
@@ -707,7 +740,7 @@ elFinder.prototype.commands.edit = function() {
 								}
 							}
 						}
-						dialog(id, file, data.content, data.encoding, editor)
+						dialog(id, file, data.content, data.encoding, editor, data.toasts)
 							.done(function(data) {
 								dfrd.resolve(data);
 							})
@@ -754,6 +787,10 @@ elFinder.prototype.commands.edit = function() {
 				.fail(function(error) {
 					var err = fm.parseError(error);
 					err = Array.isArray(err)? err[0] : err;
+					if (file.encoding) {
+						file.encoding = '';
+						fm.cache(file, 'change');
+					}
 					(err !== 'errConvUTF8') && fm.sync();
 					dfrd.reject(error);
 				});
@@ -910,7 +947,9 @@ elFinder.prototype.commands.edit = function() {
 		},
 		stored;
 	
-	
+	// make public method
+	this.getEncSelect = getEncSelect;
+
 	this.shortcuts = [{
 		pattern     : 'ctrl+e'
 	}];
@@ -1143,7 +1182,7 @@ elFinder.prototype.commands.edit = function() {
 		
 		getEditor().done(function(editor) {
 			while ((file = files.shift())) {
-				list.push(edit(file, void(0), editor).fail(function(error) {
+				list.push(edit(file, (file.encoding || void(0)), editor).fail(function(error) {
 					error && fm.error(error);
 				}));
 			}
