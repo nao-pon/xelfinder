@@ -13,7 +13,7 @@ class xelFinder extends elFinder {
 	public function __construct($opts) {
 		parent::__construct($opts);
 		$this->isAdmin = $opts['isAdmin'];
-		$this->commands['perm'] = array('target' => true, 'perm' => true, 'umask' => false, 'gids' => false, 'filter' => false, 'uid' => false, 'phash' => false);
+		$this->commands['perm'] = array('targets' => true, 'perm' => true, 'umask' => false, 'gids' => false, 'filter' => false, 'uid' => false, 'phash' => false);
 	}
 
 	
@@ -27,7 +27,7 @@ class xelFinder extends elFinder {
 	**/
 	protected function perm($args) {
 
-		$targets = $args['target'];
+		$targets = $args['targets'];
 		if (!is_array($targets)) {
 			$targets = array($targets);
 		}

@@ -805,6 +805,7 @@ abstract class elFinderVolumeDriver
             $targets = array($targets);
         }
 
+        $target && debug($target, $id);
         if ($target && strpos($target, $id) === 0) {
             $need = true;
         } else if ($targets) {

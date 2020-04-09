@@ -116,7 +116,7 @@ elFinder.prototype.commands.perm = function() {
 			fm.request({
 				data : {
 					cmd    : 'perm',
-					target : hashes,
+					targets: hashes,
 					phash  : phashes,
 					perm   : perm,
 					umask  : umask,
@@ -331,7 +331,7 @@ elFinder.prototype.commands.perm = function() {
 		}
 		
 		fm.request({
-			data : {cmd : 'perm', target : hashes, perm : 'getgroups'},
+			data : {cmd : 'perm', targets : hashes, perm : 'getgroups'},
 			preventDefault : true
 		})
 		.fail(function() {
