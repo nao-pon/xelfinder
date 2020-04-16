@@ -22,7 +22,7 @@ elFinder.prototype.commands.perm = function() {
 	};
 
 	this.tpl = {
-		main       : '<div class="ui-helper-clearfix elfinder-info-title elfinder-perm-dialog"><span class="elfinder-cwd-icon {class} ui-corner-all"/>{title}</div>'
+		main       : '<div class="ui-helper-clearfix elfinder-info-title elfinder-perm-dialog"><span class="elfinder-cwd-icon {class} ui-corner-all"></span>{title}</div>'
 					+'{filter}{dataTable}{targetGroups}',
 		filter     : '<div>'+fm.i18n('mimeserach')+': <input class="elfinder-tabstop" id="{id}-filter" type="textbox" name="filter" size="30" value="{value}"></div>',
 		itemTitle  : '<strong>{name}</strong><span id="elfinder-info-kind">{kind}</span> ('+fm.i18n('owner')+':<span id="{id}-owner-name">{owner}{uidinput}</span>)',
@@ -36,7 +36,7 @@ elFinder.prototype.commands.perm = function() {
 					+'<input type="checkbox" value="8" class="elfinder-tabstop" id="{id}-hidden-{level}-{type}"{checked-h}{disabled-h}> <label for="{id}-hidden-{level}-{type}">'+msg.hidden+'</label></fieldset>',
 		tab        : '<div id="{id}-tab"><ul><li><a href="#{id}-tab-perm">'+msg.perms+'</a></li><li><a href="#{id}-tab-umask">'+msg.newitem+'</a></li></ul>'
 					+'<div id="{id}-tab-perm">{permTable}</div><div id="{id}-tab-umask">{umaskTable}</div></div>',
-		groups     : '<fieldset id="{id}-fieldset-groups"><legend>'+fm.i18n('targetgroups')+'</legend><div id="{id}-groups"><span class="'+spclass+'"/></div></fieldset>',
+		groups     : '<fieldset id="{id}-fieldset-groups"><legend>'+fm.i18n('targetgroups')+'</legend><div id="{id}-groups"><span class="'+spclass+'"></span></div></fieldset>',
 		groupCheck : '<input type="checkbox" class="elfinder-tabstop" id="{id}-group-{gid}" name="gids" value="{gid}"{checked} /><label for="{id}-group-{gid}">{gname}</label>',
 		uidInput   : ' uid: <input type="text" class="elfinder-tabstop" id="{id}-uid" class="perm-uid" value="{uid}">'
 	};

@@ -225,7 +225,7 @@ $(document).ready(function() {
 		
 		if (data) {
 			if (data.init && IElt10) {
-				var dialog = $('<div class="elfinder-dialog-resize"/>');
+				var dialog = $('<div class="elfinder-dialog-resize"></div>');
 				dialog.append(elfinderInstance.i18n('CannotUploadOldIE'));
 				var buttons = {};
 				buttons[elfinderInstance.i18n('btnYes')] = function() { dialog.elfinderdialog('close'); };

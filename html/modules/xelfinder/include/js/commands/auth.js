@@ -124,7 +124,7 @@ elFinder.prototype.commands.login = function() {
 			dfd = $.Deferred();
 			user = $('<input class="elfinder-tabstop" type="text">');
 			pass = $('<input class="elfinder-tabstop" type="password">');
-			form = $('<form action="'+url+'" style="text-align:center;" />')
+			form = $('<form action="'+url+'" style="text-align:center;" ></form>')
 				.append($('<p>').append(fm.i18n('username')+': ', user), $('<p>').append(fm.i18n('password')+': ', pass))
 				.on('submit', function(e) {
 					e.preventDefault();
