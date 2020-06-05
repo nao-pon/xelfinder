@@ -86,12 +86,13 @@ class xoops_elFinder {
 	}
 	
 	public function getUserRoll() {
-		return array(
+		$res = array(
 			'isAdmin'        => (bool)$this->isAdmin,
 			'uid'            => (int)$this->uid,
 			'mygids'         => (array)$this->mygids,
 			'inSpecialGroup' => (bool)$this->inSpecialGroup
 		);
+		return $res;
 	}
 	
 	public function getUid() {
