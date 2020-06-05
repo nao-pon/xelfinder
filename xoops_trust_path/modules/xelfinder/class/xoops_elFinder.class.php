@@ -503,7 +503,8 @@ class xoops_elFinder {
 	}
 	
 	public function saveNetmoutData($session) {
-		if ($uid = $this->getUserRoll()['uid']) {
+		$userRoll = $this->getUserRoll();
+		if ($uid = $userRoll['uid']) {
 			$table = $this->db->prefix($this->mydirname.'_userdat');
 			$netVolumes = $this->db->quoteString(serialize($session->get('netvolume', array())));
 			$sql = 'SELECT `id` FROM `'.$table.'` WHERE `key`=\'netVolumes\' AND `uid`='.$uid;
