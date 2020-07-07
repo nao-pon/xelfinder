@@ -5,7 +5,7 @@ if (! defined('XOOPS_MODULE_URL')) define('XOOPS_MODULE_URL', XOOPS_URL . '/modu
 
 $target = isset($_GET['target'])? (preg_match('/^[a-zA-Z0-9_:.-]+$/', $_GET['target'])? $_GET['target'] : '') : '';
 
-if (! isset($_GET['cb']) && isset($_GET['getfile']) && $_GET['getfile'] === 'ckeditor') {
+if (! isset($_GET['cb']) && isset($_GET['getfile']) && 'ckeditor' === $_GET['getfile']) {
 	$_GET['cb'] = $_GET['getfile'];
 }
 $callback = isset($_GET['cb'])? (preg_match('/^[a-zA-Z0-9_]+$/', $_GET['cb'])? $_GET['cb'] : '') : '';
@@ -26,7 +26,7 @@ $config_handler = xoops_getHandler('config');
 $config = $config_handler->getConfigsByCat(0, $xelfinderModule->getVar('mid'));
 
 // load xoops_elFinder
-include_once dirname(__FILE__).'/class/xoops_elFinder.class.php';
+include_once __DIR__ . '/class/xoops_elFinder.class.php';
 $xoops_elFinder = new xoops_elFinder($mydirname);
 $xoops_elFinder->setConfig($config);
 
@@ -36,11 +36,11 @@ if (!empty($config['connector_url'])) {
 	!$config['conn_url_is_ext'] || $conn_is_ext = 1;
 }
 $managerJs = '';
-$_plugin_dir = dirname(__FILE__) . '/plugins/';
-$_js_cache_path = $_js_cache_times = array();
+$_plugin_dir = __DIR__ . '/plugins/';
+$_js_cache_path = $_js_cache_times = [];
 foreach(explode("\n", $config['volume_setting']) as $_vol) {
 	$_vol = trim($_vol);
-	if (! $_vol || $_vol[0] === '#') continue;
+	if (! $_vol || '#' === $_vol[0]) continue;
 	list(, $_plugin, $_dirname) = explode(':', $_vol);
 	$_plugin = trim($_plugin);
 	if (preg_match('#(?:uploads|'.$modules_basename.')/([^/]+)#i', trim($_dirname), $_match)) {
@@ -58,7 +58,7 @@ foreach(explode("\n", $config['volume_setting']) as $_vol) {
 if ($_js_cache_path) {
 	ksort($_js_cache_path);
 	$_keys = array_keys($_js_cache_path);
-	$_managerJs = '/cache/' . join(',', $_keys) . '_manager.js';
+	$_managerJs = '/cache/' . implode(',', $_keys) . '_manager.js';
 	$_js_cacahe = $mydirpath . $_managerJs;
 	if (! is_file($_js_cacahe) || filemtime($_js_cacahe) < max($_js_cache_times)) {
 		$_src = '';
@@ -81,7 +81,7 @@ $viewport = (preg_match('/Mobile|Android/i', $_SERVER['HTTP_USER_AGENT']))? '<me
 $userLang = xelfinder_detect_lang();
 
 if (empty($config['jquery'])) {
-	$jQueryVersion = (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/4.0') === false)? '3.5.1' : '1.12.4';
+	$jQueryVersion = (false === strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/4.0'))? '3.2.1' : '1.12.4';
 	$jQueryCDN = '//cdnjs.cloudflare.com/ajax/libs/jquery/%s/jquery.min.js';
 	$jQueryUrl = sprintf($jQueryCDN, $jQueryVersion);
 } else {
@@ -100,7 +100,7 @@ if (empty($config['jquery_ui_css'])) {
 	if (! $jQueryUiTheme = @$config['jquery_ui_theme']) {
 		$jQueryUiTheme = 'smoothness';
 	} else {
-		if ($jQueryUiTheme === 'base' && version_compare($jQueryUIVersion, '1.10.1', '>')) {
+		if ('base' === $jQueryUiTheme && version_compare($jQueryUIVersion, '1.10.1', '>')) {
 			$jQueryUiTheme = 'smoothness';
 		}
 	}

@@ -14,7 +14,7 @@ use \Google_Service_Drive;
 
 if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
 	$_err = false;
-	foreach(array('ext_token') as $_key) {
+	foreach(['ext_token'] as $_key) {
 		if (! isset($extOptions[$_key])) {
 			$_err = true;
 		}
@@ -84,7 +84,7 @@ if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
 			$_fly = new Filesystem($_gdrive);
 		}
 		
-		$volumeOptions = array (
+		$volumeOptions = [
 			'driver' => 'FlysystemExt',
 			'filesystem' => $_fly,
 			'fscache' => $_cache,
@@ -93,7 +93,7 @@ if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
 			'icon' => XOOPS_MODULE_URL . '/' . $mDirname . '/images/volume_icon_googledrive.png',
 			'tmbPath' => XOOPS_MODULE_PATH . '/' . _MD_ELFINDER_MYDIRNAME . '/cache/tmb/',
 			'tmbURL' => _MD_XELFINDER_MODULE_URL . '/' . _MD_ELFINDER_MYDIRNAME . '/cache/tmb/'
-		);
+        ];
 	}
 }
 

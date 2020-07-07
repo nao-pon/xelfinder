@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(dirname(__FILE__)) . '/class/xelFinderMisc.class.php';
+require_once dirname(__DIR__) . '/class/xelFinderMisc.class.php';
 $xelFinderMisc = new xelFinderMisc($mydirname);
 $xelFinderMisc->myConfig = $xoopsModuleConfig;
 $xelFinderMisc->dbSetCharset('utf8');
@@ -38,9 +38,9 @@ if ($file_id && ($res = $xoopsDB->query($query)) && $xoopsDB->getRowsNum($res)) 
 			$tmb = $file = $basepath . $file_id;
 		} else {
 			$tmb = $basepath . md5($file);
-			if (substr($file, 1, 1) === '/') {
+			if ('/' === substr($file, 1, 1)) {
 				$_head = substr($file, 0, 1);
-				if (strpos($file, '%') !== false) {
+				if (false !== strpos($file, '%')) {
 					$file = dirname($file) . DIRECTORY_SEPARATOR . rawurldecode(basename($file));
 				}
 				switch($_head) {
@@ -62,7 +62,7 @@ if ($file_id && ($res = $xoopsDB->query($query)) && $xoopsDB->getRowsNum($res)) 
 		
 		$check = max($width, $height);
 		if ($s < $check && function_exists('XC_CLASS_EXISTS') && XC_CLASS_EXISTS('HypCommonFunc')) {
-			$s_file = $tmb . '_' . intval($s / $check * 100) . '.tmb';
+			$s_file = $tmb . '_' . (int)($s / $check * 100) . '.tmb';
 			$out = HypCommonFunc::make_thumb($file, $s_file, $s, $s);
 			if ($out !== $file) {
 				$size = filesize($out);

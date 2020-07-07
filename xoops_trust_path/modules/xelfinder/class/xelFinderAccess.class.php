@@ -2,14 +2,14 @@
 
 class xelFinderAccess {
 	
-	private $readRegexs = array();
-	private $writeRegexs = array();
-	private $hiddenRegexs = array();
-	private $unlockRegexs = array();
-	private $readDirRegexs = array();
-	private $writeDirRegexs = array();
-	private $hiddenDirRegexs = array();
-	private $unlockDirRegexs = array();
+	private $readRegexs = [];
+	private $writeRegexs = [];
+	private $hiddenRegexs = [];
+	private $unlockRegexs = [];
+	private $readDirRegexs = [];
+	private $writeDirRegexs = [];
+	private $hiddenDirRegexs = [];
+	private $unlockDirRegexs = [];
 	
 	public function setReadExtention($str) {
 		$regs = $this->makeRegexExtention($str);
@@ -38,13 +38,13 @@ class xelFinderAccess {
 	private function makeRegexExtention($str) {
 		$str = trim($str, ' ,');
 		if ($str) {
-			$_exts = $_dirs = array();
+			$_exts = $_dirs = [];
 			//$str = preg_quote($str, '/');
 			$exts = array_map('trim', explode(',', $str));
 			foreach($exts as $ext) {
-				if ($ext === '') continue;
-				if (substr($ext, -1) === '/') {
-					if ($ext === '/') {
+				if ('' === $ext) continue;
+				if ('/' === substr($ext, -1)) {
+					if ('/' === $ext) {
 						$_dirs[] = '(?=)';
 					} else {
 						$_dirs[] = preg_quote(rtrim($ext, '/'), '/');
@@ -53,12 +53,12 @@ class xelFinderAccess {
 					$_exts[] = preg_quote($ext, '/');
 				}
 			}
-			$extReg = $_exts? '/(?:'.join('|', $_exts).')$/i' : '/(?!)/';
-			$dirReg = $_dirs? '/(?:'.join('|', $_dirs).')$/i' : '/(?!)/';
+			$extReg = $_exts? '/(?:' . implode('|', $_exts) . ')$/i' : '/(?!)/';
+			$dirReg = $_dirs? '/(?:' . implode('|', $_dirs) . ')$/i' : '/(?!)/';
 		} else {
 			$extReg = $dirReg = '/(?!)/';
 		}
-		return array($extReg, $dirReg);
+		return [$extReg, $dirReg];
 	}
 	
 	private function regMatch($regs, $str) {
@@ -69,14 +69,17 @@ class xelFinderAccess {
 		}
 		return false;
 	}
-	
-	/**
-	 * Simple function to demonstrate how to control file access using "accessControl" callback.
-	 *
-	 * @param  string  $attr  attribute name (read|write|locked|hidden)
-	 * @param  string  $path  file path relative to volume root directory started with directory separator
-	 * @return bool|null
-	 **/
+
+    /**
+     * Simple function to demonstrate how to control file access using "accessControl" callback.
+     *
+     * @param string $attr attribute name (read|write|locked|hidden)
+     * @param string $path file path relative to volume root directory started with directory separator
+     * @param        $data
+     * @param        $volume
+     * @param        $isDir
+     * @return bool|null
+     */
 	public function access($attr, $path, $data, $volume, $isDir) {
 		switch ($attr) {
 			case 'read' :

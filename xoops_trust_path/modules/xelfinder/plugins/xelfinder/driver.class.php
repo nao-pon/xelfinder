@@ -19,8 +19,8 @@ class elFinderVolumeXoopsXelfinder extends elFinderVolumeLocalFileSystem {
 	 **/
 	protected function updateCache($path, $stat) {
 		$stat = parent::updateCache($path, $stat);
-		if ($stat && $stat['mime'] !== 'directory') {
-			if (strpos($path, XOOPS_TRUST_PATH) === 0) {
+		if ($stat && 'directory' !== $stat['mime']) {
+			if (0 === strpos($path, XOOPS_TRUST_PATH)) {
 				$stat['_localpath'] = str_replace(XOOPS_ROOT_PATH, 'T', $path );
 			} else {
 				$stat['_localpath'] = str_replace(XOOPS_ROOT_PATH, 'R', $path );

@@ -88,7 +88,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 		$this->tbc = $this->db->prefix($this->mydirname) . '_cat';
 		$this->tbf = $this->db->prefix($this->mydirname) . '_photos';
 
-		if (is_null($this->options['syncChkAsTs'])) {
+		if (null === $this->options['syncChkAsTs']) {
 			$this->options['syncChkAsTs'] = true;
 		}
 
@@ -120,14 +120,14 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 		return $debug;
 	}
 
-	/**
-	 * Perform sql query and return result.
-	 * Increase sqlCnt and save error if occured
-	 *
-	 * @param  string  $sql  query
-	 * @return misc
-	 * @author Dmitry (dio) Levashov
-	 **/
+    /**
+     * Perform sql query and return result.
+     * Increase sqlCnt and save error if occured
+     *
+     * @param string $sql query
+     * @return bool|\mysqli_result
+     * @author Dmitry (dio) Levashov
+     */
 	protected function query($sql) {
 		$this->sqlCnt++;
 		$res = $this->db->query($sql);
@@ -151,7 +151,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 	 **/
 	protected function updateCache($path, $stat) {
 		$stat = parent::updateCache($path, $stat);
-		if ($stat && $stat['mime'] !== 'directory') $stat['_localpath'] = str_replace(XOOPS_ROOT_PATH, 'R', realpath($this->options['filePath'])  . DIRECTORY_SEPARATOR . str_replace($this->options['URL'], '', $stat['url']) );
+		if ($stat && 'directory' !== $stat['mime']) $stat['_localpath'] = str_replace(XOOPS_ROOT_PATH, 'R', realpath($this->options['filePath']) . DIRECTORY_SEPARATOR . str_replace($this->options['URL'], '', $stat['url']) );
 		return $this->cache[$path] = $stat;
 	}
 
@@ -163,15 +163,15 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 	 * @author Dmitry Levashov
 	 **/
 	protected function cacheDir($path) {
-		$this->dirsCache[$path] = array();
+		$this->dirsCache[$path] = [];
 
-		if ($path === '_') {
+		if ('_' === $path) {
 			$cid = 0;
 		} else {
 			list($cid) = explode('_', substr($path, 1), 2);
 		}
 
-		$row_def = array(
+		$row_def = [
 			'size' => 0,
 			'ts' => 0,
 			'mime' => '',
@@ -181,10 +181,10 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 			'locked' => true,
 			'hidden' => false,
 			'url'    => null
-		);
+        ];
 
-		$_mtime = array();
-		$_size = array();
+		$_mtime = [];
+		$_size = [];
 
 		// cat (dirctory)
 		$sql = 'SELECT c.pid, c.cid, c.title as name, max(f.`date`) as ts, s.pid as dirs ' .
@@ -256,7 +256,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function getParents($path) {
-		$parents = array();
+		$parents = [];
 
 		while ($path) {
 			if ($file = $this->stat($path)) {
@@ -292,7 +292,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _basename($path) {
-		if ($path === '_') {
+		if ('_' === $path) {
 			return '';
 		} else {
 			list($cid, $name) = explode('_', substr($path, 1), 2);
@@ -309,7 +309,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _joinPath($dir, $name) {
-		if ($dir === '_') {
+		if ('_' === $dir) {
 			$cid = 0;
 		} else {
 			list($cid) = explode('_', substr($dir, 1), 2);
@@ -368,7 +368,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _path($path) {
- 		if (($file = $this->stat($path)) == false) {
+ 		if (false == ($file = $this->stat($path))) {
 			return '';
 		}
 
@@ -417,13 +417,13 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function _stat($path) {
-		if ($path === '_') {
+		if ('_' === $path) {
 			$cid = $lid = 0;
 		} else {
 			list($cid, $lid) = explode('_', substr($path, 1), 2);
 			list($lid) = explode('.', $lid);
 		}
-		$stat_def = array(
+		$stat_def = [
 			'size' => 0,
 			'ts' => 0,
 			'mime' => '',
@@ -433,7 +433,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 			'locked' => true,
 			'hidden' => false,
 			'url'    => null
-		);
+        ];
 
 		if (! $cid) {
 			$stat['name'] = (! empty($this->options['alias'])? $this->options['alias'] : 'untitle');
@@ -483,7 +483,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 			}
 		}
 
-		return array();
+		return [];
 	}
 
 	/**
@@ -520,7 +520,7 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 	 * @author Dmitry (dio) Levashov
 	 **/
 	protected function readlink($path) {
-		if ($path !== '_') {
+		if ('_' !== $path) {
 			list(, $name) = explode('_', substr($path, 1), 2);
 			if ($name) {
 				return realpath($this->options['filePath'] . $name);
@@ -543,14 +543,14 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 		return $this->dirsCache[$path];
 	}
 
-	/**
-	 * Open file and return file pointer
-	 *
-	 * @param  string  $path  file path
-	 * @param  bool    $write open file for writing
-	 * @return resource|false
-	 * @author Dmitry (dio) Levashov
-	 **/
+    /**
+     * Open file and return file pointer
+     *
+     * @param string $path file path
+     * @param string $mode
+     * @return resource|false
+     * @author Dmitry (dio) Levashov
+     */
 	protected function _fopen($path, $mode='rb') {
 		if ($local = $this->readlink($path)) {
 			return @fopen($local, $mode);
@@ -558,13 +558,14 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 		return false;
 	}
 
-	/**
-	 * Close opened file
-	 *
-	 * @param  resource  $fp  file pointer
-	 * @return bool
-	 * @author Dmitry (dio) Levashov
-	 **/
+    /**
+     * Close opened file
+     *
+     * @param resource $fp file pointer
+     * @param string   $path
+     * @return void
+     * @author Dmitry (dio) Levashov
+     */
 	protected function _fclose($fp, $path='') {
 		@fclose($fp);
 	}
@@ -595,14 +596,15 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 		return false;
 	}
 
-	/**
-	 * Create symlink. FTP driver does not support symlinks.
-	 *
-	 * @param  string  $target  link target
-	 * @param  string  $path    symlink path
-	 * @return bool
-	 * @author Dmitry (dio) Levashov
-	 **/
+    /**
+     * Create symlink. FTP driver does not support symlinks.
+     *
+     * @param string $target link target
+     * @param string $path   symlink path
+     * @param        $name
+     * @return bool
+     * @author Dmitry (dio) Levashov
+     */
 	protected function _symlink($target, $path, $name) {
 		return false;
 	}
@@ -621,16 +623,16 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 		return $res;
 	}
 
-	/**
-	 * Move file into another parent dir.
-	 * Return new file path or false.
-	 *
-	 * @param  string  $source  source file path
-	 * @param  string  $target  target dir path
-	 * @param  string  $name    file name
-	 * @return string|bool
-	 * @author Dmitry (dio) Levashov
-	 **/
+    /**
+     * Move file into another parent dir.
+     * Return new file path or false.
+     *
+     * @param string $source source file path
+     * @param        $targetDir
+     * @param string $name   file name
+     * @return string|bool
+     * @author Dmitry (dio) Levashov
+     */
 	protected function _move($source, $targetDir, $name) {
 		return false;
 	}
@@ -703,21 +705,23 @@ class elFinderVolumeXoopsMyalbum extends elFinderVolumeDriver {
 		return false;
 	}
 
-	/**
-	 * Detect available archivers
-	 *
-	 * @return void
-	 **/
+    /**
+     * Detect available archivers
+     *
+     * @return array
+     */
 	protected function _checkArchivers() {
 		// die('Not yet implemented. (_checkArchivers)');
-		return array();
+		return [];
 	}
 
-	/**
-	 * chmod implementation
-	 *
-	 * @return bool
-	 **/
+    /**
+     * chmod implementation
+     *
+     * @param $path
+     * @param $mode
+     * @return bool
+     */
 	protected function _chmod($path, $mode) {
 		return false;
 	}

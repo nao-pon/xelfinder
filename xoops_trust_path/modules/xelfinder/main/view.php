@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(dirname(__FILE__)) . '/class/xelFinderMisc.class.php';
+require_once dirname(__DIR__) . '/class/xelFinderMisc.class.php';
 $xelFinderMisc = new xelFinderMisc($mydirname);
 $xelFinderMisc->myConfig = $xoopsModuleConfig;
 $xelFinderMisc->dbSetCharset('utf8');
@@ -30,9 +30,9 @@ if ($file_id && ($res = $xoopsDB->query($query)) && $xoopsDB->getRowsNum($res)) 
 			$prefix = defined('XELFINDER_DB_FILENAME_PREFIX')? XELFINDER_DB_FILENAME_PREFIX : substr(XOOPS_URL, strpos(XOOPS_URL, '://') + 3);
 			$file = XOOPS_TRUST_PATH . '/uploads/xelfinder/'. rawurlencode($prefix) . '_' . $mydirname . '_' . $file_id;
 		} else {
-			if (substr($file, 1, 1) === '/') {
+			if ('/' === substr($file, 1, 1)) {
 				$_head = substr($file, 0, 1);
-				if (strpos($file, '%') !== false) {
+				if (false !== strpos($file, '%')) {
 					$file = dirname($file) . DIRECTORY_SEPARATOR . rawurldecode(basename($file));
 				}
 				switch($_head) {

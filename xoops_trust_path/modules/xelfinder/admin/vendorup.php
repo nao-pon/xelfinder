@@ -15,7 +15,7 @@ if (! empty ( $_POST ['doupdate'] )) {
 	
 	while ( @ob_end_flush() );
 	flush ();
-	$pluginsDir = dirname ( dirname ( __FILE__ ) ) . '/plugins';
+	$pluginsDir = dirname (__DIR__) . '/plugins';
 	$cwd = getcwd ();
 	chdir ( $pluginsDir );
 	
@@ -39,7 +39,7 @@ if (! empty ( $_POST ['doupdate'] )) {
 	
 	$phpcli = !empty($_POST['phpcli'])? trim($_POST['phpcli']) : 'php';
 	$php54 = !empty($_POST['php54']);
-	$cmds = array();
+	$cmds = [];
 	$cmds[] = $phpcli.' -d curl.cainfo=cacert.pem -d openssl.cafile=cacert.pem composer.phar self-update --no-ansi --no-interaction 2>&1';
 	if ($php54) {
 	    $cmds[] = $phpcli.' -d curl.cainfo=cacert.pem -d openssl.cafile=cacert.pem composer.phar remove --no-update kunalvarma05/dropbox-php-sdk';
@@ -53,9 +53,9 @@ if (! empty ( $_POST ['doupdate'] )) {
 	foreach($cmds as $cmd) {
 		$res = '';
 		$handle = popen($cmd, 'r');
-		while ($res !== false && $handle && !feof($handle)) {
+		while (false !== $res && $handle && !feof($handle)) {
 			if ($res = fgets($handle, 80)) {
-				echo $res . '<br />';
+				echo $res . '<br>';
 				flush ();
 			}
 		}
@@ -70,7 +70,7 @@ if (! empty ( $_POST ['doupdate'] )) {
 	exit ();
 }
 xoops_cp_header ();
-include dirname ( __FILE__ ) . '/mymenu.php';
+include __DIR__ . '/mymenu.php';
 
 echo '<h3>' . xelfinderAdminLang ( 'COMPOSER_UPDATE' ) . '</h3>';
 
@@ -89,7 +89,7 @@ if ($php54up = version_compare(PHP_VERSION, '5.4.0', '>=')) {
 		target="composer_update">
 		<table><tr>
 			<td>
-				<p>PHP CLI Command<br /><label><input value="php" type="radio" name="cli" checked="checked">Default is "php"</label></p>
+				<p>PHP CLI Command<br><label><input value="php" type="radio" name="cli" checked="checked">Default is "php"</label></p>
 				<p><input type="text" name="phpcli" value="php" /></p>
 			</td>
 			<td>
@@ -104,7 +104,7 @@ if ($php54up = version_compare(PHP_VERSION, '5.4.0', '>=')) {
 		<p>
 		<input type="submit" name="doupdate" id="xelfinder_vendorup_s"
 			value="<?php echo xelfinderAdminLang('COMPOSER_DO_UPDATE'); ?>" />
-		<input type="hidden" name="php54" value="<?php echo $curver === '5.4' ? '1' : '0'; ?>" />
+		<input type="hidden" name="php54" value="<?php echo '5.4' === $curver ? '1' : '0'; ?>" />
 		</p>
 	</form>
 </div>

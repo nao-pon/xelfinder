@@ -38,7 +38,7 @@ class elFinderVolumeFTPx extends elFinderVolumeFTP {
 		// switch off extended passive mode - may be usefull for some servers
 		@ftp_exec($this->connect, 'epsv4 off' );
 		// enter passive mode if required
-		ftp_pasv($this->connect, $this->options['mode'] == 'passive');
+		ftp_pasv($this->connect, 'passive' == $this->options['mode']);
 	
 		// enter root folder
 		if (! @ftp_chdir($this->connect, $this->root)
@@ -57,7 +57,7 @@ class elFinderVolumeFTPx extends elFinderVolumeFTP {
 		}
 	
 		foreach ($features as $feat) {
-			if (strpos(trim($feat), 'MLST') === 0) {
+			if (0 === strpos(trim($feat), 'MLST')) {
 				$this->MLSTsupprt = true;
 				break;
 			}
@@ -76,7 +76,7 @@ class elFinderVolumeFTPx extends elFinderVolumeFTP {
 			}
 			if (@ ftp_chdir($this->connect, $root)) {
 				$this->root = substr($this->root, $checkLen - strlen($root));
-				if ($this->root === '') {
+				if ('' === $this->root) {
 					$this->root = '/';
 				}
 				return true;

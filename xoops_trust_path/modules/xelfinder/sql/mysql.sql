@@ -19,7 +19,7 @@ CREATE TABLE `file` (
   PRIMARY KEY (`file_id`),
   UNIQUE KEY `parent_name` (`parent_id`,`name`),
   KEY `parent_id` (`parent_id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 CREATE TABLE `link` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -33,7 +33,7 @@ CREATE TABLE `link` (
   UNIQUE KEY `mid_key_val` (`mid`,`param`,`val`),
   KEY `uri` (`uri`(255)),
   KEY `file_id` (`file_id`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;
 
 CREATE TABLE `userdat` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -43,4 +43,4 @@ CREATE TABLE `userdat` (
   `mtime` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `uid_key` (`uid`,`key`)
-) ENGINE=MyISAM;
+) ENGINE=InnoDB;

@@ -33,10 +33,10 @@ if ($php54up = version_compare(PHP_VERSION, '5.4.0', '>=')) {
 		}
 
 		if ($clientId && $clientSecret) {
-			$_SESSION[$sessClientKey] = array (
+			$_SESSION[$sessClientKey] = [
 				'ClientId' => $clientId,
 				'ClientSecret' => $clientSecret
-			);
+            ];
 		} elseif (isset($_SESSION[$sessClientKey])) {
 			$clientId = $_SESSION[$sessClientKey]['ClientId'];
 			$clientSecret = $_SESSION[$sessClientKey]['ClientSecret'];
@@ -63,7 +63,7 @@ if ($php54up = version_compare(PHP_VERSION, '5.4.0', '>=')) {
 }
 
 xoops_cp_header();
-include dirname(__FILE__) . '/mymenu.php';
+include __DIR__ . '/mymenu.php';
 
 echo '<h3>' . xelfinderAdminLang('GOOGLEDRIVE_GET_TOKEN') . '</h3>';
 
@@ -73,11 +73,11 @@ if ($php54up && $vendor) {
 		if (empty($_POST) && $client->getAccessToken()) {
 			try {
 				$aToken = $client->getAccessToken();
-				$token = array (
+				$token = [
 					'client_id' => $client->getClientId(),
 					'client_secret' => $client->getClientSecret(),
 					'access_token' => $aToken['access_token']
-				);
+                ];
 				if (isset($aToken['refresh_token'])) {
 					unset($token['access_token']);
 					$token['refresh_token'] = $aToken['refresh_token'];
@@ -109,7 +109,7 @@ if ($php54up && $vendor) {
 			if (! empty($_POST['revoke'])) {
 				$client->revokeToken();
 			}
-			$scopes = array();
+			$scopes = [];
 			foreach($_POST['scopes'] as $scope) {
 				switch ($scope) {
 					case 'DRIVE' :
@@ -139,7 +139,7 @@ if ($php54up && $vendor) {
 	<li>Make Project in Google Developers Console (<a href="https://console.developers.google.com/apis/dashboard" target="_brank">console.developers.google.com/apis/dashboard</a>)</li>
 	<li>Enable Drive API</li>
 	<li>Make Authentication  infomation (Type of Web Server & User data)</li>
-	<li>Make OAuth 2.0 Client<br />(Redirect URI: <?php echo $selfURL; ?> )</li>
+	<li>Make OAuth 2.0 Client<br>(Redirect URI: <?php echo $selfURL; ?> )</li>
 	<li>Get JSON and Paste it next TextArea</li>
 	<li>And Click "Get authentication link"</li>
 	<li>Then Approve this app in your account</li>
@@ -152,7 +152,7 @@ if ($php54up && $vendor) {
 	<p><strong>OR</strong></p>
 	<p>
 		ClientId: <input type="text" name="ClientId" style="width: 50em"
-			value="<?php echo htmlspecialchars($clientId); ?>"><br />
+			value="<?php echo htmlspecialchars($clientId); ?>"><br>
 	</p>
 	<p>
 		ClientSecret: <input type="text" name="ClientSecret"

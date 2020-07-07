@@ -1,5 +1,5 @@
 <?php
-require_once dirname(dirname(__FILE__)) . '/myalbum/driver.class.php';
+require_once dirname(__DIR__) . '/myalbum/driver.class.php';
 
 /**
  * Simple elFinder driver for MySQL.
@@ -27,15 +27,15 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 	 * @author Naoki Sawada
 	 **/
 	protected function cacheDir($path) {
-		$this->dirsCache[$path] = array();
+		$this->dirsCache[$path] = [];
 
-		if ($path === '_') {
+		if ('_' === $path) {
 			$cid = 0;
 		} else {
 			list($cid) = explode('_', substr($path, 1), 2);
 		}
 
-		$row_def = array(
+		$row_def = [
 			'size' => 0,
 			'ts' => 0,
 			'mime' => '',
@@ -45,10 +45,10 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 			'locked' => true,
 			'hidden' => false,
 			'url'    => null
-		);
+        ];
 
-		$_mtime = array();
-		$_size = array();
+		$_mtime = [];
+		$_size = [];
 
 		// cat (dirctory)
 		$sql = 'SELECT c.pid, c.cid, c.title as name, max(f.`date`) as ts, s.pid as dirs ' .
@@ -96,7 +96,7 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 					} else {
 						$row['phash'] = $this->encode('_'.$cid.'_');
 					}
-					$ids = $width = $height = $name = array();
+					$ids = $width = $height = $name = [];
 					$ids[0] = $row['id'];
 					$ids[1] = $row['id1'];
 					$ids[2] = $row['id2'];
@@ -114,7 +114,7 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 						$row['id1'], $row['width1'], $row['height1'], $row['name1'],
 						$row['id2'], $row['width2'], $row['height2'], $row['name2']);
 					for($_cnt = 0; $_cnt < 3; $_cnt++) {
-						if (substr($ids[$_cnt], -1) === '.') continue;
+						if ('.' === substr($ids[$_cnt], -1)) continue;
 						$id = '_'.$cid.'_'.$ids[$_cnt];
 						$realpath = realpath($this->options['filePath'].$ids[$_cnt]);
 						if (is_file($realpath)) {
@@ -148,7 +148,7 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 	 * @author Naoki Sawada
 	 **/
 	protected function _joinPath($dir, $name) {
-		if ($dir === '_') {
+		if ('_' === $dir) {
 			$cid = 0;
 		} else {
 			list($cid) = explode('_', substr($dir, 1), 2);
@@ -204,7 +204,7 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 	 * @author Naoki Sawada
 	 **/
 	protected function _stat($path) {
-		if ($path === '_') {
+		if ('_' === $path) {
 			$cid = $lid = 0;
 		} else {
 			list($cid, $lid) = explode('_', substr($path, 1), 2);
@@ -214,7 +214,7 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 				$cnt = (int)$cnt;
 			}
 		}
-		$stat_def = array(
+		$stat_def = [
 			'size' => 0,
 			'ts' => 0,
 			'mime' => '',
@@ -224,7 +224,7 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 			'locked' => true,
 			'hidden' => false,
 			'url'    => null
-		);
+        ];
 
 		if (! $cid) {
 			$stat['name'] = (! empty($this->options['alias'])? $this->options['alias'] : 'untitle');
@@ -274,7 +274,7 @@ class elFinderVolumeXoopsGnavi extends elFinderVolumeXoopsMyalbum {
 			}
 		}
 
-		return array();
+		return [];
 	}
 	
 	/**

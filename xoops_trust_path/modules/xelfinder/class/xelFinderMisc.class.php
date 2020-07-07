@@ -2,10 +2,10 @@
 
 class xelFinderMisc {
 	
-	var $myConfig;
-	var $db;
-	var $mydirname;
-	var $mode;
+	public $myConfig;
+	public $db;
+	public $mydirname;
+	public $mode;
 	
 	public function __construct($mydirname) {
 		$this->db = XoopsDatabaseFactory::getDatabaseConnection();
@@ -27,30 +27,30 @@ class xelFinderMisc {
 			$isAdmin = $xoopsUser->isAdmin($xModule->getVar('mid'));
 		} else {
 			$uid = 0;
-			$groups = array(XOOPS_GROUP_ANONYMOUS);
+			$groups = [XOOPS_GROUP_ANONYMOUS];
 			$isAdmin = false;
 		}
 	
 		$isOwner = ($isAdmin || ($f_uid && $f_uid == $uid));
 		$inGroup = (array_intersect($this->getGroupsByUid($f_uid), $groups))? true : false;
 	
-		$perm = strval($perm);
+		$perm = (string)$perm;
 		$own = intval($perm[0], 16);
 		$grp = intval($perm[1], 16);
 		$gus = intval($perm[2], 16);
 	
-		return array($isOwner, $inGroup, $own, $grp, $gus, $perm);
+		return [$isOwner, $inGroup, $own, $grp, $gus, $perm];
 	}
 	
 	private function checkAuth($auth, $perm, $f_uid) {
 		list($isOwner, $inGroup, $own, $grp, $gus, $perm) = $this->authPrepare($perm, $f_uid);
 		//exit(var_dump(array($isOwner, $inGroup, $own, $grp, $gus, $perm)));
 		$ret = false;
-		if (strpos($auth, 'r') !== false) {
-			$ret = (($isOwner && (4 & $own) === 4) || ($inGroup && (4 & $grp) === 4) || (4 & $gus) === 4);
+		if (false !== strpos($auth, 'r')) {
+			$ret = (($isOwner && 4 === (4 & $own)) || ($inGroup && 4 === (4 & $grp)) || 4 === (4 & $gus));
 		}
-		if ($ret && strpos($auth, 'w') !== false) {
-			$ret = (($isOwner && (2 & $own) === 2) || ($inGroup && (2 & $grp) === 2) || (2 & $gus) === 2);
+		if ($ret && false !== strpos($auth, 'w')) {
+			$ret = (($isOwner && 2 === (2 & $own)) || ($inGroup && 2 === (2 & $grp)) || 2 === (2 & $gus));
 		}
 		return $ret;
 	}
@@ -58,7 +58,7 @@ class xelFinderMisc {
 	public function dbSetCharset($charset = 'utf8') {
 		if (!$this->db) return false;
 		$db = $this->db;
-		$link = (is_object($db->conn) && get_class($db->conn) === 'mysqli')? $db->conn : false;
+		$link = (is_object($db->conn) && 'mysqli' === get_class($db->conn))? $db->conn : false;
 		if ($link) {
 			return mysqli_set_charset($link, $charset);
 		} else {
@@ -70,11 +70,11 @@ class xelFinderMisc {
 		
 		list($isOwner, $inGroup, $own, $grp, $gus, $perm) = $this->authPrepare($perm, $f_uid);
 		
-		if ($readable = (($isOwner && (4 & $own) === 4) || ($inGroup && (4 & $grp) === 4) || (4 & $gus) === 4)) {
-			if ($file_id && $this->mode === 'view' && ! empty($this->myConfig['edit_disable_linked'])) {
-				if ((2 & $own) === 2 || (2 & $grp) === 2 || (2 & $gus) === 2 || (1 & $own) === 1 || (1 & $grp) === 1 || (1 & $gus) === 1) {
+		if ($readable = (($isOwner && 4 === (4 & $own)) || ($inGroup && 4 === (4 & $grp)) || 4 === (4 & $gus))) {
+			if ($file_id && 'view' === $this->mode && ! empty($this->myConfig['edit_disable_linked'])) {
+				if (2 === (2 & $own) || 2 === (2 & $grp) || 2 === (2 & $gus) || 1 === (1 & $own) || 1 === (1 & $grp) || 1 === (1 & $gus)) {
 					$refer = @ $_SERVER['HTTP_REFERER'];
-					if (strpos($refer, 'http') === 0 && ! preg_match('#^'.preg_quote(XOOPS_URL).'/[^?]+manager\.php#', $refer)) {
+					if (0 === strpos($refer, 'http') && ! preg_match('#^' . preg_quote(XOOPS_URL) . '/[^?]+manager\.php#', $refer)) {
 						$perm = dechex($own & ~3).dechex($grp & ~3).dechex($gus & ~3);
 						$tbf = $this->db->prefix($this->mydirname) . '_file';
 						$sql = sprintf('UPDATE %s SET `perm`="%s" WHERE `file_id` = "%d" LIMIT 1', $tbf, $perm, $file_id);
@@ -94,13 +94,13 @@ class xelFinderMisc {
 			$user = $user_handler->get( $uid );
 			$groups = $user->getGroups();
 		} else {
-			$groups = array( XOOPS_GROUP_ANONYMOUS );
+			$groups = [XOOPS_GROUP_ANONYMOUS];
 		}
 		return $groups;
 	}
 	
 	public function getUserHome($auth = 'rw', $uid = null) {
-		if (is_null($uid)) {
+		if (null === $uid) {
 			global $xoopsUser;
 			$uid = is_object($xoopsUser)? $xoopsUser->uid() : 0;
 		}
@@ -120,7 +120,7 @@ class xelFinderMisc {
 	}
 	
 	public function getGroupHome($auth = 'rw', $uid = null) {
-		if (is_null($uid)) {
+		if (null === $uid) {
 			global $xoopsUser;
 			$user = $xoopsUser;
 		} else if ($uid) {
@@ -133,7 +133,7 @@ class xelFinderMisc {
 		$groups = $user->getGroups();
 		sort($groups);
 		//exit(var_dump($groups));
-		if ($groups[0] == XOOPS_GROUP_ANONYMOUS) {
+		if (XOOPS_GROUP_ANONYMOUS == $groups[0]) {
 			return isset($groups[1])? $this->getUserHome($auth, '-'.$groups[1]) : false;
 		} else {
 			return $this->getUserHome($auth, '-'.$groups[0]);
@@ -141,7 +141,7 @@ class xelFinderMisc {
 	}
 	
 	public function getHash($id, $prefix = null) {
-		if (is_null($prefix)) {
+		if (null === $prefix) {
 			$prefix = 'xe_'.$this->mydirname.'_';
 		}
 		$hash = strtr(base64_encode($id), '+/=', '-_.');
@@ -155,17 +155,17 @@ class xelFinderMisc {
 		
 		$disp = (isset($_GET['dl']))? 'attachment' : 'inline';
 		
-		if ($name === '') {
+		if ('' === $name) {
 			$filename = '';
 		} else {
 			$filenameEncoded = rawurlencode($name);
-			if (strpos($filenameEncoded, '%') === false) { // ASCII only
+			if (false === strpos($filenameEncoded, '%')) { // ASCII only
 				$filename = 'filename="'.$name.'"';
 			} else {
 				$ua = $_SERVER['HTTP_USER_AGENT'];
 				if (preg_match('/MSIE [4-8]/', $ua)) { // IE < 9 do not support RFC 6266 (RFC 2231/RFC 5987)
 					$filename = 'filename="'.$filenameEncoded.'"';
-				} elseif (strpos($ua, 'Chrome') === false && strpos($ua, 'Safari') !== false && preg_match('#Version/[3-5]#', $ua)) { // Safari < 6
+				} elseif (false === strpos($ua, 'Chrome') && false !== strpos($ua, 'Safari') && preg_match('#Version/[3-5]#', $ua)) { // Safari < 6
 					$filename = 'filename="'.str_replace('"', '', $file['name']).'"';
 				} else { // RFC 6266 (RFC 2231/RFC 5987)
 					$filename = 'filename*=UTF-8\'\''.$filenameEncoded;
@@ -176,10 +176,10 @@ class xelFinderMisc {
 		header('Content-Length: '.$size);
 		header('Content-Type: '.$mime);
 		header('Content-Disposition: '.$disp.'; '.$filename);
-		header('Last-Modified: '  . gmdate( "D, d M Y H:i:s", $mtime ) . " GMT" );
+		header('Last-Modified: '  . gmdate('D, d M Y H:i:s', $mtime ) . ' GMT');
 		header('Etag: '. $mtime);
 		header('Cache-Control: private, max-age=' . XELFINDER_CACHE_TTL );
-		header('Expires: ' . gmdate( "D, d M Y H:i:s", XELFINDER_UNIX_TIME + XELFINDER_CACHE_TTL ) . ' GMT');
+		header('Expires: ' . gmdate('D, d M Y H:i:s', XELFINDER_UNIX_TIME + XELFINDER_CACHE_TTL ) . ' GMT');
 		header('Pragma:');
 		
 		if (function_exists('XC_CLASS_EXISTS') && XC_CLASS_EXISTS('HypCommonFunc')) {
@@ -195,7 +195,7 @@ class xelFinderMisc {
 			header('HTTP/1.1 304 Not Modified');
 			header('Etag: '. $time);
 			header('Cache-Control: public, max-age=' . XELFINDER_CACHE_TTL );
-			header('Expires: ' . gmdate( "D, d M Y H:i:s", XELFINDER_UNIX_TIME + XELFINDER_CACHE_TTL) . ' GMT');
+			header('Expires: ' . gmdate('D, d M Y H:i:s', XELFINDER_UNIX_TIME + XELFINDER_CACHE_TTL) . ' GMT');
 			header('Pragma:');
 			exit;
 		}
@@ -204,10 +204,10 @@ class xelFinderMisc {
 	public function if_modified_since() {
 		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
 			$str = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
-			if (($pos = strpos($str, ';')) !== false) {
+			if (false !== ($pos = strpos($str, ';'))) {
 				$str = substr($str, 0, $pos);
 			}
-			if (strpos($str, ',') === false) {
+			if (false === strpos($str, ',')) {
 				$str .= ' GMT';
 			}
 			$time = strtotime($str);

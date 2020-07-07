@@ -1,6 +1,6 @@
 <?php
 /*
- * Created on 2012/01/22 by nao-pon http://hypweb.net/
+ * Created on 2012/01/22 by nao-pon https://hypweb.net/
  */
 
 if (! defined('XOOPS_MODULE_PATH')) define('XOOPS_MODULE_PATH', XOOPS_ROOT_PATH . '/modules');

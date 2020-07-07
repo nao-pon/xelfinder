@@ -3,7 +3,7 @@
 /********* mymenu for D3 modules always require altsys>=0.5 ********/
 
 // Deny direct access
-if( preg_replace( '/[^a-zA-Z0-9_-]/' , '' , @$_GET['page'] ) == 'mymenu' ) exit ;
+if('mymenu' == preg_replace('/[^a-zA-Z0-9_-]/' , '' , @$_GET['page'] )) exit ;
 
 // Skip for ORETEKI XOOPS
 if( defined( 'XOOPS_ORETEKI' ) ) return ;
@@ -19,7 +19,7 @@ require_once( $langmanpath ) ;
 $langman = D3LanguageManager::getInstance() ;
 $langman->read( 'modinfo.php' , $mydirname , $mytrustdirname ) ;
 
-include dirname(dirname(__FILE__)).'/admin_menu.php' ;
+include dirname(__DIR__) . '/admin_menu.php' ;
 
 $adminmenu = array_merge( $adminmenu , $adminmenu4altsys ) ;
 
@@ -39,7 +39,7 @@ foreach( array_keys( $adminmenu ) as $i ) {
 }
 if( empty( $adminmenu_hilighted ) ) {
 	foreach( array_keys( $adminmenu ) as $i ) {
-		if( substr($adminmenu[$i]['link'], 0, 6) === 'admin/' && stristr( $mymenu_uri , $adminmenu[$i]['link'] ) ) {
+		if('admin/' === substr($adminmenu[$i]['link'], 0, 6) && stristr($mymenu_uri , $adminmenu[$i]['link'] ) ) {
 			$adminmenu[$i]['selected'] = true ;
 			$GLOBALS['altsysAdminPageTitle'] = $adminmenu[$i]['title'] ;
 			break ;
@@ -49,7 +49,7 @@ if( empty( $adminmenu_hilighted ) ) {
 
 // link conversion from relative to absolute
 foreach( array_keys( $adminmenu ) as $i ) {
-	if( stristr( $adminmenu[$i]['link'] , XOOPS_URL ) === false ) {
+	if(false === stristr($adminmenu[$i]['link'] , XOOPS_URL )) {
 		$adminmenu[$i]['link'] = XOOPS_MODULE_URL."/$mydirname/" . $adminmenu[$i]['link'] ;
 	}
 }
@@ -57,9 +57,8 @@ foreach( array_keys( $adminmenu ) as $i ) {
 // display
 require_once XOOPS_TRUST_PATH.'/libs/altsys/class/D3Tpl.class.php' ;
 $tpl = new D3Tpl() ;
-$tpl->assign( array(
+$tpl->assign([
 	'adminmenu' => $adminmenu ,
-) ) ;
+             ]
+) ;
 $tpl->display( 'db:altsys_inc_mymenu.html' ) ;
-
-?>
