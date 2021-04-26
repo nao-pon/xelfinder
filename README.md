@@ -1,56 +1,51 @@
-# X-elFinder (えっくす・えるふぁいんだー)
+# X-elFinder (File manager and editor)
 
-JavaScript + PHP で動作する Webベースファイルマネージャーの [elFinder 2.0](http://elfinder.org/) を XOOPS 用にモジュール化したもの。
+X-elFinder (X-elFinder)
+elFinder 2.x, web-based file manager running on JavaScript + PHP module for XOOPS Cube.
 
-XOOPS にインストールすることで、イメージマネージャーと換装して利用することができます。
-
-ただし、XOOPS Cube Legacy 以外は、XOOPS_ROOT_PATH/imagemanager.php を若干編集する必要があります。
-
-開発は github 上で行われています。
 
 * [nao-pon/xelfinder - GitHub](https://github.com/nao-pon/xelfinder)
 
-ダウンロードは上記のページの「[ZIP](https://github.com/nao-pon/xelfinder/zipball/master)」から行えます。
+You can download it from "[ZIP](https://github.com/nao-pon/xelfinder/zipball/master)" on the above page.
 
-X-elFinder に関する話題、質問、要望 はフォーラムーへ。
+For topics, questions, and requests about X-elFinder, please visit the forum.
 
 * [X-elFinder - フォーラム - XOOPS マニア](http://xoops.hypweb.net/modules/forum/index.php?forum_id=25)
 
-## 動作環境
+## Environment
 
-* XOOPS 系プラットフォーム
- * 動作確認済みプラットフォーム
+* XOOPS platforms
+ * Verified platforms
   * XOOPS Cube Legacy 2.2.0, 2.2.1
   * XOOPS 2.1.16-JP
-  * XOOPS 2.5.5
-* PHP 5.2 以上
+  XOOPS 2.1.16-JP * XOOPS 2.5.5
+* PHP 5.2 or higher
 
-## インストール時の注意事項
+## Notes on installation
 
-次のディレクトリに書き込み(ファイル作成)権限 (777 とか 707 など) が必要です。
+The following directories require write (file creation) permission (e.g. 777 or 707).
 
 * html/modules/xelfinder/cache
 * html/modules/xelfinder/cache/tmb
 * xoops_trust_path/uploads/xelfinder
 
-画像参照に PathInfo を使用していますが、サーバー環境によっては PathInfo が使えず正常に表示されない場合があります。
+PathInfo is used for image referencing, but depending on the server environment, PathInfo may not be available and the image may not be displayed correctly.
 
-その場合には、管理画面の一般設定で「ファイル参照URLの PathInfo を無効にする」を「はい」にしてください。
+In this case, please set "Disable PathInfo for file reference URLs" to "Yes" in the general settings of the administration page.
 
-### ポップアップを IFRAME に変更したい場合
+### Change the popup to IFRAME
 
-elFinder のポップアップには XOOPS の xoops.js に含まれている openWithSelfMain() を使用しますが、
-openWithSelfMain() では、別ウィンドウが開きます。これを IFRAME を使ったポップアップに変更したい場合は、
-テーマの theme.html にて `<{$xoops_js}>` を読み込んだ後で、openWithSelfMain_iframe.js を読みこませることで
-それが可能になります。
+The default popup openWithSelfMain() will open a new window so,  
+to change this to a popup using IFRAME, load `<{xoops_js}>` in theme.html,   
+and then load openWithSelfMain_iframe.js.
 
-HypConf(HypCommon の設定) モジュールの「その他の設定」-「&lt;head&gt;内の最後に挿入するタグ」に
+From the HypConf (HypCommon settings) module, select "Other settings" - "Tags to insert at the end of &lt;head&gt;".
 
     <script type="text/javascript" src="<{$xoops_url}>/modules/xelfinder/include/js/openWithSelfMain_iframe.js"></script>
 
-を追加するか次のように theme.html を編集してください。
+or edit theme.html as follows
 
-例 (theme.html):
+Example (theme.html):
 
     <script type="text/javascript">
     <!--
@@ -59,51 +54,52 @@ HypConf(HypCommon の設定) モジュールの「その他の設定」-「&lt;h
     </script>
     <script type="text/javascript" src="<{$xoops_url}>/modules/xelfinder/include/js/openWithSelfMain_iframe.js"></script>
 
-### 依存ライブラリについて
+### About libraries
 
-BBcode での参照時など用に任意の縮小サイズの画像を表示できますが、その機能を有効にするために HypCommonFunc が必須になっています。
+HypCommonFunc is required in order to enable this feature.
 
 * [HypCommonFunc について](http://xoops.hypweb.net/modules/xpwiki/156.html)
 
-## X-elFinder 固有の主な機能
+## X-elFinder Specific Features
 
-elFinder の機能に加えて次のような機能を持っています。
+In addition to the functions of elFinder, it has the following features
 
-* ブラウザウィンドウ間でのドラッグ＆ドロップによるファイルアップロード(Firefox, Chrome, Safari)
-* Pixlr.com を利用した画像編集
-* [Dropbox.com](http://db.tt/w0gZJglT) 上のデータストレージの直接操作 ([こちら](http://db.tt/w0gZJglT)から新規登録＆インストールで500MBのボーナスが得られます。)
-* グループ毎に無効コマンドを指定可能（指定機能の制限）
-* プラグイン形式によるボリューム(ドライブのようなもの)の追加
-    * ボリューム毎に有効にするグループIDを指定可能
-    * xelfinder_db プラグインによるきめ細やかな対応
-        * ユーザー別フォルダー
-        * グループ別フォルダー
-        * ゲスト用フォルダー
-        * フォルダー・ファイルの権限(パーミッション)設定(オーナー・グループ・ゲストに対してそれぞれ、読み込み・書き込み・ロック解除・非表示 を設定可能)
-        * フォルダー単位に新規アイテムのパーミッションを設定可能
-    * xelfinder プラグインでの、サーバー内の任意のディレクトリを指定してそのディレクトリ内の画像ファイルの操作
-    * XOOPS の d3diary, GNAVI, MailBBS, MyAlbum モジュールのプラグインを同梱
-        * それぞれのモジュールに保存されている画像を利用可能
+* Drag and drop file uploads between browser windows. (Firefox, Chrome, Safari)
+* Image editing using Pixlr.com 
+* [Dropbox.com](http://db.tt/w0gZJglT) Direct manipulation of data storage (http://db.tt/w0gZJglT) 500MB bonus for new registration & installation)
+* Disabled commands can be specified for each group (limitation of specified functions)
+* Adding a volume (like a drive) in plug-in form
+    * You can specify the group ID to be enabled for each volume.
+    * xelfinder_db Fine-tuned support with plug-ins
+        * Folders by user ー
+        * Folders by group ー
+        * Guest folder ー
+        * Permission settings for folders and files (read, write, unlock, and hide can be set for owner, group, and guest respectively))
+        * Permissions for new items can be set per folder.
+    * xelfinder Using plug-ins to specify an arbitrary directory in the server and manipulate image files in that directory
+    * XOOPS の d3diary, GNAVI, MailBBS, MyAlbum Module plug-ins included
+        * You can use the images stored in each module.
 
-## XOOPS Cube Legacy 以外の imagemanager.php
+## imagemanager.php   
 
-XOOPS_ROOT_PATH/imagemanager.php で mainfile.php を読み込んでいる行の直後に
+Except for XOOPS Cube Legacy, this can be done by inserting in mainfile.php  
+immediately after the line that reads XOOPS_ROOT_PATH/imagemanager.php :
 
     include 'modules/xelfinder/manager.php';
 
-を挿入すればOKです。
 
-## アンインストール時の注意事項
 
-アンインストールをすると、アップロードされたファイルの実体は残りますが、フォルダ・パーミッション・オーナーなどすべての情報が失われます。
+## Notes on Uninstallation
 
-それらの情報を保存したい場合は、データベースのバックアップを保存しておいてください。
+When uninstalling, the uploaded files will remain, but all information such as folders, permissions, owners, etc. will be lost.
 
-X-elFinder のテーブル名は "[XOOPS DBプレフィクス]_[X-elFinderモジュールディレクトリ名]_" から始まるものとなります。
+If you want to save that information, please save your data with a backup of your database.
 
-なお、アンインストールしてファイル実体も削除したい場合は、"XOOPS_TRUST_PATH/uploads/xelfinder" ディレクトリにある
+X-elFinder table name will start with "[XOOPS DB prefix]_[X-elFinder module directory name]_".
 
-* ファイル実体: "[XOOPS_URLのドメイン部以降]_[X-elFinderモジュールディレクトリ名]_[ファイルID(数値)]"
-* 縮小画像: "[XOOPS_URLのドメイン部以降]_[X-elFinderモジュールディレクトリ名]_[ファイルID(数値)]_[縮小率(数値)].tmb"
+If you want to uninstall and remove the files, you can find them in "XOOPS_TRUST_PATH/uploads/xelfinder" directory.
 
-が対象です。
+* file : "[after domain part of XOOPS_URL]_[X-elFinder module directory name]_[file ID(number)]"
+* thumb: "[after domain part of XOOPS_URL]_[X-elFinder module directory name]_[file ID(number)]_[reduced ratio(number)].tmb"
+
+Please refer to  [elFinder](https://github.com/Studio-42/elFinder) project documentation for details.
