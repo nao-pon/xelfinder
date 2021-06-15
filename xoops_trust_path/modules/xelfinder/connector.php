@@ -281,7 +281,7 @@ try {
 			$config['uploadMaxSize'] = @$config['upload_max_admin'];
 		} elseif ($inSpecialGroup) {
 			$config['uploadAllow'] = @$config['upload_allow_spgroups'];
-			$config['auto_resize'] = @$config['auto_resize_spgroups'];
+			$config['autoResize'] = @$config['auto_resize_spgroups'];
 			$config['uploadMaxSize'] = @$config['upload_max_spgroups'];
 		} elseif ($memberUid) {
 			$config['uploadAllow'] = @$config['upload_allow_user'];
