@@ -68,9 +68,9 @@ define( $constpref.'_GOOGLEAPI_ID_DESC' ,       'Google API Console [ https://co
 define( $constpref.'_GOOGLEAPI_SECRET' ,        'Google API クライアント シークレット' );
 define( $constpref.'_GOOGLEAPI_SECRET_DESC' ,   'Googleドライブをネットワークボリュームとして利用する場合(PHP 5.4 以上が必須)は Google API コンソールの認証情報 - 承認済みのリダイレクト URL に "'.XOOPS_URL.'/modules/'.$mydirname.'/connector.php?cmd=netmount&protocol=googledrive&host=1" を追加してください。' );
 define( $constpref.'_ONEDRIVEAPI_ID' ,          'OneDrive API アプリケーション ID' );
-define( $constpref.'_ONEDRIVEAPI_ID_DESC' ,     'OneDrive API Console [ https://apps.dev.microsoft.com/#/appList ]' );
+define( $constpref.'_ONEDRIVEAPI_ID_DESC' ,     'Azure Active Directory [ https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps ]' );
 define( $constpref.'_ONEDRIVEAPI_SECRET' ,      'OneDrive API パスワード' );
-define( $constpref.'_ONEDRIVEAPI_SECRET_DESC' , 'OneDriveをネットワークボリュームとして利用する場合は OneDrive API アプリケーションの設定 - リダイレクト URL に "'.XOOPS_URL.'/modules/'.$mydirname.'/connector.php/netmount/googledrive/1" を追加してください。' );
+define( $constpref.'_ONEDRIVEAPI_SECRET_DESC' , 'OneDriveをネットワークボリュームとして利用する場合は OneDrive API アプリケーションの設定 - リダイレクト URL に "'.XOOPS_URL.'/modules/'.$mydirname.'/connector.php/netmount/onedrive/1" を追加してください。' );
 define( $constpref.'_DROPBOX_TOKEN' ,           'Dropbox.com アプリケーション Key' );
 define( $constpref.'_DROPBOX_TOKEN_DESC' ,      'Developers - Dropbox [ https://www.dropbox.com/developers ]' );
 define( $constpref.'_DROPBOX_SECKEY' ,          'Dropbox.com アプリケーション Secret key' );
@@ -174,6 +174,9 @@ define( $constpref.'_DISABLE_PATHINFO_DESC' ,   '環境変数 "PATH_INFO" が利用でき
 
 define( $constpref.'_EDIT_DISABLE_LINKED' ,     '[xelfinder_db] リンク済みファイルの書き込み禁止' );
 define( $constpref.'_EDIT_DISABLE_LINKED_DESC' ,'リンク切れや不用意な上書きを防止するためにリンク・参照されたファイルを自動的に書き込み禁止に設定します。' );
+
+define( $constpref.'_CHECK_NAME_VIEW' ,     '[xelfinder_db] ファイル参照URLのファイル名の照合' );
+define( $constpref.'_CHECK_NAME_VIEW_DESC' ,'ファイル参照用URLのファイル名を照合し登録されたファイル名と合致しない場合は "404 Not Found" エラーを返します。' );
 
 define( $constpref.'_CONNECTOR_URL' ,           '外部またはセキュア接続のコネクタURL（任意）' );
 define( $constpref.'_CONNECTOR_URL_DESC' ,      '外部サイトのコネクタに接続する場合やバックエンドとの通信のみセキュアな環境を利用する場合に connector.php の URL を指定してください。' );

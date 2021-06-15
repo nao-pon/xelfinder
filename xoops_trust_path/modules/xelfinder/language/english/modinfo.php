@@ -62,15 +62,15 @@ define( $constpref.'_FTP_SEARCH_DESC' ,         'If in search results include FT
 define( $constpref.'_BOXAPI_ID' ,               'Box API OAuth2 client_id' );
 define( $constpref.'_BOXAPI_ID_DESC' ,          'Box API Console [ https://app.box.com/developers/services ]' );
 define( $constpref.'_BOXAPI_SECRET' ,           'Box API OAuth2 client_secret' );
-define( $constpref.'_BOXAPI_SECRET_DESC' ,      'When using OneDrive as a network volume, please set "'.str_replace('http://','https://',XOOPS_URL).'/modules/'.$mydirname.'/connector.php" in the Box API application setting - redirect_url.(https: Required. Optional paths after domain can be omitted)' );
+define( $constpref.'_BOXAPI_SECRET_DESC' ,      'When using Box as a network volume, please set "'.str_replace('http://','https://',XOOPS_URL).'/modules/'.$mydirname.'/connector.php" in the Box API application setting - redirect_url.(https: Required. Optional paths after domain can be omitted)' );
 define( $constpref.'_GOOGLEAPI_ID' ,            'Google API Client ID' );
 define( $constpref.'_GOOGLEAPI_ID_DESC' ,       'Google API Console [ https://console.developers.google.com ]' );
 define( $constpref.'_GOOGLEAPI_SECRET' ,        'Google API Client Secret' );
 define( $constpref.'_GOOGLEAPI_SECRET_DESC' ,   'If you use Google Drive as a network volume (PHP 5.4 or higher is required) Google API console credentials - approved redirect URL add to "'.XOOPS_URL.'/modules/'.$mydirname.'/connector.php?cmd=netmount&protocol=googledrive&host=1".' );
 define( $constpref.'_ONEDRIVEAPI_ID' ,          'OneDrive API Application ID' );
-define( $constpref.'_ONEDRIVEAPI_ID_DESC' ,     'OneDrive API Console [ https://apps.dev.microsoft.com/#/appList ]' );
+define( $constpref.'_ONEDRIVEAPI_ID_DESC' ,     'Azure Active Directory [ https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredApps ]' );
 define( $constpref.'_ONEDRIVEAPI_SECRET' ,      'OneDrive API Password' );
-define( $constpref.'_ONEDRIVEAPI_SECRET_DESC' , 'When using OneDrive as a network volume, please set "'.XOOPS_URL.'/modules/'.$mydirname.'/connector.php/netmount/googledrive/1" in the OneDrive API application setting - redirect URL.' );
+define( $constpref.'_ONEDRIVEAPI_SECRET_DESC' , 'When using OneDrive as a network volume, please set "'.XOOPS_URL.'/modules/'.$mydirname.'/connector.php/netmount/onedrive/1" in the OneDrive API application setting - redirect URL.' );
 define( $constpref.'_DROPBOX_TOKEN_DESC' ,      'Developers - Dropbox [ https://www.dropbox.com/developers ]' );
 define( $constpref.'_DROPBOX_SECKEY' ,          'Dropbox.com App secret' );
 define( $constpref.'_DROPBOX_SECKEY_DESC' ,     '' );
@@ -173,6 +173,9 @@ define( $constpref.'_DISABLE_PATHINFO_DESC' ,   'The server which cannot use env
 
 define( $constpref.'_EDIT_DISABLE_LINKED' ,     '[xelfinder_db] Write-protect of linked file' );
 define( $constpref.'_EDIT_DISABLE_LINKED_DESC' ,'Write-protect automatically of referenced linked files  for order to prevent inadvertent overwriting or broken links.' );
+
+define( $constpref.'_CHECK_NAME_VIEW' ,     '[xelfinder_db] Matching the file name of the file reference URL' );
+define( $constpref.'_CHECK_NAME_VIEW_DESC' ,'If the file name of the file reference URL is matched and does not match the registered file name, "404 Not Found" error is returned.' );
 
 define( $constpref.'_CONNECTOR_URL' ,           'Connector URL of ext or secure （Optional）' );
 define( $constpref.'_CONNECTOR_URL_DESC' ,      'URL of connector.php, when only communication with the case where it connects with the connector of an external site, or a back end uses secure environment.' );

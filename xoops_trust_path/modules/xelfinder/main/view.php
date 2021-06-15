@@ -4,14 +4,15 @@ require_once dirname(dirname(__FILE__)) . '/class/xelFinderMisc.class.php';
 $xelFinderMisc = new xelFinderMisc($mydirname);
 $xelFinderMisc->myConfig = $xoopsModuleConfig;
 $xelFinderMisc->dbSetCharset('utf8');
+$check_name_view = !empty($xoopsModuleConfig['check_name_view']);
 
 $xelFinderMisc->mode = 'view';
 
 $file_id = 0;
 if (isset($path_info)) {
-	list(,$file_id) = explode('/', $path_info);
+	list(,$file_id, $file_name) = explode('/', $path_info);
 } elseif (isset($_GET['file'])) {
-	list($file_id) = explode('/', $_GET['file']);
+	list($file_id, $file_name) = explode('/', $_GET['file']);
 }
 $file_id = (int)$file_id;
 
@@ -46,7 +47,7 @@ if ($file_id && ($res = $xoopsDB->query($query)) && $xoopsDB->getRowsNum($res)) 
 			}
 		}
 		
-		if (! is_file($file)) {
+		if (! is_file($file) || ($check_name_view && $file_name !== $name)) {
 			$xelFinderMisc->exitOut(404);
 		}
 		

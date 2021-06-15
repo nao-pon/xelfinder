@@ -650,6 +650,14 @@ array(
 	'default'		=> 1
 ),
 array(
+	'name'			=> 'check_name_view' ,
+	'title'			=> $constpref.'_CHECK_NAME_VIEW',
+	'description'	=> $constpref.'_CHECK_NAME_VIEW_DESC',
+	'formtype'		=> 'yesno' ,
+	'valuetype'		=> 'int' ,
+	'default'		=> 1
+),
+array(
 	'name'			=> 'connector_url' ,
 	'title'			=> $constpref.'_CONNECTOR_URL',
 	'description'	=> $constpref.'_CONNECTOR_URL_DESC',
