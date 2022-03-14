@@ -402,14 +402,6 @@ array(
 	'default'		=> ''
 ),
 array(
-	'name'			=> 'creative_cloud_apikey' ,
-	'title'			=> $constpref.'_CREATIVE_CLOUD_APIKEY' ,
-	'description'	=> $constpref.'_CREATIVE_CLOUD_APIKEY_DESC' ,
-	'formtype'		=> 'textbox' ,
-	'valuetype'		=> 'string' ,
-	'default'		=> ''
-),
-array(
 	'name'			=> 'online_convert_apikey' ,
 	'title'			=> $constpref.'_ONLINE_CONVERT_APIKEY' ,
 	'description'	=> $constpref.'_ONLINE_CONVERT_APIKEY_DESC' ,
@@ -655,7 +647,7 @@ array(
 	'description'	=> $constpref.'_CHECK_NAME_VIEW_DESC',
 	'formtype'		=> 'yesno' ,
 	'valuetype'		=> 'int' ,
-	'default'		=> 1
+	'default'		=> 0
 ),
 array(
 	'name'			=> 'connector_url' ,
