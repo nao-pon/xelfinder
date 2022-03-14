@@ -324,7 +324,8 @@ try {
 			$extras[$mydirname.':xelfinder_db']['plugin']['AutoResize'] = array(
 				'enable' => true,
 				'maxHeight' => $config['autoResize'],
-				'maxWidth' => $config['autoResize']
+				'maxWidth' => $config['autoResize'],
+				'offDropWith' => ($isAdmin || $inSpecialGroup)? 4 : null // Disable with Ctrl key 
 			);
 		}
 		
