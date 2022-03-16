@@ -44,7 +44,7 @@ if (! empty ( $_POST ['doupdate'] )) {
 	if ($php54) {
 	    $cmds[] = $phpcli.' -d curl.cainfo=cacert.pem -d openssl.cafile=cacert.pem composer.phar remove --no-update kunalvarma05/dropbox-php-sdk';
 	} else {
-	    $cmds[] = $phpcli.' -d curl.cainfo=cacert.pem -d openssl.cafile=cacert.pem composer.phar require --no-update kunalvarma05/dropbox-php-sdk';
+	    $cmds[] = $phpcli.' -d curl.cainfo=cacert.pem -d openssl.cafile=cacert.pem composer.phar require kunalvarma05/dropbox-php-sdk ^0.2';
 	}
 	$cmds[] = $phpcli.' -d curl.cainfo=cacert.pem -d openssl.cafile=cacert.pem composer.phar update  --no-ansi --no-interaction --prefer-dist --no-dev 2>&1';
 	//$cmds = array(
