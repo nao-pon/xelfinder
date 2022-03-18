@@ -13,6 +13,7 @@ $modversion['name'] = 'xelFinder' ;
 //$modversion['name'] = $constpref.'_NAME') ;
 $modversion['description'] = constant($constpref.'_DESC');
 $modversion['version'] = 2.61 ;
+$modversion['detailed_version'] = "2.61.1" ;
 $modversion['credits'] = "Hypweb.net";
 $modversion['author'] = "nao-pon" ;
 $modversion['help'] = "" ;
