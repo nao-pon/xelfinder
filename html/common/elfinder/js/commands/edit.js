@@ -185,7 +185,68 @@ elFinder.prototype.commands.edit = function() {
 					});
 				},
 				cancel = function() {
-					ta.elfinderdialog('close');
+					if (!self.options.confirmUnsavedBeforeClose) {
+						ta.elfinderdialog('close');
+					} else {
+						var close = function() {
+								var conf;
+								dfrd.resolve();
+								if (ta.editor) {
+									ta.editor.close(ta[0], ta.editor.instance);
+									conf = ta.editor.confObj;
+									if (conf.info && conf.info.syncInterval) {
+										fileSync(file.hash);
+									}
+								}
+								ta.elfinderdialog('destroy');
+							},
+							onlySaveAs = (typeof saveAsFile.name !== 'undefined'),
+							accept = onlySaveAs? {
+								label    : 'btnSaveAs',
+								callback : function() {
+									requestAnimationFrame(saveAs);
+								}
+							} : {
+								label    : 'btnSaveClose',
+								callback : function() {
+									save().done(function() {
+										close();
+									});
+								}
+							};
+						changed().done(function(change) {
+							var msgs = ['confirmNotSave'];
+							var btnDiscard = {
+								label    : 'btnDiscard',
+								callback : function() {
+									close();
+								}
+							}
+							if (change) {
+								if (typeof change === 'string') {
+									msgs.unshift(change);
+								}
+								fm.confirm({
+									title  : self.title,
+									text   : msgs,
+									accept : accept,
+									cancel : {
+										label    : 'btnCancel',
+										callback : $.noop
+									},
+									buttons : onlySaveAs? [btnDiscard] : [{
+										label    : 'btnSaveAs',
+										callback : function() {
+											ta.elfinderdialog('destroy');
+											requestAnimationFrame(saveAs);
+										}
+									}, btnDiscard]
+								});
+							} else {
+								close();
+							}
+						});
+					}
 				},
 				savecl = function() {
 					if (!loaded()) { return; }
@@ -216,7 +277,7 @@ elFinder.prototype.commands.edit = function() {
 							self.requestCmd = 'mkfile';
 							self.nextAction = {};
 							self.data = {target : phash};
-							$.proxy(fm.res('mixin', 'make'), self)()
+							fm.res('mixin', 'make').bind(self)()
 								.done(function(data) {
 									var oldHash;
 									if (data.added && data.added.length) {
@@ -332,7 +393,13 @@ elFinder.prototype.commands.edit = function() {
 							}
 						}
 					},
+					headerBtnCloseAction : self.options.confirmUnsavedBeforeClose ? function() {
+						cancel();
+					} : undefined,
 					close   : function() {
+						if (self.options.confirmUnsavedBeforeClose) {
+							return;
+						}
 						var close = function() {
 								var conf;
 								dfrd.resolve();

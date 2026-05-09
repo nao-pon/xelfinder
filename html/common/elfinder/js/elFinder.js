@@ -644,6 +644,13 @@ var elFinder = function(elm, opts, bootCallback) {
 		currentOpenCmd = null,
 
 		/**
+		 * Current CSRF refresh request instance
+		 *
+		 * @type Object
+		 */
+		currentCsrfRefresh = null,
+
+		/**
 		 * Exec shortcut
 		 *
 		 * @param  jQuery.Event  keydown/keypress event
@@ -1411,6 +1418,97 @@ var elFinder = function(elm, opts, bootCallback) {
 	this.customHeaders = $.isPlainObject(this.options.customHeaders) ? this.options.customHeaders : {};
 
 	/**
+	 * CSRF header name for connector requests
+	 *
+	 * @type String
+	 */
+	this.csrfHeaderName = 'X-elFinder-CSRF';
+
+	/**
+	 * JSON response key for CSRF token
+	 *
+	 * @type String
+	 */
+	this.csrfResponseKey = 'csrf';
+
+	/**
+	 * JSON response key that marks a CSRF-triggered reload request
+	 *
+	 * @type String
+	 */
+	this.csrfReloadKey = 'csrfReload';
+
+	/**
+	 * Store or clear current CSRF token header
+	 *
+	 * @param  {String} token
+	 * @return void
+	 */
+	this.setCsrfToken = function(token) {
+		if (typeof token === 'string' && token) {
+			self.customHeaders[self.csrfHeaderName] = token;
+		} else {
+			delete self.customHeaders[self.csrfHeaderName];
+		}
+	};
+
+	/**
+	 * Determine whether the response represents a CSRF refreshable failure
+	 *
+	 * @param  {Object} xhr
+	 * @param  {Object} response
+	 * @return {Boolean}
+	 */
+	this.isCsrfReloadResponse = function(xhr, response) {
+		return !!(xhr
+			&& xhr.status === 403
+			&& !xhr._csrfRefresh
+			&& response
+			&& response[self.csrfReloadKey]);
+	};
+
+	/**
+	 * Refresh CSRF token via open&init=1 without replaying the failed command
+	 *
+	 * @return {jQuery.Deferred}
+	 */
+	this.refreshCsrfToken = function() {
+		var cwdFile = self.cwd(),
+			target = (cwdFile && cwdFile.hash) || self.lastDir('') || self.startDir();
+
+		if (currentCsrfRefresh && currentCsrfRefresh.state() === 'pending') {
+			return currentCsrfRefresh;
+		}
+
+		currentCsrfRefresh = self.request({
+			data           : {cmd : 'open', target : target, init : 1, tree : 1},
+			preventDefault : true,
+			preventFail    : true,
+			_csrfRefresh   : true
+		}).always(function() {
+			currentCsrfRefresh = null;
+		});
+
+		return currentCsrfRefresh;
+	};
+
+	/**
+	 * Start background CSRF refresh if current failure is refreshable
+	 *
+	 * @param  {Object} xhr
+	 * @param  {Object} response
+	 * @return {Boolean}
+	 */
+	this.handleCsrfReload = function(xhr, response) {
+		if (!self.isCsrfReloadResponse(xhr, response)) {
+			return false;
+		}
+
+		self.refreshCsrfToken();
+		return true;
+	};
+
+	/**
 	 * Any custom xhrFields to send across every ajax request
 	 *
 	 * @type Object
@@ -1580,7 +1678,7 @@ var elFinder = function(elm, opts, bootCallback) {
 		} 
 	});
 	
-	this.compare = $.proxy(this.compare, this);
+	this.compare = this.compare.bind(this);
 	
 	/**
 	 * Delay in ms before open notification dialog
@@ -2302,6 +2400,8 @@ var elFinder = function(elm, opts, bootCallback) {
 			isBinary = (opts.options || {}).dataType === 'binary',
 			// current cmd is "open"
 			isOpen   = (!opts.asNotOpen && cmd === 'open'),
+			// the tree option is enabled (for "open" command) 
+			isTree   = (data.tree === 1),
 			// call default fail callback (display error dialog) ?
 			deffail  = !(isBinary || opts.preventDefault || opts.preventFail),
 			// call default success callback ?
@@ -2441,6 +2541,7 @@ var elFinder = function(elm, opts, bootCallback) {
 							// check responseText, Is that JSON?
 							try {
 								data = JSON.parse(xhr.responseText);
+								xhr._elfinderResponse = data;
 								if (data && data.error) {
 									error = data.error;
 								}
@@ -2494,7 +2595,13 @@ var elFinder = function(elm, opts, bootCallback) {
 					return dfrd.reject({error :['errResponse', 'errDataEmpty']}, xhr, response);
 				} else if (!$.isPlainObject(response)) {
 					return dfrd.reject({error :['errResponse', 'errDataNotJSON']}, xhr, response);
-				} else if (response.error) {
+				}
+
+				if (isOpen && !!data.init && Object.prototype.hasOwnProperty.call(response, self.csrfResponseKey)) {
+					self.setCsrfToken(response[self.csrfResponseKey]);
+				}
+
+				if (response.error) {
 					if (isOpen) {
 						// check leafRoots
 						$.each(self.leafRoots, function(phash, roots) {
@@ -2523,7 +2630,7 @@ var elFinder = function(elm, opts, bootCallback) {
 					},
 					actionTarget;
 					
-					if (isOpen) {
+					if (isOpen && !isTree) {
 						pushLeafRoots('files');
 					} else if (cmd === 'tree') {
 						pushLeafRoots('tree');
@@ -2733,6 +2840,12 @@ var elFinder = function(elm, opts, bootCallback) {
 						if (error) {
 							error.error = '';
 						}
+					} else if (xhr && self.handleCsrfReload(xhr, xhr._elfinderResponse)) {
+						deffail = false;
+						syncOnFail = false;
+						if (error) {
+							error.error = '';
+						}
 					}
 					// abort xhr
 					xhrAbort();
@@ -2810,6 +2923,7 @@ var elFinder = function(elm, opts, bootCallback) {
 						requestQueue.shift()();
 					}
 				}).fail(error).done(success);
+				xhr._csrfRefresh = !!opts._csrfRefresh;
 				
 				if (self.api >= 2.1029) {
 					xhr._requestId = reqId;
@@ -3092,9 +3206,11 @@ var elFinder = function(elm, opts, bootCallback) {
 				return c;
 			},
 			comp  = compare(),
+			odataRoots,
 			dfrd  = $.Deferred().always(function() { !reqFail && self.trigger('sync'); }),
+			tree = (! onlydir && this.ui.tree) ? 1 : 0,
 			opts = [this.request({
-				data           : {cmd : 'open', reload : 1, target : cwd, tree : (! onlydir && this.ui.tree) ? 1 : 0, compare : comp},
+				data           : {cmd : 'open', reload : 1, target : cwd, tree : tree, compare : comp},
 				preventDefault : true
 			})],
 			exParents = function() {
@@ -3186,7 +3302,14 @@ var elFinder = function(elm, opts, bootCallback) {
 			if (!self.validResponse('tree', pdata)) {
 				return dfrd.reject((pdata.norError || 'errResponse'));
 			}
-			
+
+			// When tree = 1, the server will return all volumes in response to the open command.
+			// Remove volumes from the tree command that do not exist anymore.
+			if (tree && pdata && pdata.tree) {
+				odataRoots = $.map($.grep(odata.files, function(f) {return f.isroot;}), function(f) {return f.hash;});
+				pdata.tree = $.grep(pdata.tree, function(f) {return !f.isroot || odataRoots.indexOf(f.hash) >= 0;});
+			}
+
 			var diff = self.diff(odata.files.concat(pdata && pdata.tree ? pdata.tree : []), onlydir);
 
 			diff.added.push(odata.cwd);
@@ -3365,7 +3488,7 @@ var elFinder = function(elm, opts, bootCallback) {
 			this.autoSync('stop');
 		}
 		if (!dstHash && files) {
-			if ($.isArray(files)) {
+			if (Array.isArray(files)) {
 				if (files.length) {
 					dstHash = files[0];
 				}
@@ -4118,14 +4241,14 @@ var elFinder = function(elm, opts, bootCallback) {
 	}
 	
 	if (this.transport.upload == 'iframe') {
-		this.transport.upload = $.proxy(this.uploads.iframe, this);
+		this.transport.upload = this.uploads.iframe.bind(this);
 	} else if (typeof(this.transport.upload) == 'function') {
 		this.dragUpload = !!this.options.dragUploadAllow;
 	} else if (this.xhrUpload && !!this.options.dragUploadAllow) {
-		this.transport.upload = $.proxy(this.uploads.xhr, this);
+		this.transport.upload = this.uploads.xhr.bind(this);
 		this.dragUpload = true;
 	} else {
-		this.transport.upload = $.proxy(this.uploads.iframe, this);
+		this.transport.upload = this.uploads.iframe.bind(this);
 	}
 
 	/**
@@ -4838,8 +4961,18 @@ var elFinder = function(elm, opts, bootCallback) {
 				obj, data;
 			if (res && (self.convAbsUrl(self.options.url).indexOf(res.origin) === 0 || self.convAbsUrl(self.uploadURL).indexOf(res.origin) === 0)) {
 				try {
-					obj = JSON.parse(res.data);
-					data = obj.data || null;
+					try {
+						if (typeof res.data !== 'string') {
+							return;
+						}
+						obj = JSON.parse(res.data);
+						if (obj.type !== "io.studio-42.github") {
+							return;
+						}
+						data = obj.data || null;
+					} catch (e2) {
+						return;
+					} 
 					if (data) {
 						if (data.error) {
 							if (obj.bind) {
@@ -5991,6 +6124,18 @@ elFinder.prototype = {
 			'image/vnd.adobe.photoshop'     : 'PSD',
 			'image/xbm'                     : 'XBITMAP',
 			'image/pxm'                     : 'PXM',
+			'image/webp'                    : 'WEBP',
+			'application/vnd.ms-fontobject' : 'EOT',
+			'font/sfnt'                     : 'SFNT',
+			'application/font-sfnt'         : 'SFNT',
+			'font/ttf'                      : 'TTF',
+			'font/opentype'                 : 'OTF',
+			'font/otf'                      : 'OTF',
+			'application/x-font-opentype'   : 'OTF',
+			'font/woff'                     : 'WOFF',
+			'application/font-woff'         : 'WOFF',
+			'font/woff2'                    : 'WOFF2',
+			'application/font-woff2'        : 'WOFF2',
 			'audio/mpeg'                    : 'AudioMPEG',
 			'audio/midi'                    : 'AudioMIDI',
 			'audio/ogg'                     : 'AudioOGG',
@@ -6058,7 +6203,7 @@ elFinder.prototype = {
 		var self = this,
 			data;
 		
-		if (!$.trim(text)) {
+		if (!text.trim()) {
 			return {error : ['errResponse', 'errDataEmpty']};
 		}
 		
@@ -6473,7 +6618,7 @@ elFinder.prototype = {
 							};
 						if (text = $(this).text()) {
 							loc = parseUrl($(this).attr('href'));
-							if (loc.href && loc.href.match(/^(?:ht|f)tp/i) && (atag.length === 1 || ! loc.pathname.match(/(?:\.html?|\/[^\/.]*)$/i) || $.trim(text).match(/\.[a-z0-9-]{1,10}$/i))) {
+							if (loc.href && loc.href.match(/^(?:ht|f)tp/i) && (atag.length === 1 || ! loc.pathname.match(/(?:\.html?|\/[^\/.]*)$/i) || text.trim().match(/\.[a-z0-9-]{1,10}$/i))) {
 								if ($.inArray(loc.href, ret) == -1 && $.inArray(loc.href, check) == -1) ret.push(loc.href);
 							}
 						}
@@ -6812,6 +6957,8 @@ elFinder.prototype = {
 					// trigger "requestError" event
 					self.trigger('requestError', errData);
 					if (errData._getEvent && errData._getEvent().isDefaultPrevented()) {
+						res.error = '';
+					} else if (self.handleCsrfReload(xhr, res)) {
 						res.error = '';
 					}
 					if (res._chunkfailure || res._multiupload) {
@@ -7813,7 +7960,7 @@ elFinder.prototype = {
 				c = document.cookie.split(';');
 				name += '=';
 				for (i=0; i<c.length; i++) {
-					c[i] = $.trim(c[i]);
+					c[i] = c[i].trim();
 					if (c[i].substring(0, name.length) == name) {
 						retval = decodeURIComponent(c[i].substring(name.length));
 						if (retval.substr(0,1) === '{' || retval.substr(0,1) === '[') {
@@ -8112,7 +8259,7 @@ elFinder.prototype = {
 							}
 						}
 						
-						if (isRoot) {
+						if (isRoot && self.options.enableRootRename !== false) {
 							if (rootNames = self.storage('rootNames')) {
 								if (rootNames[file.hash]) {
 									file._name = file.name;
@@ -8981,6 +9128,8 @@ elFinder.prototype = {
 				kind = 'Video';
 			} else if (mime.indexOf('application') === 0) {
 				kind = 'App';
+			} else if (mime.indexOf('font') === 0) {
+				kind = 'Font';
 			} else {
 				kind = mime;
 			}
@@ -9178,7 +9327,7 @@ elFinder.prototype = {
 		if (!style) {
 			style = this.options.fileModeStyle.toLowerCase();
 		}
-		p = $.trim(p);
+		p = p.trim();
 		if (p.match(/[rwxs-]{9}$/i)) {
 			str = p = p.substr(-9);
 			if (style == 'string') {
@@ -10235,6 +10384,9 @@ elFinder.prototype = {
 						if (themeObj.cssurls) {
 							themeObj.cssurls = absUrl(themeObj.cssurls, m[1]);
 						}
+						if (themeObj.image) {
+							themeObj.image = absUrl(themeObj.image, m[1]);
+						}
 						dfd.resolve(themeObj);
 					}).fail(function() {
 						dfd.reject();
@@ -10429,7 +10581,7 @@ elFinder.prototype = {
 	arrayFlip : function (trans, val) {
 		var key,
 			tmpArr = {},
-			isArr = $.isArray(trans);
+			isArr = Array.isArray(trans);
 		for (key in trans) {
 			if (isArr || trans.hasOwnProperty(key)) {
 				tmpArr[trans[key]] = val || key;
@@ -10597,7 +10749,7 @@ if (!Object.keys) {
 // Array.isArray
 if (!Array.isArray) {
 	Array.isArray = function(arr) {
-		return jQuery.isArray(arr);
+		return Object.prototype.toString.call(arr) === '[object Array]';
 	};
 }
 // Object.assign

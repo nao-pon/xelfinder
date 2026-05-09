@@ -501,7 +501,15 @@ try {
 			$xoops_elFinder->netmountCallback(null, $_result, null, $elfinder);
 		}
 	}
-	
+
+	if (!empty($GLOBALS['xoopsErrorHandler']) && is_object($GLOBALS['xoopsErrorHandler'])) {
+		$GLOBALS['xoopsErrorHandler']->activate(false);
+	}
+	ini_set('display_errors', '0');
+	while (ob_get_level() > 0) {
+	    ob_end_clean();
+	}
+
 	$connector->run();
 } catch (Exception $e) {
 	exit(json_encode(array('error' => $e->getMessage())));
